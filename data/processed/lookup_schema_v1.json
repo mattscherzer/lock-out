@@ -1,0 +1,67 @@
+{
+  "metadata": {
+    "generated_at": "2026-10-15T00:00:00Z",
+    "version": "v1.0.0",
+    "model_type": "hierarchical_eb_poisson_glm",
+    "data_window": "2024-01-01 to 2026-09-30",
+    "truncation_lag_days": 14,
+    "attribution": {
+      "police": "Datenquelle: Polizei Berlin (CC-BY 4.0)",
+      "osm": "© OpenStreetMap contributors (ODbL)"
+    }
+  },
+  "risk_bands": {
+    "LOW": {"min_percentile": 0.0, "max_percentile": 0.60, "color": "#22C55E"},
+    "MEDIUM": {"min_percentile": 0.60, "max_percentile": 0.85, "color": "#F59E0B"},
+    "HIGH": {"min_percentile": 0.85, "max_percentile": 1.00, "color": "#EF4444"}
+  },
+  "advice_catalog": {
+    "STANDARD_LOW": "Standard frame + U-lock to a fixed rack is appropriate. Avoid blocking pedestrian paths.",
+    "STANDARD_MEDIUM": "Elevated lock-tampering rate. Secure both frame and rear wheel to an immovable street anchor.",
+    "STANDARD_HIGH": "Top-tier theft hotspot. Use two distinct lock mechanisms (U-lock + hardened chain) and avoid leaving past 20:00.",
+    "EBIKE_HIGH": "High-value target zone. Remove the battery and display unit, use a Sold Secure Gold/Diamond D-lock, and do not leave overnight."
+  },
+  "areas": {
+    "01100101": {
+      "name": "Stralauer Kiez",
+      "bzr_id": "011001",
+      "bzr_name": "Friedrichshain Ost",
+      "area_stats": {
+        "trending_up_30d": true,
+        "aggravated_lock_break_share": 0.84,
+        "median_stolen_value_eur": 1150,
+        "osm_activity_context": "35% higher risk than typical for an area with this transit/shop density"
+      },
+      "predictions": {
+        "Mon_Thu": {
+          "Morning": {
+            "STANDARD": {
+              "lambda_smoothed": 0.014,
+              "hotspot_percentile": 0.48,
+              "risk_level": "LOW",
+              "confidence": "HIGH",
+              "top_factors": [
+                "Below-average daytime commuter theft volume",
+                "High ratio of visible street racks"
+              ],
+              "temporal_warning": "Risk increases sharply after 18:00 in this area.",
+              "advice_key": "STANDARD_LOW"
+            },
+            "EBIKE": {
+              "lambda_smoothed": 0.052,
+              "hotspot_percentile": 0.89,
+              "risk_level": "HIGH",
+              "confidence": "MEDIUM",
+              "top_factors": [
+                "84% of local thefts involve defeating a lock",
+                "High concentration of €1,000+ bikes targeted near transit"
+              ],
+              "temporal_warning": "Avoid leaving unattended for more than 2 hours.",
+              "advice_key": "EBIKE_HIGH"
+            }
+          }
+        }
+      }
+    }
+  }
+}
