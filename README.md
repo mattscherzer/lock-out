@@ -4,65 +4,70 @@ LockOut is a map-first geospatial web application that helps urban cyclists eval
 
 ---
 
-## 🎯 Why LockOut?
+## 🎯 Problem & Core Value Proposition
 
-Standard crime heatmaps fail cyclists in two ways:
+Urban cyclists in Berlin face approximately 20,000 reported outdoor bicycle thefts per year. Existing crime maps suffer from two fundamental flaws:
 
-1. **The Raw Volume Fallacy:** Plotting raw theft counts simply highlights major transit and commercial hubs (e.g., Alexanderplatz) without accounting for the massive volume of bicycles parked there.
-2. **The Denominator Trap:** Dividing thefts by mapped bike racks (`Thefts / Racks`) causes poorly mapped residential areas with 1 mapped rack and 3 thefts to artificially rank as the #1 danger zone in the city.
+1. **The Volume Illusion:** Raw count maps flag busy transit hubs (e.g., Alexanderplatz) as "High Risk" without accounting for underlying urban activity density.
+2. **The Denominator Trap:** Naive rate maps ($\text{Thefts} / \text{Mapped Bike Racks}$) create extreme outliers in residential areas where OpenStreetMap (OSM) rack coverage is incomplete.
 
-**LockOut solves this by surfacing a two-part risk signal:**
+**LockOut solves this by delivering a two-part risk signal across all 542 Berlin Planning Areas (*Planungsräume / LOR*):**
 
-* **Hotspot Volume Tier:** Empirical Bayes smoothed theft intensity ranked across Berlin (`Low`, `Medium`, `High`).
-* **Activity-Adjusted Context:** Model residuals controlling for local urban activity density (transit stations, retail POIs, nightlife, and street racks) to show whether risk is higher or lower than typical for a given neighborhood profile.
-
-Instead of telling riders to walk 15 minutes to a different neighborhood, LockOut focuses on **temporal boundary awareness** and **hardware mitigation**—informing riders when risk spikes (e.g., overnight transitions), what percentage of local thefts involve defeated locks, the median value of targeted bicycles, and what lock tier is required.
-
----
-
-## ✨ Key Features
-
-* **Interactive 542-LOR Map:** Explore Berlin's official planning areas via a fast vector polygon map or match your current location strictly client-side using browser GPS (zero location tracking or server-side logging).
-* **Spatio-Temporal Risk Profiles:** Filter by day type (`Mon–Thu`, `Friday`, `Weekend`), operational daypart (`Morning 06–11`, `Afternoon 11–17`, `Evening 17–22`, `Night 22–06`), and bicycle category (`Standard` vs. `E-Bike / Cargo`).
-* **Empirical Local Crime Context:** View area-specific statistics including the **Aggravated Theft Share** (% of incidents where a lock was defeated) and **Median Stolen Bike Value (€)**.
-* **30-Day Anomaly Detection:** Automatic alerts (`trending_up_30d`) when recent rolling 30-day incident volume exceeds the historical 95% Poisson confidence interval.
-* **Evidence-Based Locking Advice:** Tailored security guidance grounded in Polizei Berlin and ADFC (Allgemeiner Deutscher Fahrrad-Club) standards.
+* **Hotspot Tier:** Hierarchical Empirical Bayes smoothed theft volume percentiles.
+* **Activity-Adjusted Context:** Residual risk controlling for local transit nodes, retail density, and street infrastructure.
+* **Empirical Local Context:** Area-specific aggravated theft shares (% of incidents where a lock was defeated) and median stolen bicycle values (`SCHADENSHOEHE`).
+* **Actionable Mitigation:** Temporal boundary warnings (e.g., overnight risk spikes) and lock-tier recommendations grounded in ADFC and Polizei Berlin guidelines.
 
 ---
 
-## 🏗️ System Architecture & Statistical Methodology
+## 🏗️ System Architecture & Resilient Fallback Design
 
-LockOut is engineered for sub-millisecond response times and high operational reliability by decoupling heavy statistical computation from runtime serving:
+LockOut is built on a **Zero-Downtime Offline Precomputation & Multi-Tier Fallback Architecture**:
 
-1. **Data Hygiene & Preprocessing:**
-   * **Outdoor Street Filtering:** Excludes indoor and basement break-ins (`Keller- und Bodeneinbruch`) to isolate true on-street parking risk.
-   * **Reporting Lag Truncation:** Dynamically truncates the trailing reporting-lag window (95th percentile of `ANGELEGT_AM - TATZEIT_ENDE_DATUM`, ~14 days) prior to model fitting and validation to prevent right-censoring bias.
-   * **2021 LOR Standard:** Strictly aligned to Berlin's post-2021 8-digit LOR hierarchy (12 *Bezirke* -> 58 *Prognoseräume* -> 143 *Bezirksregionen* -> 542 *Planungsräume*).
-2. **Interval-Censored Offense Window Allocation:**
-   * Handles multi-hour offense windows (<= 72h) using **Expectation-Maximization (EM) / Two-Stage Conditioning**, allocating long-window incidents proportionally across overlapped dayparts using high-certainty short-window (<= 4h) priors rather than naive uniform spreading.
-3. **Hierarchical Smoothing & Count Modeling:**
-   * **Empirical Bayes Baseline:** Shrinks sparse *Planungsraum* time-block cells toward their parent *Bezirksregion* (first 6 digits of `PLR_ID`) to eliminate structural zero-inflation artifacts.
-   * **Regularized Poisson GLM:** Incorporates log-transformed OSM point-of-interest counts (`log(1 + x)`) as learned covariates (beta) and evaluates out-of-time performance via Poisson deviance, Brier score, and Top-K spatial recall.
-4. **Hybrid Serving Layer:**
-   * Precomputes the full enumerable state space into a compact lookup artifact (`lookup_schema_v1.json`, ~420 KB gzipped) served via a containerized **FastAPI** backend with an automatic client-side static fallback.
+1. **Automated Data Ingestion & Cache Fallback (`src/fetch_police_csv.py` + GitHub Actions):**
+   * The raw Polizei Berlin dataset (`Fahrraddiebstahl.csv`, ~15–20 MB) is excluded from Git tracking to prevent repository bloat.
+   * A scheduled weekly GitHub Action (`.github/workflows/refresh_data.yaml`) fetches the latest daily dump, validates payload integrity (>1 MB check), runs the data hygiene and modeling pipeline, and commits the updated precomputed lookup artifact (`data/processed/lookup_schema_v1.json`).
+   * **Ingestion Fallback:** If the Berlin Open Data portal is unreachable during a local or CI run, `fetch_police_csv.py` automatically falls back to the last known good CSV cached locally (`data/raw/fahrraddiebstahl.csv`) or via `actions/cache`.
+
+2. **Serving Layer & Client-Side Fallback (FastAPI $\rightarrow$ Local JSON):**
+   * **Primary Serving:** A lightweight, containerized **FastAPI** service (`GET /api/v1/risk`) serves precomputed risk profiles with sub-millisecond lookup times.
+   * **Client Fallback:** If the API container experiences a cold start or network interruption, the React client automatically aborts after 1.5 seconds and falls back to the bundled static `lookup_schema_v1.json` snapshot.
+
+3. **Static Spatial Boundaries (`lor_planungsraeume_2021.geojson`):**
+   * The official 2021 Berlin LOR polygons (542 *Planungsräume*) are versioned directly in the repository for deterministic local joins and zero-latency map rendering.
 
 ---
 
-## 📁 Repository Structure
+## 🧠 Statistical Modeling & Data Hygiene
+
+* **Outdoor Street Filtering:** Excludes indoor and basement break-ins (`Keller- und Bodeneinbruch`) via `DELIKT` and `ERFASSUNGSGRUND` inspection to isolate street parking vulnerability.
+* **Reporting Lag Truncation:** Truncates the trailing $N$ days (95th percentile of `ANGELEGT_AM - TATZEIT_ENDE_DATUM`, ~10–14 days) prior to train/test splitting to eliminate right-censoring bias from unreported recent thefts.
+* **Interval-Censored Offense Windows:** Avoids uniform spreading of multi-day offense windows (up to 72 hours) via Expectation-Maximization (EM) proportional allocation / two-stage conditioning.
+* **Hierarchical Empirical Bayes Smoothing:** Shrinks sparse area-time cells toward parent *Bezirksregion* (6-digit BZR) priors before computing risk percentiles (`Low: 0–60th`, `Medium: 60–85th`, `High: 85–100th`).
+* **30-Day Anomaly Detection:** Flags planning areas where trailing 30-day theft volume exceeds the 95% Poisson confidence interval (`trending_up_30d: true`).
+
+---
+
+## 📂 Repository Structure
 
 ```text
 lock-out/
+├── .github/
+│   └── workflows/
+│       └── refresh_data.yaml                # Weekly cron + manual CI pipeline with CSV cache fallback
 ├── data/
-│   ├── raw/                  # Raw inputs (lor_planungsraeume_2021.geojson, local CSV cache)
-│   └── processed/            # Precomputed lookup_schema_v1.json & intermediate tables
+│   ├── raw/
+│   │   ├── lor_planungsraeume_2021.geojson  # Official 542 Berlin LOR polygons (EPSG:4326)
+│   │   └── fahrraddiebstahl.csv             # Local raw Police CSV (git-ignored, cached fallback)
+│   └── processed/
+│       └── lookup_schema_v1.json            # Precomputed risk & advice lookup artifact
 ├── src/
-│   ├── audit_police_csv.py   # Data validation, lag distribution & LOR alignment checks
-│   ├── pipeline/             # Cleaning, EM window allocation & OSM feature extraction
-│   ├── models/               # Hierarchical Empirical Bayes & Poisson GLM training
-│   └── api/                  # FastAPI service wrapping the precomputed lookup schema
-├── frontend/                 # React + Vite + Tailwind CSS + Leaflet/MapLibre client
-├── tests/                    # Automated data contract & API test suite (pytest)
-├── requirements.txt          # Python dependencies
+│   ├── fetch_police_csv.py                  # Resilient downloader with >1MB check & local fallback
+│   ├── audit_police_csv.py                  # Data integrity, lag cutoff & cell sparsity audit
+│   └── api/
+│       └── main.py                          # FastAPI serving wrapper
+├── frontend/                                # React + Vite + Tailwind CSS + Leaflet client
+├── requirements.txt                         # Pinned Python dependencies
 └── README.md
 ```
 
@@ -75,9 +80,9 @@ lock-out/
 * **Python 3.11+**
 * **Node.js 20+** (for the front-end client)
 
-### 1. Backend & Data Pipeline Setup
+### 1. Environment Setup
 
-Clone the repository and set up the Python environment:
+Clone the repository and initialize the Python virtual environment:
 
 ```bash
 git clone [https://github.com/mattscherzer/lock-out.git](https://github.com/mattscherzer/lock-out.git)
@@ -88,20 +93,25 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Fetch Spatial Boundaries & Run Data Audit
+### 2. Fetch Data & Run the Integrity Audit
 
-Download the official 2021 Berlin LOR GeoJSON boundaries and run the data integrity audit against the Polizei Berlin dataset:
+Download the official 2021 Berlin LOR GeoJSON boundaries (one-time setup), fetch or verify the Polizei Berlin CSV, and run the audit script:
 
 ```bash
-# Download 2021 LOR GeoJSON into data/raw/
+# 1. Download 2021 LOR GeoJSON boundaries into data/raw/
 curl -o data/raw/lor_planungsraeume_2021.geojson \
   "[https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume_2021/lor_planungsraeume_2021.geojson](https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume_2021/lor_planungsraeume_2021.geojson)"
 
-# Run the validation & sparsity audit
+# 2. Fetch latest Police CSV (automatically falls back to data/raw/fahrraddiebstahl.csv if offline)
+python src/fetch_police_csv.py
+
+# 3. Run the data hygiene, reporting lag, and sparsity audit
 python src/audit_police_csv.py
 ```
 
 ### 3. Run the API Server
+
+Start the local FastAPI server:
 
 ```bash
 uvicorn src.api.main:app --reload --port 8000
@@ -109,11 +119,24 @@ uvicorn src.api.main:app --reload --port 8000
 
 ### 4. Run the Front-End Client
 
+In a separate terminal, launch the React/Vite application:
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
+---
+
+## 🔄 Automated Data Refresh (CI/CD)
+
+The repository includes an automated GitHub Actions workflow (`.github/workflows/refresh_data.yaml`) that runs every Monday at `06:00 UTC` (and supports manual triggers via `workflow_dispatch`):
+
+1. Restores the last known good `fahrraddiebstahl.csv` from the GitHub Actions cache.
+2. Runs `python src/fetch_police_csv.py` to pull fresh data from `internetwache-polizei-berlin.de` (or retain the cached copy if the portal is down).
+3. Executes the validation and precomputation scripts to update `data/processed/lookup_schema_v1.json`.
+4. Commits and pushes updated risk tables back to `main`.
 
 ---
 
@@ -129,11 +152,11 @@ npm run dev
 This project relies on open public datasets and complies with their respective attribution requirements:
 
 * **Bicycle Theft Data:** *Datenquelle: Polizei Berlin – [Fahrraddiebstahl in Berlin](https://daten.berlin.de/) (Licensed under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))*.
-* **Spatial Boundaries (LOR 2021):** *Amt für Statistik Berlin-Brandenburg / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen (Licensed under dl-de/by-2-0)*.
+* **Spatial Boundaries (LOR 2021):** *Amt für Statistik Berlin-Brandenburg / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen – [ODIS Berlin](https://daten.odis-berlin.de/) (Licensed under dl-de/by-2-0)*.
 * **Urban Infrastructure & POI Proxies:** *© [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (Licensed under [ODbL](https://opendatacommons.org/licenses/odbl/))*.
 
 ---
 
 ## 📄 License
 
-Distributed under the MIT License. See [`LICENSE`](./LICENSE) for more information.
+Distributed under the MIT License. See [LICENSE](./LICENSE) for more information.
