@@ -67,7 +67,8 @@ lock-out/
 │   └── api/
 │       └── main.py                          # FastAPI serving wrapper
 ├── frontend/                                # React + Vite + Tailwind CSS + Leaflet client
-├── requirements.txt                         # Pinned Python dependencies
+├── pyproject.toml / uv.lock                 # Dependencies and the exact locked versions
+├── .python-version                          # Python version used by uv
 └── README.md
 ```
 
@@ -88,9 +89,8 @@ Clone the repository and initialize the Python virtual environment:
 git clone [https://github.com/mattscherzer/lock-out.git](https://github.com/mattscherzer/lock-out.git)
 cd lock-out
 
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+# Install uv once: https://docs.astral.sh/uv/getting-started/installation/
+uv sync   # creates .venv with the exact Python and package versions from uv.lock
 ```
 
 ### 2. Fetch Data & Run the Integrity Audit
@@ -103,10 +103,10 @@ curl -o data/raw/lor_planungsraeume_2021.geojson \
   "[https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume_2021/lor_planungsraeume_2021.geojson](https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume_2021/lor_planungsraeume_2021.geojson)"
 
 # 2. Fetch latest Police CSV (automatically falls back to data/raw/fahrraddiebstahl.csv if offline)
-python src/fetch_police_csv.py
+uv run python src/fetch_police_csv.py
 
 # 3. Run the data hygiene, reporting lag, and sparsity audit
-python src/audit_police_csv.py
+uv run python src/audit_police_csv.py
 ```
 
 ### 3. Run the API Server
@@ -114,7 +114,7 @@ python src/audit_police_csv.py
 Start the local FastAPI server:
 
 ```bash
-uvicorn src.api.main:app --reload --port 8000
+uv run uvicorn src.api.main:app --reload --port 8000
 ```
 
 ### 4. Run the Front-End Client
@@ -134,7 +134,7 @@ npm run dev
 The repository includes an automated GitHub Actions workflow (`.github/workflows/refresh_data.yaml`) that runs every Monday at `06:00 UTC` (and supports manual triggers via `workflow_dispatch`):
 
 1. Restores the last known good `fahrraddiebstahl.csv` from the GitHub Actions cache.
-2. Runs `python src/fetch_police_csv.py` to pull fresh data from `internetwache-polizei-berlin.de` (or retain the cached copy if the portal is down).
+2. Runs `uv run python src/fetch_police_csv.py` to pull fresh data from `internetwache-polizei-berlin.de` (or retain the cached copy if the portal is down).
 3. Executes the validation and precomputation scripts to update `data/processed/lookup_schema_v1.json`.
 4. Commits and pushes updated risk tables back to `main`.
 

@@ -2,12 +2,16 @@ import pandas as pd
 import numpy as np
 import json
 
+from fetch_police_csv import RAW_DIR, find_raw_csv
+
 # 1. Load Police CSV (handle daten.berlin.de delimiter and encoding quirks)
-csv_path = "fahrraddiebstahl.csv"
+csv_path = find_raw_csv()
+if csv_path is None:
+    raise SystemExit(f"No police CSV found in {RAW_DIR}; run fetch_police_csv.py first.")
 try:
-    df = pd.read_csv(csv_path, sep=";", encoding="utf-8")
+    df = pd.read_csv(csv_path, sep=None, engine="python", encoding="utf-8")
 except UnicodeDecodeError:
-    df = pd.read_csv(csv_path, sep=";", encoding="iso-8859-1")
+    df = pd.read_csv(csv_path, sep=None, engine="python", encoding="iso-8859-1")
 
 print(f"=== 1. RAW DATASET OVERVIEW ===")
 print(f"Total Rows: {len(df):,}")
@@ -39,7 +43,7 @@ print(f"Unique Planungsräume (digits 1-8):  {df_outdoor[lor_col].nunique()} (Ex
 
 # Optional GeoJSON diff check if file is present
 try:
-    with open("lor_planungsraeume_2021.geojson", "r", encoding="utf-8") as f:
+    with open(RAW_DIR / "lor_planungsraeume_2021.geojson", "r", encoding="utf-8") as f:
         geo = json.load(f)
     # Adjust property key below based on exact Berlin Open Data GeoJSON schema (usually 'PLR_ID')
     sample_props = geo["features"][0]["properties"]
@@ -49,7 +53,7 @@ try:
     print(f"In Police CSV but missing from GeoJSON: {police_lors - geo_lors}")
     print(f"In GeoJSON but 0 thefts in Police CSV:  {len(geo_lors - police_lors)} areas\n")
 except FileNotFoundError:
-    print("Note: 'lor_planungsraeume_2021.geojson' not found in directory; skipping polygon diff.\n")
+    print("Note: 'lor_planungsraeume_2021.geojson' not found in data/raw; skipping polygon diff.\n")
 
 # 4. Quantify Reporting Lag (ANGELEGT_AM - TATZEIT_ENDE_DATUM)
 print(f"=== 4. REPORTING LAG DISTRIBUTION (HOLDOUT TRUNCATION CUTOFF) ===")

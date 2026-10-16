@@ -12,6 +12,8 @@ dist/
 
 # Raw Data (keep GeoJSON & mock JSON, ignore heavy daily CSV dumps if >10MB)
 data/raw/[Ff]ahrraddiebstahl*.csv
+# Download timestamp written by fetch_police_csv.py
+data/raw/.fetched_at
 
 # OS / IDE
 .DS_Store
