@@ -134,7 +134,7 @@ npm run dev
 The repository includes an automated GitHub Actions workflow (`.github/workflows/refresh_data.yaml`) that runs every Monday at `06:00 UTC` (and supports manual triggers via `workflow_dispatch`):
 
 1. Restores the last known good `fahrraddiebstahl.csv` from the GitHub Actions cache.
-2. Runs `uv run python src/fetch_police_csv.py` to pull fresh data from `internetwache-polizei-berlin.de` (or retain the cached copy if the portal is down).
+2. Runs `uv run python src/fetch_police_csv.py` to pull fresh data from `polizei-berlin.eu` (or retain the cached copy if the portal is down).
 3. Executes the validation and precomputation scripts to update `data/processed/lookup_schema_v1.json`.
 4. Commits and pushes updated risk tables back to `main`.
 
