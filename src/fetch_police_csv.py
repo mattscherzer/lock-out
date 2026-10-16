@@ -4,7 +4,7 @@ import urllib.request
 from pathlib import Path
 
 # Official Polizei Berlin Open Data CSV URL
-CSV_URL = "https://www.internetwache-polizei-berlin.de/vdb/Fahrraddiebstahl.csv"
+CSV_URL = "https://www.polizei-berlin.eu/Fahrraddiebstahl/Fahrraddiebstahl.csv"
 RAW_DIR = Path(__file__).resolve().parents[1] / "data" / "raw"
 CSV_NAME = "fahrraddiebstahl.csv"
 # Records when the CSV was last downloaded (file mtimes are reset by git checkout).
