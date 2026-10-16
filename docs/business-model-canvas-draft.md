@@ -2,7 +2,7 @@
 
 ## LockOut - Business Model Canvas (Draft)
 
-Details and reasoning: [business-model-canvas-steps.md](business-model-canvas-steps.md). Cost and funding figures are rough estimates.
+Details and reasoning: [business-model-canvas-questions.md](business-model-canvas-questions.md). Cost and funding figures are rough estimates.
 
 ## Customer Segments
 
