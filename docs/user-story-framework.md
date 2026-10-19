@@ -5,9 +5,9 @@
 - **Personas:** Lena (street-parking resident), Murat (station parker), Jonas (high-value bike owner). Synthetic. Update after interviews.
 - **Format:** *As a [persona or role], I want [capability], so that [outcome].*
 - **Acceptance criteria:** Given / When / Then, written so a tester without context can pass or fail them.
-- **Priority:** P0 (first prototype), P1 (next), P2 (later), as in Step 3.
+- **Priority:** P0 (first prototype), P1 (next), P2 (later), as in [step-3-ideation.md](discovery/step-3-ideation.md).
 - **Enabler** stories are technical prerequisites with no direct user value.
-- **Each story carries:** its job-to-be-done, the assumption it tests, and its feature ID from Step 3 (V = Verdict, H = Honest Fog, S = Settle It).
+- **Each story carries:** its job-to-be-done, the assumption it tests, and its feature ID from [step-3-ideation.md](discovery/step-3-ideation.md) (V = Verdict, H = Honest Fog, S = Settle It).
 
 **Definition of ready:** persona and job named, acceptance criteria written, copy reviewed if it advises, data dependency identified, test or measure stated.
 **Definition of done:** acceptance criteria pass on a phone, accessible, no tracking added, attribution shown, wording approved for advice, and the story's measure is recorded.
@@ -39,10 +39,10 @@
 | V3 | As Lena, I want a next action under the sentence, so that I know which lock and how to anchor it. | Given any verdict, when shown, then it names a lock tier and the anchoring step (frame and wheel to a fixed object), following the lock-tier source of truth. | Lock advice (C1) | P0 |
 | V4 | As Murat, I want to find my place by location or search, so that I can check my station quickly. | Given location permission, when granted, then the nearest area opens; given denial, then search by area name works. No account is required. | Fast, free, no sign-up | P0 |
 | V5 | As Jonas, I want to check "tonight" or "tomorrow 8 am" before I leave, so that I can choose my lock in advance. | Given a place, when I choose a time, then the verdict updates for that time band. | Plan-ahead job | P0 |
-| V6 | As Lena, I want the app to say so plainly when things are normal, so that I feel reassured only when it is true. | Given a normal and high-confidence cell, when shown, then the screen uses calm styling; given thin data, then it never shows a reassurance. | Emotional job; ties to H3 | P0 |
+| V9 | As Lena, I want the app to say so plainly when things are normal, so that I feel reassured only when it is true. | Given a normal and high-confidence cell, when shown, then the screen uses calm styling; given thin data, then it never shows a reassurance. | Emotional job; ties to H3 | P0 |
 | V7 | As Jonas, I want to see the map behind the verdict, so that I can explore. | Given a verdict, when I tap the map link, then the area map opens with the same area selected. | Secondary view | P1 |
 | V8 | As Lena, I want my home area remembered on my phone, so that the app opens on it. | Given a saved area, when I reopen, then it loads that area; nothing is stored on a server. | Habit | P1 |
-| V9 | As Murat, I want it to load fast on a weak connection, so that I can use it at the station. | Given the API is slow or down, when the page loads, then the bundled snapshot is used within the time budget agreed by the team. | Reliability | P1 |
+| V10 | As Murat, I want it to load fast on a weak connection, so that I can use it at the station. | Given the API is slow or down, when the page loads, then the bundled snapshot is used within the time budget agreed by the team. | Reliability | P1 |
 
 ## E2 Honest Fog
 
@@ -61,16 +61,16 @@
 | S1 | As Murat, I want to compare two places, so that I can settle a disagreement. | Given two places and a time band, when I compare, then both verdicts and confidence labels appear side by side. | Social job (C8) | P0 |
 | S2 | As Murat, I want one line on the difference, so that I do not have to read two screens. | Given a comparison, when shown, then a sentence says "about the same" or names the higher area and the confidence. | Plain answer | P0 |
 | S3 | As Jonas, I want a share link, so that friends see the same result. | Given a comparison, when I copy the link, then it contains only place and time parameters, and opens the same view without login. | Share job; privacy | P0 |
-| S4 | As Murat, I want an honest tie, so that I am not told a difference that the data cannot support. | Given two cells whose difference is within the uncertainty, when compared, then the result says the data cannot separate them. | Honesty | P0 |
-| S5 | As Jonas, I want a share image, so that I can send it in a chat. | Given a comparison, when I choose "image", then a card shows both places, confidence, source and date. | Growth | P1 |
+| S4 | As Jonas, I want a share image, so that I can send it in a chat. | Given a comparison, when I choose "image", then a card shows both places, confidence, source and date. | Growth | P1 |
+| S5 | As Murat, I want an honest tie, so that I am not told a difference that the data cannot support. | Given two cells whose difference is within the uncertainty, when compared, then the result says the data cannot separate them. | Honesty | P0 |
 
 ## Story map
 
 | Step in the rider's day | Stories |
 | --- | --- |
-| Open the app | V1, V8, V9 |
+| Open the app | V1, V8, V10 |
 | Find a place and time | V4, V5 |
-| Read the answer | V1, V2, V6, H1, H3 |
+| Read the answer | V1, V2, V9, H1, H3 |
 | Decide what to do | V3 |
 | Check the reasoning | H4, H5, V7 |
 | Argue or share | S1–S5 |
