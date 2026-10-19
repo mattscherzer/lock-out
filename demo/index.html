@@ -207,6 +207,7 @@ function App() {
 
       <div className="relative flex-1">
         <RiskMap filters={filters} selected={selected} onSelect={setSelected} />
+        {location.protocol === "file:" && <div className="absolute z-[1500] top-14 left-3 right-3 p-3 rounded-lg bg-rose-900 border border-rose-500 text-sm">OSM blocks tiles for pages opened from disk (no Referer). Run <code className="bg-black/40 px-1 rounded">python3 -m http.server 8000 -d demo</code> and open http://localhost:8000</div>}
         {!selected && <div className="absolute z-[1000] top-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-zinc-900/90 text-xs border border-zinc-700 pointer-events-none">Tap an area to see risk &amp; locking advice</div>}
         {r && <Sheet r={r} onClose={() => setSelected(null)} />}
       </div>
