@@ -1,8 +1,20 @@
 # LockOut: AI Ethics Integration, Step-by-Step Answers
 
-Inputs: README.md, [business-model-canvas-draft.md](business-model-canvas-draft.md), and the same assumptions as the canvas (primary user = Berlin daily commuters; free, open source, civic benefit; statistical models plus a predictive model; team = 2 PMs using AI-driven development). Filled-in summary: [ai-ethics-integration.md](ai-ethics-integration.md).
+Inputs: README.md, [business-model-canvas-draft.md](business-model-canvas-draft.md), and the same assumptions as the canvas (primary user = Berlin daily commuters; free, open source, civic benefit; statistical models plus a predictive model; team = 2 PMs using AI-driven development). Read order: [summary](ai-ethics-integration-summary.md) (one page), [quick check](ai-ethics-integration-quick-check.md) (template), then this file for the reasoning.
 
-Items marked **(assumption to test)** are hypotheses, not facts from the project. Costs are rough estimates.
+Items marked **(assumption to test)** are hypotheses, not facts from the project. Costs are rough estimates. Features named here ("How this works" panel, "This looks wrong" link, data-date label, "limited data" flag, time-slot picker, held-out error check) are **proposals, not yet built**; the README only has the weekly refresh with payload check, the CSV cache fallback, the 1.5 s client fallback to the saved JSON, and temporal warnings. OSM data is also not in the repo yet, so the OSM checks apply once it is added.
+
+## Terms in plain words
+
+- **Planning area (LOR):** one of Berlin's 542 small official areas. Risk is shown per planning area. A **district (Bezirk)** is one of Berlin's 12 larger boroughs.
+- **Tier:** Low, Medium or High, based on percentile bands from the README (Low 0–60, Medium 60–85, High 85–100). The "share of areas per tier" is how many areas fall into each tier.
+- **Volume Illusion / Denominator Trap:** the two flaws of existing crime maps (busy places look risky just because they are busy; areas with incomplete OSM rack data distort theft-per-rack rates).
+- **Hotspot Tier / Activity-Adjusted Context:** the two parts of LockOut's signal: how many thefts are expected, and whether that is high or low once local activity (transit, shops) is taken into account.
+- **Empirical Bayes smoothing:** an area with very few thefts borrows from its surrounding region, so a handful of cases does not swing its tier.
+- **Held-out error:** how wrong the model is on recent data it was not trained on.
+- **Small-cell suppression:** hiding or merging areas and time slots with very few thefts.
+- **Social index split:** comparing results between wealthier and poorer areas.
+- **Model card:** a one-page note on what data the model uses, its limits and its known biases.
 
 ---
 
@@ -16,12 +28,12 @@ Items marked **(assumption to test)** are hypotheses, not facts from the project
 | --- | --- | --- |
 | **Reporting bias** | The police data only holds *reported* thefts. Areas where people report less (low trust in police, no insurance that requires a report, language barriers) look safer than they are. Areas with more reporting look worse. | Say so in the app ("based on reported thefts"). Compare reporting-related patterns across districts and note the gap in the model card. |
 | **Stigmatizing neighborhoods** | A "High" tier on a residential area can read as "dangerous neighborhood" and hurt its residents, shops and rents. | Word the tiers as *bike-parking risk*, never "crime" or "danger". Show the tier next to the activity-adjusted context so busy hubs and residential areas are read fairly. No ranked "worst areas" list. |
-| **Uneven OSM coverage** | OSM rack and shop data is more complete in central areas. The "Denominator Trap" can come back through the activity proxies. | Test whether residuals correlate with OSM completeness. Fall back to the district prior when OSM data is thin. |
+| **Uneven OSM coverage** | OSM rack and shop data is more complete in central areas. The "Denominator Trap" can come back through the activity proxies. | Test whether prediction errors correlate with OSM completeness. Fall back to the district prior when OSM data is thin. |
 | **Sparse areas** | Empirical Bayes shrinks small areas toward their parent district. This is statistically sound but can hide a real local problem or over-weight the district. | Show a "limited data" flag for sparse cells instead of a confident tier. |
 | **Who can use the app** | Phone-only, German or English only, map colors alone carry the meaning, riders without a smartphone are left out. | Colour-blind-safe palette plus text labels, keyboard and screen-reader basics, plain German and English copy. |
 | **People outside the user group** | Residents and businesses are affected by what the map says about their area, but they never use the app. | Keep the output at planning-area level, publish the method, and give a public way to report concerns (GitHub issues). |
 
-**Simple test for MVP:** compare tier distribution and prediction error across the 12 districts and across high/low-income areas **(assumption to test: an income or social-index dataset, e.g. Berlin's *Monitoring Soziale Stadtentwicklung*, is available to join)**. If one group is systematically over-flagged, adjust or add a caveat.
+**Simple test for MVP:** compare share of areas per tier and prediction error across Berlin's 12 districts and across high/low-income areas **(assumption to test: an income or social-index dataset, e.g. Berlin's *Monitoring Soziale Stadtentwicklung*, is open and can be joined to the planning areas; not in the repo, and the 1–2 district pilot alone cannot show this comparison)**. If one group is systematically over-flagged, adjust or add a caveat.
 
 ### 2. Are there privacy concerns with the data?
 
@@ -53,7 +65,7 @@ Put this in a one-sentence label plus a "How this works" panel, written for a co
 | **False "High"** | A rider avoids a fine area, or the area is stigmatized. | Wording as above, plus a "report a wrong result" link. |
 | **Stale data** | The client falls back to the bundled JSON snapshot and shows old risk. | Always show "data from [date]" and mark when the fallback snapshot is in use. |
 | **Model drift** | Theft patterns change (new rack programme, new hotspot) and the predictive model gets worse. | Weekly refresh already exists. Add a held-out error check to the pipeline and block publishing if error rises past a set limit. |
-| **Bug in the pipeline** | A bad CSV produces wrong tiers. | The pipeline already checks payload size and falls back to the last good CSV. Add a simple sanity check (tier shares stay close to the 60/25/15 split) before the weekly commit. |
+| **Bug in the pipeline** | A bad CSV produces wrong tiers. | The pipeline already checks payload size and falls back to the last good CSV. Add a simple sanity check (the share of areas per tier stays close to the 60/25/15 split that the percentile bands produce) before the weekly commit. |
 
 Keep a **human in the loop**: the team reviews each weekly diff of the lookup file before it ships, or at least the summary stats.
 
@@ -96,7 +108,7 @@ Riders always decide. The app suggests, it never blocks or alarms.
 - A short **privacy note** (three lines) and an **About the data** page.
 - **Open source** code and open method.
 - **Tone**: calm and practical ("Use a U-lock, lock the frame and a wheel"), not fear.
-- Test with 5–8 commuters: "Do you understand the tier? Do you trust it? What would you change?" and record the answers.
+- Test with 5–8 commuters (team estimate; the canvas plans 10–15 interviews, so this can be part of those): "Do you understand the tier? Do you trust it? What would you change?" and record the answers.
 
 ### MVP trust checklist
 
@@ -125,29 +137,29 @@ Main benefit (from the canvas): *a fair, area-level and time-specific theft-risk
 
 | Key activity (from the canvas) | Safeguard to add |
 | --- | --- |
-| Build the AI model | Fairness check across districts and a social-index split. Model card (data, limits, known biases, error rates). Document the choice of the tier thresholds. |
-| Keep the weekly pipeline reliable | Sanity checks before commit (tier shares, row counts, error against held-out data). Review of the weekly diff. Small-cell suppression. |
+| Build the AI model | Humans review all AI-assistant-generated model and pipeline code. Fairness check across districts and a social-index split. Model card (data, limits, known biases, error rates). Document the choice of the tier thresholds. |
+| Keep the weekly pipeline reliable | Sanity checks before commit (share of areas per tier, row counts, error against held-out data). Review of the weekly diff. Small-cell suppression. |
 | Build and ship the map client | Wording review, colour-blind-safe palette, data-date label, "limited data" flag, "This looks wrong" link, privacy note. |
 | Run a commuter pilot | Consent and anonymity for interviews and polls. Ask about **understanding and trust**, not only usage. Include riders from different districts. |
 
 ### 3. Budget for responsible AI practices
 
-Rough estimates, on top of the canvas budget **(assumption to test)**:
+Rough estimates **(assumption to test)**. The canvas already budgets pilot incentives (€150–300 for 10–15 interviews), hosting and an optional reviewer (€0–3,000), so those are not counted again here.
 
-| Item | Cost | Notes |
+| Item | Extra cost on top of the canvas | Notes |
 | --- | --- | --- |
-| Team time for fairness checks and the model card | 0 €, about 2–3 days | Done by the team with AI help |
-| Pipeline sanity checks and the weekly review | 0 €, about 1–2 hours per week | Runs in GitHub Actions on the free tier |
+| Team time for fairness checks and the model card | 0 €, about 2–3 days (team estimate) | Done by the team with AI help |
+| Pipeline sanity checks and the weekly review | 0 €, about 1–2 hours per week (team estimate) | Runs in GitHub Actions on the free tier |
 | Accessibility check (screen reader, contrast, mobile) | 0–50 € | Free tools (axe, Lighthouse) plus testers |
-| External review of fairness and method | 0 € favour, or about 200–500 € for a few hours | The "gap" in the team skills list |
-| Pilot incentives for diverse participants | 100–300 € | Already partly in the canvas budget |
-| Privacy-friendly hosting and tile provider | A few € per month | Choose it at the start, no extra cost later |
+| External review of fairness and method | 0 € if the canvas reviewer also does it (assumption), otherwise about 200–500 € for a few hours | Fills the "data and statistics review" gap in the canvas |
+| Recruiting pilot riders from different districts | 0 €, within the canvas incentive budget | Spread the 10–15 interviews across districts |
+| Privacy-friendly hosting and tile provider | 0 €, already in the canvas | Pick the provider with the privacy note in mind |
 
-**Roughly 300–900 € extra for the first 3 months** (or near 0 € if a reviewer helps for free). Time is the main cost, so schedule it in the sprint plan instead of "later".
+**Roughly €0–550 extra for the first 3 months** (accessibility 0–50 plus an optional separate review 0–500; near €0 if the canvas reviewer covers it). Time is the main cost, so schedule it in the sprint plan instead of "later".
 
 ### 4. Make ethics a competitive advantage
 
-- **Differentiator:** "The only Berlin bike-theft map that corrects for busy places and tells you how sure it is."
+- **Differentiator:** a Berlin bike-theft map that corrects for busy places and tells you how sure it is **(assumption to test: no existing map does both; compare with the police and news maps named in the canvas)**.
 - **Trust as the moat:** free, no account, no tracking, open code. Hard to copy for a commercial app that needs data and ads.
 - **Proof points to publish:** the model card, the fairness check results, and the changelog of corrections.
 
@@ -157,7 +169,7 @@ Rough estimates, on top of the canvas budget **(assumption to test)**:
 
 | Question | Simple metric |
 | --- | --- |
-| Is it fair? | Gap in prediction error and tier share between districts and social-index groups (target: no group clearly over-flagged; threshold set by the team) |
+| Is it fair? | Gap in prediction error and share of areas per tier between districts and social-index groups (target: no group clearly over-flagged; threshold set by the team) |
 | Is it trusted? | In the poll: "I understand what the risk tier means" and "I trust this result" (1–5 scale), plus the share who open "How this works" |
 | Does it admit errors? | Number of "This looks wrong" reports, and share answered or fixed within one week |
 | Is the data fresh? | Days since the last successful refresh, shown in the app and tracked |

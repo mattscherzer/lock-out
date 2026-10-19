@@ -1,6 +1,6 @@
 # LockOut - AI Ethics Integration Summary
 
-Details: [ai-ethics-integration-quick-check.md](ai-ethics-integration-quick-check.md) and [ai-ethics-integration-questions.md](ai-ethics-integration-questions.md). Thresholds and costs are rough assumptions.
+Details: [ai-ethics-integration-quick-check.md](ai-ethics-integration-quick-check.md) and [ai-ethics-integration-questions.md](ai-ethics-integration-questions.md). Thresholds and costs are rough assumptions; terms are explained in the [plain-words list](ai-ethics-integration-questions.md#terms-in-plain-words). Features named below are proposals, not yet built.
 
 ## Key Ethical Commitments
 
@@ -10,15 +10,16 @@ Details: [ai-ethics-integration-quick-check.md](ai-ethics-integration-quick-chec
 
 ## Top AI Risks Identified
 
-1. **Bias and stigma**: the police data only holds reported thefts and OSM coverage is uneven, so some areas look safer or riskier than they are, and a "High" tier can label a neighborhood. Mitigation: neutral wording, a "limited data" flag for sparse areas, and a fairness check of error and tier share across the 12 districts and a social-index split.
+1. **Bias and stigma**: the police data only holds reported thefts and OSM coverage is uneven, so some areas look safer or riskier than they are, and a "High" tier can label a neighborhood. Mitigation: neutral wording, a "limited data" flag for sparse areas, and a fairness check of error and the share of areas per tier across Berlin's 12 districts and across wealthier and poorer areas (assumption: a suitable income dataset exists).
 2. **False "Low" result**: a rider picks a weak lock because the app seemed to say the spot was safe. Mitigation: never say "safe", say "lower risk", and show baseline lock advice at every tier.
-3. **Stale or wrong data**: the client falls back to the saved snapshot, the model drifts, or a bad CSV produces wrong tiers. Mitigation: a visible "data from [date]" and fallback notice, a held-out error check and tier-share sanity check before the weekly commit, and a human review of each weekly diff.
+3. **Stale or wrong data**: the client falls back to the saved snapshot, the model drifts, or a bad CSV produces wrong tiers. Mitigation: a visible "data from [date]" and fallback notice, a check of model error on recent data and a sanity check that the share of areas per tier stays stable before the weekly commit, and a human review of each weekly diff.
 
 ## Business Model Enhancements
 
-- **Value Proposition**: fairness is the product ("Busy does not mean dangerous"), shown with honest uncertainty, no account and open code, so trust becomes the differentiator
-- **Additional Activities**: fairness check and model card, pipeline sanity checks and weekly diff review, small-cell suppression, wording and accessibility review of the map client, pilot polls that ask about understanding and trust
-- **Additional Costs**: roughly €300–900 extra in the first 3 months (or near €0 if a reviewer helps for free), mostly for an external fairness and method review (€0–500), pilot incentives (€100–300) and an accessibility check (€0–50). The rest is team time, about 2–3 days plus 1–2 hours per week.
+- **Value Proposition**: fairness is the product ("Busy does not mean dangerous"), shown with honest uncertainty
+- **Competitive Advantage**: trust (no account, no tracking, open code); that no existing map does both is an assumption to test
+- **Additional Activities**: fairness check and model card (a one-page note on data, limits and biases), human review of AI-generated code, pipeline sanity checks and weekly diff review, hiding or merging areas with very few thefts, wording and accessibility review of the map client, pilot polls that ask about understanding and trust
+- **Additional Costs**: roughly €0–550 extra in the first 3 months on top of the canvas budget (accessibility check €0–50, optional separate fairness review €0–500; incentives, hosting and the canvas reviewer are already in the canvas). The rest is team time, about 2–3 days plus 1–2 hours per week (team estimate).
 
 ## Trust-Building Features
 

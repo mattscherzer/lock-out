@@ -2,7 +2,7 @@
 
 ## LockOut - AI Ethics Assessment
 
-Details and reasoning: [ai-ethics-integration-questions.md](ai-ethics-integration-questions.md). Thresholds and costs are rough proposals.
+Details and reasoning: [ai-ethics-integration-questions.md](ai-ethics-integration-questions.md). Thresholds and costs are rough proposals. Terms are explained in the [plain-words list](ai-ethics-integration-questions.md#terms-in-plain-words). Features named below are proposals, not yet built.
 
 ## Who's Affected?
 
@@ -11,13 +11,13 @@ Details and reasoning: [ai-ethics-integration-questions.md](ai-ethics-integratio
 
 ## Key Risks
 
-**Bias Risk**: Could this AI treat some groups unfairly? **Maybe**
+**Bias Risk**: Could this AI treat some groups unfairly? **Yes**
 
-- If yes: Police data only holds reported thefts, and OSM coverage is uneven, so some areas can look safer or riskier than they are. Test prediction error and tier share across the 12 districts and a social-index split. Use "bike-parking risk" wording (not "crime"), no "worst areas" list, and a "limited data" flag for sparse areas.
+- If yes: Police data only holds reported thefts, and OSM coverage is uneven, so some areas can look safer or riskier than they are. Test prediction error and the share of areas per tier across Berlin's 12 districts and across wealthier and poorer areas (assumption: a suitable income dataset exists). Use "bike-parking risk" wording (not "crime"), no "worst areas" list, and a "limited data" flag for sparse areas.
 
 **Privacy Risk**: Does this use sensitive data? **Maybe (low)**
 
-- If yes: Police data has no personal details and is shown at planning-area level only. Suppress or merge cells with very few incidents. Geolocation stays in the browser and is never sent or stored, with address or map tap as an alternative. No accounts, no analytics cookies, anonymous feedback poll, privacy-friendly tile provider.
+- If yes: Police data has no personal details and is shown at planning-area level only. Hide or merge areas with very few incidents. Geolocation stays in the browser and is never sent or stored, with address or map tap as an alternative. No accounts, no analytics cookies, anonymous feedback poll, privacy-friendly tile provider.
 
 **Trust Risk**: Do users need to understand AI decisions? **Yes**
 
@@ -42,5 +42,5 @@ Details and reasoning: [ai-ethics-integration-questions.md](ai-ethics-integratio
 
 ## Success Measures
 
-**How to measure fairness**: Gap in prediction error and tier share between districts and social-index groups (no group clearly over-flagged; threshold set by the team)
+**How to measure fairness**: Gap in prediction error and share of areas per tier between districts and between wealthier and poorer areas (no group clearly over-flagged; threshold set by the team)
 **How to measure trust**: In-app 1–5 poll ("I understand what the tier means", "I trust this result"), share who open "How this works", and number and resolution time of "This looks wrong" reports
