@@ -2,7 +2,7 @@
 
 > Caveat for all discovery files: personas, quotes and complaints are synthetic hypotheses, not research. Only police-data and PKS figures are evidence. See [Product Discovery.md](../Product%20Discovery.md).
 
-Three personas map to the Step 0 segments. Interview questions are in [interview-guide.md](interview-guide.md).
+Three personas map to the Step 0 segments. Dropped from Step 0: the errand/short-stop rider (folded into Jonas's short stops) and the cheap-bike rider (not yet covered; add one if interviews find them). **Who the first prototype is for is not decided**: Verdict and Fog serve Lena and Jonas most directly, Murat's fit is weakest, and the choice should follow interviews. Interview questions are in [interview-guide.md](interview-guide.md).
 
 |                     | Lena                        | Murat                   | Jonas                       |
 | ------------------- | --------------------------- | ----------------------- | --------------------------- |
@@ -17,7 +17,7 @@ Three personas map to the Step 0 segments. Interview questions are in [interview
 
 ### Persona 1: Lena Hartmann, 29, UX Researcher at a Berlin startup (Neukölln)
 
-**Context:** Rents a 2-room flat on the 3rd floor of an Altbau with no courtyard and no cellar space. Rides a €450 used city bike daily. Has had one bike stolen before (a front wheel, then a whole bike two years ago).
+**Context:** Rents a 2-room flat on the 3rd floor of an Altbau with no courtyard and no cellar space. Rides a €450 used city bike daily. Has had two thefts: a front wheel, then a whole bike two years ago.
 
 #### Daily workflow
 

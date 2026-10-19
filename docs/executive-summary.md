@@ -8,7 +8,7 @@ _Decision requested: approve a two-week validation phase. Do not yet approve a f
 - Berlin recorded **22,630 bike thefts in 2025**, down 16.5% from 27,099 in 2024. Average declared damage per completed case was €1,246 (2024: €1,262). Source: Polizei Berlin, PKS Kurzbericht 2025, pp. 5, 19, 42 ([pks-kurzbericht-2025.pdf](pks-kurzbericht-2025.pdf)). These are reported cases only.
 - Nationally, insurer data reported in the press shows a record average claim of about €1,270 in 2025. That figure is not verified here, and Berlin's own average damage is flat, so "bikes are getting more valuable" is not shown for Berlin.
 - The bike-specific clearance rate is not in the PKS short report. Press reports of under 5% are unverified.
-- Police data is public and current. Thefts are widely under-reported, so a fair, honest reading of the data has value that raw counts do not.
+- Police data is public and current. Thefts are thought to be widely under-reported (an unverified estimate), so a fair, honest reading of the data has value that raw counts do not.
 - No payer exists yet. The model is free and open source, funded by grants or institutional buyers. Neither has been tested.
 
 ## Key insights
@@ -35,7 +35,7 @@ A mobile web app that gives one plain sentence per place and time, for example "
 Riders may not check before parking. Neighbourhood cells may be too thin. The data measures reporting as much as theft. A wrong or alarming answer could damage trust. The product is easy to copy and has no channel or funding yet.
 
 **Recommendation: conditional go.**
-Run three one-week tests: a data density check, a fake-door demand test and five rider walkthroughs. Cost is mostly team time. The canvas estimates roughly €100–€270 per month in the first three months, a rough figure and not budgeted.
+Run three tests over two weeks: a data density check, a fake-door demand test and five rider walkthroughs, plus a hands-on competitor check. The full plan is in the [validation phase](Product%20Discovery.md#validation-phase). Cost is mostly team time. The canvas estimates roughly €100–€270 per month in the first three months, a rough figure and not budgeted.
 
 | Gate (end of week 2) | Continue if                                                                            | Otherwise                                        |
 | -------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------ |
@@ -46,7 +46,7 @@ Run three one-week tests: a data density check, a fake-door demand test and five
 ## Next steps
 
 1. Week 1: run the data check and build the demand page.
-2. Week 1–2: run five walkthroughs; check the competing products hands-on.
+2. Week 1: check the competing products hands-on. Week 2: run five walkthroughs.
 3. End of week 2: decide go, narrow or stop against the gates above.
 4. Before any launch: review lock-advice wording and the privacy of any shared link.
 

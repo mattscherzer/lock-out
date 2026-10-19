@@ -12,13 +12,15 @@ Target screen: "In the last 4 weeks, where did you leave your bike outside, for 
 | Murat   | Bike parking at S-/U-Bahn stations, hospital and shift-worker networks, WhatsApp groups | "How long is your bike left at the station on a workday?"   |
 | Jonas   | ADFC Berlin groups, Strava clubs, cycling Reddit, bike shops                            | "What did you pay for your bike and where do you leave it?" |
 
+Interviews 1–5 use the Test 3 protocol in [step-4](step-4-market.md#tests-for-the-validation-phase): the same questions, then the Bike Theft Clock versus the verdict mock, in 20 minutes.
+
 ## 30-minute guide
 
 1. **Warm-up (3 min):** how do you get around Berlin in a normal week?
 2. **Last-time story (10 min):** walk me through the last time you locked your bike outside. Where, how long, which lock, what were you thinking?
 3. **Theft history (5 min):** has a bike or part ever been stolen? What happened next, and what changed?
 4. **Information habits (5 min):** how do you decide where and how to lock? Who or what do you ask? Have you ever used a map or app for this?
-5. **Concept reaction (5 min):** show a single mock screen with an area tier and a lock tier. What would you do with it? What would you doubt?
+5. **Concept reaction (5 min):** show a single verdict mock screen. What would you do with it? What would you doubt?
 6. **Close (2 min):** who else should I talk to?
 
 ## Question bank by topic
@@ -43,4 +45,4 @@ Pick from these inside the guide's steps. "Listen for" says which answer would w
 - **Honest Fog:** show the same area with and without the confidence label; ask how much each rider trusts the answer.
 - **Settle It:** give two riders a real disagreement from their own experience (for example, two station options) and see whether the result ends the argument or is ignored.
 
-The full test plan with pass and kill criteria is in [step-4-market.md](step-4-market.md#3-tests-to-run-this-week).
+The full test plan with pass and kill criteria is in [step-4-market.md](step-4-market.md#tests-for-the-validation-phase).

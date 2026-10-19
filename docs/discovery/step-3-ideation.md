@@ -31,13 +31,13 @@ H high, M medium, L low. **Reach** = pain points addressed. **Fit** = match with
 
 | #   | Idea                    | Reach | Fit with current data | Build effort | Risk | Counterintuitive |
 | --- | ----------------------- | ----- | --------------------- | ------------ | ---- | ---------------- |
-| 1   | Tonight's Verdict       | H     | H                     | L            | M    |                  |
+| 1   | Tonight's Verdict       | H     | H (assumed, pending data check) | L            | M    |                  |
 | 2   | Lock Receipt            | M     | H                     | L            | M    |                  |
 | 3   | Settle It               | M     | H                     | L            | L    |                  |
 | 4   | Rack Case Pack          | M     | M                     | M            | M    |                  |
 | 5   | Closure Card            | M     | M                     | M            | H    |                  |
 | 6   | Two-Minute Alternatives | M     | L                     | M            | M    |                  |
-| 7   | Honest Fog              | M     | H                     | L            | L    |                  |
+| 7   | Honest Fog              | M     | H (assumed, pending data check) | L            | L    |                  |
 | 8   | Lock Budget             | H     | M                     | M            | H    | Yes              |
 | 9   | Non-Event Check-ins     | H     | L                     | H            | H    | Yes              |
 | 10  | Boring Bike Coach       | M     | M                     | L            | M    | Yes              |
@@ -71,7 +71,7 @@ H high, M medium, L low. **Reach** = pain points addressed. **Fit** = match with
 - **Three revenue patterns recur:** public funding (grants, city licenses), B2B evidence for people who control the physical space (landlords, employers, transport operators, districts), and commercial partnerships with locks, insurers or bike shops.
 - **The commercial partnerships carry the most risk.** An advice product paid by the sellers of the thing it advises on has a conflict of interest. For a safety recommendation, this can destroy the trust the product depends on (see C1, C3, C9). Treat them as last-resort options.
 - **The most defensible long-term asset is data.** Ideas 7 and 9 build something nobody else has: honest uncertainty and exposure data. Neither pays for itself soon, but both support grant and research funding.
-- **No individual-rider payment** appears anywhere, consistent with the canvas and with the interview-based expectation that riders will not pay.
+- **No individual-rider payment** appears anywhere, consistent with the canvas, which assumes riders will not pay (untested).
 - **Untested:** whether any of these buyers (insurers, housing companies, districts, retailers) have a budget or any interest. That is a second round of customer discovery with a different set of interviewees.
 
 ## Top 3: selected ideas and specific features
@@ -86,7 +86,7 @@ Ranked on the matrix above: reach across pain points, fit with existing data, bu
 
 Runner-up: **#2 Lock Receipt**, close behind on fit. **#8 Lock Budget** has the highest value but is held back by its guidance and liability risk, so it comes after a legal read of the lock-tier guidance.
 
-Priorities: **P0** = needed for the first prototype, **P1** = next, **P2** = later. Features reference the inventory F1–F10 where they build on one.
+Priorities: **P0** = needed for the first prototype (Verdict plus Honest Fog; Settle It is the second step), **P1** = next, **P2** = later. Features reference the inventory F1–F10 where they build on one.
 
 ### Idea 1: Tonight's Verdict
 
@@ -112,7 +112,7 @@ Priorities: **P0** = needed for the first prototype, **P1** = next, **P2** = lat
 | ID  | Feature                               | What it does                                                                                                                              | Inputs                                               | Priority | Pain points                |
 | --- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | -------- | -------------------------- |
 | H1  | **Confidence level on every verdict** | A three-step label (solid / fair / thin) next to the sentence, in plain words                                                             | Smoothing uncertainty, number of reports in the cell | P0       | C3, C9                     |
-| H2  | **Thin-data hatching on the map**     | Areas with too little data show a hatched pattern, not a confident colour                                                                 | Cell counts, OSM coverage                            | P0       | C3                         |
+| H2  | **Thin-data hatching on the map**     | Areas with too little data show a hatched pattern, not a confident colour                                                                 | Cell counts, OSM coverage                            | P1       | C3                         |
 | H3  | **Verdict downgrade rule**            | If confidence is thin, the verdict changes to "not enough data here, use the standard-tier advice", never a reassurance                   | Rule layer over V1                                   | P0       | C10 (reassurance vs truth) |
 | H4  | **"Why this answer" panel**           | Opens a short explanation: where the numbers come from, how recent, and what is excluded (indoor cases, last 10–14 days of reporting lag) | README data hygiene steps                            | P0       | C3, C9                     |
 | H5  | **Data freshness stamp**              | "Updated on [date]; the last two weeks are incomplete"                                                                                    | Weekly refresh pipeline                              | P1       | C3                         |
@@ -127,11 +127,11 @@ Priorities: **P0** = needed for the first prototype, **P1** = next, **P2** = lat
 
 | ID  | Feature                   | What it does                                                                                            | Inputs                  | Priority | Pain points     |
 | --- | ------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------- | -------- | --------------- |
-| S1  | **Two-place compare**     | Pick two areas and two times; see the verdicts side by side, with their confidence labels               | V1, H1                  | P0       | C8              |
-| S2  | **One-line difference**   | States the gap in plain words: "Area A is about the same as B" or "A is clearly higher than B at night" | Rule layer              | P0       | C8              |
-| S3  | **Share link**            | A short link that reopens the same comparison, no account needed                                        | Static route parameters | P0       | C8, social jobs |
+| S1  | **Two-place compare**     | Pick two areas and two times; see the verdicts side by side, with their confidence labels               | V1, H1                  | P1       | C8              |
+| S2  | **One-line difference**   | States the gap in plain words: "Area A is about the same as B" or "A is clearly higher than B at night" | Rule layer              | P1       | C8              |
+| S3  | **Share link**            | A short link that reopens the same comparison, no account needed                                        | Static route parameters | P1       | C8, social jobs |
 | S4  | **Share card image**      | A clean image for messaging apps, with source and date                                                  | Template                | P1       | C8, social jobs |
-| S5  | **Honest tie**            | When the data cannot separate two places, say so, and say the choice is a toss-up                       | Confidence layer        | P0       | C3              |
+| S5  | **Honest tie**            | When the data cannot separate two places, say so, and say the choice is a toss-up                       | Confidence layer        | P1       | C3              |
 | S6  | **Seed from the verdict** | One tap on the Verdict screen to compare "my area" with another                                         | V1                      | P1       | PP3             |
 | S7  | **Print view**            | A one-page printable version, which later feeds idea 4 (Rack Case Pack)                                 | Template                | P2       | C2, C4          |
 
@@ -141,8 +141,8 @@ Priorities: **P0** = needed for the first prototype, **P1** = next, **P2** = lat
 ### Build order for the top 3
 
 1. **First prototype:** V1, V2, V3, V4, V5, V9 + H1, H3, H4 (the verdict with its honesty layer).
-2. **Second step:** S1, S2, S3, S5 (compare and share), then V6, V7, V8, H2.
-3. **Later:** H5–H7, S4, S6, S7, V10.
+2. **Second step:** S1, S2, S3, S5 (compare and share), then V6, V7, V8, V10, H2.
+3. **Later:** H5–H7, S4, S6, S7.
 
 ### Open questions before building
 

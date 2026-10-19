@@ -57,7 +57,7 @@ The static JSON is the fallback and also the source of truth, so the API can sta
 | Phase | Work                                                                                        | Done when                                                               |
 | ----- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | 0     | Density audit and baseline backtest (Test 1)                                                | Table of coverage and stability exists; area level decision made        |
-| 1     | `build_lookup_json.py`; enable the workflow step; tests for filters and lag                 | Weekly job regenerates a valid JSON that matches a schema check         |
+| 1     | `build_lookup_json.py` (to be created); enable the workflow step; tests for filters and lag                 | Weekly job regenerates a valid JSON that matches a schema check         |
 | 2     | Verdict and confidence logic with the template catalog                                      | Unit tests on rules, including "thin data never produces a reassurance" |
 | 3     | API and bundled fallback                                                                    | Client gets a verdict with the API both up and down                     |
 | 4     | Client: verdict screen, time shifter, locate-me or area search, confidence label, why-panel | Usable on a phone, accessible, German and English                       |

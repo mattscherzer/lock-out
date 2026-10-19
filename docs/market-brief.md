@@ -48,7 +48,7 @@ A free, independent, open-source tool that tells Berlin cyclists, in one sentenc
 | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | "The police atlas already exists."           | True. The proposition is finer areas, time of day and advice, if the data supports them. That is being tested.                                           |
 | "Riders won't check an app."                 | Unproven. A demand test is planned this month.                                                                                                           |
-| "Data is under-reported."                    | Yes, an estimated half of thefts go unreported. The product shows its uncertainty; it does not hide it.                                                  |
+| "Data is under-reported."                    | Yes, by some estimates about half of thefts go unreported (unverified). The product shows its uncertainty; it does not hide it.                                                  |
 | "Who is responsible if the advice is wrong?" | Advice follows published police and ADFC guidance, is labelled with confidence, and is reviewed before launch. A formal liability review is still to do. |
 | "Why should we pay?"                         | The product is free to riders. Funding would cover development and hosting; no commercial terms exist.                                                   |
 
@@ -67,7 +67,7 @@ A free, independent, open-source tool that tells Berlin cyclists, in one sentenc
 | ------------------------------------------------------ | ------------------------------------------------------------ |
 | Public data source and a data-fetch and audit pipeline | A working verdict prototype                                  |
 | A documented lock-guidance source of truth             | Rider interviews and demand evidence                         |
-| A competitor scan and a risk and test plan             | Results of the week-one tests                                |
+| A competitor scan and a risk and test plan             | Results of the validation-phase tests                                |
 |                                                        | One named pilot partner (for example a district or employer) |
 
 ## Outreach sequence

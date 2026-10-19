@@ -7,7 +7,7 @@
 - **Acceptance criteria:** Given / When / Then, written so a tester without context can pass or fail them.
 - **Priority:** P0 (first prototype), P1 (next), P2 (later), as in [step-3-ideation.md](discovery/step-3-ideation.md).
 - **Enabler** stories are technical prerequisites with no direct user value.
-- **Each story carries:** its job-to-be-done, the assumption it tests, and its feature ID from [step-3-ideation.md](discovery/step-3-ideation.md) (V = Verdict, H = Honest Fog, S = Settle It).
+- **Each story carries:** its job-to-be-done, the job or complaint it serves (assumptions are tested through the epic measures below), and its feature ID from [step-3-ideation.md](discovery/step-3-ideation.md) (V = Verdict, H = Honest Fog, S = Settle It).
 
 **Definition of ready:** persona and job named, acceptance criteria written, copy reviewed if it advises, data dependency identified, test or measure stated.
 **Definition of done:** acceptance criteria pass on a phone, accessible, no tracking added, attribution shown, wording approved for advice, and the story's measure is recorded.
@@ -58,11 +58,13 @@
 
 | ID | Story | Acceptance criteria | Job and assumption | Priority |
 | --- | --- | --- | --- | --- |
-| S1 | As Murat, I want to compare two places, so that I can settle a disagreement. | Given two places and a time band, when I compare, then both verdicts and confidence labels appear side by side. | Social job (C8) | P0 |
-| S2 | As Murat, I want one line on the difference, so that I do not have to read two screens. | Given a comparison, when shown, then a sentence says "about the same" or names the higher area and the confidence. | Plain answer | P0 |
-| S3 | As Jonas, I want a share link, so that friends see the same result. | Given a comparison, when I copy the link, then it contains only place and time parameters, and opens the same view without login. | Share job; privacy | P0 |
+| S1 | As Murat, I want to compare two places, so that I can settle a disagreement. | Given two places and a time band, when I compare, then both verdicts and confidence labels appear side by side. | Social job (C8) | P1 |
+| S2 | As Murat, I want one line on the difference, so that I do not have to read two screens. | Given a comparison, when shown, then a sentence says "about the same" or names the higher area and the confidence. | Plain answer | P1 |
+| S3 | As Jonas, I want a share link, so that friends see the same result. | Given a comparison, when I copy the link, then it contains only place and time parameters, and opens the same view without login. | Share job; privacy | P1 |
 | S4 | As Jonas, I want a share image, so that I can send it in a chat. | Given a comparison, when I choose "image", then a card shows both places, confidence, source and date. | Growth | P1 |
-| S5 | As Murat, I want an honest tie, so that I am not told a difference that the data cannot support. | Given two cells whose difference is within the uncertainty, when compared, then the result says the data cannot separate them. | Honesty | P0 |
+| S5 | As Murat, I want an honest tie, so that I am not told a difference that the data cannot support. | Given two cells whose difference is within the uncertainty, when compared, then the result says the data cannot separate them. | Honesty | P1 |
+
+Stories for P2 features (H6, H7, S6, S7) and for the V6 "higher than usual" flag are written when they are pulled in; the Step 4 tests mock the flag with static screens.
 
 ## Story map
 

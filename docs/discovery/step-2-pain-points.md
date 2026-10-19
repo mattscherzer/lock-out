@@ -20,24 +20,24 @@ Before looking for patterns, here is where the personas lean toward the product.
 
 Not included in any persona, but real riders may be: people who have never had a theft, people who do not lock carefully on purpose, people who treat the bike as disposable, people for whom the bike is the only transport option, and people who never think about this at all.
 
-### Shared pain points
+### Shared pain points (PP1–PP5)
 
 Pain points that appear in all three personas, written in neutral terms.
 
 | Pattern                                                                                                                   | Lena                                       | Murat                                           | Jonas                                              | Level                            |
 | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------- | -------------------------------------------------- | -------------------------------- |
-| **Locking is a recurring cost they cannot reduce.** Every parking event requires effort, a lock to carry, and a decision. | Nightly lock-up                            | Daily lock-up at the station                    | Per-stop decisions, carrying a heavy lock          | Written                          |
-| **No feedback on whether their locking is good.** They find out only when it fails.                                       | Does not know if her lock is "good enough" | Hopes nobody has a grinder                      | "No way to know how much risk remains"             | Written                          |
-| **Decisions are made on habit and rules of thumb.**                                                                       | "Busy and well lit"                        | "Copy the colleague who never lost one"         | Visual check of the spot                           | Written                          |
-| **Trade-off between convenience and security.** A heavier lock hurts the ride; a lighter one hurts the bike.              | Implied (cable lock plus U-lock)           | Written                                         | Written                                            | Written for two, implied for one |
-| **Institutions feel absent or unhelpful.**                                                                                | Police portal felt like "a void"           | "Nobody takes bike theft at stations seriously" | Existing crime maps are "scary but not actionable" | Written, but the framing is mine |
+| **PP1. Locking is a recurring cost they cannot reduce.** Every parking event requires effort, a lock to carry, and a decision. | Nightly lock-up                            | Daily lock-up at the station                    | Per-stop decisions, carrying a heavy lock          | Written                          |
+| **PP2. No feedback on whether their locking is good.** They find out only when it fails.                                       | Does not know if her lock is "good enough" | Heavy lock chosen despite doubts (grinder worry is Jonas's)                      | "No way to know how much risk remains"             | Written                          |
+| **PP3. Decisions are made on habit and rules of thumb.**                                                                       | "Busy and well lit"                        | "Copy the colleague who never lost one"         | Visual check of the spot                           | Written                          |
+| **PP4. Trade-off between convenience and security.** A heavier lock hurts the ride; a lighter one hurts the bike.              | Implied (cable lock plus U-lock)           | Written                                         | Written                                            | Written for two, implied for one |
+| **PP5. Institutions feel absent or unhelpful.**                                                                                | Police portal felt like "a void"           | "Nobody takes bike theft at stations seriously" | Existing crime maps are "scary but not actionable" | Written, but the framing is mine |
 
 ### Unspoken frustrations (implied, not stated)
 
 Things the personas do or say that suggest something they do not say outright. These are the most likely to be wrong, so each carries a counter-case.
 
 1. **A low-level resignation that theft is part of city life.**
-    - Hints: Murat's "tax on city life", Lena's "hope for the best".
+    - Hints: Murat's "tax on city life". Lena's "checks the bike from the window" is a related hint.
     - Counter-case: a rider who is calm about it because they have insurance, a cheap bike, or have never been robbed. For them there is no resignation, just indifference.
 
 2. **Self-blame after a theft.**
@@ -79,7 +79,7 @@ Behaviors that may be coping mechanisms. These are the places where an interview
 - **Reasonably safe to carry forward as questions:** locking has a daily cost; riders get no feedback until a theft; decisions run on habit; the weight-versus-security trade-off.
 - **Do not carry forward as findings:** resignation, self-blame, social comparison, and unequal consequences. These came from how I wrote the personas, and are interview prompts, not conclusions.
 - **Missing voices:** riders with no theft history and no worry. If most real riders look like this, the shared "pain" mostly disappears, and the product's value shifts from relief to something else, or to nothing.
-- **Risk of circularity:** the personas were built around the product's jobs, so mapping them back onto the product's features (the previous section) will look better than it is. A real sample is the only check.
+- **Risk of circularity:** the personas were built around the product's jobs, so mapping them back onto the product's features ([step-1](step-1-personas.md#feature-to-job-mapping)) will look better than it is. A real sample is the only check.
 
 ## B. Complaints About Existing Solutions
 
@@ -87,35 +87,35 @@ Synthetic quotes in each persona's voice. "Existing solutions" means what the pe
 
 ### The 10 complaints
 
-| #   | Persona | Existing solution                   | Complaint                                                                                                               |
+| ID  | Persona | Existing solution                   | Complaint                                                                                                               |
 | --- | ------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| 1   | Lena    | Generic lock advice (ADFC, police)  | "Everyone says 'buy a good lock.' Okay. Which one? For my street, at night? It never answers that."                     |
-| 2   | Murat   | Public bike parking at the station  | "The rack is outside, it's dark when I get there, and nobody's around. They built it and walked away."                  |
-| 3   | Jonas   | Crime maps                          | "It's a wall of red dots. Alexanderplatz is red because a million people walk past. That tells me nothing."             |
-| 4   | Lena    | Police reporting after a theft      | "I filled in the form, got a number, and never heard anything. I don't think anyone read it."                           |
-| 5   | Murat   | Heavy U-locks                       | "The one that actually works weighs a ton. I carry it every day. My back hurts and the bike still might go."            |
-| 6   | Jonas   | Insurance                           | "It pays out if I can prove I locked it a certain way. I read the fine print twice and I'm still not sure what counts." |
-| 7   | Lena    | Tracker tags (AirTag-style)         | "Fine, so I'll know where it was stolen to. That doesn't get it back, and I'm not going to chase a thief at 2 a.m."     |
-| 8   | Murat   | Asking colleagues and word of mouth | "One guy says the south side is safe, another says never leave it there. Both have lost a bike. So who knows."          |
-| 9   | Jonas   | News and statistics about theft     | "Theft numbers go up every year and every article ends with 'be careful.' I'm careful. What else is there?"             |
-| 10  | Lena    | Her own lock and habits             | "I do the same thing every night and I've no idea if it's enough. It's a bit like not knowing if the stove is off."     |
+| C1 | Lena    | Generic lock advice (ADFC, police)  | "Everyone says 'buy a good lock.' Okay. Which one? For my street, at night? It never answers that."                     |
+| C2 | Murat   | Public bike parking at the station  | "The rack is outside, it's dark when I get there, and nobody's around. They built it and walked away."                  |
+| C3 | Jonas   | Crime maps                          | "It's a wall of red dots. Alexanderplatz is red because a million people walk past. That tells me nothing."             |
+| C4 | Lena    | Police reporting after a theft      | "I filled in the form, got a number, and never heard anything. I don't think anyone read it."                           |
+| C5 | Murat   | Heavy U-locks                       | "The one that actually works weighs a ton. I carry it every day. My back hurts and the bike still might go."            |
+| C6 | Jonas   | Insurance                           | "It pays out if I can prove I locked it a certain way. I read the fine print twice and I'm still not sure what counts." |
+| C7 | Lena    | Tracker tags (AirTag-style)         | "Fine, so I'll know where it was stolen to. That doesn't get it back, and I'm not going to chase a thief at 2 a.m."     |
+| C8 | Murat   | Asking colleagues and word of mouth | "One guy says the south side is safe, another says never leave it there. Both have lost a bike. So who knows."          |
+| C9 | Jonas   | News and statistics about theft     | "Theft numbers go up every year and every article ends with 'be careful.' I'm careful. What else is there?" (perception; Berlin recorded -16.5% in 2025, so the product must not echo it)             |
+| C10 | Lena    | Her own lock and habits             | "I do the same thing every night and I've no idea if it's enough. It's a bit like not knowing if the stove is off."     |
 
 ### Analysis: emotional triggers and hidden needs
 
 Labels: **Trigger** = the feeling the complaint is really about. **Hidden need** = what the persona might want but would not say. Both are inferences from my own wording of the quote, so treat them as hypotheses.
 
-| #   | Emotional trigger                                                 | Hidden need (inferred)                                             | Confidence    |
+| ID  | Emotional trigger                                                 | Hidden need (inferred)                                             | Confidence    |
 | --- | ----------------------------------------------------------------- | ------------------------------------------------------------------ | ------------- |
-| 1   | Frustration at vague advice; feeling talked down to               | Advice that is specific to _me, here, now_, not a generic rule     | Medium        |
-| 2   | Feeling neglected by the city; unsafe in the early dark           | To feel that someone responsible is paying attention               | Medium        |
-| 3   | Distrust of the data; irritation at being misled                  | A signal that treats them as intelligent, with the reasoning shown | Medium        |
-| 4   | Powerlessness; feeling ignored after a loss                       | Acknowledgement and some closure, even without recovering the bike | Medium        |
-| 5   | Resentment of a daily burden; fear of a worse outcome anyway      | A way to reduce carrying effort without raising risk               | Low to medium |
-| 6   | Anxiety about being denied cover; mistrust of fine print          | Certainty about what counts as "locked properly"                   | Medium        |
-| 7   | Helplessness; feeling a tool solves the wrong half of the problem | Prevention over detection                                          | Low           |
-| 8   | Confusion and mild distrust of anecdotes                          | A neutral tiebreaker among conflicting opinions                    | Medium        |
-| 9   | Fatigue and cynicism about warnings                               | Information with a _next action_, not another warning              | Medium        |
-| 10  | Low-level worry; self-doubt; need for reassurance                 | To be told "you're fine" or "do this one thing"                    | Medium        |
+| C1 | Frustration at vague advice; feeling talked down to               | Advice that is specific to _me, here, now_, not a generic rule     | Medium        |
+| C2 | Feeling neglected by the city; unsafe in the early dark           | To feel that someone responsible is paying attention               | Medium        |
+| C3 | Distrust of the data; irritation at being misled                  | A signal that treats them as intelligent, with the reasoning shown | Medium        |
+| C4 | Powerlessness; feeling ignored after a loss                       | Acknowledgement and some closure, even without recovering the bike | Medium        |
+| C5 | Resentment of a daily burden; fear of a worse outcome anyway      | A way to reduce carrying effort without raising risk               | Low to medium |
+| C6 | Anxiety about being denied cover; mistrust of fine print          | Certainty about what counts as "locked properly"                   | Medium        |
+| C7 | Helplessness; feeling a tool solves the wrong half of the problem | Prevention over detection                                          | Low           |
+| C8 | Confusion and mild distrust of anecdotes                          | A neutral tiebreaker among conflicting opinions                    | Medium        |
+| C9 | Fatigue and cynicism about warnings                               | Information with a _next action_, not another warning              | Medium        |
+| C10 | Low-level worry; self-doubt; need for reassurance                 | To be told "you're fine" or "do this one thing"                    | Medium        |
 
 ### Triggers that recur
 
