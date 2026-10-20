@@ -12,7 +12,7 @@
 <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Spec says self-host fonts; hotlinked here for the throwaway prototype only. -->
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
 <style>
   /* Design tokens (docs/design-system-spec.md) are set as CSS variables by applyTheme() below. */
   html,body,#root{height:100%;margin:0}
@@ -23,15 +23,22 @@
   .leaflet-container{background:var(--ground);font-family:inherit}
   .leaflet-tile{filter:var(--tile-filter)}
   .panel{background:var(--card);border:1px solid var(--border);border-radius:1.5rem}
-  .bar{background:var(--raised);border-color:var(--border)}
+  .bar{background:var(--card);border-color:var(--border)}
+  .head{background:var(--head);color:var(--head-ink);border-bottom:4px solid var(--rule)}
+  .head .iconbtn,.head .field{border-color:var(--head-ink);color:var(--head-ink);background:transparent}
+  .head .field option{color:#101214}
+  .switch{display:flex;align-items:center;gap:.75rem;min-height:44px;background:none;border:0;color:var(--ink);font:inherit;font-size:.875rem;text-align:left}
+  .switch i{width:2.75rem;height:1.5rem;border-radius:999px;border:2px solid var(--ink);position:relative;flex:none;box-sizing:border-box}
+  .switch i::after{content:"";position:absolute;top:2px;left:2px;width:1rem;height:1rem;border-radius:50%;background:var(--ink)}
+  .switch[aria-checked=true] i{background:var(--accent);border-color:var(--accent)} .switch[aria-checked=true] i::after{left:calc(100% - 1.125rem);background:var(--card)}
   .btn,.chip,.iconbtn,.field{min-height:44px;font:inherit;font-size:.875rem}
-  .btn{padding:0 1rem;border-radius:999px;background:var(--accent);color:var(--accent-on);font-weight:600;border:2px solid transparent}
+  .btn{padding:0 1rem;border-radius:999px;background:var(--action);color:var(--action-on);font-weight:600;border:2px solid transparent}
   .btn:disabled{opacity:.6}
   .btn-ghost{background:transparent;color:var(--ink);border-color:var(--border)}
   .iconbtn{min-width:44px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--ink)}
   .field{background:var(--card);color:var(--ink);border:1px solid var(--border);border-radius:999px;padding:0 .75rem;min-width:0}
   .chip{padding:0 .75rem;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--ink)}
-  .chip[aria-pressed=true]{background:var(--accent);color:var(--accent-on);border-color:var(--accent);font-weight:600}
+  .chip[aria-pressed=true]{background:var(--action);color:var(--action-on);border-color:var(--action);font-weight:600}
   a,.link{color:var(--link);text-decoration:underline;min-height:44px;display:inline-flex;align-items:center;background:none;border:0;font:inherit;font-size:.875rem;cursor:pointer}
   :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
   .pill{display:inline-flex;align-items:center;gap:.5rem;padding:.25rem .875rem;border-radius:999px;border:1px solid var(--border);background:var(--card);font-weight:600}
@@ -39,10 +46,6 @@
   .notice{background:var(--card);border:1px solid var(--border);border-left:6px solid var(--accent);border-radius:1rem}
   .pip{width:.875rem;height:.875rem;border-radius:50%;border:2px solid var(--ink);box-sizing:border-box;display:inline-block}
   .pip.on{background:var(--ink)} .pip.off{border-color:var(--border)}
-  /* Lava-lamp: only a thin drifting strip on header and sheet; text always sits on flat surfaces. */
-  .lava{height:6px;background:linear-gradient(90deg,#a63d14,#d9a23a,#ff9a80,#d9a23a,#a63d14);background-size:300% 100%;animation:drift 45s ease-in-out infinite alternate}
-  @keyframes drift{from{background-position:0 0}to{background-position:100% 0}}
-  @media (prefers-reduced-motion:reduce),(prefers-reduced-transparency:reduce){.lava{animation:none}}
   .safe-b{padding-bottom:max(.25rem,env(safe-area-inset-bottom))} .safe-x{padding-left:max(1rem,env(safe-area-inset-left));padding-right:max(1rem,env(safe-area-inset-right))}
 </style>
 </head>
@@ -56,26 +59,32 @@ const { useState, useEffect, useRef } = React;
 // shortcut: jittered grid stands in for the LOR planning-area GeoJSON; swap in the real file when it is loaded.
 
 // ---------- Design tokens (spec sections 3, 4, 6) ----------
-const TOKENS = {
-  light: { ground: "#f4ede3", raised: "#fbf6ee", card: "#fffbf5", ink: "#2a1d17", ink2: "#5e4d42", border: "#85725f", focus: "#2a1d17",
-    accent: "#a63d14", "accent-on": "#ffffff", link: "#8f3410",
-    "tile-filter": "grayscale(1) sepia(.2) brightness(.96)", hatch: "#6b6358",
-    lowFill: "#1c7f7a", lowStroke: "#14625e", medFill: "#7f4e07", medStroke: "#5e3a05", highFill: "#780108", highStroke: "#4f0106" },
-  dark: { ground: "#1b1411", raised: "#261c17", card: "#30241d", ink: "#f8eee3", ink2: "#cdbba9", border: "#907c6b", focus: "#ffc46b",
-    accent: "#ffa05a", "accent-on": "#1b1411", link: "#ffb27a",
-    "tile-filter": "invert(1) grayscale(1) brightness(.85) contrast(.85) sepia(.3)", hatch: "#b8b0a3",
-    lowFill: "#1a8f8a", lowStroke: "#6fd0c8", medFill: "#c9952e", medStroke: "#e3b865", highFill: "#ffc0a8", highStroke: "#ffe3d8" },
+const TOKENS = { // Charcoal and gold chrome + Signal ramp (docs/design-system-spec.md v3)
+  light: { ground: "#eceef0", card: "#ffffff", ink: "#101214", ink2: "#4a5056", border: "#757c84", focus: "#1d2125",
+    head: "#1d2125", "head-ink": "#ffffff", rule: "#ffd23f", action: "#1d2125", "action-on": "#ffffff", accent: "#1d2125", link: "#1d2125",
+    located: "#0b5fc4", "tile-filter": "grayscale(1) contrast(.9) brightness(1.04)", hatch: "#68645e",
+    lowFill: "#16857c", lowStroke: "#003531", medFill: "#f8c84e", medStroke: "#9d790a", highFill: "#cc1f5e", highStroke: "#570122" },
+  dark: { ground: "#0e1011", card: "#1a1d1f", ink: "#f2f4f5", ink2: "#b4bbc0", border: "#7c858c", focus: "#ffd23f",
+    head: "#1d2125", "head-ink": "#ffffff", rule: "#ffd23f", action: "#ffd23f", "action-on": "#0e1011", accent: "#ffd23f", link: "#ffd23f",
+    located: "#6cb6ff", "tile-filter": "invert(1) grayscale(1) brightness(.8) contrast(.85)", hatch: "#b8b4ac",
+    lowFill: "#1f9a93", lowStroke: "#85ded6", medFill: "#f2c14e", medStroke: "#fff0d3", highFill: "#f0508a", highStroke: "#ffc8d6" },
 };
-const FILL_ALPHA = 0.85; // polygon.fill-alpha
+// Colour-blind friendly ramp (switch). Outlines here are my own first-pass derivations; the spec gives fills only.
+const CB = {
+  light: { lowFill: "#3a86c0", lowStroke: "#1c4466", medFill: "#f6d57a", medStroke: "#8a6d12", highFill: "#e0561b", highStroke: "#7a2a05" },
+  dark:  { lowFill: "#3a86c0", lowStroke: "#a6cdea", medFill: "#f6d57a", medStroke: "#fff0c8", highFill: "#ff6b2c", highStroke: "#ffd3bd" },
+};
+const FILL_ALPHA = 0.86; // polygon.fill-alpha (Solid)
 const mq = q => window.matchMedia(q);
-let CUR = TOKENS.light, MORE = false; // resolved tokens, read by the map
-function applyTheme(mode) {
+let CUR = TOKENS.light, MORE = false, CBMODE = false; // resolved tokens, read by the map
+function applyTheme(mode, cb) {
   const dark = mode === "dark" || (mode === "auto" && mq("(prefers-color-scheme: dark)").matches);
-  CUR = dark ? TOKENS.dark : TOKENS.light;
+  CBMODE = !!cb;
+  CUR = { ...(dark ? TOKENS.dark : TOKENS.light), ...(cb ? CB[dark ? "dark" : "light"] : {}) };
   MORE = mq("(prefers-contrast: more)").matches; // increased contrast: ink2/border -> ink, thicker outlines
   const t = { ...CUR, ...(MORE ? { ink2: CUR.ink, border: CUR.ink } : {}) };
   for (const [k, v] of Object.entries(t)) document.documentElement.style.setProperty("--" + k, v);
-  return (dark ? "dark" : "light") + MORE;
+  return (dark ? "dark" : "light") + MORE + CBMODE;
 }
 applyTheme("auto");
 
@@ -157,8 +166,8 @@ function RiskMap({ filters, selected, locArea, myPos, theme, onSelect, onInterac
       const stroke = a.limited ? CUR.hatch : tierStroke(k);
       polys.current[a.id].setStyle({
         fillColor: a.limited ? "url(#hatch)" : tierFill(k), fillOpacity: a.limited ? 1 : FILL_ALPHA,
-        color: sel ? CUR.ink : loc ? CUR.accent : stroke, weight: sel || loc ? w + 3 : hov ? w + 1 : w,
-        dashArray: !a.limited && a.conf === "LOW" ? "4 3" : null, // low confidence = dashed outline
+        color: sel ? CUR.ink : loc ? CUR.located : stroke,
+        weight: (sel || loc ? w + 3 : hov ? w + 1 : w) * (CBMODE && k === "high" ? 1.8 : 1), // colour-blind mode: heavier High outline as second cue
       });
       if (sel || loc || hov) polys.current[a.id].bringToFront();
     }
@@ -172,7 +181,7 @@ function RiskMap({ filters, selected, locArea, myPos, theme, onSelect, onInterac
     const rend = L.svg().addTo(m);
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     // limited data: 45deg grey hatch, 1.5px stripe, 6px period
-    defs.innerHTML = '<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" style="stroke:var(--hatch)" stroke-width="1.5"/></pattern>';
+    defs.innerHTML = '<pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" style="stroke:var(--hatch)" stroke-width="1.5"/></pattern>';
     rend._container.prepend(defs);
     mask.current = L.polygon([(b => [b.getNorthWest(), b.getNorthEast(), b.getSouthEast(), b.getSouthWest()])(BERLIN_BOUNDS.pad(3)), ...Object.values(AREAS).flatMap(a => a.poly.map(rings => rings[0]))],
       { interactive: false, stroke: false, fillOpacity: 0.7, renderer: rend }).addTo(m);
@@ -193,7 +202,7 @@ function RiskMap({ filters, selected, locArea, myPos, theme, onSelect, onInterac
   useEffect(() => { // position marker only if in view
     dot.current?.remove(); dot.current = null;
     const m = mapRef.current;
-    if (myPos && m && m.getBounds().contains(myPos)) dot.current = L.circleMarker(myPos, { radius: 8, color: CUR.card, weight: 3, fillColor: CUR.accent, fillOpacity: 1, interactive: false }).addTo(m);
+    if (myPos && m && m.getBounds().contains(myPos)) dot.current = L.circleMarker(myPos, { radius: 8, color: CUR.card, weight: 3, fillColor: CUR.located, fillOpacity: 1, interactive: false }).addTo(m);
   }, [myPos, theme]);
   return <div className="absolute inset-0"><div ref={el} style={{ height: "100%" }} /></div>;
 }
@@ -211,11 +220,11 @@ function Seg({ label, options, value, onChange }) {
 }
 const Back = ({ onClick }) => <button className="link" onClick={onClick}>← Back</button>;
 const Swatch = ({ k, limited }) => limited
-  ? <i className="sw" style={{ background: "repeating-linear-gradient(45deg,transparent 0 3px,var(--hatch) 3px 4.5px)", border: "2px solid var(--hatch)" }} />
+  ? <i className="sw" style={{ background: "repeating-linear-gradient(45deg,transparent 0 3.5px,var(--hatch) 3.5px 5px)", border: "2px solid var(--hatch)" }} />
   : <i className="sw" style={{ background: tierFill(k), border: "2px solid " + tierStroke(k) }} />;
 const Pips = ({ conf }) => <span aria-hidden="true" className="inline-flex gap-1">{[1, 2, 3].map(i => <i key={i} className={"pip " + (i <= ({ LOW: 1, MEDIUM: 2, HIGH: 3 })[conf] ? "on" : "off")} />)}</span>;
 
-function Card({ r, filters, setFilter, onClose }) {
+function Card({ r, filters, setFilter, cb, setCb, onClose }) {
   const [view, setView] = useState("result"), [sent, setSent] = useState(false);
   useEffect(() => { setView("result"); setSent(false); }, [r.area.id]);
   const t = TIERS[r.tier];
@@ -255,10 +264,11 @@ function Card({ r, filters, setFilter, onClose }) {
     </div>
     <p className="small muted">{r.why}</p>
     <ul className="list-disc pl-5 small muted">{r.reasons.map((f, i) => <li key={i}>{f}</li>)}</ul>
-    <section className="rounded-2xl p-3 space-y-1" style={{ background: "var(--raised)", border: "1px solid var(--border)" }}>
+    <section className="rounded-2xl p-3 space-y-1" style={{ background: "var(--ground)", border: "1px solid var(--border)" }}>
       <h3 className="display text-xl" style={{ lineHeight: "1.625rem" }}>Lock recommendation</h3>
       <p className="small">{r.lock.main}</p><p className="small">{r.lock.anchor}</p>
     </section>
+    <button role="switch" aria-checked={cb} className="switch" onClick={() => setCb(!cb)}><i />Colour-blind friendly colours</button>
     <div className="flex flex-wrap items-center gap-x-4 small muted">
       <span>Data to {DATA_DATE}</span>
       <button className="link" onClick={() => setView("why")}>How this works</button>
@@ -267,7 +277,6 @@ function Card({ r, filters, setFilter, onClose }) {
     </div></>);
   return (
     <div className="absolute z-[1000] bottom-0 left-0 right-0 max-h-[75%] overflow-y-auto panel rounded-b-none sm:left-auto sm:right-4 sm:bottom-4 sm:w-[430px] sm:rounded-b-3xl sm:max-h-[calc(100%-9rem)]">
-      <div className="lava" aria-hidden="true" />
       <div className="p-4 space-y-3 safe-x safe-b">{body}</div>
     </div>);
 }
@@ -286,17 +295,17 @@ function App() {
   const [myPos, setMyPos] = useState(null), [locArea, setLocArea] = useState(null);
   const [sim, setSim] = useState("real");
   const [info, setInfo] = useState(false);
-  const [mode, setMode] = useState("auto"), [theme, setTheme] = useState(() => applyTheme("auto"));
+  const [mode, setMode] = useState("auto"), [cb, setCb] = useState(false), [theme, setTheme] = useState(() => applyTheme("auto", false));
   const mapRef = useRef(null), hideT = useRef(null);
   const setFilter = k => v => setFilters(f => ({ ...f, [k]: v }));
 
   useEffect(() => { // re-resolve tokens on mode or OS preference change
-    const run = () => setTheme(applyTheme(mode));
+    const run = () => setTheme(applyTheme(mode, cb));
     run();
     const qs = [mq("(prefers-color-scheme: dark)"), mq("(prefers-contrast: more)")];
     qs.forEach(q => q.addEventListener("change", run));
     return () => qs.forEach(q => q.removeEventListener("change", run));
-  }, [mode]);
+  }, [mode, cb]);
   useEffect(() => { const t = setTimeout(() => setLoaded(true), 700); return () => clearTimeout(t); }, []);
 
   const dismissHint = () => setHint(false);
@@ -333,7 +342,7 @@ function App() {
   if (!loaded) return <div className="h-full flex items-center justify-center muted display text-xl">Loading Berlin data…</div>;
   return (
     <div className="relative h-full flex flex-col overflow-hidden">
-      <header className="z-[1100] bar border-b">
+      <header className="z-[1100] head">
         <div className="safe-x py-2 flex flex-wrap items-center gap-2">
           <h1 className="text-xl flex-1 min-w-[12rem]" style={{ lineHeight: "1.625rem" }}>LockOut: bike-parking risk in Berlin</h1>
           <select className="field" aria-label="Choose an area from the list" value={selected || ""} onChange={e => e.target.value && onSelect(e.target.value)}>
@@ -343,8 +352,7 @@ function App() {
           <button className="iconbtn" onClick={() => setMode(m => ({ auto: "light", light: "dark", dark: "auto" })[m])} aria-label={`Theme: ${mode}. Tap to change.`}>{{ auto: "◐", light: "☀", dark: "☾" }[mode]}</button>
           <button className="iconbtn font-serif italic" onClick={() => setInfo(true)} aria-label="About this prototype">i</button>
         </div>
-        <div className="lava" aria-hidden="true" />
-      </header>
+        </header>
 
       <div className="relative flex-1">
         <RiskMap filters={filters} selected={selected} locArea={locArea} myPos={myPos} theme={theme} onSelect={onSelect} onInteract={dismissHint} onOutside={onOutside} mapRef={mapRef} />
@@ -370,11 +378,10 @@ function App() {
         </div>
 
         {!hint && !selected && <div className="absolute z-[1000] bottom-4 right-3">{locateBtn}</div>}
-        {r && <Card r={r} filters={filters} setFilter={setFilter} onClose={() => setSelected(null)} />}
+        {r && <Card r={r} filters={filters} setFilter={setFilter} cb={cb} setCb={setCb} onClose={() => setSelected(null)} />}
 
         <div className="absolute z-[900] bottom-2 left-2 panel rounded-2xl px-3 py-2 label" aria-label="Legend">
           {Object.values(TIERS).map(t => <div key={t.key} className="flex items-center gap-2"><Swatch k={t.key} />{t.label}</div>)}
-          <div className="flex items-center gap-2"><i className="sw" style={{ border: "2px dashed var(--ink)" }} />Low confidence: less certain</div>
           <div className="flex items-center gap-2"><Swatch limited />Limited data: not enough reports</div>
           <label className="block mt-1 pt-1 muted" style={{ borderTop: "1px solid var(--border)" }}>Test control, location:{" "}
             <select className="field" style={{ minHeight: 44 }} value={sim} onChange={e => setSim(e.target.value)}>
