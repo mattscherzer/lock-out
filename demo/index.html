@@ -10,8 +10,8 @@
             href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-        <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
-        <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+        <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
         <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -192,15 +192,63 @@
                 outline: 3px solid var(--focus);
                 outline-offset: 2px;
             }
-.lbx{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:1200;max-height:min(50vh,320px);overflow-y:auto;background:var(--card);color:var(--ink);border:1px solid var(--border);border-radius:1rem;box-shadow:0 4px 16px rgba(0,0,0,.35);padding:.25rem 0;list-style:none;margin:0}
-            .lbx li{min-height:44px;padding:.5rem .875rem;display:flex;flex-direction:column;justify-content:center;cursor:pointer}
-            .lbx li[aria-selected=true]{background:var(--action);color:var(--action-on)}
-            .cgroup{display:inline-flex;gap:2px}
-            .cgroup button{min-height:44px;padding:0 .875rem;font:inherit;font-size:.875rem;border:1px solid var(--border);background:var(--card);color:var(--ink);border-radius:.5rem}
-            .cgroup button:first-child{border-radius:999px .5rem .5rem 999px}
-            .cgroup button:last-child{border-radius:.5rem 999px 999px .5rem}
-            .cgroup button[aria-pressed=true]{background:var(--action);color:var(--action-on);border-color:var(--action);font-weight:600;border-radius:999px}
-                        .pill {
+            .lbx {
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: calc(100% + 4px);
+                z-index: 1200;
+                max-height: min(50vh, 320px);
+                overflow-y: auto;
+                background: var(--card);
+                color: var(--ink);
+                border: 1px solid var(--border);
+                border-radius: 1rem;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+                padding: 0.25rem 0;
+                list-style: none;
+                margin: 0;
+            }
+            .lbx li {
+                min-height: 44px;
+                padding: 0.5rem 0.875rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                cursor: pointer;
+            }
+            .lbx li[aria-selected="true"] {
+                background: var(--action);
+                color: var(--action-on);
+            }
+            .cgroup {
+                display: inline-flex;
+                gap: 2px;
+            }
+            .cgroup button {
+                min-height: 44px;
+                padding: 0 0.875rem;
+                font: inherit;
+                font-size: 0.875rem;
+                border: 1px solid var(--border);
+                background: var(--card);
+                color: var(--ink);
+                border-radius: 0.5rem;
+            }
+            .cgroup button:first-child {
+                border-radius: 999px 0.5rem 0.5rem 999px;
+            }
+            .cgroup button:last-child {
+                border-radius: 0.5rem 999px 999px 0.5rem;
+            }
+            .cgroup button[aria-pressed="true"] {
+                background: var(--action);
+                color: var(--action-on);
+                border-color: var(--action);
+                font-weight: 600;
+                border-radius: 999px;
+            }
+            .pill {
                 display: inline-flex;
                 align-items: center;
                 gap: 0.5rem;
@@ -638,7 +686,7 @@
                     const m = L.map(el.current, {
                         zoomControl: false,
                         attributionControl: false,
-                        minZoom: 9,
+                        minZoom: 11,
                         maxBounds: BERLIN_BOUNDS.pad(0.3),
                         maxBoundsViscosity: 0.6,
                         zoomAnimation: false,
@@ -649,7 +697,7 @@
                     L.tileLayer(
                         "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                         {
-                            maxZoom: 18
+                            maxZoom: 15
                         }
                     ).addTo(m);
                     m.createPane("risk").style.zIndex = 450;
@@ -805,7 +853,14 @@
             );
 
             const SNAPS = ["peek", "half", "full"],
-                sheetH = (snap, sel) => (snap === "peek" ? (sel ? "310px" : "190px") : snap === "half" ? "55%" : "90%");
+                sheetH = (snap, sel) =>
+                    snap === "peek"
+                        ? sel
+                            ? "310px"
+                            : "190px"
+                        : snap === "half"
+                          ? "55%"
+                          : "90%";
             function Handle({ snap, setSnap, onClose, onDrag, asideRef }) {
                 // drag, tap or arrow keys move the sheet between snap points; down from peek closes
                 const y0 = useRef(null),
@@ -824,17 +879,31 @@
                             y0.current = e.clientY;
                             e.currentTarget.setPointerCapture(e.pointerId);
                         }}
-                        onPointerMove={e => y0.current != null && onDrag(y0.current - e.clientY)}
+                        onPointerMove={e =>
+                            y0.current != null && onDrag(y0.current - e.clientY)
+                        }
                         onPointerUp={e => {
                             const dy = e.clientY - y0.current;
                             y0.current = null;
                             onDrag(0);
                             if (Math.abs(dy) < 12) return tap();
                             // follow the finger, then settle on the nearest snap point
-                            const el = asideRef.current, h = el.offsetHeight, H = el.parentElement.offsetHeight;
+                            const el = asideRef.current,
+                                h = el.offsetHeight,
+                                H = el.parentElement.offsetHeight;
                             if (h < 190) return onClose();
-                            const t = { peek: 310, half: 0.55 * H, full: 0.9 * H };
-                            setSnap(SNAPS.reduce((a, k) => (Math.abs(t[k] - h) < Math.abs(t[a] - h) ? k : a)));
+                            const t = {
+                                peek: 310,
+                                half: 0.55 * H,
+                                full: 0.9 * H
+                            };
+                            setSnap(
+                                SNAPS.reduce((a, k) =>
+                                    Math.abs(t[k] - h) < Math.abs(t[a] - h)
+                                        ? k
+                                        : a
+                                )
+                            );
                         }}
                         onKeyDown={e => {
                             if (e.key === "Enter" || e.key === " ") {
@@ -1082,9 +1151,18 @@
             ];
             function Chips({ filters, setFilter }) {
                 return (
-                    <div role="toolbar" aria-label="Filters" className="flex flex-col gap-3 md:flex-row md:flex-wrap">
+                    <div
+                        role="toolbar"
+                        aria-label="Filters"
+                        className="flex flex-col gap-3 md:flex-row md:flex-wrap"
+                    >
                         {FILTER_GROUPS.map(([k, label, opts]) => (
-                            <div key={k} role="group" aria-label={label} className="cgroup w-full md:w-auto">
+                            <div
+                                key={k}
+                                role="group"
+                                aria-label={label}
+                                className="cgroup w-full md:w-auto"
+                            >
                                 {Object.entries(opts).map(([v, o]) => (
                                     <button
                                         key={v}
@@ -1106,9 +1184,19 @@
                 const [q, setQ] = useState(""),
                     [open, setOpen] = useState(false),
                     [hi, setHi] = useState(0);
-                const all = useMemo(() => Object.values(AREAS).sort((x, y) => x.name.localeCompare(y.name, "de")), []);
+                const all = useMemo(
+                    () =>
+                        Object.values(AREAS).sort((x, y) =>
+                            x.name.localeCompare(y.name, "de")
+                        ),
+                    []
+                );
                 const n = q.trim().toLowerCase(),
-                    match = n ? all.filter(a => (a.name + " " + a.bez).toLowerCase().includes(n)) : all,
+                    match = n
+                        ? all.filter(a =>
+                              (a.name + " " + a.bez).toLowerCase().includes(n)
+                          )
+                        : all,
                     hits = match.slice(0, 40);
                 const pick = a => {
                     if (!a) return;
@@ -1119,33 +1207,88 @@
                 return (
                     <div className="relative flex-1 min-w-0">
                         <input
-                            className="field w-full" style={{ minHeight: 44 }}
-                            role="combobox" aria-expanded={open} aria-controls="area-list" aria-autocomplete="list"
+                            className="field w-full"
+                            style={{ minHeight: 44 }}
+                            role="combobox"
+                            aria-expanded={open}
+                            aria-controls="area-list"
+                            aria-autocomplete="list"
                             aria-label="Find an area"
-                            aria-activedescendant={open && hits[hi] ? "ao-" + hits[hi].id : undefined}
+                            aria-activedescendant={
+                                open && hits[hi]
+                                    ? "ao-" + hits[hi].id
+                                    : undefined
+                            }
                             placeholder="Find an area…"
-                            value={open ? q : selected ? AREAS[selected].name : ""}
-                            onFocus={e => { setOpen(true); setQ(""); setHi(0); e.target.select(); }}
+                            value={
+                                open ? q : selected ? AREAS[selected].name : ""
+                            }
+                            onFocus={e => {
+                                setOpen(true);
+                                setQ("");
+                                setHi(0);
+                                e.target.select();
+                            }}
                             onBlur={() => setOpen(false)}
-                            onChange={e => { setQ(e.target.value); setHi(0); }}
+                            onChange={e => {
+                                setQ(e.target.value);
+                                setHi(0);
+                            }}
                             onKeyDown={e => {
-                                if (e.key === "ArrowDown") { e.preventDefault(); setHi(h => Math.min(hits.length - 1, h + 1)); }
-                                else if (e.key === "ArrowUp") { e.preventDefault(); setHi(h => Math.max(0, h - 1)); }
-                                else if (e.key === "Enter") { e.preventDefault(); pick(hits[hi]); }
-                                else if (e.key === "Escape") e.target.blur();
+                                if (e.key === "ArrowDown") {
+                                    e.preventDefault();
+                                    setHi(h =>
+                                        Math.min(hits.length - 1, h + 1)
+                                    );
+                                } else if (e.key === "ArrowUp") {
+                                    e.preventDefault();
+                                    setHi(h => Math.max(0, h - 1));
+                                } else if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    pick(hits[hi]);
+                                } else if (e.key === "Escape") e.target.blur();
                             }}
                         />
                         {open && (
                             <ul id="area-list" role="listbox" className="lbx">
                                 {hits.map((a, i) => (
-                                    <li key={a.id} id={"ao-" + a.id} role="option" aria-selected={i === hi}
-                                        onMouseDown={e => e.preventDefault()} onClick={() => pick(a)}>
+                                    <li
+                                        key={a.id}
+                                        id={"ao-" + a.id}
+                                        role="option"
+                                        aria-selected={i === hi}
+                                        onMouseDown={e => e.preventDefault()}
+                                        onClick={() => pick(a)}
+                                    >
                                         <span>{a.name}</span>
-                                        <span className="small" style={{ opacity: 0.75 }}>{a.bez}{a.limited ? " · limited data" : ""}</span>
+                                        <span
+                                            className="small"
+                                            style={{ opacity: 0.75 }}
+                                        >
+                                            {a.bez}
+                                            {a.limited ? " · limited data" : ""}
+                                        </span>
                                     </li>
                                 ))}
-                                {!hits.length && <li role="option" aria-selected="false" style={{ cursor: "default" }}>No area matches "{q}"</li>}
-                                {match.length > hits.length && <li role="presentation" className="small muted" style={{ cursor: "default" }}>{match.length - hits.length} more, keep typing to narrow</li>}
+                                {!hits.length && (
+                                    <li
+                                        role="option"
+                                        aria-selected="false"
+                                        style={{ cursor: "default" }}
+                                    >
+                                        No area matches "{q}"
+                                    </li>
+                                )}
+                                {match.length > hits.length && (
+                                    <li
+                                        role="presentation"
+                                        className="small muted"
+                                        style={{ cursor: "default" }}
+                                    >
+                                        {match.length - hits.length} more, keep
+                                        typing to narrow
+                                    </li>
+                                )}
                             </ul>
                         )}
                     </div>
@@ -1153,17 +1296,56 @@
             }
 
             function Legend({ cb, setCb, sim, setSim }) {
-                const items = [...Object.values(TIERS).map(t => [t.key, t.label.replace(" risk", ""), false]), ["lim", "Limited", true]];
+                const items = [
+                    ...Object.values(TIERS).map(t => [
+                        t.key,
+                        t.label.replace(" risk", ""),
+                        false
+                    ]),
+                    ["lim", "Limited", true]
+                ];
                 return (
-                    <div role="group" aria-label="Legend: low, medium, high risk, limited data" className="notice small px-2 py-2 space-y-1" style={{ maxWidth: "calc(100vw - 84px)" }}>
+                    <div
+                        role="group"
+                        aria-label="Legend: low, medium, high risk, limited data"
+                        className="notice small px-2 py-2 space-y-1"
+                        style={{ maxWidth: "calc(100vw - 84px)" }}
+                    >
                         <div className="flex items-center gap-2">
-                            {items.map(([k, l, lim]) => (<span key={k} className="flex items-center gap-1"><Swatch k={k} limited={lim} />{l}</span>))}
+                            {items.map(([k, l, lim]) => (
+                                <span
+                                    key={k}
+                                    className="flex items-center gap-1"
+                                >
+                                    <Swatch k={k} limited={lim} />
+                                    {l}
+                                </span>
+                            ))}
                         </div>
-                        <button role="switch" aria-checked={cb} className="switch" onClick={() => setCb(!cb)}><i />Colour-blind friendly</button>
-                        <label className="block small muted pt-1" style={{ borderTop: "1px solid var(--border)" }}>
+                        <button
+                            role="switch"
+                            aria-checked={cb}
+                            className="switch"
+                            onClick={() => setCb(!cb)}
+                        >
+                            <i />
+                            Colour-blind friendly
+                        </button>
+                        <label
+                            className="block small muted pt-1"
+                            style={{ borderTop: "1px solid var(--border)" }}
+                        >
                             Test control, location:{" "}
-                            <select className="field" value={sim} onChange={e => setSim(e.target.value)}>
-                                {Object.entries(SIM).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                            <select
+                                className="field"
+                                value={sim}
+                                onChange={e => setSim(e.target.value)}
+                            >
+                                {Object.entries(SIM).map(([k, v]) => (
+                                    <option key={k} value={k}>
+                                        {v}
+                                    </option>
+                                ))}
                             </select>
                         </label>
                     </div>
@@ -1194,9 +1376,13 @@
                 const [myPos, setMyPos] = useState(null),
                     [locArea, setLocArea] = useState(null);
                 const [sim, setSim] = useState("real");
-                const [info, setInfo] = useState(false), [fopen, setFopen] = useState(false), [drag, setDrag] = useState(0),
+                const [info, setInfo] = useState(false),
+                    [fopen, setFopen] = useState(false),
+                    [drag, setDrag] = useState(0),
                     [snap, setSnap] = useState("peek"),
-                    [desk, setDesk] = useState(() => mq("(min-width:768px)").matches);
+                    [desk, setDesk] = useState(
+                        () => mq("(min-width:768px)").matches
+                    );
                 const [mode, setMode] = useState("auto"),
                     [cb, setCb] = useState(false),
                     [theme, setTheme] = useState(() =>
@@ -1204,7 +1390,8 @@
                     );
                 const mapRef = useRef(null),
                     hideT = useRef(null);
-                const toggleDark = () => setMode(theme.startsWith("dark") ? "light" : "dark");
+                const toggleDark = () =>
+                    setMode(theme.startsWith("dark") ? "light" : "dark");
                 const setFilter = k => v => setFilters(f => ({ ...f, [k]: v }));
 
                 useEffect(() => {
@@ -1220,7 +1407,8 @@
                         qs.forEach(q => q.removeEventListener("change", run));
                 }, [mode, cb]);
                 useEffect(() => {
-                    const q = mq("(min-width:768px)"), run = () => setDesk(q.matches);
+                    const q = mq("(min-width:768px)"),
+                        run = () => setDesk(q.matches);
                     q.addEventListener("change", run);
                     return () => q.removeEventListener("change", run);
                 }, []);
@@ -1310,7 +1498,11 @@
                         filters.bike
                     );
 
-                const sheetBottom = desk ? "1.5rem" : r ? `calc(${sheetH(snap, r)} + ${drag}px + 12px)` : "0.75rem";
+                const sheetBottom = desk
+                    ? "1.5rem"
+                    : r
+                      ? `calc(${sheetH(snap, r)} + ${drag}px + 12px)`
+                      : "2.5rem";
                 if (!loaded)
                     return (
                         <div className="h-full flex items-center justify-center muted display text-xl">
@@ -1319,78 +1511,276 @@
                     );
                 return (
                     <div className="relative h-full overflow-hidden md:flex">
-                        {(desk || r) && <aside
-                            ref={asideRef}
-                            className="absolute z-[1000] bottom-0 left-0 right-0 flex flex-col panel rounded-b-none md:static md:w-[400px] md:shrink-0 md:h-full md:rounded-none"
-                            style={{ height: desk ? undefined : `calc(${sheetH(snap, r)} + ${drag}px)`, minHeight: desk ? undefined : 120, maxHeight: desk ? undefined : "95%", borderTop: "4px solid var(--rule)" }}
-                            aria-label="Risk details"
-                        >
-                            <Handle snap={snap} setSnap={setSnap} onClose={() => setSelected(null)} onDrag={setDrag} asideRef={asideRef} />
-                            <div className="px-4 pb-4 pt-1 md:pt-4 flex flex-col gap-3 safe-x safe-b overflow-y-auto flex-1 min-h-0">
-                                {desk && (
-                                    <>
-                                        <div className="flex items-center gap-2">
-                                            <h1 className="text-2xl flex-1" style={{ lineHeight: "2rem" }}>LockOut</h1>
-                                            <button className="iconbtn" onClick={toggleDark} aria-pressed={theme.startsWith("dark")} aria-label="Dark mode">{theme.startsWith("dark") ? "☾" : "☀"}</button>
-<button className="iconbtn font-serif italic" onClick={() => setInfo(true)} aria-label="About this prototype">i</button>
-                                        </div>
-                                        <div><AreaPicker selected={selected} onSelect={onSelect} /></div>
-                                        <Chips filters={filters} setFilter={setFilter} />
-                                    </>
-                                )}
-                                {r
-                                    ? <Card r={r} eff={desk ? "full" : snap} cb={cb} setCb={setCb} onClose={() => setSelected(null)} />
-                                    : null}
-                            </div>
-                        </aside>}
+                        {(desk || r) && (
+                            <aside
+                                ref={asideRef}
+                                className="absolute z-[1000] bottom-0 left-0 right-0 flex flex-col panel rounded-b-none md:static md:w-[400px] md:shrink-0 md:h-full md:rounded-none"
+                                style={{
+                                    height: desk
+                                        ? undefined
+                                        : `calc(${sheetH(snap, r)} + ${drag}px)`,
+                                    minHeight: desk ? undefined : 120,
+                                    maxHeight: desk ? undefined : "95%",
+                                    borderTop: "4px solid var(--rule)"
+                                }}
+                                aria-label="Risk details"
+                            >
+                                <Handle
+                                    snap={snap}
+                                    setSnap={setSnap}
+                                    onClose={() => setSelected(null)}
+                                    onDrag={setDrag}
+                                    asideRef={asideRef}
+                                />
+                                <div className="px-4 pb-4 pt-1 md:pt-4 flex flex-col gap-3 safe-x safe-b overflow-y-auto flex-1 min-h-0">
+                                    {desk && (
+                                        <>
+                                            <div className="flex items-center gap-2">
+                                                <h1
+                                                    className="text-2xl flex-1"
+                                                    style={{
+                                                        lineHeight: "2rem"
+                                                    }}
+                                                >
+                                                    LockOut
+                                                </h1>
+                                                <button
+                                                    className="iconbtn"
+                                                    onClick={toggleDark}
+                                                    aria-pressed={theme.startsWith(
+                                                        "dark"
+                                                    )}
+                                                    aria-label="Dark mode"
+                                                >
+                                                    {theme.startsWith("dark")
+                                                        ? "☾"
+                                                        : "☀"}
+                                                </button>
+                                                <button
+                                                    className="iconbtn font-serif italic"
+                                                    onClick={() =>
+                                                        setInfo(true)
+                                                    }
+                                                    aria-label="About this prototype"
+                                                >
+                                                    i
+                                                </button>
+                                            </div>
+                                            <div>
+                                                <AreaPicker
+                                                    selected={selected}
+                                                    onSelect={onSelect}
+                                                />
+                                            </div>
+                                            <Chips
+                                                filters={filters}
+                                                setFilter={setFilter}
+                                            />
+                                        </>
+                                    )}
+                                    {r ? (
+                                        <Card
+                                            r={r}
+                                            eff={desk ? "full" : snap}
+                                            cb={cb}
+                                            setCb={setCb}
+                                            onClose={() => setSelected(null)}
+                                        />
+                                    ) : null}
+                                </div>
+                            </aside>
+                        )}
 
                         <div className="absolute inset-0 isolate md:relative md:flex-1 md:min-w-0">
-                            <RiskMap filters={filters} selected={selected} locArea={locArea} myPos={myPos} theme={theme} onSelect={onSelect} onInteract={dismissHint} onOutside={onOutside} mapRef={mapRef} />
+                            <RiskMap
+                                filters={filters}
+                                selected={selected}
+                                locArea={locArea}
+                                myPos={myPos}
+                                theme={theme}
+                                onSelect={onSelect}
+                                onInteract={dismissHint}
+                                onOutside={onOutside}
+                                mapRef={mapRef}
+                            />
 
-                            <div className="absolute z-[1050] left-0 right-0 flex flex-col gap-2 pointer-events-none [&>*]:pointer-events-auto safe-x" style={{ top: "max(.5rem,env(safe-area-inset-top))" }}>
+                            <div
+                                className="absolute z-[1050] left-0 right-0 flex flex-col gap-2 pointer-events-none [&>*]:pointer-events-auto safe-x"
+                                style={{
+                                    top: "max(.5rem,env(safe-area-inset-top))"
+                                }}
+                            >
                                 {!desk && (
                                     <>
                                         <div className="flex items-center gap-2">
-                                            <AreaPicker selected={selected} onSelect={onSelect} />
-                                            <button className="fab" style={{ width: 44, height: 44 }} onClick={toggleDark} aria-pressed={theme.startsWith("dark")} aria-label="Dark mode">{theme.startsWith("dark") ? "☾" : "☀"}</button>
-                                            <button className="iconbtn font-serif italic fab" style={{ width: 44, height: 44 }} onClick={() => setInfo(true)} aria-label="About this prototype">i</button>
+                                            <AreaPicker
+                                                selected={selected}
+                                                onSelect={onSelect}
+                                            />
+                                            <button
+                                                className="fab"
+                                                style={{
+                                                    width: 44,
+                                                    height: 44
+                                                }}
+                                                onClick={toggleDark}
+                                                aria-pressed={theme.startsWith(
+                                                    "dark"
+                                                )}
+                                                aria-label="Dark mode"
+                                            >
+                                                {theme.startsWith("dark")
+                                                    ? "☾"
+                                                    : "☀"}
+                                            </button>
+                                            <button
+                                                className="iconbtn font-serif italic fab"
+                                                style={{
+                                                    width: 44,
+                                                    height: 44
+                                                }}
+                                                onClick={() => setInfo(true)}
+                                                aria-label="About this prototype"
+                                            >
+                                                i
+                                            </button>
                                         </div>
                                         <div className="relative">
-                                            <button className="chip small w-full text-left" style={{ minHeight: 44 }} aria-expanded={fopen} onClick={() => setFopen(o => !o)}>
-                                                {DAYPARTS[filters.part].label} · {DAYTYPES[filters.day].label} · {BIKES[filters.bike].label} <span aria-hidden="true">{fopen ? "▴" : "▾"}</span>
+                                            <button
+                                                className="chip small w-full text-left"
+                                                style={{ minHeight: 44 }}
+                                                aria-expanded={fopen}
+                                                onClick={() =>
+                                                    setFopen(o => !o)
+                                                }
+                                            >
+                                                {DAYPARTS[filters.part].label} ·{" "}
+                                                {DAYTYPES[filters.day].label} ·{" "}
+                                                {BIKES[filters.bike].label}{" "}
+                                                <span aria-hidden="true">
+                                                    {fopen ? "▴" : "▾"}
+                                                </span>
                                             </button>
-                                            {fopen && <div className="panel p-3 mt-1"><Chips filters={filters} setFilter={setFilter} /></div>}
+                                            {fopen && (
+                                                <div className="panel p-3 mt-1">
+                                                    <Chips
+                                                        filters={filters}
+                                                        setFilter={setFilter}
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
                                     </>
                                 )}
- {hint && (
-                                    <div role="status" className="notice flex items-center gap-3 px-3 py-2">
-                                        <span className="flex-1 small">Tap an area on the map, or search for one, to see its bike-theft risk and lock advice.</span>
-                                        <button className="iconbtn text-xl" onClick={dismissHint} aria-label="Dismiss">×</button>
+                                {hint && (
+                                    <div
+                                        role="status"
+                                        className="notice flex items-center gap-3 px-3 py-2"
+                                    >
+                                        <span className="flex-1 small">
+                                            Tap an area on the map, or search
+                                            for one, to see its bike-theft risk
+                                            and lock advice.
+                                        </span>
+                                        <button
+                                            className="iconbtn text-xl"
+                                            onClick={dismissHint}
+                                            aria-label="Dismiss"
+                                        >
+                                            ×
+                                        </button>
                                     </div>
                                 )}
                                 {banner && (
-                                    <div role="status" className="notice flex items-center gap-3 px-3 py-2">
-                                        <span className="flex-1 small">LockOut only covers Berlin. You're outside the area, so there's no risk data here.</span>
-                                        <button className="btn" onClick={backToBerlin}>Back to Berlin</button>
+                                    <div
+                                        role="status"
+                                        className="notice flex items-center gap-3 px-3 py-2"
+                                    >
+                                        <span className="flex-1 small">
+                                            LockOut only covers Berlin. You're
+                                            outside the area, so there's no risk
+                                            data here.
+                                        </span>
+                                        <button
+                                            className="btn"
+                                            onClick={backToBerlin}
+                                        >
+                                            Back to Berlin
+                                        </button>
                                     </div>
                                 )}
                                 {locErr && (
-                                    <div role="alert" className="notice flex items-center gap-3 px-3 py-2">
-                                        <span className="flex-1 small">{locErr === "denied" ? "Location is blocked. Enable it in browser settings, or just tap an area on the map." : "Couldn't get your location."}</span>
-                                        {locErr === "unavailable" && <button className="btn" onClick={locate}>Retry</button>}
-                                        <button className="iconbtn text-xl" onClick={() => setLocErr(null)} aria-label="Dismiss">×</button>
+                                    <div
+                                        role="alert"
+                                        className="notice flex items-center gap-3 px-3 py-2"
+                                    >
+                                        <span className="flex-1 small">
+                                            {locErr === "denied"
+                                                ? "Location is blocked. Enable it in browser settings, or just tap an area on the map."
+                                                : "Couldn't get your location."}
+                                        </span>
+                                        {locErr === "unavailable" && (
+                                            <button
+                                                className="btn"
+                                                onClick={locate}
+                                            >
+                                                Retry
+                                            </button>
+                                        )}
+                                        <button
+                                            className="iconbtn text-xl"
+                                            onClick={() => setLocErr(null)}
+                                            aria-label="Dismiss"
+                                        >
+                                            ×
+                                        </button>
                                     </div>
                                 )}
                             </div>
 
                             {(desk || !r || snap !== "full") && (
                                 <>
-                                    <div className="absolute z-[1000] left-3" style={{ bottom: sheetBottom }}><Legend cb={cb} setCb={setCb} sim={sim} setSim={setSim} /></div>
-                                    <div className="absolute z-[1000] right-3 flex flex-col items-end gap-3" style={{ bottom: sheetBottom }}>
-                                        <button className="fab" aria-label="Zoom in" onClick={() => mapRef.current.zoomIn()}>+</button>
-                                        <button className="fab" aria-label="Zoom out" onClick={() => mapRef.current.zoomOut()}>−</button>
-                                        <button className="fab" aria-label="Locate me" onClick={locate} disabled={loc === "loading"}>{loc === "loading" ? "…" : "📍"}</button>
+                                    <div
+                                        className="absolute z-[1000] left-3"
+                                        style={{ bottom: sheetBottom }}
+                                    >
+                                        <Legend
+                                            cb={cb}
+                                            setCb={setCb}
+                                            sim={sim}
+                                            setSim={setSim}
+                                        />
+                                    </div>
+                                    <div
+                                        className="absolute z-[1000] right-3 flex flex-col items-end gap-3"
+                                        style={{ bottom: sheetBottom }}
+                                    >
+                                        <button
+                                            className="fab"
+                                            aria-label="Zoom in"
+                                            onClick={() =>
+                                                mapRef.current.zoomIn()
+                                            }
+                                        >
+                                            +
+                                        </button>
+                                        <button
+                                            className="fab"
+                                            aria-label="Zoom out"
+                                            onClick={() =>
+                                                mapRef.current.zoomOut()
+                                            }
+                                        >
+                                            −
+                                        </button>
+                                        <button
+                                            className="fab"
+                                            aria-label="Locate me"
+                                            onClick={locate}
+                                            disabled={loc === "loading"}
+                                        >
+                                            {loc === "loading" ? "…" : "📍"}
+                                        </button>
                                     </div>
                                 </>
                             )}
@@ -1428,8 +1818,13 @@
                                         The "Test control" in the details panel
                                         lets a moderator force each location
                                         outcome (inside Berlin, outside, denied,
-                                        timeout). The ☀/☾ button at the top toggles dark mode. Drag the details panel
-                                        up or down to see more or less.
+                                        timeout). The ☀/☾ button at the top
+                                        toggles dark mode. Drag the details
+                                        panel up or down to see more or less.
+                                    </p>
+                                    <p className="small muted">
+                                        Map © OpenStreetMap contributors (ODbL).
+                                        Data source: Polizei Berlin (CC-BY 4.0).
                                     </p>
                                     <button
                                         className="btn"
