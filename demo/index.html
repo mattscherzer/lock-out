@@ -10,27 +10,81 @@
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Spec says self-host fonts; hotlinked here for the throwaway prototype only. -->
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
 <style>
+  /* Design tokens (docs/design-system-spec.md) are set as CSS variables by applyTheme() below. */
   html,body,#root{height:100%;margin:0}
-  .leaflet-container { background:#18181b; }
-  @keyframes pulseOnce { 0%,100%{fill-opacity:.55} 50%{fill-opacity:.95} }
-  .pulse-once { animation: pulseOnce .9s ease-in-out 1; }
+  body{font-family:"Instrument Sans",system-ui,sans-serif;font-size:1rem;line-height:1.5rem;background:var(--ground);color:var(--ink)}
+  h1,h2,.display{font-family:"Bricolage Grotesque","Instrument Sans",sans-serif;font-weight:600}
+  .small{font-size:.875rem;line-height:1.25rem} .label{font-size:.75rem;line-height:1rem;letter-spacing:.04em}
+  .muted{color:var(--ink2)}
+  .leaflet-container{background:var(--ground);font-family:inherit}
+  .leaflet-tile{filter:var(--tile-filter)}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:1.5rem}
+  .bar{background:var(--raised);border-color:var(--border)}
+  .btn,.chip,.iconbtn,.field{min-height:44px;font:inherit;font-size:.875rem}
+  .btn{padding:0 1rem;border-radius:999px;background:var(--accent);color:var(--accent-on);font-weight:600;border:2px solid transparent}
+  .btn:disabled{opacity:.6}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--border)}
+  .iconbtn{min-width:44px;border-radius:999px;border:1px solid var(--border);background:transparent;color:var(--ink)}
+  .field{background:var(--card);color:var(--ink);border:1px solid var(--border);border-radius:999px;padding:0 .75rem;min-width:0}
+  .chip{padding:0 .75rem;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--ink)}
+  .chip[aria-pressed=true]{background:var(--accent);color:var(--accent-on);border-color:var(--accent);font-weight:600}
+  a,.link{color:var(--link);text-decoration:underline;min-height:44px;display:inline-flex;align-items:center;background:none;border:0;font:inherit;font-size:.875rem;cursor:pointer}
+  :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+  .pill{display:inline-flex;align-items:center;gap:.5rem;padding:.25rem .875rem;border-radius:999px;border:1px solid var(--border);background:var(--card);font-weight:600}
+  .sw{display:inline-block;width:1rem;height:1rem;border-radius:4px;flex:none;box-sizing:border-box}
+  .notice{background:var(--card);border:1px solid var(--border);border-left:6px solid var(--accent);border-radius:1rem}
+  .pip{width:.875rem;height:.875rem;border-radius:50%;border:2px solid var(--ink);box-sizing:border-box;display:inline-block}
+  .pip.on{background:var(--ink)} .pip.off{border-color:var(--border)}
+  /* Lava-lamp: only a thin drifting strip on header and sheet; text always sits on flat surfaces. */
+  .lava{height:6px;background:linear-gradient(90deg,#a63d14,#d9a23a,#ff9a80,#d9a23a,#a63d14);background-size:300% 100%;animation:drift 45s ease-in-out infinite alternate}
+  @keyframes drift{from{background-position:0 0}to{background-position:100% 0}}
+  @media (prefers-reduced-motion:reduce),(prefers-reduced-transparency:reduce){.lava{animation:none}}
+  .safe-b{padding-bottom:max(.25rem,env(safe-area-inset-bottom))} .safe-x{padding-left:max(1rem,env(safe-area-inset-left));padding-right:max(1rem,env(safe-area-inset-right))}
 </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100">
+<body>
 <div id="root"></div>
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
 
 // Prototype for user testing. ALL data below is random mock data, NOT real LOR geometry or police statistics.
-// Spec: docs/user-journeys.json (screens scr_*, transitions tr_*).
+// Specs: docs/user-journeys.json (flows), docs/design-system-spec.md (styling).
 // shortcut: jittered grid stands in for the LOR planning-area GeoJSON; swap in the real file when it is loaded.
+
+// ---------- Design tokens (spec sections 3, 4, 6) ----------
+const TOKENS = {
+  light: { ground: "#f4ede3", raised: "#fbf6ee", card: "#fffbf5", ink: "#2a1d17", ink2: "#5e4d42", border: "#85725f", focus: "#2a1d17",
+    accent: "#a63d14", "accent-on": "#ffffff", link: "#8f3410",
+    "tile-filter": "grayscale(1) sepia(.2) brightness(.96)", hatch: "#6b6358",
+    lowFill: "#1c7f7a", lowStroke: "#14625e", medFill: "#7f4e07", medStroke: "#5e3a05", highFill: "#780108", highStroke: "#4f0106" },
+  dark: { ground: "#1b1411", raised: "#261c17", card: "#30241d", ink: "#f8eee3", ink2: "#cdbba9", border: "#907c6b", focus: "#ffc46b",
+    accent: "#ffa05a", "accent-on": "#1b1411", link: "#ffb27a",
+    "tile-filter": "invert(1) grayscale(1) brightness(.85) contrast(.85) sepia(.3)", hatch: "#b8b0a3",
+    lowFill: "#1a8f8a", lowStroke: "#6fd0c8", medFill: "#c9952e", medStroke: "#e3b865", highFill: "#ffc0a8", highStroke: "#ffe3d8" },
+};
+const FILL_ALPHA = 0.85; // polygon.fill-alpha
+const mq = q => window.matchMedia(q);
+let CUR = TOKENS.light, MORE = false; // resolved tokens, read by the map
+function applyTheme(mode) {
+  const dark = mode === "dark" || (mode === "auto" && mq("(prefers-color-scheme: dark)").matches);
+  CUR = dark ? TOKENS.dark : TOKENS.light;
+  MORE = mq("(prefers-contrast: more)").matches; // increased contrast: ink2/border -> ink, thicker outlines
+  const t = { ...CUR, ...(MORE ? { ink2: CUR.ink, border: CUR.ink } : {}) };
+  for (const [k, v] of Object.entries(t)) document.documentElement.style.setProperty("--" + k, v);
+  return (dark ? "dark" : "light") + MORE;
+}
+applyTheme("auto");
+
+// ---------- Mock fixture ----------
 const COLS = 8, ROWS = 6, LAT0 = 52.38, LAT1 = 52.64, LNG0 = 13.14, LNG1 = 13.64;
 let seed = 17;
 const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
 const FACTOR_POOL = ["High transit foot traffic", "Low street rack density", "Busy evening entertainment corridor",
   "Dense residential blocks with many street-parked bikes", "Long-stay commuter parking", "Shops and cafés keep eyes on the street"];
-
 const verts = Array.from({ length: ROWS + 1 }, (_, r) => Array.from({ length: COLS + 1 }, (_, c) => {
   const j = (r === 0 || c === 0 || r === ROWS || c === COLS) ? 0 : 0.35;
   return [LAT1 - (r + (rnd() - .5) * j) * (LAT1 - LAT0) / ROWS, LNG0 + (c + (rnd() - .5) * j) * (LNG1 - LNG0) / COLS];
@@ -38,22 +92,19 @@ const verts = Array.from({ length: ROWS + 1 }, (_, r) => Array.from({ length: CO
 const AREAS = {};
 for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
   const id = `0${r + 1}${String(c + 1).padStart(2, "0")}0101`;
-  const base = 35 + rnd() * 60;
+  const base = 35 + rnd() * 60, cr = rnd();
   AREAS[id] = {
-    id, name: `Planning area ${id}`, base, thefts: Math.round(base * 1.6),
-    limited: rnd() > 0.82, factors: [0, 1, 2].map(i => FACTOR_POOL[(Math.floor(rnd() * 6) + i * 2) % 6]),
+    id, name: `Planning area ${id}`, base, thefts: Math.round(base * 1.6), limited: rnd() > 0.82,
+    conf: cr < 0.3 ? "LOW" : cr < 0.65 ? "MEDIUM" : "HIGH",
+    factors: [0, 1, 2].map(i => FACTOR_POOL[(Math.floor(rnd() * 6) + i * 2) % 6]),
     poly: [verts[r][c], verts[r][c + 1], verts[r + 1][c + 1], verts[r + 1][c]],
   };
 }
 const FALLBACK_AREA = AREAS["01010101"];
-// Berlin outline = outer ring of the grid
-const OUTLINE = [
-  ...verts[0], ...verts.slice(1).map(row => row[COLS]),
-  ...[...verts[ROWS]].reverse().slice(1), ...verts.slice(1, ROWS).map(row => row[0]).reverse(),
-];
+const OUTLINE = [...verts[0], ...verts.slice(1).map(row => row[COLS]),
+  ...[...verts[ROWS]].reverse().slice(1), ...verts.slice(1, ROWS).map(row => row[0]).reverse()];
 const BERLIN_BOUNDS = L.latLngBounds(OUTLINE);
 const DATA_DATE = "30 Sep 2025 (mock)";
-
 const inPoly = ([y, x], poly) => { // ray casting; points are [lat, lng]
   let ins = false;
   for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
@@ -65,18 +116,17 @@ const inPoly = ([y, x], poly) => { // ray casting; points are [lat, lng]
 const areaAt = p => Object.values(AREAS).find(a => inPoly(p, a.poly));
 
 const DAYTYPES = { weekday: { label: "Weekday", d: 0 }, weekend: { label: "Weekend", d: 5 } };
-const DAYPARTS = { morning: { label: "Morning (06–11)", d: -8 }, afternoon: { label: "Afternoon (11–17)", d: 0 }, evening: { label: "Evening (17–22)", d: 9 }, night: { label: "Night (22–06)", d: 14 } };
+const DAYPARTS = { morning: { label: "Morning", d: -8 }, afternoon: { label: "Afternoon", d: 0 }, evening: { label: "Evening", d: 9 }, night: { label: "Night", d: 14 } };
 const BIKES = { standard: { label: "Standard bike", d: 0 }, ebike: { label: "E-bike / cargo", d: 7 } };
 const mod = (t, k) => t[k] || { d: 0 };
-
 const TIERS = {
-  LOW:    { hex: "#10b981", label: "Lower risk",  badge: "bg-emerald-500/15 text-emerald-300 border-emerald-500/50",
-            means: "Fewer reported bike thefts here than in most of Berlin. Theft still happens, so lock up properly." },
-  MEDIUM: { hex: "#f59e0b", label: "Medium risk", badge: "bg-amber-500/15 text-amber-300 border-amber-500/50",
-            means: "About as many reported bike thefts here as in a typical part of Berlin." },
-  HIGH:   { hex: "#f43f5e", label: "Higher risk", badge: "bg-rose-500/15 text-rose-300 border-rose-500/50",
-            means: "More reported bike thefts here than in most of Berlin. Use your strongest lock setup." },
+  LOW:    { label: "Low risk",    key: "low",  means: "Fewer reported bike thefts here than in most of Berlin. Theft still happens, so lock up properly." },
+  MEDIUM: { label: "Medium risk", key: "med",  means: "About as many reported bike thefts here as in a typical part of Berlin." },
+  HIGH:   { label: "High risk",   key: "high", means: "More reported bike thefts here than in most of Berlin. Use your strongest lock setup." },
 };
+const CONF_WHY = { LOW: "Based on few reports.", MEDIUM: "Based on a moderate number of reports.", HIGH: "Based on many reports." };
+const tierFill = (k) => CUR[k + "Fill"], tierStroke = (k) => CUR[k + "Stroke"];
+
 // Deterministic; unknown keys fall back to defaults, never throw.
 function getAnswer(areaId, day, part, bike) {
   const a = AREAS[areaId] || FALLBACK_AREA;
@@ -84,7 +134,7 @@ function getAnswer(areaId, day, part, bike) {
   const tier = score >= 75 ? "HIGH" : score >= 55 ? "MEDIUM" : "LOW";
   const dark = part === "night" || part === "evening";
   return {
-    area: a, tier, limited: a.limited,
+    area: a, tier, limited: a.limited, conf: a.conf,
     why: `Mock explanation: about ${a.thefts} reported thefts in this area in the data window. ` + (dark ? "Evenings and nights add risk here." : "Daytime is calmer here than after dark."),
     reasons: dark ? [...a.factors.slice(0, 2), "Fewer people around after dark"] : a.factors,
     lock: lockAdvice(tier, bike),
@@ -98,134 +148,163 @@ function lockAdvice(tier, bike) {
     (bike === "ebike" ? " Take the battery and display with you." : "") };
 }
 
-// ---------- Map ----------
-function RiskMap({ filters, selected, locArea, myPos, onSelect, onInteract, onOutside, mapRef }) {
-  const el = useRef(null), polys = useRef({}), dot = useRef(null), cb = useRef({});
+// ---------- Map (no motion, flat fills, crisp outlines) ----------
+function RiskMap({ filters, selected, locArea, myPos, theme, onSelect, onInteract, onOutside, mapRef }) {
+  const el = useRef(null), polys = useRef({}), dot = useRef(null), cb = useRef({}), hover = useRef(null), mask = useRef(null), edge = useRef(null);
   cb.current = { onSelect, onInteract, onOutside };
+  const paint = () => {
+    const w = MORE ? 3 : 2;
+    Object.values(AREAS).forEach(a => {
+      const sel = a.id === selected, loc = a.id === locArea, hov = a.id === hover.current;
+      const k = a.limited ? null : TIERS[getAnswer(a.id, filters.day, filters.part, filters.bike).tier].key;
+      const stroke = a.limited ? CUR.hatch : tierStroke(k);
+      polys.current[a.id].setStyle({
+        fillColor: a.limited ? "url(#hatch)" : tierFill(k), fillOpacity: a.limited ? 1 : FILL_ALPHA,
+        color: sel ? CUR.ink : loc ? CUR.accent : stroke, weight: sel || loc ? w + 2 : hov ? w + 1 : w,
+        dashArray: !a.limited && a.conf === "LOW" ? "4 3" : null, // low confidence = dashed outline
+      });
+      if (sel || loc || hov) polys.current[a.id].bringToFront();
+    });
+    mask.current?.setStyle({ fillColor: CUR.ground }); edge.current?.setStyle({ color: CUR.ink });
+  };
   useEffect(() => {
-    const m = L.map(el.current, { zoomControl: false, minZoom: 9, maxBounds: BERLIN_BOUNDS.pad(0.3), maxBoundsViscosity: 0.6 })
+    const m = L.map(el.current, { zoomControl: false, minZoom: 9, maxBounds: BERLIN_BOUNDS.pad(0.3), maxBoundsViscosity: 0.6, zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false })
       .fitBounds(BERLIN_BOUNDS);
     mapRef.current = m;
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: "© OpenStreetMap contributors" }).addTo(m);
     const rend = L.svg().addTo(m);
-    const NS = "http://www.w3.org/2000/svg", defs = document.createElementNS(NS, "defs");
-    defs.innerHTML = '<pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#52525b" fill-opacity=".55"/><line x1="0" y1="0" x2="0" y2="8" stroke="#d4d4d8" stroke-width="3"/></pattern>';
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    // limited data: 45deg grey hatch, 1.5px stripe, 6px period
+    defs.innerHTML = '<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" style="stroke:var(--hatch)" stroke-width="1.5"/></pattern>';
     rend._container.prepend(defs);
-    // dimmed non-interactive mask outside Berlin + thin outline
-    L.polygon([(b => [b.getNorthWest(), b.getNorthEast(), b.getSouthEast(), b.getSouthWest()])(BERLIN_BOUNDS.pad(3)), OUTLINE], { interactive: false, stroke: false, fillColor: "#09090b", fillOpacity: 0.7, renderer: rend }).addTo(m);
+    mask.current = L.polygon([(b => [b.getNorthWest(), b.getNorthEast(), b.getSouthEast(), b.getSouthWest()])(BERLIN_BOUNDS.pad(3)), OUTLINE],
+      { interactive: false, stroke: false, fillOpacity: 0.7, renderer: rend }).addTo(m);
     Object.values(AREAS).forEach(a => {
-      polys.current[a.id] = L.polygon(a.poly, { weight: 1, color: "#18181b", renderer: rend })
-        .on("click", () => cb.current.onSelect(a.id)).addTo(m);
+      polys.current[a.id] = L.polygon(a.poly, { renderer: rend })
+        .on("click", () => cb.current.onSelect(a.id))
+        .on("mouseover", () => { hover.current = a.id; paintRef.current(); })
+        .on("mouseout", () => { hover.current = null; paintRef.current(); }).addTo(m);
       if (a.limited) polys.current[a.id].bindTooltip("Limited data", { sticky: true });
     });
-    L.polygon(OUTLINE, { interactive: false, fill: false, color: "#e4e4e7", weight: 1.5, renderer: rend }).addTo(m);
+    edge.current = L.polygon(OUTLINE, { interactive: false, fill: false, weight: 1.5, renderer: rend }).addTo(m);
     m.on("dragstart", () => cb.current.onInteract());
     m.on("drag", () => cb.current.onOutside(m.getCenter(), "drag"));
     m.on("moveend", () => cb.current.onOutside(m.getCenter(), "end"));
-    setTimeout(() => { m.invalidateSize(); m.fitBounds(BERLIN_BOUNDS); // single pulse to show polygons are tappable
-      Object.values(polys.current).forEach(p => { const e = p.getElement(); e.classList.add("pulse-once"); e.addEventListener("animationend", () => e.classList.remove("pulse-once"), { once: true }); }); }, 150);
+    setTimeout(() => { m.invalidateSize(); m.fitBounds(BERLIN_BOUNDS); paintRef.current(); }, 150);
     return () => m.remove();
   }, []);
-  useEffect(() => {
-    Object.values(AREAS).forEach(a => {
-      const p = polys.current[a.id], sel = a.id === selected, loc = a.id === locArea;
-      const hex = TIERS[getAnswer(a.id, filters.day, filters.part, filters.bike).tier].hex;
-      p.setStyle({ fillColor: a.limited ? "url(#hatch)" : hex, fillOpacity: a.limited ? 1 : sel ? 0.8 : 0.55,
-        color: sel ? "#fff" : loc ? "#38bdf8" : "#18181b", weight: sel || loc ? 3 : 1 });
-      if (sel || loc) p.bringToFront();
-    });
-  }, [filters, selected, locArea]);
+  const paintRef = useRef(paint); paintRef.current = paint;
+  useEffect(paint, [filters, selected, locArea, theme]);
   useEffect(() => { // position marker only if in view
     dot.current?.remove(); dot.current = null;
     const m = mapRef.current;
-    if (myPos && m && m.getBounds().contains(myPos)) dot.current = L.circleMarker(myPos, { radius: 8, color: "#fff", weight: 3, fillColor: "#0ea5e9", fillOpacity: 1, interactive: false }).addTo(m);
-  }, [myPos]);
+    if (myPos && m && m.getBounds().contains(myPos)) dot.current = L.circleMarker(myPos, { radius: 8, color: CUR.card, weight: 3, fillColor: CUR.accent, fillOpacity: 1, interactive: false }).addTo(m);
+  }, [myPos, theme]);
   return <div className="absolute inset-0"><div ref={el} style={{ height: "100%" }} /></div>;
 }
 
 // ---------- Result card + trust screens ----------
-function Select({ label, options, value, onChange }) {
+function Seg({ label, options, value, onChange }) {
   return (
-    <label className="flex-1 min-w-[7rem] text-xs text-zinc-400">{label}
-      <select value={value} onChange={e => onChange(e.target.value)} className="mt-0.5 w-full bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1.5 text-sm text-zinc-100">
-        {Object.entries(options).map(([k, o]) => <option key={k} value={k}>{o.label}</option>)}
-      </select>
-    </label>
+    <div role="group" aria-label={label}>
+      <div className="label muted mb-1">{label}</div>
+      <div className="flex flex-wrap gap-2">
+        {Object.entries(options).map(([k, o]) => <button key={k} className="chip" aria-pressed={value === k} onClick={() => onChange(k)}>{o.label}</button>)}
+      </div>
+    </div>
   );
 }
-const Back = ({ onClick }) => <button onClick={onClick} className="text-sm text-sky-300 mb-2">← Back</button>;
+const Back = ({ onClick }) => <button className="link" onClick={onClick}>← Back</button>;
+const Swatch = ({ k, limited }) => limited
+  ? <i className="sw" style={{ background: "repeating-linear-gradient(45deg,transparent 0 3px,var(--hatch) 3px 4.5px)", border: "2px solid var(--hatch)" }} />
+  : <i className="sw" style={{ background: tierFill(k), border: "2px solid " + tierStroke(k) }} />;
+const Pips = ({ conf }) => <span aria-hidden="true" className="inline-flex gap-1">{[1, 2, 3].map(i => <i key={i} className={"pip " + (i <= ({ LOW: 1, MEDIUM: 2, HIGH: 3 })[conf] ? "on" : "off")} />)}</span>;
 
 function Card({ r, filters, setFilter, onClose }) {
   const [view, setView] = useState("result"), [sent, setSent] = useState(false);
   useEffect(() => { setView("result"); setSent(false); }, [r.area.id]);
   const t = TIERS[r.tier];
   let body;
-  if (view === "why") body = (<div className="space-y-2 text-sm text-zinc-300">
-    <Back onClick={() => setView("result")} /><h2 className="font-bold text-base text-zinc-100">How this works</h2>
+  if (view === "why") body = (<div className="space-y-2 small muted">
+    <Back onClick={() => setView("result")} /><h2 className="text-xl" style={{ color: "var(--ink)" }}>How this works</h2>
     <p>Source: Polizei Berlin reported bicycle thefts. Data window and exclusions are shown here in the real product (mock text in this prototype).</p>
-    <p>Areas are ranked by reported thefts per time slot and split into Lower, Medium and Higher tiers. A tier describes reported theft patterns, not a promise about any one bike or spot.</p>
-    <button onClick={() => setView("about")} className="text-sky-300">About the data →</button></div>);
-  else if (view === "about") body = (<div className="space-y-2 text-sm text-zinc-300">
-    <Back onClick={() => setView("why")} /><h2 className="font-bold text-base text-zinc-100">About the data</h2>
+    <p>Areas are ranked by reported thefts per time slot and split into Low, Medium and High risk. A rating describes reported theft patterns, not a promise about any one bike or spot.</p>
+    <button className="link" onClick={() => setView("about")}>About the data →</button></div>);
+  else if (view === "about") body = (<div className="space-y-2 small muted">
+    <Back onClick={() => setView("why")} /><h2 className="text-xl" style={{ color: "var(--ink)" }}>About the data</h2>
     <p>Datenquelle: Polizei Berlin (CC-BY 4.0) · © OpenStreetMap contributors (ODbL).</p>
     <p>Many thefts are never reported, and reporting differs between areas. There is no rack-level detail.</p></div>);
-  else if (view === "report") body = (<div className="space-y-2 text-sm">
-    <Back onClick={() => setView("result")} /><h2 className="font-bold text-base">This looks wrong</h2>
-    <p className="text-zinc-400">Tell us what seems off. Your location is not sent.</p>
-    <textarea rows="3" className="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-2" placeholder="What looks misleading?" />
+  else if (view === "report") body = (<div className="space-y-2 small">
+    <Back onClick={() => setView("result")} /><h2 className="text-xl">This looks wrong</h2>
+    <p className="muted">Tell us what seems off. Your location is not sent.</p>
+    <textarea rows="3" aria-label="What looks misleading?" className="field w-full" style={{ borderRadius: "1rem", padding: ".5rem .75rem" }} placeholder="What looks misleading?" />
     <div className="flex gap-2">
-      <button onClick={() => { setSent(true); setView("result"); }} className="px-4 py-1.5 rounded-full bg-zinc-100 text-zinc-900 font-semibold">Submit</button>
-      <button onClick={() => setView("result")} className="px-4 py-1.5 rounded-full border border-zinc-600">Cancel</button></div></div>);
+      <button className="btn" onClick={() => { setSent(true); setView("result"); }}>Submit</button>
+      <button className="btn btn-ghost" onClick={() => setView("result")}>Cancel</button></div></div>);
   else body = (<>
     <div className="flex items-start justify-between gap-3">
-      <div>
-        <h2 className="text-base font-bold">{r.area.name}</h2>
-        <span className={"inline-block mt-1 px-4 py-1 rounded-full border text-lg font-extrabold " + t.badge}>{t.label}</span>
+      <div className="space-y-2">
+        <h2 className="text-2xl" style={{ lineHeight: "1.875rem" }}>{r.area.name}</h2>
+        <span className="pill text-xl">{r.limited ? <><Swatch limited /> Limited data</> : <><Swatch k={t.key} /> {t.label}</>}</span>
       </div>
-      <button onClick={onClose} aria-label="Close card" className="text-zinc-400 hover:text-white text-2xl leading-none">×</button>
+      <button className="iconbtn text-2xl" onClick={onClose} aria-label="Close card">×</button>
     </div>
-    <p className="text-sm">{t.means}</p>
-    {r.limited && <p className="text-sm px-3 py-2 rounded-lg bg-zinc-800 border border-dashed border-zinc-500">Limited data: few reported thefts here, so treat this tier with extra caution.</p>}
-    <div className="flex gap-2 flex-wrap">
-      <Select label="Time of day" options={DAYPARTS} value={filters.part} onChange={setFilter("part")} />
-      <Select label="Day" options={DAYTYPES} value={filters.day} onChange={setFilter("day")} />
-      <Select label="Bike" options={BIKES} value={filters.bike} onChange={setFilter("bike")} />
+    {r.limited
+      ? <p>Not enough reports to rate this area. Use the general advice below.</p>
+      : <><p>{t.means}</p>
+          <p className="flex items-center gap-2 small"><Pips conf={r.conf} /><span>Confidence: {r.conf[0] + r.conf.slice(1).toLowerCase()}. {CONF_WHY[r.conf]}</span></p></>}
+    <div className="space-y-3">
+      <Seg label="Time of day" options={DAYPARTS} value={filters.part} onChange={setFilter("part")} />
+      <Seg label="Day" options={DAYTYPES} value={filters.day} onChange={setFilter("day")} />
+      <Seg label="Bike" options={BIKES} value={filters.bike} onChange={setFilter("bike")} />
     </div>
-    <p className="text-sm text-zinc-300">{r.why}</p>
-    <ul className="list-disc pl-5 text-sm text-zinc-300">{r.reasons.map((f, i) => <li key={i}>{f}</li>)}</ul>
-    <section className={"rounded-lg border p-3 space-y-1 " + t.badge}>
-      <h3 className="font-bold text-zinc-100">Lock recommendation</h3>
-      <p className="text-sm text-zinc-200">{r.lock.main}</p><p className="text-sm text-zinc-200">{r.lock.anchor}</p>
+    <p className="small muted">{r.why}</p>
+    <ul className="list-disc pl-5 small muted">{r.reasons.map((f, i) => <li key={i}>{f}</li>)}</ul>
+    <section className="rounded-2xl p-3 space-y-1" style={{ background: "var(--raised)", border: "1px solid var(--border)" }}>
+      <h3 className="display text-xl" style={{ lineHeight: "1.625rem" }}>Lock recommendation</h3>
+      <p className="small">{r.lock.main}</p><p className="small">{r.lock.anchor}</p>
     </section>
-    <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400">
+    <div className="flex flex-wrap items-center gap-x-4 small muted">
       <span>Data to {DATA_DATE}</span>
-      <button onClick={() => setView("why")} className="text-sky-300 underline">How this works</button>
-      <button onClick={() => setView("report")} className="text-sky-300 underline">This looks wrong</button>
-      {sent && <span className="text-emerald-300">Thanks! (prototype: nothing was sent)</span>}
+      <button className="link" onClick={() => setView("why")}>How this works</button>
+      <button className="link" onClick={() => setView("report")}>This looks wrong</button>
+      {sent && <span role="status">Thanks! (prototype: nothing was sent)</span>}
     </div></>);
-  return <div className="absolute z-[1000] bottom-0 left-0 right-0 max-h-[75%] overflow-y-auto bg-zinc-900 border-t border-zinc-700 rounded-t-2xl p-4 space-y-3 sm:left-auto sm:right-4 sm:bottom-4 sm:w-[430px] sm:rounded-2xl sm:border sm:max-h-[calc(100%-9rem)]">{body}</div>;
+  return (
+    <div className="absolute z-[1000] bottom-0 left-0 right-0 max-h-[75%] overflow-y-auto panel rounded-b-none sm:left-auto sm:right-4 sm:bottom-4 sm:w-[430px] sm:rounded-b-3xl sm:max-h-[calc(100%-9rem)]">
+      <div className="lava" aria-hidden="true" />
+      <div className="p-4 space-y-3 safe-x safe-b">{body}</div>
+    </div>);
 }
 
 // ---------- App ----------
-const SIM = { real: "Real GPS", inside: "Simulate: inside Berlin", outside: "Simulate: outside Berlin (Hamburg)", denied: "Simulate: permission denied", timeout: "Simulate: timeout" };
+const SIM = { real: "Real GPS", inside: "Inside Berlin", outside: "Outside Berlin (Hamburg)", denied: "Permission denied", timeout: "Timeout" };
 
 function App() {
   const [loaded, setLoaded] = useState(false);
   const [filters, setFilters] = useState({ day: "weekday", part: "evening", bike: "standard" });
   const [selected, setSelected] = useState(null);
   const [hint, setHint] = useState(true);
-  const [loc, setLoc] = useState("idle"); // idle | loading
-  const [locErr, setLocErr] = useState(null); // 'denied' | 'unavailable'
-  const [banner, setBanner] = useState(null); // null | 'drag' | 'gps'
+  const [loc, setLoc] = useState("idle");
+  const [locErr, setLocErr] = useState(null);
+  const [banner, setBanner] = useState(null);
   const [myPos, setMyPos] = useState(null), [locArea, setLocArea] = useState(null);
   const [sim, setSim] = useState("real");
   const [info, setInfo] = useState(false);
+  const [mode, setMode] = useState("auto"), [theme, setTheme] = useState(() => applyTheme("auto"));
   const mapRef = useRef(null), hideT = useRef(null);
   const setFilter = k => v => setFilters(f => ({ ...f, [k]: v }));
 
-  useEffect(() => { const t = setTimeout(() => setLoaded(true), 700); return () => clearTimeout(t); }, []); // scr_launch: mocked snapshot load
+  useEffect(() => { // re-resolve tokens on mode or OS preference change
+    const run = () => setTheme(applyTheme(mode));
+    run();
+    const qs = [mq("(prefers-color-scheme: dark)"), mq("(prefers-contrast: more)")];
+    qs.forEach(q => q.addEventListener("change", run));
+    return () => qs.forEach(q => q.removeEventListener("change", run));
+  }, [mode]);
+  useEffect(() => { const t = setTimeout(() => setLoaded(true), 700); return () => clearTimeout(t); }, []);
 
-  const dismissHint = () => setHint(false); // held in memory only
+  const dismissHint = () => setHint(false);
   const onSelect = id => { setSelected(id); setHint(false); };
   const onOutside = (c, ev) => {
     const out = !inPoly([c.lat, c.lng], OUTLINE);
@@ -233,13 +312,13 @@ function App() {
     if (out) setBanner(b => b || "drag");
     else if (ev === "end") hideT.current = setTimeout(() => setBanner(b => (b === "drag" ? null : b)), 1500);
   };
-  const backToBerlin = () => { setBanner(null); mapRef.current.fitBounds(BERLIN_BOUNDS); };
-
+  const backToBerlin = () => { setBanner(null); mapRef.current.fitBounds(BERLIN_BOUNDS, { animate: false }); };
   const gotFix = (lat, lng) => {
     setLoc("idle"); setLocErr(null);
     const a = areaAt([lat, lng]);
-    if (a) { setBanner(null); setMyPos([lat, lng]); setLocArea(a.id); mapRef.current.flyTo([lat, lng], 13); }
-    else { setLocArea(null); setMyPos([lat, lng]); mapRef.current.fitBounds(BERLIN_BOUNDS); setBanner("gps"); }
+    setMyPos([lat, lng]);
+    if (a) { setBanner(null); setLocArea(a.id); mapRef.current.setView([lat, lng], 13, { animate: false }); }
+    else { setLocArea(null); mapRef.current.fitBounds(BERLIN_BOUNDS, { animate: false }); setBanner("gps"); }
   };
   const locate = () => {
     setHint(false); setLocErr(null); setLoc("loading");
@@ -253,79 +332,85 @@ function App() {
   };
 
   const r = selected && getAnswer(selected, filters.day, filters.part, filters.bike);
-  const LocateBtn = ({ small }) => (
-    <button onClick={locate} disabled={loc === "loading"} className={"shrink-0 rounded-full bg-sky-500 text-zinc-950 font-semibold disabled:opacity-60 " + (small ? "px-3 py-1 text-xs" : "px-3 py-1.5 text-sm")}>
-      {loc === "loading" ? "Locating…" : "📍 Locate me"}
-    </button>);
+  const locateBtn = (
+    <button className="btn shrink-0" onClick={locate} disabled={loc === "loading"}>{loc === "loading" ? "Locating…" : "📍 Locate me"}</button>);
 
-  if (!loaded) return <div className="h-full flex items-center justify-center text-zinc-400">Loading Berlin data…</div>;
+  if (!loaded) return <div className="h-full flex items-center justify-center muted display text-xl">Loading Berlin data…</div>;
   return (
     <div className="relative h-full flex flex-col overflow-hidden">
-      <header className="z-[1100] bg-zinc-900 border-b border-zinc-800 px-3 py-2 flex items-center gap-3">
-        <h1 className="font-bold text-sm sm:text-base flex-1">LockOut: bike-parking risk in Berlin</h1>
-        <div className="flex items-center gap-2 text-[11px] text-zinc-300" aria-label="Legend">
-          {Object.values(TIERS).reverse().reverse().map(t => <span key={t.label} className="flex items-center gap-1"><i className="w-3 h-3 rounded-sm inline-block" style={{ background: t.hex }} />{t.label.split(" ")[0]}</span>)}
-          <span className="flex items-center gap-1"><i className="w-3 h-3 rounded-sm inline-block border border-zinc-400" style={{ background: "repeating-linear-gradient(45deg,#52525b,#52525b 2px,#d4d4d8 2px,#d4d4d8 3px)" }} />Limited data</span>
+      <header className="z-[1100] bar border-b">
+        <div className="safe-x py-2 flex flex-wrap items-center gap-2">
+          <h1 className="text-xl flex-1 min-w-[12rem]" style={{ lineHeight: "1.625rem" }}>LockOut: bike-parking risk in Berlin</h1>
+          <select className="field" aria-label="Choose an area from the list" value={selected || ""} onChange={e => e.target.value && onSelect(e.target.value)}>
+            <option value="">Area list…</option>
+            {Object.values(AREAS).map(a => <option key={a.id} value={a.id}>{a.name}{a.limited ? " (limited data)" : ""}</option>)}
+          </select>
+          <button className="iconbtn" onClick={() => setMode(m => ({ auto: "light", light: "dark", dark: "auto" })[m])} aria-label={`Theme: ${mode}. Tap to change.`}>{{ auto: "◐", light: "☀", dark: "☾" }[mode]}</button>
+          <button className="iconbtn font-serif italic" onClick={() => setInfo(true)} aria-label="About this prototype">i</button>
         </div>
-        <button onClick={() => setInfo(true)} aria-label="About this prototype" className="shrink-0 w-7 h-7 rounded-full border border-zinc-600 text-sm font-serif italic">i</button>
+        <div className="lava" aria-hidden="true" />
       </header>
 
       <div className="relative flex-1">
-        <RiskMap filters={filters} selected={selected} locArea={locArea} myPos={myPos} onSelect={onSelect} onInteract={dismissHint} onOutside={onOutside} mapRef={mapRef} />
+        <RiskMap filters={filters} selected={selected} locArea={locArea} myPos={myPos} theme={theme} onSelect={onSelect} onInteract={dismissHint} onOutside={onOutside} mapRef={mapRef} />
 
         <div className="absolute z-[1050] top-2 left-2 right-2 flex flex-col gap-2 pointer-events-none [&>*]:pointer-events-auto">
           {hint && !selected && (
-            <div className="flex items-center gap-3 rounded-xl bg-zinc-900/95 border border-zinc-700 px-3 py-2 text-sm">
-              <span className="flex-1">Tap an area to see its bike-theft risk and lock advice</span>
-              <LocateBtn small />
-              <button onClick={dismissHint} aria-label="Dismiss hint" className="text-zinc-400 text-lg leading-none">×</button>
+            <div className="notice flex items-center gap-3 px-3 py-2">
+              <span className="flex-1 small">Tap an area to see its bike-theft risk and lock advice</span>
+              {locateBtn}
+              <button className="iconbtn text-xl" onClick={dismissHint} aria-label="Dismiss hint">×</button>
             </div>)}
           {banner && (
-            <div role="status" className="flex items-center gap-3 rounded-xl bg-amber-900/95 border border-amber-500 px-3 py-2 text-sm">
-              <span className="flex-1">LockOut only covers Berlin. You're outside the area, so there's no risk data here.</span>
-              <button onClick={backToBerlin} className="shrink-0 px-3 py-1 rounded-full bg-zinc-100 text-zinc-900 text-xs font-semibold">Back to Berlin</button>
+            <div role="status" className="notice flex items-center gap-3 px-3 py-2">
+              <span className="flex-1 small">LockOut only covers Berlin. You're outside the area, so there's no risk data here.</span>
+              <button className="btn" onClick={backToBerlin}>Back to Berlin</button>
             </div>)}
           {locErr && (
-            <div role="alert" className="flex items-center gap-3 rounded-xl bg-rose-900/95 border border-rose-500 px-3 py-2 text-sm">
-              <span className="flex-1">{locErr === "denied" ? "Location is blocked. Enable it in browser settings, or just tap an area on the map." : "Couldn't get your location."}</span>
-              {locErr === "unavailable" && <button onClick={locate} className="shrink-0 px-3 py-1 rounded-full bg-zinc-100 text-zinc-900 text-xs font-semibold">Retry</button>}
-              <button onClick={() => setLocErr(null)} aria-label="Dismiss" className="text-zinc-300 text-lg leading-none">×</button>
+            <div role="alert" className="notice flex items-center gap-3 px-3 py-2">
+              <span className="flex-1 small">{locErr === "denied" ? "Location is blocked. Enable it in browser settings, or just tap an area on the map." : "Couldn't get your location."}</span>
+              {locErr === "unavailable" && <button className="btn" onClick={locate}>Retry</button>}
+              <button className="iconbtn text-xl" onClick={() => setLocErr(null)} aria-label="Dismiss">×</button>
             </div>)}
         </div>
 
-        {!hint && !selected && <div className="absolute z-[1000] bottom-4 right-3"><LocateBtn /></div>}
+        {!hint && !selected && <div className="absolute z-[1000] bottom-4 right-3">{locateBtn}</div>}
         {r && <Card r={r} filters={filters} setFilter={setFilter} onClose={() => setSelected(null)} />}
 
-        <label className="absolute z-[1000] bottom-2 left-2 text-[10px] bg-zinc-900/90 border border-zinc-700 rounded-lg px-2 py-1 text-zinc-400">
-          Test control – location:{" "}
-          <select value={sim} onChange={e => setSim(e.target.value)} className="bg-zinc-800 text-zinc-100 rounded">
-            {Object.entries(SIM).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-          </select>
-        </label>
+        <div className="absolute z-[900] bottom-2 left-2 panel rounded-2xl px-3 py-2 label" aria-label="Legend">
+          {Object.values(TIERS).map(t => <div key={t.key} className="flex items-center gap-2"><Swatch k={t.key} />{t.label}</div>)}
+          <div className="flex items-center gap-2"><i className="sw" style={{ border: "2px dashed var(--ink)" }} />Low confidence: less certain</div>
+          <div className="flex items-center gap-2"><Swatch limited />Limited data: not enough reports</div>
+          <label className="block mt-1 pt-1 muted" style={{ borderTop: "1px solid var(--border)" }}>Test control, location:{" "}
+            <select className="field" style={{ minHeight: 44 }} value={sim} onChange={e => setSim(e.target.value)}>
+              {Object.entries(SIM).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+          </label>
+        </div>
       </div>
 
-      <footer className="z-[1100] bg-zinc-900 border-t border-zinc-800 text-[11px] text-zinc-500 text-center py-1">
+      <footer className="z-[1100] bar border-t label muted text-center py-1 safe-b">
         Datenquelle: Polizei Berlin (CC-BY 4.0) · © OpenStreetMap contributors (ODbL)
       </footer>
 
-      {location.protocol === "file:" && <div className="absolute z-[3000] bottom-10 left-3 right-3 p-3 rounded-lg bg-rose-900 border border-rose-500 text-sm">OSM blocks tiles for pages opened from disk (no Referer). Run <code className="bg-black/40 px-1 rounded">python3 -m http.server 8000 -d demo</code> and open http://localhost:8000</div>}
+      {location.protocol === "file:" && <div className="absolute z-[3000] bottom-10 left-3 right-3 notice p-3 small">OSM blocks tiles for pages opened from disk (no Referer). Run <code>python3 -m http.server 8000 -d demo</code> and open http://localhost:8000</div>}
       {info && (
-        <div className="absolute inset-0 z-[2000] bg-black/70 flex items-center justify-center p-4" onClick={() => setInfo(false)}>
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-5 max-w-md text-sm space-y-2" onClick={e => e.stopPropagation()}>
-            <h2 className="font-bold text-lg">Prototype for user testing</h2>
-            <p>Areas, tiers and numbers are random mock data. No account, no tracking, nothing is saved between visits.</p>
-            <p>The "Test control" at the bottom left lets a moderator force each location outcome (inside Berlin, outside, denied, timeout).</p>
-            <button onClick={() => setInfo(false)} className="mt-2 px-4 py-1.5 rounded-full bg-zinc-100 text-zinc-900 font-semibold">Close</button>
+        <div className="absolute inset-0 z-[2000] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,.6)" }} onClick={() => setInfo(false)}>
+          <div role="dialog" aria-modal="true" className="panel p-5 max-w-md space-y-2" onClick={e => e.stopPropagation()}>
+            <h2 className="text-2xl">Prototype for user testing</h2>
+            <p>Areas, ratings and numbers are random mock data. No account, no tracking, nothing is saved between visits.</p>
+            <p>The "Test control" in the legend lets a moderator force each location outcome (inside Berlin, outside, denied, timeout). The ◐ button switches light and dark theme.</p>
+            <button className="btn" onClick={() => setInfo(false)}>Close</button>
           </div>
         </div>)}
     </div>
   );
 }
 
-// Self-check: every combination (incl. bogus keys) yields a complete answer; outline contains every cell centre.
+// Self-check: every combination (incl. bogus keys) yields a complete answer; outline test.
 for (const a of [...Object.keys(AREAS), "bogus"]) for (const d of [...Object.keys(DAYTYPES), "x"]) for (const p of [...Object.keys(DAYPARTS), "x"]) for (const b of [...Object.keys(BIKES), "x"]) {
   const r = getAnswer(a, d, p, b);
-  console.assert(TIERS[r.tier] && r.lock.main && r.reasons.length, "bad answer", a, d, p, b);
+  console.assert(TIERS[r.tier] && r.lock.main && r.reasons.length && CONF_WHY[r.conf], "bad answer", a, d, p, b);
 }
 console.assert(inPoly([52.51, 13.40], OUTLINE) && !inPoly([53.55, 9.99], OUTLINE), "outline test failed");
 
