@@ -79,41 +79,38 @@ function applyTheme(mode) {
 }
 applyTheme("auto");
 
-// ---------- Mock fixture ----------
-const COLS = 8, ROWS = 6, LAT0 = 52.38, LAT1 = 52.64, LNG0 = 13.14, LNG1 = 13.64;
-let seed = 17;
-const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+// ---------- Fixture: real LOR geometry (demo/lor.json, simplified), MOCK numbers ----------
+// demo/lor.json is built from data/raw/lor_planungsraeume_2021.geojson (542 areas, coords rounded, simplified ~10 m).
 const FACTOR_POOL = ["High transit foot traffic", "Low street rack density", "Busy evening entertainment corridor",
   "Dense residential blocks with many street-parked bikes", "Long-stay commuter parking", "Shops and cafés keep eyes on the street"];
-const verts = Array.from({ length: ROWS + 1 }, (_, r) => Array.from({ length: COLS + 1 }, (_, c) => {
-  const j = (r === 0 || c === 0 || r === ROWS || c === COLS) ? 0 : 0.35;
-  return [LAT1 - (r + (rnd() - .5) * j) * (LAT1 - LAT0) / ROWS, LNG0 + (c + (rnd() - .5) * j) * (LNG1 - LNG0) / COLS];
-}));
-const AREAS = {};
-for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
-  const id = `0${r + 1}${String(c + 1).padStart(2, "0")}0101`;
-  const base = 35 + rnd() * 60, cr = rnd();
-  AREAS[id] = {
-    id, name: `Planning area ${id}`, base, thefts: Math.round(base * 1.6), limited: rnd() > 0.82,
-    conf: cr < 0.3 ? "LOW" : cr < 0.65 ? "MEDIUM" : "HIGH",
-    factors: [0, 1, 2].map(i => FACTOR_POOL[(Math.floor(rnd() * 6) + i * 2) % 6]),
-    poly: [verts[r][c], verts[r][c + 1], verts[r + 1][c + 1], verts[r + 1][c]],
-  };
+let AREAS = {}, FALLBACK_AREA, BERLIN_BOUNDS;
+const hashRnd = id => { let h = 2166136261; const n = () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) + 0x9e3779b9 | 0), (h >>> 0) / 4294967296); [...id].forEach(c => { h = Math.imul(h ^ c.charCodeAt(0), 16777619); }); return n; };
+function loadAreas(rows) {
+  const all = [];
+  rows.forEach(r => {
+    const rnd = hashRnd(r.id), base = 25 + rnd() * 75, cr = rnd();
+    const pts = r.polys.flat(2);
+    AREAS[r.id] = {
+      id: r.id, name: r.name, bez: r.bez, base, thefts: Math.round(base * 1.6), limited: rnd() > 0.85,
+      conf: cr < 0.3 ? "LOW" : cr < 0.65 ? "MEDIUM" : "HIGH",
+      factors: [0, 1, 2].map(i => FACTOR_POOL[(Math.floor(rnd() * 6) + i * 2) % 6]),
+      poly: r.polys, bbox: L.latLngBounds(pts),
+    };
+    all.push(...pts);
+  });
+  FALLBACK_AREA = Object.values(AREAS)[0];
+  BERLIN_BOUNDS = L.latLngBounds(all);
 }
-const FALLBACK_AREA = AREAS["01010101"];
-const OUTLINE = [...verts[0], ...verts.slice(1).map(row => row[COLS]),
-  ...[...verts[ROWS]].reverse().slice(1), ...verts.slice(1, ROWS).map(row => row[0]).reverse()];
-const BERLIN_BOUNDS = L.latLngBounds(OUTLINE);
 const DATA_DATE = "30 Sep 2025 (mock)";
-const inPoly = ([y, x], poly) => { // ray casting; points are [lat, lng]
+const ringHas = ([y, x], ring) => { // ray casting; points are [lat, lng]
   let ins = false;
-  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-    const [yi, xi] = poly[i], [yj, xj] = poly[j];
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [yi, xi] = ring[i], [yj, xj] = ring[j];
     if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) ins = !ins;
   }
   return ins;
 };
-const areaAt = p => Object.values(AREAS).find(a => inPoly(p, a.poly));
+const areaAt = p => Object.values(AREAS).find(a => a.bbox.contains(p) && a.poly.some(rings => ringHas(p, rings[0]) && !rings.slice(1).some(h => ringHas(p, h))));
 
 const DAYTYPES = { weekday: { label: "Weekday", d: 0 }, weekend: { label: "Weekend", d: 5 } };
 const DAYPARTS = { morning: { label: "Morning", d: -8 }, afternoon: { label: "Afternoon", d: 0 }, evening: { label: "Evening", d: 9 }, night: { label: "Night", d: 14 } };
@@ -150,25 +147,25 @@ function lockAdvice(tier, bike) {
 
 // ---------- Map (no motion, flat fills, crisp outlines) ----------
 function RiskMap({ filters, selected, locArea, myPos, theme, onSelect, onInteract, onOutside, mapRef }) {
-  const el = useRef(null), polys = useRef({}), dot = useRef(null), cb = useRef({}), hover = useRef(null), mask = useRef(null), edge = useRef(null);
+  const el = useRef(null), polys = useRef({}), dot = useRef(null), cb = useRef({}), hover = useRef(null), mask = useRef(null);
   cb.current = { onSelect, onInteract, onOutside };
-  const paint = () => {
-    const w = MORE ? 3 : 2;
-    Object.values(AREAS).forEach(a => {
+  const paintOne = a => {
+    const w = MORE ? 2 : 1; // thin outlines: ~540 small polygons
+    {
       const sel = a.id === selected, loc = a.id === locArea, hov = a.id === hover.current;
       const k = a.limited ? null : TIERS[getAnswer(a.id, filters.day, filters.part, filters.bike).tier].key;
       const stroke = a.limited ? CUR.hatch : tierStroke(k);
       polys.current[a.id].setStyle({
         fillColor: a.limited ? "url(#hatch)" : tierFill(k), fillOpacity: a.limited ? 1 : FILL_ALPHA,
-        color: sel ? CUR.ink : loc ? CUR.accent : stroke, weight: sel || loc ? w + 2 : hov ? w + 1 : w,
+        color: sel ? CUR.ink : loc ? CUR.accent : stroke, weight: sel || loc ? w + 3 : hov ? w + 1 : w,
         dashArray: !a.limited && a.conf === "LOW" ? "4 3" : null, // low confidence = dashed outline
       });
       if (sel || loc || hov) polys.current[a.id].bringToFront();
-    });
-    mask.current?.setStyle({ fillColor: CUR.ground }); edge.current?.setStyle({ color: CUR.ink });
+    }
   };
+  const paint = () => { Object.values(AREAS).forEach(paintOne); mask.current?.setStyle({ fillColor: CUR.ground }); };
   useEffect(() => {
-    const m = L.map(el.current, { zoomControl: false, minZoom: 9, maxBounds: BERLIN_BOUNDS.pad(0.3), maxBoundsViscosity: 0.6, zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false })
+    const m = L.map(el.current, { zoomControl: false, minZoom: 10, maxBounds: BERLIN_BOUNDS.pad(0.3), maxBoundsViscosity: 0.6, zoomAnimation: false, fadeAnimation: false, markerZoomAnimation: false })
       .fitBounds(BERLIN_BOUNDS);
     mapRef.current = m;
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: "© OpenStreetMap contributors" }).addTo(m);
@@ -177,23 +174,21 @@ function RiskMap({ filters, selected, locArea, myPos, theme, onSelect, onInterac
     // limited data: 45deg grey hatch, 1.5px stripe, 6px period
     defs.innerHTML = '<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" style="stroke:var(--hatch)" stroke-width="1.5"/></pattern>';
     rend._container.prepend(defs);
-    mask.current = L.polygon([(b => [b.getNorthWest(), b.getNorthEast(), b.getSouthEast(), b.getSouthWest()])(BERLIN_BOUNDS.pad(3)), OUTLINE],
+    mask.current = L.polygon([(b => [b.getNorthWest(), b.getNorthEast(), b.getSouthEast(), b.getSouthWest()])(BERLIN_BOUNDS.pad(3)), ...Object.values(AREAS).flatMap(a => a.poly.map(rings => rings[0]))],
       { interactive: false, stroke: false, fillOpacity: 0.7, renderer: rend }).addTo(m);
     Object.values(AREAS).forEach(a => {
       polys.current[a.id] = L.polygon(a.poly, { renderer: rend })
         .on("click", () => cb.current.onSelect(a.id))
-        .on("mouseover", () => { hover.current = a.id; paintRef.current(); })
-        .on("mouseout", () => { hover.current = null; paintRef.current(); }).addTo(m);
-      if (a.limited) polys.current[a.id].bindTooltip("Limited data", { sticky: true });
+        .on("mouseover", () => { hover.current = a.id; paintRef.current.one(a); })
+        .on("mouseout", () => { hover.current = null; paintRef.current.one(a); }).addTo(m);
     });
-    edge.current = L.polygon(OUTLINE, { interactive: false, fill: false, weight: 1.5, renderer: rend }).addTo(m);
     m.on("dragstart", () => cb.current.onInteract());
     m.on("drag", () => cb.current.onOutside(m.getCenter(), "drag"));
     m.on("moveend", () => cb.current.onOutside(m.getCenter(), "end"));
-    setTimeout(() => { m.invalidateSize(); m.fitBounds(BERLIN_BOUNDS); paintRef.current(); }, 150);
+    setTimeout(() => { m.invalidateSize(); m.fitBounds(BERLIN_BOUNDS); paintRef.current.all(); }, 150);
     return () => m.remove();
   }, []);
-  const paintRef = useRef(paint); paintRef.current = paint;
+  const paintRef = useRef(); paintRef.current = { all: paint, one: paintOne };
   useEffect(paint, [filters, selected, locArea, theme]);
   useEffect(() => { // position marker only if in view
     dot.current?.remove(); dot.current = null;
@@ -244,7 +239,7 @@ function Card({ r, filters, setFilter, onClose }) {
   else body = (<>
     <div className="flex items-start justify-between gap-3">
       <div className="space-y-2">
-        <h2 className="text-2xl" style={{ lineHeight: "1.875rem" }}>{r.area.name}</h2>
+        <div><h2 className="text-2xl" style={{ lineHeight: "1.875rem" }}>{r.area.name}</h2><div className="small muted">{r.area.bez} · {r.area.id}</div></div>
         <span className="pill text-xl">{r.limited ? <><Swatch limited /> Limited data</> : <><Swatch k={t.key} /> {t.label}</>}</span>
       </div>
       <button className="iconbtn text-2xl" onClick={onClose} aria-label="Close card">×</button>
@@ -307,7 +302,7 @@ function App() {
   const dismissHint = () => setHint(false);
   const onSelect = id => { setSelected(id); setHint(false); };
   const onOutside = (c, ev) => {
-    const out = !inPoly([c.lat, c.lng], OUTLINE);
+    const out = !areaAt([c.lat, c.lng]);
     clearTimeout(hideT.current);
     if (out) setBanner(b => b || "drag");
     else if (ev === "end") hideT.current = setTimeout(() => setBanner(b => (b === "drag" ? null : b)), 1500);
@@ -343,7 +338,7 @@ function App() {
           <h1 className="text-xl flex-1 min-w-[12rem]" style={{ lineHeight: "1.625rem" }}>LockOut: bike-parking risk in Berlin</h1>
           <select className="field" aria-label="Choose an area from the list" value={selected || ""} onChange={e => e.target.value && onSelect(e.target.value)}>
             <option value="">Area list…</option>
-            {Object.values(AREAS).map(a => <option key={a.id} value={a.id}>{a.name}{a.limited ? " (limited data)" : ""}</option>)}
+            {Object.values(AREAS).sort((x, y) => x.name.localeCompare(y.name, "de")).map(a => <option key={a.id} value={a.id}>{a.name} · {a.bez}{a.limited ? " (limited data)" : ""}</option>)}
           </select>
           <button className="iconbtn" onClick={() => setMode(m => ({ auto: "light", light: "dark", dark: "auto" })[m])} aria-label={`Theme: ${mode}. Tap to change.`}>{{ auto: "◐", light: "☀", dark: "☾" }[mode]}</button>
           <button className="iconbtn font-serif italic" onClick={() => setInfo(true)} aria-label="About this prototype">i</button>
@@ -407,14 +402,16 @@ function App() {
   );
 }
 
-// Self-check: every combination (incl. bogus keys) yields a complete answer; outline test.
-for (const a of [...Object.keys(AREAS), "bogus"]) for (const d of [...Object.keys(DAYTYPES), "x"]) for (const p of [...Object.keys(DAYPARTS), "x"]) for (const b of [...Object.keys(BIKES), "x"]) {
-  const r = getAnswer(a, d, p, b);
-  console.assert(TIERS[r.tier] && r.lock.main && r.reasons.length && CONF_WHY[r.conf], "bad answer", a, d, p, b);
-}
-console.assert(inPoly([52.51, 13.40], OUTLINE) && !inPoly([53.55, 9.99], OUTLINE), "outline test failed");
-
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+fetch("lor.json").then(r => r.json()).then(rows => {
+  loadAreas(rows);
+  // Self-check: every combination (incl. bogus keys) yields a complete answer; location mocks resolve as expected.
+  for (const a of [...Object.keys(AREAS).slice(0, 20), "bogus"]) for (const d of [...Object.keys(DAYTYPES), "x"]) for (const p of [...Object.keys(DAYPARTS), "x"]) for (const b of [...Object.keys(BIKES), "x"]) {
+    const r = getAnswer(a, d, p, b);
+    console.assert(TIERS[r.tier] && r.lock.main && r.reasons.length && CONF_WHY[r.conf], "bad answer", a, d, p, b);
+  }
+  console.assert(areaAt([52.51, 13.40]) && !areaAt([53.55, 9.99]), "location mock test failed");
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+}).catch(() => { document.getElementById("root").textContent = "Could not load lor.json. Serve the demo folder over HTTP."; });
 </script>
 </body>
 </html>
