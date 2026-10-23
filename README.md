@@ -24,7 +24,7 @@ Only 534 of the 542 areas have any police record; the other 8 are shrunk to thei
 
 ## 🎯 Problem & Core Value Proposition
 
-Urban cyclists in Berlin face roughly 17,000 reported street bicycle thefts per year in the open police dataset (2025: 17,190 rows; the PKS 2025 report counts 22,630, so the open data is a subset). Existing crime maps suffer from two fundamental flaws:
+Urban cyclists in Berlin face roughly 16,400 reported street bicycle thefts per year in the open police dataset (2025, by offence date, cellar break-ins excluded; 17,190 including them; the PKS 2025 report counts 22,630, so the open data is a subset). Existing crime maps suffer from two fundamental flaws:
 
 1. **The Volume Illusion:** Raw count maps flag busy transit hubs (e.g., Alexanderplatz) as "High Risk" without accounting for underlying urban activity density.
 2. **The Denominator Trap:** Naive rate maps ($\text{Thefts} / \text{Mapped Bike Racks}$) create extreme outliers in residential areas where OpenStreetMap (OSM) rack coverage is incomplete.

@@ -26,7 +26,7 @@ Abbreviations are explained in Appendix C.
 2. **Stress testing happens in Week 3.** Gate 3 (Fri 13 Nov) requires a passed stress test, the feature freeze and a tagged release candidate. Week 4 starts no new feature.
 3. **One freeze ladder** (section 7): feature freeze at Gate 3; pitch build frozen at Gate 4 (Tue 17 Nov); hard freeze Thu 19 Nov 12:00 with P0 fixes only.
 
-**Decisions requested at the Monday 26 Oct sync:** approve the scope and cut order (section 5); confirm the PM rotation (section 11); note decisions D-09 to D-11, now decided by the team (section 9); confirm rider recruiting is under way (WP 0.4). Presentation formats are due by 30 Oct (DEP-6).
+**Decisions requested at the Monday 26 Oct sync:** approve the scope and cut order (section 5); confirm the PM rotation (section 11); note decisions D-09 to D-11, now decided by the team, and confirm D-15 (trips measure) (section 9); confirm rider recruiting is under way (WP 0.4). Presentation formats are due by 30 Oct (DEP-6).
 
 ---
 
@@ -42,7 +42,8 @@ Abbreviations are explained in Appendix C.
 | Fairness | District fairness report (section 7, G1) | Produced, reviewed, every flagged district explained | G1 |
 | Usability | Riders who explain the tier and the confidence label in their own words | >= 4 of 5 | G2 |
 | Usability | Median time from opening the app to a stated lock decision | < 60 s | G2 |
-| Value | Riders who say they would use it | >= 3 of 5 | G2 |
+| Value | Riders who say they would use it (stated intent; background only if it disagrees with the trips measure) | >= 3 of 5 | G2 |
+| Value | **Trips measure** (prototype task 6): "Thinking of last week, which of your trips would you have checked this for?" | Pass: >= 3 of 5 riders name at least one concrete trip (place and time) and >= 2 of them include a place other than their daily spot. Narrow: 2 of 5, or every named trip is a daily spot. Stop: <= 1 rider. **Decides the value outcome if it disagrees with stated intent** (D-15) | G2 |
 | Method review | Outside reviewer on the model | No open blocking comment | G2 |
 | Wording | Usability test #2 (3 riders) | No new blocking wording issue | G3 |
 | Resilience | Same answer with API up, down and slow (5 s delay); fallback switch | <= 1.5 s | G3 |
@@ -120,7 +121,7 @@ Discovery-phase work (documents, prototype, research) is complete; engineering w
 | M7 | Advice catalog and router | Generated from `lock-tier-documentation.md` (VdS 2597 A+/B+; no Sold Secure; never a frame or cable lock alone; no relocation advice). Tests per tier, bike class and time band, including a check that no string claims a per-bike risk. Each lock term explained in plain words. All copy held in a string table; the MVP is English only (D-11) |
 | M8 | Client on the locked schema | Location or tap; place search by planning-area and district name, plus street and station if the Phase 1 gazetteer passes (WP 1.7); time and bike selectors **as the capability table allows**; answer card in this order (D-09): (1) risk assessment: tier, confidence, "limited data" flag, and the "typical for this kind of area" line only if S1 is adopted; (2) lock advice; (3) a breakdown of where the information comes from: how risk is assessed (report count, period, area, data date, method in one line) and the source of the lock advice (police, ProPK, VdS, ADFC guidance). Baseline accessibility built in (contrast, labels, colour never the only signal). Works at 375 px; location-denied, outside-Berlin and no-result states; no mock text in the build |
 | M9 | Shippable static release | Static deployment with the bundled JSON as the only data dependency. Offline: app shell, data and polygons are cached; basemap tiles are not, so offline shows polygons without a basemap and a notice |
-| M10 | Attribution, "About the data" and feedback link | Polizei Berlin (CC-BY 4.0), LOR (dl-de/by-2-0), OSM (ODbL) shown in the UI and in `metadata`, checked by a test. The About page also serves as "How this works" and lists the limits (open data is about three quarters of the PKS figure, under-reporting, lag, one season). "This looks wrong" is a link to a GitHub issue form; it sends no data |
+| M10 | Attribution and "About the data" | Polizei Berlin (CC-BY 4.0), LOR (dl-de/by-2-0), OSM (ODbL) shown in the UI and in `metadata`, checked by a test. The About page also serves as "How this works" and lists the limits (open data is about three quarters of the PKS figure, under-reporting, lag, one season). The rider-feedback feature is S6 |
 | M11 | Automated weekly refresh | Cron opens a PR with the regenerated JSON. PR creation needs either the repository setting "Allow GitHub Actions to create and approve pull requests" (currently off) or a PAT/GitHub App token; PRs opened with the default token do not trigger other workflows, so the schema, row-count and tier-sanity checks run as **steps inside the refresh workflow** and block PR creation on failure. Failure keeps the last good JSON and opens an issue. A no-op dry-run PR is opened by Fri 6 Nov. Merged and enabled by Fri 13 Nov so the first cron run is Mon 16 Nov 06:00 UTC |
 
 ### Should have
@@ -131,6 +132,7 @@ Discovery-phase work (documents, prototype, research) is complete; engineering w
 | S2 | Area statistics (lock-defeated share, median stolen value) | Minimum-n rule (< 20 cases: citywide value, labelled); dropped from the router if between-area variation is negligible |
 | S3 | 30-day anomaly badge | Trailing 30-day count above the 95% Poisson upper bound of the area's expected count, only where expected count >= 3; tested on injected spikes |
 | S4 | FastAPI service, container, client fallback | `/api/v1/risk`, `/areas`, `/healthz`; `docker build` and smoke test in CI; client falls back after 1.5 s. Not publicly hosted (D-13): demonstrated locally and in CI, with a configurable API base URL that is unset in production. Cut decision at G2 (section 5 ladder) |
+| S6 | Report wrong information or give feedback | A rider can report information that looks wrong or give general feedback from the answer card. **How feedback is collected is not decided (parked, D-14).** Provisional 0.25 pd in Phase 3 (WP 3.6), to be re-estimated once the approach is chosen |
 | S7 | Accessibility audit | Screen-reader and keyboard pass on the release build; contrast verified (the baseline is part of M8) |
 
 ### Could have (not scheduled)
@@ -143,7 +145,7 @@ Live weather or forecasts · runtime inference of any kind · accounts, saved pl
 
 ### Scope ladder (cut order if the plan slips)
 
-1. Could-have items. 2. S3 anomaly badge. 3. S7 audit beyond the M8 baseline. 4. S1 OSM/GLM (decision Thu 5 Nov). 5. S4 FastAPI (decision at G2; if cut, the G3 resilience and API criteria are tested on the static and offline path, and the docs state the API as designed, not shipped). Must-haves are not cut; if one is at risk at a gate, the gate's fallback in section 7 applies.
+1. Could-have items. 2. S3 anomaly badge. 3. S6 report/feedback feature. 4. S7 audit beyond the M8 baseline. 5. S1 OSM/GLM (decision Thu 5 Nov). 6. S4 FastAPI (decision at G2; if cut, the G3 resilience and API criteria are tested on the static and offline path, and the docs state the API as designed, not shipped). Must-haves are not cut; if one is at risk at a gate, the gate's fallback in section 7 applies.
 
 ---
 
@@ -185,7 +187,7 @@ Estimates are person-days (pd). Net capacity is 4 pd per person per full week, 8
 | 1.4 | EB model v0, tiers, calibration and fairness report, hold-out validation of every selector the card shows (M4); generator v0 emits all 542 areas from real data | 1.0 | Data | Thu-Fri |
 | 1.5 | Schema v1: JSON Schema and sample; draft Thu, **final lock Fri 11:00** after the model run; later changes additive only | 0.5 | UX, Data review | Thu-Fri |
 | 1.6 | Frontend scaffold (Vite build, vendored libraries, 542 polygons, schema-driven render on a fixture); Pages workflow for `frontend/` deploying a hello page by Thu 29 Oct (`pages.yaml` deploys only `demo/` today) | 1.5 | UX | Mon-Thu |
-| 1.7 | Basemap decision (DEP-3); place-search gazetteer: street and station to area from open data, prototype fixed at 0.75 pd. Not feasible by Fri -> fall back to area and district name search. If time runs short, the Pages workflow in WP 1.6 takes priority over the gazetteer | 1.25 | UX | Mon-Fri |
+| 1.7 | Basemap decision (DEP-3); place-search gazetteer: street and station to area from open data, prototype fixed at 0.75 pd. Not feasible by Fri -> fall back to area and district name search. The gazetteer is not cut for the scaffold: the Pages hello page may slip to Fri 30 Oct but must deploy by G1, and the gazetteer verdict is due Fri. Street and station search is measured in usability test #1 (hypothesis H3) | 1.25 | UX | Mon-Fri |
 | 1.8 | Confirm midterm and graduation formats (DEP-6); identify outside statistics reviewer (DEP-1); confirm 5 riders with dates (DEP-2) | 0.25 | PM (Fritz) | Mon-Fri |
 
 **Phase 2: Features and working fallback (Nov 2-6). Net capacity 8.0, planned 8.0 (Data 4.0, UX 4.0). S1 is the Data buffer: if killed, its 1.75 pd is released**
@@ -200,7 +202,7 @@ Estimates are person-days (pd). Net capacity is 4 pd per person per full week, 8
 | 2.6 | Usability test #1: 5 riders (Thu 5 Nov: 3, Fri 6 Nov morning: 2); moderator + note-taker; synthesis | 1.0 | Both | Thu-Fri |
 | 2.7 | Midterm storyline and slide draft | 0.5 | UX | Fri |
 
-**Phase 3: Midterm, robustness, automation, governance (Nov 9-13). Net capacity 8.0, planned 7.5 (Data 4.0, UX 3.5) plus 0.5 UX buffer**
+**Phase 3: Midterm, robustness, automation, governance (Nov 9-13). Net capacity 8.0, planned 7.75 (Data 4.0, UX 3.75) plus 0.25 UX buffer**
 
 | WP | Work | pd | Owner | Window |
 | --- | --- | --- | --- | --- |
@@ -209,7 +211,7 @@ Estimates are person-days (pd). Net capacity is 4 pd per person per full week, 8
 | 3.3 | FastAPI, Dockerfile, client fallback (S4); CI build and smoke test | 1.5 | Data | Wed-Thu |
 | 3.4 | Refresh workflow opening a PR with checks; dry-runs with a valid and a corrupted CSV; merged and enabled by Fri (M11) | 1.0 | Data | Wed-Thu |
 | 3.5 | Anomaly badge with injected-spike tests (S3); first on the cut ladder | 0.5 | Data | Thu |
-| 3.6 | Governance: attribution test, privacy check (network panel shows only our origin and the chosen tile provider), ODbL read (DEP-5), no-tracking verification | 0.75 | UX | Wed-Thu |
+| 3.6 | Governance: attribution test, privacy check (network panel shows only our origin and the chosen tile provider, plus anything the S6 approach adds, once decided), ODbL read (DEP-5), no-tracking verification; report/feedback feature (S6) | 1.0 | UX | Wed-Thu |
 | 3.7 | Usability test #2 (3 riders, Wed 11-Thu 12 Nov) and fixes | 0.75 | UX | Wed-Thu |
 | 3.8 | Stress and resilience tests: automated browser outage and slow-API test (UX 0.5); 50+ concurrent users against a local production build, and API load (Data 0.5); RC1 tag | 1.0 | Both | Thu-Fri |
 
@@ -274,7 +276,7 @@ Each gate is a go/no-go call made in a 30-minute review on the date shown, by th
 
 - [ ] The deployed site runs on **real precomputed data**; `grep -i mock` over the build output is empty.
 - [ ] Offline behaviour as in M9 verified.
-- [ ] Usability test #1 (Thu-Fri): >= 4 of 5 explain the tier and the confidence label; median time to decision < 60 s; >= 3 of 5 would use it. Interview-guide hypotheses H1-H7 recorded with evidence.
+- [ ] Usability test #1 (Thu-Fri): >= 4 of 5 explain the tier and the confidence label; median time to decision < 60 s; **trips measure passes** (section 2); >= 3 of 5 saying they would use it is recorded as background, and if the two disagree the trips measure decides. Interview-guide hypotheses H1-H7 recorded with evidence.
 - [ ] Advice tests pass: no frame lock alone, no Sold Secure or brand, no relocation advice; thin data never reassured.
 - [ ] S1 decision taken (Thu 17:00); S4 keep-or-cut decision taken.
 - [ ] Outside reviewer has no open blocking comment on the model, or the DEP-1 fallback has been applied and the claim dropped.
@@ -287,7 +289,7 @@ Each gate is a go/no-go call made in a 30-minute review on the date shown, by th
 - [ ] **Outage simulation:** with the container stopped, and with a 5 s artificial delay, the client falls back within 1.5 s and shows the identical answer (automated browser test).
 - [ ] Refresh workflow merged and enabled. A manual run opens a PR whose in-workflow checks pass; a corrupted CSV fails those checks, opens no PR and leaves the served JSON unchanged.
 - [ ] **Stress test passed:** 50+ concurrent users against a local production build, 0 errors, p95 load < 3 s on throttled mobile; API load result recorded. GitHub Pages itself is not load-tested.
-- [ ] Attribution test passes; no third-party requests other than the decided tile provider; ODbL question answered or the OSM-derived aggregates removed.
+- [ ] Attribution test passes; no third-party requests other than the decided tile provider and whatever the S6 approach adds, disclosed on the About page; ODbL question answered or the OSM-derived aggregates removed.
 - [ ] Usability test #2: no new blocking wording issue.
 - [ ] **RC1 tagged. Feature freeze.** Anything not done moves to Won't for this release.
 - **Fallbacks:** missing items are fixed Mon-Tue of Week 4 inside WP 4.1 or moved to Won't. No new feature starts after G3.
@@ -330,8 +332,8 @@ Each gate is a go/no-go call made in a 30-minute review on the date shown, by th
 | R1 | Sparse cells and zero-inflation make tiers unstable; 8 areas have no data | H | H | Hierarchical shrinkage; numeric confidence with a documented rule; Bezirksregion fallback (G1 fallback a) | Data | G1 backtest |
 | R2 | Reporting lag and a single season bias the recent window and the hold-out | H | M | N = 14 truncation from one constant; "data up to" date on every answer; two-fold backtest; seasonality stated as not modeled | Data | G0, G1 |
 | R3 | Plausible but wrong AI-written statistics go unnoticed | M | H | Library implementations; property tests; baseline comparison gate; outside review before G2 | PM of week | G1, G2 |
-| R4 | Legal, attribution and privacy: ODbL share-alike on OSM-derived aggregates; IP leakage via CDN and tile requests; advice read as a guarantee | M | H | Attribution test; aggregate OSM counts only; vendored libraries; tile decision by 30 Oct; legal read by 12 Nov; "not a guarantee" on every answer | UX | G3 |
-| R5 | Capacity: Phases 1 and 2 are planned at 8.0 of 8.0, with no time slack | H | H | Scope ladder (section 5); S1 is the Data buffer in Phase 2; 0.5 pd UX buffer in Phase 3 and 1.0 pd in Phase 4; fallbacks defined per gate; any gate slip over one day triggers the next ladder cut | PM of week | Any gate slip over 1 day |
+| R4 | Legal, attribution and privacy: ODbL share-alike on OSM-derived aggregates; IP leakage via CDN and tile requests (and the S6 approach, once chosen); advice read as a guarantee | M | H | Attribution test; aggregate OSM counts only; vendored libraries; tile decision by 30 Oct; legal read by 12 Nov; "not a guarantee" on every answer | UX | G3 |
+| R5 | Capacity: Phases 1 and 2 are planned at 8.0 of 8.0, with no time slack | H | H | Scope ladder (section 5); S1 is the Data buffer in Phase 2; 0.25 pd UX buffer in Phase 3 and 1.0 pd in Phase 4; fallbacks defined per gate; any gate slip over one day triggers the next ladder cut | PM of week | Any gate slip over 1 day |
 | R6 | PM handoff loses context between two people | H | M | Monday 15-minute sync; written `STATUS.md` by Friday; issues for every WP; PRs under ~300 lines; schema ownership does not rotate | PM of week | Every Monday |
 | R7 | Refresh job breaks silently or publishes bad tiers; branch protection blocks a direct push; Actions cannot create PRs under current settings; first cron run is Mon 16 Nov | H | M | PR-based refresh; schema and range checks; failure keeps the last good JSON and opens an issue; merged and enabled by Fri 13 Nov | Data | G3 |
 | R8 | Demand and trust unproven: personas and interviews are synthetic and ran on mock data | M | H | Real-rider tests on real data (G2, G3); go/narrow/stop decision at G2; findings treated as hypotheses | UX | G2 |
@@ -383,6 +385,8 @@ Each gate is a go/no-go call made in a 30-minute review on the date shown, by th
 | D-11 | The MVP is English only. Copy lives in a string table from the start (M7); German and other languages are a nice-to-have follow-up if time remains | Decided (team) | Keeps the MVP small; the string table keeps translation cheap later |
 | D-12 | Parking-duration risk is out of scope | Decided | Duration is not in the data |
 | D-13 | The API is not publicly hosted; the deployed site is static and the API is demonstrated locally and in CI | Decided | No paid hosting (A-4); static default is the product |
+| D-14 | "Report wrong information / give feedback" is a feature (S6). The mechanism (for example a link, an in-app form, or something else) is not decided and is not needed before Phase 3 | Parked | Avoids committing to a privacy and hosting trade-off before the rest of the plan is settled |
+| D-15 | The value gate rests on the trips measure, not stated intent: stated "would use it" is kept as background because riders tend to answer politely. Pass mark: >= 3 of 5 name a concrete trip, >= 2 beyond a daily spot (split reported as new place vs. usual place). With only 5 riders one person is the difference between pass and narrow, so test #2 (3 riders) adds data and the combined 8 are read together before any "stop" | Proposed: confirm 26 Oct | Intent is cheap to give; naming a real trip is behavioural evidence |
 
 ---
 
@@ -393,6 +397,7 @@ Each gate is a go/no-go call made in a 30-minute review on the date shown, by th
 | O-1 | Midterm (10 Nov) and graduation (20 Nov) formats, slot lengths, audience, whether a live demo is allowed (= DEP-6) | PM | Oct 30 |
 | O-2 | Confirm the PM rotation in section 11 | Both | Oct 26 |
 | O-3 | Whether graduation needs the live deployed URL or a recorded fallback demo (plan: both; recording and local copy are WPs 3.1 and 4.5) | PM | Oct 30 |
+| O-4 | Decide how S6 (report wrong information / give feedback) is implemented, including any privacy and hosting implications | Both | Nov 6 (before WP 3.6) |
 
 ---
 
