@@ -1,6 +1,6 @@
-# LockOut - 3-Week Development Plan
+# LockOut - 4-Week Development Plan
 
-Details and reasoning: [Scope Exploration.md](Scope%20Exploration.md). Week 4 is a cushion before the presentation, not part of this scope.
+Details and reasoning: [Scope Exploration.md](Scope%20Exploration.md). The authoritative schedule, gates and risk register are in [product-roadmap.md](product-roadmap.md): four phases through Week 4, with feature freeze at the end of Week 3. Week 4 is testing, stress-testing and polish, not new features.
 
 ## MVP Goal
 
@@ -10,7 +10,7 @@ Details and reasoning: [Scope Exploration.md](Scope%20Exploration.md). Week 4 is
 
 ## Technical Check
 
-**Core AI feature**: Empirical Bayes smoothed theft-risk tiers (Low / Medium / High) for the 542 Berlin planning areas by daypart and weekday/weekend, with deterministic lock advice from Polizei Berlin, ProPK, VdS and ADFC guidance. In plain words: risk tiers from police theft data, adjusted so areas with few reports don't look artificially safe or dangerous. Terms are explained in the [glossary](#glossary) at the bottom.
+**Core AI feature**: Empirical Bayes smoothed theft-risk tiers (Low / Medium / High) for the 542 Berlin planning areas by daypart and daytype (Mon-Thu / Fri / Weekend), with deterministic lock advice from Polizei Berlin, ProPK, VdS and ADFC guidance. In plain words: risk tiers from police theft data, adjusted so areas with few reports don't look artificially safe or dangerous. Terms are explained in the [glossary](#glossary) at the bottom.
 **Data source**: Polizei Berlin Fahrraddiebstahl CSV (CC-BY 4.0), LOR 2021 GeoJSON, OpenStreetMap activity proxies (optional, extraction not yet built), [lock-tier-documentation.md](lock-tier-documentation.md) for lock guidance.
 **Team skills match**: Yes, with AI-assisted development, library-based statistics and tests on every model step.
 **Team**: Two people alternating the PM role weekly; both review every AI-generated change before merge.
@@ -39,7 +39,7 @@ Listed in the order to build; if behind, cut from the bottom up.
 - [ ] Offline and sparse-data handling, guideline URL health check
 - [ ] Address search (privacy-acceptable geocoder only)
 - [ ] FastAPI endpoint with static fallback
-- [ ] OSM activity-adjusted signal (time-boxed)
+- [ ] OSM activity-adjusted signal (time-boxed; adopted only if it beats the baseline on hold-out)
 - [ ] Visual polish, dark mode, accessibility pass, 30-day anomaly flag, weekly auto-refresh
 
 ## Won't Do
