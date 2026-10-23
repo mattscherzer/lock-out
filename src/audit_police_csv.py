@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import json
 
+from config import daytype_of
 from fetch_police_csv import RAW_DIR, find_raw_csv
 
 # 1. Load Police CSV (handle daten.berlin.de delimiter and encoding quirks)
@@ -93,9 +94,7 @@ def map_daypart(h):
     else: return "Night"
 
 def map_daytype(weekday_idx):
-    if weekday_idx < 4: return "Mon_Thu"
-    elif weekday_idx == 4: return "Friday"
-    else: return "Weekend"
+    return daytype_of(weekday_idx)
 
 df_outdoor["daypart"] = df_outdoor["TATZEIT_ANFANG_STUNDE"].apply(map_daypart)
 df_outdoor["weekday"] = time_start.dt.day_name()
