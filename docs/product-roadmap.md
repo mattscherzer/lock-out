@@ -25,6 +25,30 @@ Prepared 2026-10-21 from a review of every doc in `docs/`, `README.md`, `src/`, 
 
 ---
 
+## 0.5 Scope principle: EDA before feature decisions
+
+The demo prototype, and therefore the synthetic interviews run on it (`docs/user-research/`), was built on assumptions about the data, not on the data. Its selectors, labels and reasons are mock. Until the EDA is done, **no user-facing filter, label or advice rule is final**. Interview findings count as hypotheses to test, not requirements (the file itself rates none above Medium).
+
+**What the EDA must settle** (output: a signed "capability table" in `docs/eda-findings.md`, Gate 1 criterion):
+
+| Question | What we know so far (street rows, 29,212) | Open until EDA |
+| --- | --- | --- |
+| Bike-type filter | `ART_DES_FAHRRADS` has 13 types (Herrenfahrrad 10,598; Damenfahrrad 5,781; "Fahrrad" 5,133; Mountainbike 1,761; Lastenfahrrad 182; BMX 10). **No e-bike category.** | Which groupings are dense enough per area (types, or value bands from `SCHADENSHOEHE`: 45% of cases >= EUR 1,000, 12% >= EUR 2,500)? Do types or values differ in risk at all? |
+| Hour-range filter (e.g. 8-11) | `TATZEIT_ANFANG_STUNDE` is when the owner **last saw** the bike. Start-hour share peaks at 18:00 (10.8%). Only 32% of windows are <= 3 h and 12% start and end in the same hour. | Can hourly or multi-hour ranges be allocated honestly (proportional over the window), and at what density per area? Likely citywide or district-level only for fine hours; planning-area level for coarse bands. |
+| Daytypes and dayparts | Provisional: Mon-Thu / Fri / Weekend x 4 dayparts (current audit code). | Backtest 2 vs. 3 daytypes, and band boundaries from the real hour curve, not the prototype's. |
+| Parking duration | Not in the data. | Confirm; if confirmed, no duration claims anywhere. |
+| Lock-break share, stolen value | 89% of all rows (~94% of street rows) are "schwerer Diebstahl"; median value EUR 899. | Whether they vary enough between areas to drive advice. |
+| Geographic level | Median area has ~19 street thefts per 12 months; 178 areas < 10. | Planning area, Bezirksregion, or mixed by confidence. |
+
+**Consequences for the plan:**
+
+- Items below that I previously marked as decided are **provisional hypotheses**: bike class = value band (D6), three daytypes (C6), Mon_Thu/Fri/Weekend labels, "whole day" option, dropping `top_factors`, solid/fair/thin wording. They stay in the plan as defaults only so the schema can be drafted; the EDA can overturn them.
+- The UI selectors in M8 are built **from the capability table**, not from the prototype. The prototype is a visual and interaction reference only.
+- Feature candidates raised by the interviews and held until the EDA: place search by street/station (needs a source to map streets to areas, independent of the EDA but not yet scoped), hour-range filter, finer bike-type filter, whole-day option, plain-language lock advice, source line on the card.
+- The Phase 2 usability test runs on a build wired to **real data**, not on the mock prototype, so test findings are not contaminated by mock content.
+
+---
+
 ## 1. Strategic PM Review and Scope Audit
 
 ### 1.1 Value proposition and framing check
@@ -65,7 +89,7 @@ All **(measured)** on `Fahrraddiebstahl.csv` (ISO-8859-1, auto-detected delimite
 | D3 | Last 12 months, street thefts: **15,465 rows; median 19 per area; 178 areas have <10 and 88 have <5.** At 3 daytypes x 4 dayparts that is ~1.6 per cell for a median area. | The 28-cell grid (1.9 per cell over the *whole* window) is dead. Cell-level estimates are mostly prior. Confidence labels are not decoration; "thin" will be common (~1/3 of areas). Honest Fog is a core feature, not a Should. |
 | D4 | Reporting lag (ANGELEGT_AM minus TATZEIT_ENDE_DATUM): median 0, p90 4, **p95 10** days. The sample JSON says 14. | The distribution is computed from reports that already exist, so it understates lag (late reports are missing from it). **Lock N = 14 days** (rounded up, conservative). Write it to config and metadata from one constant. |
 | D5 | Offence window: only 19% are <=1 h, 36% <=4 h, 86% <=24 h. The reported hour is when the owner last saw the bike. | Assigning the start hour to a daypart misplaces most thefts. Use **proportional allocation across overlapping dayparts** (deterministic, easy to test). EM stays Won't. |
-| D6 | `ART_DES_FAHRRADS` has no e-bike category (Herrenfahrrad 11,051, Damenfahrrad 5,985, ..., Lastenfahrrad 188). | The schema's `STANDARD` / `EBIKE` split cannot be derived from bike type. **Decision:** `bike_class` = value band from `SCHADENSHOEHE` (standard < EUR 1,000; high value >= EUR 1,000, the threshold the router already uses), labelled "high-value bike (incl. most e-bikes)". Median stolen value is EUR 899 citywide, so the threshold is meaningful. |
+| D6 | `ART_DES_FAHRRADS` has no e-bike category (Herrenfahrrad 11,051, Damenfahrrad 5,985, ..., Lastenfahrrad 188). | The schema's `STANDARD` / `EBIKE` split cannot be derived from bike type. **Provisional (EDA decides, section 0.5):** `bike_class` = value band from `SCHADENSHOEHE` (< EUR 1,000 / >= EUR 1,000, the router's threshold), or bike type if the EDA shows it carries signal and density. Median stolen value is EUR 899 citywide, so the threshold is meaningful. |
 | D7 | 27,499 of 30,788 rows (89%; ~94% of street rows) are "schwerer Diebstahl" (lock defeated). | `aggravated_lock_break_share` is close to 90%+ everywhere, so the router rule `>= 80%` fires almost always and carries little signal. Test its spread in Phase 1; if the between-area variation is small, drop it from the router and keep it as a citywide fact. |
 | D8 | Dataset rows dated 2025: **17,190** vs. PKS 2025 report: **22,630** bike thefts. | The open data covers only ~76% of the PKS figure, and README's "~20,000 outdoor thefts per year" is wrong. Correct README and state in "About the data" that the open dataset is a subset. Open question from the discovery docs is now answered. |
 | D9 | Street filter in the audit is a regex over every column. | Replace with `DELIKT != "Keller- und Bodeneinbruch"` and `"Keller" not in ERFASSUNGSGRUND`, tested against the expected counts (29,212 street rows in the current dump). |
@@ -101,7 +125,7 @@ Rule: the cut-line is **end of Week 3**. After Gate 3 no new feature is merged; 
 | M5 | Lookup generator | `build_lookup_json.py` writes `lookup_schema_v1.json` with metadata generated from data (window, lag, `model_type`, attribution). Validated by a JSON Schema in CI. 542 areas always present; zero-record areas flagged `no_data`. |
 | M6 | Confidence + verdict logic | Numeric basis (`n_reports`, interval width) -> solid/fair/thin by a documented rule. Unit test: thin or no data never yields calm styling or "normal/lower" wording. |
 | M7 | Advice catalog + router | Catalog regenerated from `lock-tier-documentation.md`: VdS 2597 A+/B+, no Sold Secure, no frame-lock-alone, no "go elsewhere" text. Router tests per tier x bike class x daypart. |
-| M8 | UI against locked schema | Real `lookup_schema_v1.json` consumed by the UI (the demo's mock data removed). Locate-me or tap, area search, daypart/daytype/bike selectors, answer card with tier, confidence, data date, advice, "limited data" flag. Works at 375 px; location-denied and outside-Berlin states. |
+| M8 | UI against locked schema | Real `lookup_schema_v1.json` consumed by the UI (the demo's mock data removed). Locate-me or tap, place search, and the time and bike selectors **exactly as the EDA capability table allows** (not as in the prototype), answer card with tier, confidence, data date, advice, "limited data" flag. Works at 375 px; location-denied and outside-Berlin states. |
 | M9 | Shippable static fallback | Static site deployed with the bundled JSON as the only dependency. Works offline after first load (service worker or cache headers). |
 | M10 | Attribution + "About the data" | All three attributions in the UI; the known limits (open data is ~76% of PKS, under-reporting, lag) written down. |
 
@@ -151,7 +175,7 @@ Rule: the cut-line is **end of Week 3**. After Gate 3 no new feature is merged; 
 | C3 | Executive summary: "conditional go, two-week validation, do not yet build". Scope docs: build immediately. | Build proceeds; the validation questions become explicit tests in Phases 1-3 (density in Gate 0/1, riders in Gate 2). |
 | C4 | Metadata says window starting 2024-01-01 and lag 14; the audit says data starts 2025-01-01 and p95 lag is 10 days. | Generated metadata; N=14 chosen deliberately (D4). |
 | C5 | README says "542 LOR alignment" and "~20,000 outdoor thefts/year". Data: 534 with records, ~17k rows dated 2025. | Gate 0 criterion rewritten; README corrected. |
-| C6 | Daytype is "weekday/weekend" (scope docs) vs. Mon_Thu/Friday/Weekend (audit, sample JSON). | **Three** daytypes (Mon_Thu, Fri, Weekend): matches the existing code and schema; the backtest in Phase 1 checks that three beats two, otherwise collapse to two in config. |
+| C6 | Daytype is "weekday/weekend" (scope docs) vs. Mon_Thu/Friday/Weekend (audit, sample JSON). | **Provisional:** three daytypes (Mon_Thu, Fri, Weekend), matching the existing code and schema; the EDA and Phase 1 backtest confirm or collapse to two in config. |
 | C7 | `EBIKE` class in the schema vs. no e-bike field in the data. | Value-band classification (D6). |
 | C8 | `advice_catalog` cites Sold Secure and frame+U-lock alone. | Regenerate from the lock-tier doc (M7). |
 | C9 | README: frontend is React + Vite + Tailwind + turf, `src/api/main.py` exists, CSV is ~15-20 MB; reality: single-file CDN prototype, no API, 4 MB. | Rewrite README "Quickstart" and "Repository Structure" in Phase 4 to match what exists; until then add a "Status" table (section 0). |
@@ -192,6 +216,7 @@ Rule: the cut-line is **end of Week 3**. After Gate 3 no new feature is merged; 
 
 | Work | Owner (see section 4) |
 | --- | --- |
+| **EDA first (days 1-3):** notebook + `docs/eda-findings.md` covering the six questions in section 0.5; capability table agreed by both | Data |
 | M2 cleaning pipeline incl. proportional window allocation, with tests | Data |
 | M3 baselines + rolling-origin backtest; density table (reports per cell, 12 and 24 months) | Data |
 | M4 Gamma-Poisson EB shrinkage to BZR and city; first tiers | Data |
@@ -205,6 +230,7 @@ Rule: the cut-line is **end of Week 3**. After Gate 3 no new feature is merged; 
 
 - [ ] EB baseline beats **both** naive baselines (citywide share; area history) on Poisson deviance on **both** backtest folds. Spearman >= 0.6 on the Jul-Sep 2026 hold-out. >= 70% of High-tier areas in the actual top quartile.
 - [ ] Tier shares are 60/25/15 +-3 pts; no district has a tier-share gap > 2x the citywide share (fairness check).
+- [ ] **Capability table signed:** every filter and label in the UI maps to a field and a density result from the EDA; anything unsupported is cut or relabelled.
 - [ ] Schema validates; generator produces all 542 areas.
 - [ ] UI renders 542 polygons, selectors, and answer card from the schema with **no console errors** at 375 px and desktop.
 - **No-go options (decide at the gate, not later):**
