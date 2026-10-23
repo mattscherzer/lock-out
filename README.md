@@ -4,9 +4,27 @@ LockOut is a map-first geospatial web application that helps urban cyclists eval
 
 ---
 
+## 🚧 Project Status
+
+Work in progress; see [docs/product-roadmap.md](docs/product-roadmap.md) for the plan. Sections below describe the **target design** unless marked.
+
+| Component | Status |
+| --- | --- |
+| CSV fetch with stale fallback, LOR polygons | Done |
+| Data audit (`src/audit_police_csv.py`) | Works, being hardened |
+| Cleaning pipeline, model, `build_lookup_json.py` | Not started |
+| `lookup_schema_v1.json` | Hand-written sample, not generated |
+| FastAPI service (`src/api/main.py`) | Not started |
+| Frontend | Single-file prototype in `demo/` with mock data; `frontend/` is empty |
+| Weekly refresh workflow | Runs fetch + audit only; will open a PR once the build step exists |
+
+Only 534 of the 542 areas have any police record; the other 8 are shrunk to their parent area and flagged "no data".
+
+---
+
 ## 🎯 Problem & Core Value Proposition
 
-Urban cyclists in Berlin face approximately 20,000 reported outdoor bicycle thefts per year. Existing crime maps suffer from two fundamental flaws:
+Urban cyclists in Berlin face roughly 16,400 reported street bicycle thefts per year in the open police dataset (2025, by offence date, cellar break-ins excluded; 17,190 including them; the PKS 2025 report counts 22,630, so the open data is a subset). Existing crime maps suffer from two fundamental flaws:
 
 1. **The Volume Illusion:** Raw count maps flag busy transit hubs (e.g., Alexanderplatz) as "High Risk" without accounting for underlying urban activity density.
 2. **The Denominator Trap:** Naive rate maps ($\text{Thefts} / \text{Mapped Bike Racks}$) create extreme outliers in residential areas where OpenStreetMap (OSM) rack coverage is incomplete.
@@ -25,7 +43,7 @@ Urban cyclists in Berlin face approximately 20,000 reported outdoor bicycle thef
 LockOut is built on a **Zero-Downtime Offline Precomputation & Multi-Tier Fallback Architecture**:
 
 1. **Automated Data Ingestion & Cache Fallback (`src/fetch_police_csv.py` + GitHub Actions):**
-   * The raw Polizei Berlin dataset (`Fahrraddiebstahl.csv`, ~15–20 MB) is excluded from Git tracking to prevent repository bloat.
+   * The raw Polizei Berlin dataset (`Fahrraddiebstahl.csv`, ~4 MB) is excluded from Git tracking to prevent repository bloat.
    * A scheduled weekly GitHub Action (`.github/workflows/refresh_data.yaml`) fetches the latest daily dump, validates payload integrity (>1 MB check), runs the data hygiene and modeling pipeline, and commits the updated precomputed lookup artifact (`data/processed/lookup_schema_v1.json`).
    * **Ingestion Fallback:** If the Berlin Open Data portal is unreachable during a local or CI run, `fetch_police_csv.py` automatically falls back to the last known good CSV cached locally (`data/raw/fahrraddiebstahl.csv`) or via `actions/cache`.
 
@@ -86,7 +104,7 @@ lock-out/
 Clone the repository and initialize the Python virtual environment:
 
 ```bash
-git clone [https://github.com/mattscherzer/lock-out.git](https://github.com/mattscherzer/lock-out.git)
+git clone https://github.com/mattscherzer/lock-out.git
 cd lock-out
 
 # Install uv once: https://docs.astral.sh/uv/getting-started/installation/
@@ -95,21 +113,17 @@ uv sync   # creates .venv with the exact Python and package versions from uv.loc
 
 ### 2. Fetch Data & Run the Integrity Audit
 
-Download the official 2021 Berlin LOR GeoJSON boundaries (one-time setup), fetch or verify the Polizei Berlin CSV, and run the audit script:
+Fetch or verify the Polizei Berlin CSV, and run the audit script:
 
 ```bash
-# 1. Download 2021 LOR GeoJSON boundaries into data/raw/
-curl -o data/raw/lor_planungsraeume_2021.geojson \
-  "[https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume_2021/lor_planungsraeume_2021.geojson](https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume_2021/lor_planungsraeume_2021.geojson)"
-
-# 2. Fetch latest Police CSV (automatically falls back to data/raw/fahrraddiebstahl.csv if offline)
+# 1. Fetch latest Police CSV (automatically falls back to data/raw/fahrraddiebstahl.csv if offline)
 uv run python src/fetch_police_csv.py
 
-# 3. Run the data hygiene, reporting lag, and sparsity audit
+# 2. Run the data hygiene, reporting lag, and sparsity audit
 uv run python src/audit_police_csv.py
 ```
 
-### 3. Run the API Server
+### 3. Run the API Server *(planned, `src/api/main.py` does not exist yet)*
 
 Start the local FastAPI server:
 
@@ -117,7 +131,7 @@ Start the local FastAPI server:
 uv run uvicorn src.api.main:app --reload --port 8000
 ```
 
-### 4. Run the Front-End Client
+### 4. Run the Front-End Client *(planned; for now open the prototype in `demo/` via a local web server)*
 
 In a separate terminal, launch the React/Vite application:
 
@@ -136,7 +150,7 @@ The repository includes an automated GitHub Actions workflow (`.github/workflows
 1. Restores the last known good `fahrraddiebstahl.csv` from the GitHub Actions cache.
 2. Runs `uv run python src/fetch_police_csv.py` to pull fresh data from `polizei-berlin.eu` (or retain the cached copy if the portal is down).
 3. Executes the validation and precomputation scripts to update `data/processed/lookup_schema_v1.json`.
-4. Commits and pushes updated risk tables back to `main`.
+4. *(Planned)* Opens a pull request with the updated risk tables; `main` is branch-protected, so a direct push is not possible.
 
 ---
 
