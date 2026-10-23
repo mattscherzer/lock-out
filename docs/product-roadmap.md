@@ -1,358 +1,468 @@
-# LockOut: Product Review and 4-Week Roadmap
+# LockOut: Product Roadmap and Delivery Plan
 
-Prepared 2026-10-21 from a review of every doc in `docs/`, `README.md`, `src/`, `.github/`, `data/`, `demo/`, plus a re-run of the audit script on the local CSV. Numbers marked **(measured)** come from that run, not from the docs.
+| | |
+| --- | --- |
+| **Version** | 2.2 (2.1 plus the high-risk gap review; supersedes 1.0) |
+| **Date** | 2026-10-23 (Week 0, Friday) |
+| **Owners** | Fritz, Burcak (PM role rotates every Monday) |
+| **Status** | Proposed for team sign-off at the Monday 2026-10-26 sync |
+| **Fixed dates** | Midterm presentation **Tue 2026-11-10** · Dry-run **Wed 2026-11-18** · Graduation (final presentation) **Fri 2026-11-20** |
 
-**Assumptions to confirm:** the pitch is the end of Week 4 (Sun 2026-11-22); Day 0 is 2026-10-21 to 10-25; weeks start Monday 10-26. Change dates if the pitch is earlier.
+Abbreviations are explained in Appendix C.
 
 ---
 
-## 0. Ground truth: what is built vs. what the docs claim
+## 1. Executive summary
 
-| Component | Docs say | Repo reality | Status |
+**Objective.** By the graduation presentation on 20 November, deliver a working, honest, privacy-preserving web app that shows a Berlin cyclist how bicycle-theft risk compares across places and times and which locking practice fits, backed by a validated statistical model, a tested fallback path and an automated weekly data refresh.
+
+**Where we stand (end of Week 0).** Discovery, a clickable prototype, synthetic user research and the documentation set are complete. The prototype and the research ran on **mock data**, so product decisions that depend on the data (filters, bike classes, time bands) are held until the exploratory data analysis (EDA) in Week 1. Engineering is at the start: the data fetch with stale-cache fallback and the polygons exist; the pipeline, model, lookup artifact, API, real frontend, tests and CI do not (section 3).
+
+**The plan in one line.** Lock the data foundation (Phase 0), build and validate the baseline model with the UI scaffold (Week 1), run end to end on real data and test with riders ahead of the midterm (Week 2), harden, automate and stress-test (Week 3), and use Week 4 for defect fixing, polish, documentation and rehearsal only.
+
+**Scheduling decisions driven by the fixed dates**
+
+1. **Gate 2 (Fri 6 Nov) is also the midterm-readiness gate.** What we show on 10 Nov is the Gate 2 build.
+2. **Stress testing happens in Week 3.** Gate 3 (Fri 13 Nov) requires a passed stress test, the feature freeze and a tagged release candidate. Week 4 starts no new feature.
+3. **One freeze ladder** (section 7): feature freeze at Gate 3; pitch build frozen at Gate 4 (Tue 17 Nov); hard freeze Thu 19 Nov 12:00 with P0 fixes only.
+
+**Decisions requested at the Monday 26 Oct sync:** approve the scope and cut order (section 5); confirm the PM rotation (section 11); note decisions D-09 to D-11, now decided by the team (section 9); confirm rider recruiting is under way (WP 0.4). Presentation formats are due by 30 Oct (DEP-6).
+
+---
+
+## 2. Goals and success measures
+
+| Dimension | Measure | Target | Verified at |
 | --- | --- | --- | --- |
-| Police CSV fetch + stale fallback | Built | `src/fetch_police_csv.py`: >1 MB check, 21-day max fallback age, fails loudly. Works. | **Done** |
-| Integrity audit | Built | `src/audit_police_csv.py` runs and prints, but asserts nothing, exits 0 always, filters cellar cases with a row-wide regex over every column, and picks the LOR column by first name match | **Partial, needs hardening** |
-| LOR polygons | 542 | 542 features, key `plr_id`, in `data/raw/` and `demo/lor.json` | **Done** |
-| Build pipeline (`build_lookup_json.py`) | Workflow step is commented out | `src/pipeline/`, `src/models/`, `tests/` contain only `.gitkeep` | **Missing** |
-| Model (EB smoothing, GLM, anomaly flag) | README presents it as implemented | Nothing exists | **Missing** |
-| `lookup_schema_v1.json` | Precomputed artifact | One hand-written sample area (`01100101`), 3 advice keys + 1 e-bike key, not generated | **Sketch only** |
-| FastAPI (`src/api/main.py`) | README quickstart runs it | File does not exist | **Missing** |
-| Frontend (`frontend/`, React + Vite + turf) | README | Empty. The real UI is `demo/index.html` (1,881 lines, React via CDN + Babel standalone + Tailwind CDN, Leaflet, 542 real polygons, **all numbers random mock**). Deployed to GitHub Pages by `pages.yaml`. | **Prototype only** |
-| Weekly refresh workflow | Fetch, build, commit to `main` | Runs and shows green, but only runs fetch + audit. The commit step is a no-op. Once the build step is enabled, `git push` to `main` will be rejected: `main` has branch protection requiring 1 approving review. | **Will break when enabled** |
-| Advice router + catalog | Specified in `lock-tier-documentation.md` | Not implemented. The JSON catalog still cites Sold Secure and "Standard frame + U-lock", which the lock-tier doc and E0-4 forbid. | **Missing, contradicts** |
-| Tests / CI on PRs | "Tests on every model step" | `tests/` is empty; no PR-triggered CI | **Missing** |
-| Discovery / ethics / design docs | n/a | Complete, but all evidence is synthetic; no rider interviewed | **Done, unvalidated** |
+| Model quality | Poisson deviance on two rolling hold-out folds | Better than the citywide baseline on both folds; within 1% of or better than the raw area-history baseline on both folds | G1 |
+| Model quality | Spearman rank correlation, Jul-Sep 2026 hold-out | >= 0.6 | G1 |
+| Model quality | High-tier areas that stay in the top quartile of actual thefts | >= 70% | G1 |
+| Validity | Each selector the card shows (time band, bike class) validated on hold-out, else shown as a citywide pattern | All selectors pass or are relabelled | G1 |
+| Calibration | Observed hold-out thefts per area by tier | Rise monotonically Low < Medium < High; High mean >= 2x Low mean (working target, reviewed after the EDA) | G1 |
+| Fairness | District fairness report (section 7, G1) | Produced, reviewed, every flagged district explained | G1 |
+| Usability | Riders who explain the tier and the confidence label in their own words | >= 4 of 5 | G2 |
+| Usability | Median time from opening the app to a stated lock decision | < 60 s | G2 |
+| Value | Riders who say they would use it | >= 3 of 5 | G2 |
+| Method review | Outside reviewer on the model | No open blocking comment | G2 |
+| Wording | Usability test #2 (3 riders) | No new blocking wording issue | G3 |
+| Resilience | Same answer with API up, down and slow (5 s delay); fallback switch | <= 1.5 s | G3 |
+| Capacity | Production build under 50 concurrent users (local static server) | 0 errors; p95 load on throttled mobile < 3 s | G3 |
+| Automation | Refresh job: valid run opens a PR; corrupted CSV changes nothing served | Both demonstrated | G3 |
+| Accessibility | Contrast, labels, colour-independent signals | Baseline built in (M8); audit passed | G4 |
+| Delivery | Gates passed on the planned date | G0-G3 on date; G4 by Tue 17 Nov | Each gate |
+
+Usability and value thresholds are working targets inherited from `scope-definition.md`. Tested on five riders, they are a go/narrow/stop signal, not statistical proof.
 
 ---
 
-## 0.5 Scope principle: EDA before feature decisions
+## 3. Baseline and capability status
 
-The demo prototype, and therefore the synthetic interviews run on it (`docs/user-research/`), was built on assumptions about the data, not on the data. Its selectors, labels and reasons are mock. Until the EDA is done, **no user-facing filter, label or advice rule is final**. Interview findings count as hypotheses to test, not requirements (the file itself rates none above Medium).
+### 3.1 What exists today
 
-**What the EDA must settle** (output: a signed "capability table" in `docs/eda-findings.md`, Gate 1 criterion):
+| Component | State |
+| --- | --- |
+| CSV fetch with stale-cache fallback (`src/fetch_police_csv.py`) | Done: >1 MB check, 21-day maximum fallback age, fails loudly |
+| LOR polygons (542 features, key `plr_id`) | Done: `data/raw/` and `demo/lor.json` |
+| Data audit (`src/audit_police_csv.py`) | Runs; asserts nothing, always exits 0; street filter is a regex over all columns |
+| Cleaning pipeline, model, `build_lookup_json.py` | Not started (`src/pipeline`, `src/models` empty) |
+| `lookup_schema_v1.json` | One hand-written sample area; not generated |
+| FastAPI service (`src/api/main.py`) | Not started |
+| Frontend | `frontend/` empty; `demo/index.html` is a single-file prototype on mock data (React/Tailwind/Babel via CDN), deployed to GitHub Pages |
+| Weekly refresh workflow | Runs fetch + audit only; the commit step is a no-op. Pushing to `main` will fail once enabled because `main` requires a reviewed PR |
+| Tests and PR CI | None; the raw CSV is not tracked in git |
+| Advice catalog | The sample JSON still cites Sold Secure and "frame + U-lock", contradicting `lock-tier-documentation.md` |
 
-| Question | What we know so far (street rows, 29,212) | Open until EDA |
+Discovery-phase work (documents, prototype, research) is complete; engineering work has not started.
+
+### 3.2 Data baseline (CSV dump of 2026-10-13: 30,788 rows, 29,212 street rows)
+
+"Street rows" excludes cellar and attic break-ins (`ERFASSUNGSGRUND` containing "Keller"). The "12-month window" is offence start date 2025-10-14 to 2026-10-13.
+
+| Fact | Value | Planning consequence |
 | --- | --- | --- |
-| Bike-type filter | `ART_DES_FAHRRADS` has 13 types (Herrenfahrrad 10,598; Damenfahrrad 5,781; "Fahrrad" 5,133; Mountainbike 1,761; Lastenfahrrad 182; BMX 10). **No e-bike category.** | Which groupings are dense enough per area (types, or value bands from `SCHADENSHOEHE`: 45% of cases >= EUR 1,000, 12% >= EUR 2,500)? Do types or values differ in risk at all? |
-| Hour-range filter (e.g. 8-11) | `TATZEIT_ANFANG_STUNDE` is when the owner **last saw** the bike. Start-hour share peaks at 18:00 (10.8%). Only 32% of windows are <= 3 h and 12% start and end in the same hour. | Can hourly or multi-hour ranges be allocated honestly (proportional over the window), and at what density per area? Likely citywide or district-level only for fine hours; planning-area level for coarse bands. |
-| Daytypes and dayparts | Provisional: Mon-Thu / Fri / Weekend x 4 dayparts (current audit code). | Backtest 2 vs. 3 daytypes, and band boundaries from the real hour curve, not the prototype's. |
-| Parking duration | Not in the data. | Confirm; if confirmed, no duration claims anywhere. |
-| Lock-break share, stolen value | 89% of all rows (~94% of street rows) are "schwerer Diebstahl"; median value EUR 899. | Whether they vary enough between areas to drive advice. |
-| Geographic level | Median area has ~19 street thefts per 12 months; 178 areas < 10. | Planning area, Bezirksregion, or mixed by confidence. |
-
-**Consequences for the plan:**
-
-- Items below that I previously marked as decided are **provisional hypotheses**: bike class = value band (D6), three daytypes (C6), Mon_Thu/Fri/Weekend labels, "whole day" option, dropping `top_factors`, solid/fair/thin wording. They stay in the plan as defaults only so the schema can be drafted; the EDA can overturn them.
-- The UI selectors in M8 are built **from the capability table**, not from the prototype. The prototype is a visual and interaction reference only.
-- Feature candidates raised by the interviews and held until the EDA: place search by street/station (needs a source to map streets to areas, independent of the EDA but not yet scoped), hour-range filter, finer bike-type filter, whole-day option, plain-language lock advice, source line on the card.
-- The Phase 2 usability test runs on a build wired to **real data**, not on the mock prototype, so test findings are not contaminated by mock content.
+| Data window | 2025-01-01 to 2026-10-13 (~21 months) | One annual cycle; no seasonality modeling |
+| Areas with at least one record | 534 of 542 (8 with none) | Zero-record areas shrink to the parent and are flagged, never "Low" |
+| Street thefts, 12-month window | 15,577; median 19 per area; 178 areas < 10 and 87 areas < 5 (zero-record areas included) | Cells are mostly prior; confidence labelling is core |
+| Reporting lag p50 / p90 / p95 | 0 / 4 / 10 days | Truncate N = 14 days (rounded up: late reports are missing from the distribution itself) |
+| Offence window <= 1 h / 3 h / 4 h / 24 h | 19% / 32% / 36% / 86% | The hour field is "last seen"; hours need allocation across the window |
+| Start-hour share | Peak 18:00 (10.8%) | Time bands to be derived from this curve |
+| Bike types | 13 categories (Herrenfahrrad 10,598; Damenfahrrad 5,781; "Fahrrad" 5,133; Lastenfahrrad 182; BMX 10); no e-bike category | Type filter possible only after grouping |
+| Stolen value (all rows) | Median EUR 899; 45% >= EUR 1,000; 12% >= EUR 2,500 | Value bands are a candidate bike class |
+| Lock defeated ("schwerer Diebstahl") | 89% of all rows (~94% of street rows) | Little between-area signal expected |
+| Coverage vs. official figure | 2025: 17,190 rows by report year (all rows) and 16,409 street rows by offence year, against 22,630 in the PKS 2025 report | The open data is roughly three quarters (72-76%) of the official figure; the exact share depends on the basis |
 
 ---
 
-## 1. Strategic PM Review and Scope Audit
+## 4. Planning principles
 
-### 1.1 Value proposition and framing check
-
-**Verdict: the narrative is sound but is not yet visible in the product.**
-
-| Check | Finding | Action |
-| --- | --- | --- |
-| Raw volume vs. activity-adjusted risk | The README explains the Volume Illusion well. The demo shows one tier from mock counts; nothing separates "busy" from "risky". The OSM signal is `[TBD]`, extraction not built. | Show two things in the answer card: *volume tier* and *"relative to what's typical for a place like this"* (only if the OSM model passes Gate 2; otherwise drop the second line and say so on the "How this works" page). |
-| "Walk 15 minutes away" substitution | Discovery docs already pivot to temporal and physical mitigation. | Hard rule in copy review: no advice string suggests another location. Advice = *time shift* + *lock tier* + *anchor point*. |
-| Never "safe" | Rule exists in scope docs and story H3/V9. | Make it a **unit test** on the template layer: no string with "safe/sicher" and thin data never gets calm styling. |
-| Relative tiers | 60/25/15 percentile bands always produce a "High" tier even if every area improves. Technical brief flags this as open. | **Decision:** keep relative tiers, label them "higher than X% of Berlin areas at this time", and show the absolute reports/12 months next to them. Revisit only if time remains. |
-| Evidence base | Executive summary: "conditional go", all personas synthetic, demand untested. Scope-definition proceeds to build anyway. | The 5-user tests in Phase 2 and Phase 3 **are** the validation phase. Gate 2 includes an explicit go/narrow/stop on the demand questions. |
-| Market position | Berlin Bike Theft Clock is the nearest competitor (12 districts). | Differentiators to prove in testing: finer geography, honest confidence, lock advice. Not a moat; the data is open. |
-
-### 1.2 Architecture and complexity guardrails
-
-**Verdict: batch precompute + static JSON is the right call. Keep the static JSON as the product; treat FastAPI as an optional skin.**
-
-| Decision | Assessment |
-| --- | --- |
-| Offline batch, no runtime inference | Correct. Removes the entire class of runtime model bugs. |
-| Static JSON on GitHub Pages as primary | **Recommended change:** the static file is the *source of truth and the shipped product*. FastAPI adds a second serving path, a container, hosting and a failure mode, in exchange for ~nothing at 542 areas (~1-3 MB gzipped). Keep it because Phase 3 requires it, but time-box it (1.5 days) and ship it **behind the static default**: client tries API for 1.5 s, falls back to JSON; with the API off, the product is unchanged. |
-| Client-side point-in-polygon | Correct and privacy-preserving. Use `@turf/boolean-point-in-polygon` or a ~30-line ray-casting function over `lor.json`. |
-| Live weather, runtime SHAP/LLM, RAG, accounts | Correctly cut. Keep them on the Won't list (section 2). |
-| CDN dependencies in the demo (Tailwind CDN, unpkg, Babel standalone) | **Cut line for Week 3:** a production build must vendor or bundle these. Babel-in-browser is a prototype technique, and every CDN call contradicts "no third-party requests". |
-| OSM raster tiles | Each map view sends the viewer's IP and viewport to the tile host, which conflicts with the no-tracking promise and the OSM tile usage policy for production use. Decide in Phase 3: self-hosted/vector tiles, a privacy-acceptable provider, or a plain polygon-only map with no basemap. |
-| Hosting | GitHub Pages (static) is enough. No cloud account needed for the container: it only needs to build and run in CI and locally (Gate 3). |
-
-### 1.3 Findings from the data audit (these change the plan)
-
-All **(measured)** on `Fahrraddiebstahl.csv` (ISO-8859-1, auto-detected delimiter), 30,788 rows.
-
-| # | Finding | Consequence |
-| --- | --- | --- |
-| D1 | Data window is **2025-01-01 to 2026-10-13** (~21 months). The sample JSON says `2024-01-01`; the technical brief talks about "24 months". | Fix metadata to be generated, not typed. Only one annual cycle: no robust seasonality, and the hold-out falls in one season. |
-| D2 | Only **534 of 542** areas have any record; 8 have zero. The CSV has no extra IDs outside the GeoJSON. | Gate 0 cannot say "542 aligned". It says: 542 polygons, 0 unmatched CSV IDs, 8 zero-record areas explicitly handled (shrunk to parent, flagged "no data", never "Low"). |
-| D3 | Last 12 months, street thefts: **15,465 rows; median 19 per area; 178 areas have <10 and 88 have <5.** At 3 daytypes x 4 dayparts that is ~1.6 per cell for a median area. | The 28-cell grid (1.9 per cell over the *whole* window) is dead. Cell-level estimates are mostly prior. Confidence labels are not decoration; "thin" will be common (~1/3 of areas). Honest Fog is a core feature, not a Should. |
-| D4 | Reporting lag (ANGELEGT_AM minus TATZEIT_ENDE_DATUM): median 0, p90 4, **p95 10** days. The sample JSON says 14. | The distribution is computed from reports that already exist, so it understates lag (late reports are missing from it). **Lock N = 14 days** (rounded up, conservative). Write it to config and metadata from one constant. |
-| D5 | Offence window: only 19% are <=1 h, 36% <=4 h, 86% <=24 h. The reported hour is when the owner last saw the bike. | Assigning the start hour to a daypart misplaces most thefts. Use **proportional allocation across overlapping dayparts** (deterministic, easy to test). EM stays Won't. |
-| D6 | `ART_DES_FAHRRADS` has no e-bike category (Herrenfahrrad 11,051, Damenfahrrad 5,985, ..., Lastenfahrrad 188). | The schema's `STANDARD` / `EBIKE` split cannot be derived from bike type. **Provisional (EDA decides, section 0.5):** `bike_class` = value band from `SCHADENSHOEHE` (< EUR 1,000 / >= EUR 1,000, the router's threshold), or bike type if the EDA shows it carries signal and density. Median stolen value is EUR 899 citywide, so the threshold is meaningful. |
-| D7 | 27,499 of 30,788 rows (89%; ~94% of street rows) are "schwerer Diebstahl" (lock defeated). | `aggravated_lock_break_share` is close to 90%+ everywhere, so the router rule `>= 80%` fires almost always and carries little signal. Test its spread in Phase 1; if the between-area variation is small, drop it from the router and keep it as a citywide fact. |
-| D8 | Dataset rows dated 2025: **17,190** vs. PKS 2025 report: **22,630** bike thefts. | The open data covers only ~76% of the PKS figure, and README's "~20,000 outdoor thefts per year" is wrong. Correct README and state in "About the data" that the open dataset is a subset. Open question from the discovery docs is now answered. |
-| D9 | Street filter in the audit is a regex over every column. | Replace with `DELIKT != "Keller- und Bodeneinbruch"` and `"Keller" not in ERFASSUNGSGRUND`, tested against the expected counts (29,212 street rows in the current dump). |
-
-### 1.4 Risk register
-
-Likelihood and impact: H / M / L. Owner is whoever holds the PM role that week unless stated.
-
-| # | Risk | L | I | Mitigation | Trigger / owner |
-| --- | --- | --- | --- | --- | --- |
-| R1 | **Sparse cells and zero inflation.** Median area has ~1.6 thefts per cell; 8 areas have none; 178 have <10 a year. Tiers can flip on one report, and zero-count areas look "safe". | H | H | Gamma-Poisson shrinkage to the 143 Bezirksregionen, then to the city. Numeric `confidence` (n_reports, 80% interval width) mapped to solid/fair/thin by a documented rule. Thin data never shows reassurance. Coarser fallback (BZR) if Gate 1 shows planning-area cells do not beat the baseline. | Gate 1 backtest; Fritz |
-| R2 | **Data lag, truncation and one-season history.** Late reports bias recent weeks low; the hold-out is a single season. | H | M | N=14-day truncation from one config constant; show "data up to <date>" on every answer; rolling-origin backtest with two hold-out folds (Apr-Jun and Jul-Sep 2026); say plainly that seasonality is not modeled. | Gate 0, Gate 1; Burcak |
-| R3 | **Plausible but wrong AI-written statistics.** Neither of us can independently verify the model code. | M | H | Library implementations (`statsmodels`, `scipy`); property tests (counts conserved, shrinkage monotone, tiers 60/25/15 of areas); naive-baseline comparison is a **hard gate**; one outside review of the method before Gate 2 (find a statistics-literate reviewer in Week 1). | Gate 1; PM of the week |
-| R4 | **Legal, attribution and privacy.** CC-BY 4.0 (Polizei), dl-de/by-2-0 (LOR), ODbL (OSM) must be shown in the UI. Publishing area aggregates derived from OSM may trigger ODbL share-alike (a derived database vs. a produced work); tile/CDN requests leak IP; lock advice could be read as a guarantee. | M | H | Attribution component in the UI and in `metadata`, checked by a test. Publish OSM-derived features as aggregate counts only, with ODbL attribution, and get a legal read in Week 3 (university or open-data contact; not legal advice from this document). Remove third-party CDNs and decide the tile provider. Disclaimer on every answer: "not a guarantee". Share links carry area id and time band only. | Gate 3; Burcak |
-| R5 | **Weekly PM handoff drag.** Two people, a different owner each Monday, AI-generated code both must review. | H | M | Monday 15-min sync (section 4), one living `STATUS.md` (not Slack), every Must item is a GitHub issue with acceptance criteria, PRs under ~300 lines, the outgoing PM writes the handoff before Friday end of day. | Every Monday |
-| R6 | **Automation breaks silently.** The refresh workflow will fail on a protected `main`; "green" runs today prove nothing; a bad CSV could publish bad tiers. | H | M | Workflow opens a PR (`peter-evans/create-pull-request` or `gh pr create`) instead of pushing to `main`; schema validation + sanity checks (row count within +-15%, tier shares 60/25/15 +-3 pts, lag recomputed) gate the PR; failure keeps the last good JSON and opens an issue. | Gate 3; Fritz |
-| R7 | **Demand and trust are unvalidated.** Personas are synthetic; an "alarming" or wrong-feeling answer damages trust; a "Low" tier could lead to a weak lock. | M | H | Phase 2 and 3 usability tests with real riders (5 + 3); copy templates are versioned and reviewed against `lock-tier-documentation.md`; baseline lock advice at every tier. | Gate 2 go/narrow/stop |
+1. **Data before features.** No user-facing filter, label or advice rule is final until the EDA capability table is signed (Gate 1). The prototype and the interviews are inputs, not requirements.
+2. **The static JSON is the product.** FastAPI is an optional layer behind a static default and is not publicly hosted (D-13); the deployed app must work with the API off.
+3. **Honest by construction.** Thin or missing data never produces reassurance; no string says "safe"; tiers are labelled "reported thefts relative to other areas", never as the risk to a particular bike (the model has no exposure term unless S1 is adopted, so busy places rank higher); baseline lock advice shows at every tier; no advice suggests parking elsewhere.
+4. **Precompute, do not infer.** No live weather, no runtime model, SHAP, LLM or RAG, no accounts.
+5. **Stage-gated with pre-agreed fallbacks.** Every gate has a no-go option decided in advance (section 7).
+6. **Freeze early.** Features stop at Gate 3; Week 4 is defect fixing, polish, documentation and rehearsal.
+7. **AI-written code is accepted only with a test that would fail if it were wrong,** and the reviewer runs it locally. Library implementations (`statsmodels`, `scipy`, `geopandas`) over custom maths.
 
 ---
 
-## 2. Scope Definition and MoSCoW Cut-Line
+## 5. Scope (MoSCoW)
 
-Rule: the cut-line is **end of Week 3**. After Gate 3 no new feature is merged; Week 4 is fixes, polish, docs and testing only. If a Should is not done by Gate 3 it moves to Won't for this release.
+### Must have
 
-### Must Have (MVP core; Gates 0-2)
-
-| ID | Item | Acceptance criteria |
+| ID | Capability | Acceptance criteria |
 | --- | --- | --- |
-| M1 | Hardened ingestion + audit | Audit script **fails** (non-zero exit) on: wrong columns, <25k rows, unmatched LOR IDs, lag cutoff N not set. Street filter by column, covered by a test against expected counts. Lag N=14 and window dates come from one config. |
-| M2 | Cleaning pipeline | `src/pipeline/`: street filter, lag truncation, daypart/daytype mapping (reuse `map_daypart`, `map_daytype`), proportional window allocation. Unit tests: counts conserved after allocation; truncation removes exactly rows newer than cutoff. |
-| M3 | Baselines and backtest | Naive baseline (citywide daypart share x area total) and area-history baseline. Rolling-origin backtest, 2 folds. Report Poisson deviance and Spearman per fold. |
-| M4 | Hierarchical EB (Gamma-Poisson) model | Beats **both** baselines on both folds on deviance; Spearman >= 0.6 on the 3-month hold-out; >= 70% of High-tier areas remain in the top quartile by actual thefts. If it fails, ship the better baseline and say so in `model_type`. |
-| M5 | Lookup generator | `build_lookup_json.py` writes `lookup_schema_v1.json` with metadata generated from data (window, lag, `model_type`, attribution). Validated by a JSON Schema in CI. 542 areas always present; zero-record areas flagged `no_data`. |
-| M6 | Confidence + verdict logic | Numeric basis (`n_reports`, interval width) -> solid/fair/thin by a documented rule. Unit test: thin or no data never yields calm styling or "normal/lower" wording. |
-| M7 | Advice catalog + router | Catalog regenerated from `lock-tier-documentation.md`: VdS 2597 A+/B+, no Sold Secure, no frame-lock-alone, no "go elsewhere" text. Router tests per tier x bike class x daypart. |
-| M8 | UI against locked schema | Real `lookup_schema_v1.json` consumed by the UI (the demo's mock data removed). Locate-me or tap, place search, and the time and bike selectors **exactly as the EDA capability table allows** (not as in the prototype), answer card with tier, confidence, data date, advice, "limited data" flag. Works at 375 px; location-denied and outside-Berlin states. |
-| M9 | Shippable static fallback | Static site deployed with the bundled JSON as the only dependency. Works offline after first load (service worker or cache headers). |
-| M10 | Attribution + "About the data" | All three attributions in the UI; the known limits (open data is ~76% of PKS, under-reporting, lag) written down. |
+| M1 | Hardened ingestion and audit | Audit exits non-zero on wrong columns, fewer than 25,000 total rows, unmatched LOR IDs or an unset lag cutoff. Street filter by `DELIKT`/`ERFASSUNGSGRUND`. Unit tests run against a committed fixture (`tests/fixtures/`, a few thousand rows with cellar rows and edge cases); the live-data range check runs in the refresh workflow. Lag N, window and daytypes come from one config file |
+| M2 | Cleaning pipeline | Street filter, lag truncation, time-band mapping, proportional allocation of offence windows. Tests: counts conserved; truncation removes exactly the rows newer than the cutoff |
+| M3 | Baselines and backtest | Citywide-share and raw area-history baselines; two rolling hold-out folds (Apr 1-Jun 30 and Jul 1-Sep 29 2026; the latter ends at the 14-day truncation cutoff); deviance and Spearman reported |
+| M4 | Hierarchical Empirical Bayes model | Gamma-Poisson shrinkage: area, then Bezirksregion, then city. Time band and bike class enter as **citywide multipliers** on the area level; an area-specific time or class profile is used only if it beats that on hold-out. Meets the targets in section 2, or the better baseline ships and `model_type` says so |
+| M5 | Lookup generator | `build_lookup_json.py` writes `lookup_schema_v1.json` with metadata generated from data; JSON Schema validated in CI; all 542 areas present, zero-record areas flagged |
+| M6 | Confidence and verdict logic | Numeric basis (report count, interval width) mapped to a labelled confidence by a documented rule. Tests: thin or no data never yields calm styling or "normal/lower" wording; reason strings come only from data-derived templates |
+| M7 | Advice catalog and router | Generated from `lock-tier-documentation.md` (VdS 2597 A+/B+; no Sold Secure; never a frame or cable lock alone; no relocation advice). Tests per tier, bike class and time band, including a check that no string claims a per-bike risk. Each lock term explained in plain words. All copy held in a string table; the MVP is English only (D-11) |
+| M8 | Client on the locked schema | Location or tap; place search by planning-area and district name, plus street and station if the Phase 1 gazetteer passes (WP 1.7); time and bike selectors **as the capability table allows**; answer card in this order (D-09): (1) risk assessment: tier, confidence, "limited data" flag, and the "typical for this kind of area" line only if S1 is adopted; (2) lock advice; (3) a breakdown of where the information comes from: how risk is assessed (report count, period, area, data date, method in one line) and the source of the lock advice (police, ProPK, VdS, ADFC guidance). Baseline accessibility built in (contrast, labels, colour never the only signal). Works at 375 px; location-denied, outside-Berlin and no-result states; no mock text in the build |
+| M9 | Shippable static release | Static deployment with the bundled JSON as the only data dependency. Offline: app shell, data and polygons are cached; basemap tiles are not, so offline shows polygons without a basemap and a notice |
+| M10 | Attribution, "About the data" and feedback link | Polizei Berlin (CC-BY 4.0), LOR (dl-de/by-2-0), OSM (ODbL) shown in the UI and in `metadata`, checked by a test. The About page also serves as "How this works" and lists the limits (open data is about three quarters of the PKS figure, under-reporting, lag, one season). "This looks wrong" is a link to a GitHub issue form; it sends no data |
+| M11 | Automated weekly refresh | Cron opens a PR with the regenerated JSON. PR creation needs either the repository setting "Allow GitHub Actions to create and approve pull requests" (currently off) or a PAT/GitHub App token; PRs opened with the default token do not trigger other workflows, so the schema, row-count and tier-sanity checks run as **steps inside the refresh workflow** and block PR creation on failure. Failure keeps the last good JSON and opens an issue. A no-op dry-run PR is opened by Fri 6 Nov. Merged and enabled by Fri 13 Nov so the first cron run is Mon 16 Nov 06:00 UTC |
 
-### Should Have (Phase 2-3)
+### Should have
 
-| ID | Item | Acceptance criteria |
+| ID | Capability | Acceptance criteria / kill criterion |
 | --- | --- | --- |
-| S1 | OSM exposure proxy + Poisson GLM | `osmnx` counts per area (transit stops, shops, amenities) cached to `data/processed/osm_features.parquet` (pinned extraction date). Adopted **only if** it improves hold-out deviance over EB alone and rankings are stable across folds. Otherwise `model_type` stays `eb_gamma_poisson` and the UI hides the "typical for this kind of area" line. Time-box: 4 working days total. |
-| S2 | Area stats | `aggravated_lock_break_share` (if it varies, see D7) and median stolen value per area with a minimum-n rule (<20 cases: show citywide value labelled as such). |
-| S3 | 30-day anomaly badge | `trending_up_30d` when trailing 30-day street count exceeds the 95% Poisson upper bound of the area's own expected count; requires n_expected >= 3 or the flag is `null`. Test on synthetic injected spikes. |
-| S4 | FastAPI + container | `GET /api/v1/risk`, `/areas`, `/healthz`. Dockerfile builds in CI; client falls back after 1.5 s. Verified with the container stopped. |
-| S5 | Automated weekly refresh | Cron opens a PR with the regenerated JSON, schema + sanity checks required, last good JSON retained on failure. |
-| S6 | "How this works", "This looks wrong", share link (area ids and time band only) | Link reopens the same view; no coordinates in the URL. |
-| S7 | Accessibility pass | Colour never the only signal (tier text + pattern), contrast checked, keyboard navigable, screen-reader labels. |
+| S1 | OSM exposure proxy and Poisson GLM (`osmnx`) | Adopted only if it improves hold-out deviance over M4 and rankings are stable across folds. Time-box 1.75 pd, Tue pm to Thu; decision Thu 5 Nov 17:00. Adoption changes numbers only, never the UI. Otherwise `model_type` stays `eb_gamma_poisson`, the answer-card line is omitted, and the reason is documented |
+| S2 | Area statistics (lock-defeated share, median stolen value) | Minimum-n rule (< 20 cases: citywide value, labelled); dropped from the router if between-area variation is negligible |
+| S3 | 30-day anomaly badge | Trailing 30-day count above the 95% Poisson upper bound of the area's expected count, only where expected count >= 3; tested on injected spikes |
+| S4 | FastAPI service, container, client fallback | `/api/v1/risk`, `/areas`, `/healthz`; `docker build` and smoke test in CI; client falls back after 1.5 s. Not publicly hosted (D-13): demonstrated locally and in CI, with a configurable API base URL that is unset in production. Cut decision at G2 (section 5 ladder) |
+| S7 | Accessibility audit | Screen-reader and keyboard pass on the release build; contrast verified (the baseline is part of M8) |
 
-### Could Have (only after Gate 3 and only if Week 4 testing is green)
+### Could have (not scheduled)
 
-- Finer bike classes (cargo/Lastenfahrrad shown separately; 188 rows, likely too thin).
-- Two-place compare view (story E3).
-- Multi-criteria filters (daypart + risk tier + confidence).
-- German/English toggle beyond the base copy.
-- Guideline URL health check in CI.
-- Dark mode.
+Pulled forward only into confirmed Phase 3 slack before Gate 3; otherwise a backlog after graduation: share link (area ids and time band only) · two-place compare view · German and other languages (nice-to-have if time remains; the string table makes it a translation task) · anonymized aggregate usage analytics (D-10) · finer bike classes · multi-criteria filters · guideline-URL health check in CI · dark mode.
 
-### Won't Have (explicit, this release)
+### Won't have (this release)
 
-- Live weather or forecast inputs.
-- Runtime inference of any kind: SHAP, LLM or RAG at request time.
-- User accounts, saved places, rider tracking, any server-side user data.
-- Cities other than Berlin; route planning; live theft reports or alerts.
-- Neighbourhood rankings or "unsafe area" labels.
-- Lock product or brand recommendations; Lock Budget (held for a legal read).
-- Seasonality modeling (only ~21 months of data).
-- EM allocation of offence windows (replaced by proportional allocation).
-- Production-scale hosting, load testing, security hardening beyond the basics.
+Live weather or forecasts · runtime inference of any kind · accounts, saved places or rider tracking · cities other than Berlin · route planning, live reports, alerts · neighbourhood rankings or "unsafe" labels · lock product or brand recommendations and Lock Budget · seasonality modeling · EM allocation of offence windows (replaced by proportional allocation) · parking-duration risk (not in the data) · in-app analytics and polls in the MVP (D-10) · public hosting of the API (D-13) · load testing of GitHub Pages.
+
+### Scope ladder (cut order if the plan slips)
+
+1. Could-have items. 2. S3 anomaly badge. 3. S7 audit beyond the M8 baseline. 4. S1 OSM/GLM (decision Thu 5 Nov). 5. S4 FastAPI (decision at G2; if cut, the G3 resilience and API criteria are tested on the static and offline path, and the docs state the API as designed, not shipped). Must-haves are not cut; if one is at risk at a gate, the gate's fallback in section 7 applies.
 
 ---
 
-## 3. Phased Roadmap and Milestone Gates
+## 6. Roadmap
 
-### Contradictions in the docs, and the resolution used in this plan
+### 6.1 Calendar
 
-| # | Contradiction | Resolution |
-| --- | --- | --- |
-| C1 | `scope-definition.md` is a 3-week plan with Week 4 "a cushion"; this roadmap is 4 weeks with a hard feature freeze at Gate 3. | 4 phases, Week 4 is test and polish only. `scope-definition.md` to be updated to match. |
-| C2 | Scope docs rank OSM, FastAPI, 30-day flag and weekly refresh as Should/Could; the brief requires them by Week 3. | Promoted to Should with kill criteria (S1 adopted only if it wins the backtest; S4 stays behind the static default). |
-| C3 | Executive summary: "conditional go, two-week validation, do not yet build". Scope docs: build immediately. | Build proceeds; the validation questions become explicit tests in Phases 1-3 (density in Gate 0/1, riders in Gate 2). |
-| C4 | Metadata says window starting 2024-01-01 and lag 14; the audit says data starts 2025-01-01 and p95 lag is 10 days. | Generated metadata; N=14 chosen deliberately (D4). |
-| C5 | README says "542 LOR alignment" and "~20,000 outdoor thefts/year". Data: 534 with records, ~17k rows dated 2025. | Gate 0 criterion rewritten; README corrected. |
-| C6 | Daytype is "weekday/weekend" (scope docs) vs. Mon_Thu/Friday/Weekend (audit, sample JSON). | **Provisional:** three daytypes (Mon_Thu, Fri, Weekend), matching the existing code and schema; the EDA and Phase 1 backtest confirm or collapse to two in config. |
-| C7 | `EBIKE` class in the schema vs. no e-bike field in the data. | Value-band classification (D6). |
-| C8 | `advice_catalog` cites Sold Secure and frame+U-lock alone. | Regenerate from the lock-tier doc (M7). |
-| C9 | README: frontend is React + Vite + Tailwind + turf, `src/api/main.py` exists, CSV is ~15-20 MB; reality: single-file CDN prototype, no API, 4 MB. | Rewrite README "Quickstart" and "Repository Structure" in Phase 4 to match what exists; until then add a "Status" table (section 0). |
-| C10 | Success criterion "70% of High areas stay in top ~25%" and "0.6 Spearman" are marked "not yet verified". | Treated as targets to confirm at Gate 1; if the data cannot reach them, the gate fails and scope narrows (see Gate 1). |
-| C11 | Branch protection on `main` vs. a workflow that pushes to `main`. | Refresh opens a PR (S5). |
-
-### Calendar
-
-| Phase | Dates | Theme |
-| --- | --- | --- |
-| 0 | Wed 10-21 to Sun 10-25 | Foundation, ingestion guardrails |
-| 1 | Mon 10-26 to Sun 11-01 | Baseline engine + UI scaffold |
-| 2 | Mon 11-02 to Sun 11-08 | Features, real data end to end, first usability test |
-| 3 | Mon 11-09 to Sun 11-15 | Robustness, automation, governance. **Feature freeze at Gate 3.** |
-| 4 | Mon 11-16 to Sun 11-22 | Test, stress-test, polish, docs, pitch |
-
-### Phase 0: Foundation and Ingestion Guardrails (Day 0)
-
-| Task | Output |
-| --- | --- |
-| Branch protection is already on `main`; add required status checks (tests, schema) and CODEOWNERS for both people | Settings screenshot or issue comment |
-| Create issues for every Must (M1-M10) with acceptance criteria; one `STATUS.md` | Board exists |
-| Harden `audit_police_csv.py` into asserts + non-zero exit; fix the street filter (D9); write `config.py` with N=14, window, daytypes | Audit passes in CI |
-| Add `pytest` job on PRs (`.github/workflows/ci.yaml`) | Green CI on a trivial test |
-| Record decision log: daytypes (C6), bike class (D6), tiers relative (1.1), lag N | `docs/product-discovery.md` decision log rows |
-| Recruit 5 riders for Week 2 (and 3 for Week 3); book slots | Names and dates in `STATUS.md` |
-
-**Gate 0 (go/no-go):**
-
-- [ ] Audit script exits 0 on the current CSV and non-zero on a corrupted copy (bad delimiter, truncated file, missing column), with a test for each.
-- [ ] Delimiter and encoding detected (ISO-8859-1 today); 542 GeoJSON features, **0 CSV area IDs missing from GeoJSON**, 8 zero-record areas listed and handled explicitly.
-- [ ] Lag cutoff **N = 14 days** locked in `config.py` and written to metadata; derivation (p95 = 10, rounded up for censoring) documented.
-- [ ] Street-filter row count equals the expected 29,212 (current dump) via a test.
-- [ ] CI runs tests on PRs; `main` requires them.
-- **No-go:** any of the above fails -> Day 0 extends by at most 2 days, taken from Week 1 slack. Not from Week 4.
-
-### Phase 1: Baseline Engine and Scaffolding (Week 1)
-
-| Work | Owner (see section 4) |
-| --- | --- |
-| **EDA first (days 1-3):** notebook + `docs/eda-findings.md` covering the six questions in section 0.5; capability table agreed by both | Data |
-| M2 cleaning pipeline incl. proportional window allocation, with tests | Data |
-| M3 baselines + rolling-origin backtest; density table (reports per cell, 12 and 24 months) | Data |
-| M4 Gamma-Poisson EB shrinkage to BZR and city; first tiers | Data |
-| Check D7 (variation of lock-break share) and C6 (3 vs. 2 daytypes) | Data |
-| Lock `lookup_schema_v1.json` (schema file + generated sample with all 542 areas, flat or nested; one decision, no later changes without a version bump) | Both; PM signs off |
-| UI: move the prototype into `frontend/` (Vite build), vendor the CDN libs, load the **mock-valid** JSON built against the locked schema, render 542 polygons + answer card | UI |
-| Decide basemap/tile approach (R4) | UI |
-| Outside statistics reviewer identified | PM |
-
-**Gate 1 criteria:**
-
-- [ ] EB baseline beats **both** naive baselines (citywide share; area history) on Poisson deviance on **both** backtest folds. Spearman >= 0.6 on the Jul-Sep 2026 hold-out. >= 70% of High-tier areas in the actual top quartile.
-- [ ] Tier shares are 60/25/15 +-3 pts; no district has a tier-share gap > 2x the citywide share (fairness check).
-- [ ] **Capability table signed:** every filter and label in the UI maps to a field and a density result from the EDA; anything unsupported is cut or relabelled.
-- [ ] Schema validates; generator produces all 542 areas.
-- [ ] UI renders 542 polygons, selectors, and answer card from the schema with **no console errors** at 375 px and desktop.
-- **No-go options (decide at the gate, not later):**
-  1. Model fails at planning-area level -> ship **Bezirksregion (143)** tiers with the polygons grouped, keep the UI.
-  2. Model fails entirely -> ship the best baseline with "indicative only" wording; the product is still a lock-advice tool.
-  3. Gate fails by a hair -> one extra day, taken from Week 2 slack.
-
-### Phase 2: Feature Enhancement and Working Fallback (Week 2)
-
-| Work | Notes |
-| --- | --- |
-| S1 `osmnx` exposure features + Poisson GLM (time-boxed 4 days) | Kill criterion: no hold-out gain, or rankings unstable across folds -> stop, delete `osm_activity_context`, document why |
-| S2 area stats; M6 confidence rules; M7 advice catalog + router | Template layer for verdict text; copy reviewed against `lock-tier-documentation.md` |
-| M5 full batch generation -> real `lookup_schema_v1.json`; UI wired to it | Mock data removed from the UI |
-| M9 deploy static build with bundled JSON; M10 attribution and About page | Pages workflow now builds `frontend/` |
-| **Usability test #1** (end of week, 5 riders, 20 min each, real data) | Script: open -> find a spot -> state tier meaning -> choose a lock. Record: time to decision, tier-wording comprehension, "would you use it" |
-| Outside method review (R3) | Written feedback by Gate 2 |
-
-**Gate 2 criteria:**
-
-- [ ] Deployed site works end to end on **real precomputed data**; no mock strings left (`grep -i mock` in the build output returns nothing).
-- [ ] Site works with the network turned off after first load.
-- [ ] Usability: >= 4 of 5 explain what the tier means; median time to a lock decision < 60 s; >= 3 of 5 say they would use it. Failure here is a **narrow/stop decision** for the team (executive-summary gate), not an automatic slip.
-- [ ] Advice tests pass: no frame-lock-alone, no brand/Sold Secure, no relocation text, thin data never reassured.
-- [ ] Outside reviewer has no unresolved blocking comment on the model.
-- **No-go:** a failed usability gate triggers wording and layout rework in the first 3 days of Week 3, and S3-S7 are cut to make room (in order: S7 partial, S6, S3).
-
-### Phase 3: Robustness, Automation and Governance (Week 3)
-
-| Work | Notes |
-| --- | --- |
-| S3 30-day anomaly badge | With injected-spike tests |
-| S4 FastAPI + Dockerfile + client fallback (1.5 s timeout) | Container in CI (`docker build` + smoke test `/healthz`, one risk query) |
-| S5 weekly refresh via PR with schema + sanity checks; failure issue; last good JSON retained | Dry-run with `workflow_dispatch` and with a deliberately broken CSV |
-| Governance: attribution test, ODbL read, tile/CDN privacy, no-tracking verification (network panel shows only own origin) | |
-| Usability fixes from test #1; **test #2** (3 riders, mid-week) on wording and anomaly badge | |
-| S7 accessibility pass | |
-| **Feature freeze** at Gate 3 | |
-
-**Gate 3 criteria:**
-
-- [ ] `docker build` and `docker run` work locally and in CI; `/healthz` and a risk query return the same answer as the static JSON.
-- [ ] **Simulated outage:** with the container killed, the app falls back within 1.5 s and the answer is identical; with the container slow (artificial 5 s delay), same result. Verified by an automated browser test.
-- [ ] Weekly workflow: a manual run produces a PR that passes checks; a corrupted CSV produces a failed check and **no** change to the served JSON.
-- [ ] Attribution test passes; legal read on ODbL/CC-BY answered or the OSM-derived aggregates removed; no third-party requests from the app origin (except the decided tile provider).
-- [ ] Usability test #2: no new blocking wording issues.
-- **No-go:** anything missing is **moved to Won't** or fixed in the first 2 days of Week 4. Nothing new starts after Gate 3.
-
-### Phase 4: Release, Polish and Stakeholder Pitch (Week 4)
-
-| Day | Work |
-| --- | --- |
-| Mon-Tue | Integrate remaining feedback; polish; documentation: rewrite README to match reality (C9), architecture diagram, runbook for the refresh job and fallback |
-| Tue-Wed | **Stress test** (the point of this week): 50+ concurrent users on the static site (e.g. `k6` or `hey` against the Pages URL); API under load; corrupted/old data; location denied; outside Berlin; slow 3G; 375 px phones, iOS Safari + Android Chrome; screen reader pass |
-| Wed | Technical deviation and calibration report: backtest tables, calibration plot (predicted tier vs. observed rate), fairness check, limits (one season, under-reporting, lag, 76% of PKS), decisions and what was cut |
-| Thu | Release candidate tagged `v1.0.0`; freeze (only P0 bugs merge) |
-| Fri | Pitch dry-run to an outside person; fix only presentation issues |
-| Sat-Sun | **No code.** Buffer only |
-
-**Gate 4 (release):**
-
-- [ ] All Must items are done; every Should is either done or has a recorded Won't decision.
-- [ ] Stress test: no errors at 50 concurrent users; p95 page load on throttled mobile < 3 s; fallback path re-verified on the release build.
-- [ ] README quickstart works on a clean clone (`uv sync`, pipeline, frontend) as executed by the person who did **not** write it.
-- [ ] Deviation and calibration report published in `docs/`, with honest failures.
-- [ ] 3 consecutive days with no P0/P1 bug open; scheduled refresh has run successfully at least once on its own (cron, not manual) before the pitch.
-- [ ] Pitch deck consistent with the numbers in the report (no unverified press figures; see the "do not quote" list in `product-discovery.md`).
-
----
-
-## 4. Team Work Allocation and Operational Playbook
-
-Roles: **Data** = pipeline, model, validation, API/CI. **UI** = frontend, copy, usability tests, accessibility. Both review every PR. The weekly PM owns priorities, the board, the gate call and the handoff note; **the PM still does their stream**, minus roughly one day of coordination. Fritz holds the PM role in Week 1 (placeholder; swap if Burcak starts).
-
-| Phase / Week | PM | Fritz | Burcak | Joint |
+| Phase | Dates | Theme | Gate | Fixed event |
 | --- | --- | --- | --- | --- |
-| Day 0 (Oct 21-25) | Fritz | Data: audit hardening, config, CI + branch checks | UI: issues and board, rider recruiting, tile/CDN inventory | Gate 0 review; decision-log entries |
-| Week 1 | **Fritz** | **PM** + cleaning pipeline, baselines, EB model | Frontend scaffold in Vite, vendored libs, schema-driven render, basemap decision | Lock schema together on Monday/Tuesday; Gate 1 review on Friday |
-| Week 2 | **Burcak** | Data: GLM/OSM (time-boxed), area stats, generator, confidence, schema validation | **PM** + advice router and templates, UI on real data, deploy, test #1 | Test #1 together (one moderator, one note-taker); Gate 2 call by Burcak |
-| Week 3 | **Fritz** | **PM** + FastAPI, container, refresh PR workflow, anomaly flag | Test fixes, test #2, accessibility, attribution component | Governance read, Gate 3 call by Fritz |
-| Week 4 | **Burcak** | Calibration report, stress tests (API/static), data runbook | **PM** + UI polish, README, pitch, device matrix | Release candidate, pitch dry-run, Gate 4 |
+| Week 0 | Oct 19-23 | Discovery, prototype, user research, roadmapping | n/a (complete) | |
+| 0 | Fri Oct 23 to Mon Oct 26 noon | Foundation and ingestion guardrails | **G0** Mon Oct 26, review 11:30 | |
+| 1 | Oct 26-30 | EDA, baseline engine, UI scaffold | **G1** Fri Oct 30 | |
+| 2 | Nov 2-6 | Features, real data end to end, usability test #1 | **G2** Fri Nov 6, 15:00 (midterm readiness) | |
+| 3 | Nov 9-13 | Midterm, robustness, automation, governance, stress test | **G3** Fri Nov 13 (feature freeze, RC1) | **Midterm Tue Nov 10** |
+| 4 | Nov 16-20 | Defect fixing, polish, documentation, rehearsal | **G4** Tue Nov 17 (pitch build); hard freeze Thu Nov 19 12:00 | **Dry-run Wed Nov 18; Graduation Fri Nov 20** |
 
-Rules that keep the rotation from hurting:
+No weekend work is planned; weekends are buffer.
 
-- **Schema ownership never rotates.** Any change to `lookup_schema_v1.json` needs a version bump, a PR by whoever changes it, and sign-off by both.
-- **Gate calls** are made by the PM of the week where the gate falls, but a gate failure decision (narrow/stop) needs both people.
-- **Carry-over cap:** the outgoing PM may hand over at most 2 half-finished items; the rest is merged, parked or closed.
-- **AI-generated PRs** are accepted only with a test that would fail if the code were wrong, and the reviewer runs it locally.
+### 6.2 Work packages, estimates and owners
+
+Estimates are person-days (pd). Net capacity is 4 pd per person per full week, 8 pd for the team: 5 days less 20% for reviews, meetings and PM duties. Event time (midterm, dry-run, graduation) is planned **inside** that net capacity, as work packages. Roles: **Data** (pipeline, model, validation, API, CI) and **UX** (frontend, copy, advice templates, usability sessions). The person holding the PM role in a week still works in their stream.
+
+**Phase 0: Foundation (Fri Oct 23 to Mon Oct 26 noon). Net capacity ~1.2 pd per person (2.4 team), planned 2.25 (Data 1.25: WP 0.2 now includes the admin action and token decision and slightly overruns Data's share, absorbed by the G0 fallback day)**
+
+| WP | Work | pd | Owner |
+| --- | --- | --- | --- |
+| 0.1 | Harden audit (asserts, exit codes, column-based street filter); `config.py` with N = 14, window, daytypes; committed test fixture | 0.75 | Data |
+| 0.2 | PR CI (pytest); enable required status checks on `main` (not enabled today; repo admin action); CODEOWNERS; decide the PR-creation token approach for M11 (setting vs. PAT/App) | 0.5 | Data |
+| 0.3 | Issues for M1-M11 with acceptance criteria; `STATUS.md`; decision log | 0.5 | PM (Burcak) |
+| 0.4 | Rider recruiting: outreach sent for 8 riders (5 for Nov 5-6, 3 for Nov 11-12) | 0.5 | UX |
+
+**Phase 1: Baseline engine and scaffolding (Oct 26-30). Net capacity 8.0, planned 8.0 (Data 4.0, UX 4.0). No time slack: the buffer is the fallback list in G1**
+
+| WP | Work | pd | Owner | Window |
+| --- | --- | --- | --- | --- |
+| 1.1 | EDA and capability table (`docs/eda-findings.md`); both review and sign | 1.5 | Data 1.0, UX 0.5 | Mon pm-Wed |
+| 1.2 | Cleaning pipeline, window allocation, tests (M2) | 1.0 | Data | Wed-Thu |
+| 1.3 | Baselines and rolling-origin backtest (M3) | 1.0 | Data | Thu-Fri |
+| 1.4 | EB model v0, tiers, calibration and fairness report, hold-out validation of every selector the card shows (M4); generator v0 emits all 542 areas from real data | 1.0 | Data | Thu-Fri |
+| 1.5 | Schema v1: JSON Schema and sample; draft Thu, **final lock Fri 11:00** after the model run; later changes additive only | 0.5 | UX, Data review | Thu-Fri |
+| 1.6 | Frontend scaffold (Vite build, vendored libraries, 542 polygons, schema-driven render on a fixture); Pages workflow for `frontend/` deploying a hello page by Thu 29 Oct (`pages.yaml` deploys only `demo/` today) | 1.5 | UX | Mon-Thu |
+| 1.7 | Basemap decision (DEP-3); place-search gazetteer: street and station to area from open data, prototype fixed at 0.75 pd. Not feasible by Fri -> fall back to area and district name search. If time runs short, the Pages workflow in WP 1.6 takes priority over the gazetteer | 1.25 | UX | Mon-Fri |
+| 1.8 | Confirm midterm and graduation formats (DEP-6); identify outside statistics reviewer (DEP-1); confirm 5 riders with dates (DEP-2) | 0.25 | PM (Fritz) | Mon-Fri |
+
+**Phase 2: Features and working fallback (Nov 2-6). Net capacity 8.0, planned 8.0 (Data 4.0, UX 4.0). S1 is the Data buffer: if killed, its 1.75 pd is released**
+
+| WP | Work | pd | Owner | Window |
+| --- | --- | --- | --- | --- |
+| 2.1 | OSM features and Poisson GLM (S1); decision Thu 17:00 | 1.75 | Data | Tue pm-Thu |
+| 2.2 | Area statistics, confidence rules (Data); advice catalog, router, templates (UX) (S2, M6, M7) | 1.5 | Data 0.5, UX 1.0 | Mon-Tue |
+| 2.3 | Generator on EB output with advice and confidence; schema validation in CI (M5); no-op dry-run refresh PR (M11) opened by Fri 6 Nov | 1.25 | Data | Mon-Tue |
+| 2.4 | UI on real data from the G1 sample: selectors per capability table, place search, answer card, error states, About and attribution (M8, M10) | 1.5 | UX | Mon-Wed |
+| 2.5 | Production deployment of the built frontend; offline caching (M9); the mock `demo/` deployment is removed or redirected after G2. **Test build frozen Wed 4 Nov 18:00** | 0.5 | UX | Wed |
+| 2.6 | Usability test #1: 5 riders (Thu 5 Nov: 3, Fri 6 Nov morning: 2); moderator + note-taker; synthesis | 1.0 | Both | Thu-Fri |
+| 2.7 | Midterm storyline and slide draft | 0.5 | UX | Fri |
+
+**Phase 3: Midterm, robustness, automation, governance (Nov 9-13). Net capacity 8.0, planned 7.5 (Data 4.0, UX 3.5) plus 0.5 UX buffer**
+
+| WP | Work | pd | Owner | Window |
+| --- | --- | --- | --- | --- |
+| 3.1 | Midterm: build verification, a screen recording of `midterm-v0.9` and a local static copy on a laptop (no venue network needed) by Mon, rehearsal Mon, presentation Tue | 1.5 | Both (Data 0.5, UX 1.0) | Mon-Tue |
+| 3.2 | Midterm feedback triage and wording fixes from tests #1 | 0.5 | UX | Wed |
+| 3.3 | FastAPI, Dockerfile, client fallback (S4); CI build and smoke test | 1.5 | Data | Wed-Thu |
+| 3.4 | Refresh workflow opening a PR with checks; dry-runs with a valid and a corrupted CSV; merged and enabled by Fri (M11) | 1.0 | Data | Wed-Thu |
+| 3.5 | Anomaly badge with injected-spike tests (S3); first on the cut ladder | 0.5 | Data | Thu |
+| 3.6 | Governance: attribution test, privacy check (network panel shows only our origin and the chosen tile provider), ODbL read (DEP-5), no-tracking verification | 0.75 | UX | Wed-Thu |
+| 3.7 | Usability test #2 (3 riders, Wed 11-Thu 12 Nov) and fixes | 0.75 | UX | Wed-Thu |
+| 3.8 | Stress and resilience tests: automated browser outage and slow-API test (UX 0.5); 50+ concurrent users against a local production build, and API load (Data 0.5); RC1 tag | 1.0 | Both | Thu-Fri |
+
+**Phase 4: Release, polish, rehearsal (Nov 16-20). Net capacity 8.0, planned 7.0 (Data 3.5, UX 3.5) plus 1.0 buffer. Dry-run and graduation are inside WP 4.5**
+
+| WP | Work | pd | Owner | Window |
+| --- | --- | --- | --- | --- |
+| 4.1 | Defects from tests #1-#2, the stress test and any Gate 3 miss | 1.5 | Both | Mon-Tue |
+| 4.2 | UI polish and accessibility audit (S7); device matrix (iOS Safari, Android Chrome, 375 px) | 1.5 | UX | Mon-Tue |
+| 4.3 | Documentation: README matched to reality, architecture diagram, refresh and fallback runbook; first cron run (Mon 16 Nov 06:00 UTC) verified | 1.0 | Data | Mon-Tue |
+| 4.4 | Technical deviation and calibration report (backtest, calibration, fairness, limits) | 1.0 | Data | Mon-Tue |
+| 4.5 | Pitch deck and demo script; screen recording and local static copy of the pitch build by Tue 17 Nov; dry-run Wed, graduation Fri; after Wed only deck, script and typo-level copy changes | 2.0 | Both | Mon-Fri |
+
+### 6.3 Critical path
+
+EDA capability table (1.1) -> model run and schema lock (1.4, 1.5) -> generator and real-data UI (2.3, 2.4) -> deployed test build, frozen Wed 4 Nov 18:00 (2.5) -> usability test #1 (2.6) -> **midterm build** -> container, fallback and stress tests (3.3, 3.8) -> RC1 (G3) -> pitch build (G4).
+
+Off the critical path, can slip a day without moving a gate: S1 (until Thu 5 Nov), S3, S7, documentation.
+
+---
+
+## 7. Milestone gates
+
+Each gate is a go/no-go call made in a 30-minute review on the date shown, by the PM of the week with both people present. A failed criterion triggers the listed fallback, decided in advance.
+
+### Freeze ladder
+
+| Point | Rule |
+| --- | --- |
+| G2 Fri 6 Nov | `midterm-v0.9` tagged |
+| Mon 9 Nov 12:00 to the end of the midterm Tue 10 Nov | No merges to `main` except a demo-critical fix approved by both; Phase 3 work continues on branches |
+| **G3 Fri 13 Nov** | **Feature freeze:** no new feature starts; RC1 tagged |
+| Mon-Tue 16-17 Nov | Defect fixes, polish, documentation only |
+| RC1 to graduation | **No refresh PR is merged.** The pitch build is pinned to the tagged `lookup_schema_v1.json`; after the first cron run (Mon 16 Nov) is verified at G4, the cron schedule is disabled until after graduation, so deck, report and live site cannot drift apart |
+| **G4 Tue 17 Nov EOD** | Pitch build frozen |
+| Wed 18 Nov | Dry-run on the pitch build; afterwards only deck, script and typo-level copy changes |
+| **Thu 19 Nov 12:00** | Hard freeze: no merges except P0 fixes approved by both |
+
+### G0: Foundation, Mon 26 Oct (review 11:30 at the Monday sync; Fritz, as incoming PM, makes the call)
+
+- [ ] Audit exits 0 on the current CSV and non-zero on a corrupted copy (bad delimiter, truncated file, missing column), one test each, run against the committed fixture.
+- [ ] Delimiter and encoding detected (ISO-8859-1 today); 542 polygons; **0 CSV area IDs missing from the polygons**; the 8 zero-record areas listed in the audit output.
+- [ ] Lag cutoff N = 14 days and its derivation (p95 = 10, rounded up for censoring) in `config.py`.
+- [ ] Street-filter rule covered by fixture tests; the live count (29,212 street rows in the 2026-10-13 dump) is reported by the audit, with a range check in the refresh workflow.
+- [ ] CI runs tests on PRs and is a **required status check on `main`** (not enabled today); the M11 PR-token approach is decided; issues M1-M11 exist; rider outreach sent.
+- **Fallback:** one extra day taken from the 0.75 pd gazetteer prototype (WP 1.7) and Phase 2 slack; EDA starts after the review at noon.
+
+### G1: Baseline engine, Fri 30 Oct
+
+- [ ] **Capability table signed** (`docs/eda-findings.md`): every filter and label maps to a data field and a density result; unsupported ideas are cut or relabelled.
+- [ ] Deviance better than the citywide baseline and within 1% of or better than the raw area-history baseline, on both folds. Spearman >= 0.6 (Jul-Sep). >= 70% of High-tier areas in the actual top quartile.
+- [ ] **Every selector the card shows is validated on hold-out** (time band, bike class, daytype). A selector that fails or is too sparse is shown as a citywide pattern, labelled "citywide pattern", and area tiers stay area-only. Offence hours are "last seen" values spread by proportional allocation, so no area-specific time-of-day claim ships without this check.
+- [ ] **Calibration:** observed hold-out thefts per area rise across Low < Medium < High, and the High mean is at least 2x the Low mean.
+- [ ] **District fairness report** produced and reviewed: per district, share of areas in the High tier against share of areas in the actual top quartile; every district off by more than a factor of 2 is explained (for example spatial concentration), not hidden. This is a report, not a pass/fail threshold.
+- [ ] Tier shares near 60/25/15 are an assertion in the generator, not a gate.
+- [ ] Schema v1 locked (Fri 11:00) and validated; generator emits all 542 areas from real data.
+- [ ] UI renders 542 polygons, the selectors and the answer card from the schema with no console errors at 375 px and on desktop; the `frontend/` build deploys to Pages.
+- [ ] Outside statistics reviewer identified; 5 riders confirmed with dates; gazetteer verdict (feasible or fallback); basemap decision.
+- **Fallbacks:** (a) planning-area tiers fail -> ship Bezirksregion (143) tiers with the same UI; (b) the model fails entirely -> ship the best baseline labelled "indicative", with the product leading on lock advice; (c) a near-miss -> one extra day taken from the Phase 2 Data buffer (S1 is first to shrink).
+
+### G2: Real data end to end and midterm readiness, Fri 6 Nov, 15:00
+
+- [ ] The deployed site runs on **real precomputed data**; `grep -i mock` over the build output is empty.
+- [ ] Offline behaviour as in M9 verified.
+- [ ] Usability test #1 (Thu-Fri): >= 4 of 5 explain the tier and the confidence label; median time to decision < 60 s; >= 3 of 5 would use it. Interview-guide hypotheses H1-H7 recorded with evidence.
+- [ ] Advice tests pass: no frame lock alone, no Sold Secure or brand, no relocation advice; thin data never reassured.
+- [ ] S1 decision taken (Thu 17:00); S4 keep-or-cut decision taken.
+- [ ] Outside reviewer has no open blocking comment on the model, or the DEP-1 fallback has been applied and the claim dropped.
+- [ ] `midterm-v0.9` tagged; midterm storyline and slides drafted (WP 2.7); the recording and local copy follow by Mon 9 Nov (WP 3.1).
+- **Fallbacks:** a usability miss -> the tested build goes to the midterm as is, with the results and the planned fixes presented; wording and layout rework happens Wed-Thu of Week 3 (WP 3.2, 3.7); S3 and S7 are cut first. A "narrow or stop" signal on value is raised with both people and taken to the midterm as a decision, not hidden.
+
+### G3: Robustness and feature freeze, Fri 13 Nov
+
+- [ ] `docker build` and `docker run` clean locally and in CI; `/healthz` and a risk query return the same answer as the static JSON (skipped if S4 was cut at G2; then the resilience test covers the offline and cached path).
+- [ ] **Outage simulation:** with the container stopped, and with a 5 s artificial delay, the client falls back within 1.5 s and shows the identical answer (automated browser test).
+- [ ] Refresh workflow merged and enabled. A manual run opens a PR whose in-workflow checks pass; a corrupted CSV fails those checks, opens no PR and leaves the served JSON unchanged.
+- [ ] **Stress test passed:** 50+ concurrent users against a local production build, 0 errors, p95 load < 3 s on throttled mobile; API load result recorded. GitHub Pages itself is not load-tested.
+- [ ] Attribution test passes; no third-party requests other than the decided tile provider; ODbL question answered or the OSM-derived aggregates removed.
+- [ ] Usability test #2: no new blocking wording issue.
+- [ ] **RC1 tagged. Feature freeze.** Anything not done moves to Won't for this release.
+- **Fallbacks:** missing items are fixed Mon-Tue of Week 4 inside WP 4.1 or moved to Won't. No new feature starts after G3.
+
+### G4: Pitch build, Tue 17 Nov EOD
+
+- [ ] All Must items done; every Should done or recorded as Won't with the reason.
+- [ ] README quickstart works on a clean clone, executed by the person who did not write it.
+- [ ] Fallback path re-verified on the release build; the scheduled refresh has run from cron on Mon 16 Nov 06:00 UTC (or its failure is understood and fixed), its PR is **not** merged, and the cron schedule is then disabled (freeze ladder).
+- [ ] Deviation and calibration report in `docs/`, failures stated plainly.
+- [ ] Zero open P0 or P1 defects at the review.
+- [ ] Pitch deck figures match the report and the verified-facts list in `product-discovery.md` (no press figures).
+- After G4 follow the freeze ladder: Wed 18 Nov dry-run, Thu 19 Nov 12:00 hard freeze, Fri 20 Nov graduation.
+
+---
+
+## 8. Quality and test plan
+
+| Layer | What | When |
+| --- | --- | --- |
+| Data | Audit with asserts; schema and range checks; LOR alignment | Every PR (fixture) and every refresh (live data) |
+| Pipeline | Unit tests: filter, truncation, allocation conserves counts, time-band mapping | Every PR |
+| Model | Baseline comparison on two folds; calibration and district fairness report; shrinkage property tests | Gate 1, every refresh |
+| Copy and advice | Router tests per tier x class x band; no "safe" strings; thin data never reassured; every reason string comes from a data-derived template | Every PR |
+| Schema | JSON Schema validation of the artifact; metadata generated, never typed | Every PR |
+| UI | Browser tests: location denied, outside Berlin, no results, offline; 375 px layout | From Week 2 |
+| Resilience | API up, down, 5 s slow; fallback within 1.5 s; identical answers | Gate 3 |
+| Load | 50+ concurrent users on a local production build; API load | Gate 3 |
+| Usability | Test #1 (5 riders, Week 2), test #2 (3 riders, Week 3); moderated, scripted from the interview guide, observation over opinion | Gates 2 and 3 |
+| Accessibility | Baseline in M8 (contrast, labels, colour-independent signals); audit in Week 4 | Weeks 2-4 |
+
+---
+
+## 9. RAID
+
+### Risks
+
+| # | Risk | L | I | Mitigation | Owner | Trigger |
+| --- | --- | --- | --- | --- | --- | --- |
+| R1 | Sparse cells and zero-inflation make tiers unstable; 8 areas have no data | H | H | Hierarchical shrinkage; numeric confidence with a documented rule; Bezirksregion fallback (G1 fallback a) | Data | G1 backtest |
+| R2 | Reporting lag and a single season bias the recent window and the hold-out | H | M | N = 14 truncation from one constant; "data up to" date on every answer; two-fold backtest; seasonality stated as not modeled | Data | G0, G1 |
+| R3 | Plausible but wrong AI-written statistics go unnoticed | M | H | Library implementations; property tests; baseline comparison gate; outside review before G2 | PM of week | G1, G2 |
+| R4 | Legal, attribution and privacy: ODbL share-alike on OSM-derived aggregates; IP leakage via CDN and tile requests; advice read as a guarantee | M | H | Attribution test; aggregate OSM counts only; vendored libraries; tile decision by 30 Oct; legal read by 12 Nov; "not a guarantee" on every answer | UX | G3 |
+| R5 | Capacity: Phases 1 and 2 are planned at 8.0 of 8.0, with no time slack | H | H | Scope ladder (section 5); S1 is the Data buffer in Phase 2; 0.5 pd UX buffer in Phase 3 and 1.0 pd in Phase 4; fallbacks defined per gate; any gate slip over one day triggers the next ladder cut | PM of week | Any gate slip over 1 day |
+| R6 | PM handoff loses context between two people | H | M | Monday 15-minute sync; written `STATUS.md` by Friday; issues for every WP; PRs under ~300 lines; schema ownership does not rotate | PM of week | Every Monday |
+| R7 | Refresh job breaks silently or publishes bad tiers; branch protection blocks a direct push; Actions cannot create PRs under current settings; first cron run is Mon 16 Nov | H | M | PR-based refresh; schema and range checks; failure keeps the last good JSON and opens an issue; merged and enabled by Fri 13 Nov | Data | G3 |
+| R8 | Demand and trust unproven: personas and interviews are synthetic and ran on mock data | M | H | Real-rider tests on real data (G2, G3); go/narrow/stop decision at G2; findings treated as hypotheses | UX | G2 |
+| R9 | Rider recruiting fails (test dates are fixed) | M | M | Outreach sent by G0, 5 confirmed with dates by G1, 3 more by G2; fallback: classmates and ADFC contacts; if short, test with 3 and report n | UX | G1 |
+| R10 | Midterm or graduation format differs from assumptions | M | M | Confirm by 30 Oct (DEP-6) | PM | G1 |
+
+### Assumptions
+
+- A-1: Both people work full-time Monday to Friday in Weeks 1-4; weekends are buffer only.
+- A-2: The EDA capability table fits in two days and does not change the architecture.
+- A-3: `osmnx` extraction for 542 areas completes within the S1 time-box.
+- A-4: GitHub Pages and GitHub Actions remain the hosting and CI platforms; no paid services, hence no public API host.
+- A-5: The Polizei Berlin CSV stays available at the current URL and keeps its schema.
+
+### Issues (open now)
+
+| # | Issue | Action | Due |
+| --- | --- | --- | --- |
+| I-1 | Refresh workflow cannot push to protected `main`; Actions cannot currently create PRs (setting off, default token read-only) and PRs from the default token do not trigger checks | Token approach decided in WP 0.2; checks run inside the workflow; dry-run PR by Nov 6 (WP 3.4 completes it); workflow stays disabled until the build step exists | Nov 13 |
+| I-2 | Audit script asserts nothing | WP 0.1 | Oct 26 |
+| I-3 | Sample JSON contradicts lock guidance and the data window | Regenerated in WP 2.2 and 2.3 | Nov 3 |
+| I-4 | Prototype labels (Standard/E-bike, Morning/Evening, area-only search) do not match the data | Rebuilt from the capability table (WP 2.4) | Nov 4 |
+
+### Dependencies
+
+| # | Dependency | Needed by | Owner |
+| --- | --- | --- | --- |
+| DEP-1 | Outside statistics reviewer: a candidate and a named backup agreed by Oct 26, identified (G1), written feedback Nov 4. **Fallback applied Nov 4:** a documented self-review checklist and a limits section, with the "externally reviewed" claim dropped | Oct 26 / Oct 30 / Nov 4 | PM |
+| DEP-2 | Riders: outreach sent (G0); 5 confirmed with dates (G1: tests on Nov 5-6); 3 more (G2: tests on Nov 11-12) | Oct 26 / Oct 30 / Nov 6 | UX |
+| DEP-3 | Basemap or tile decision, including a polygon-only fallback | Oct 30 | UX |
+| DEP-4 | Street/station-to-area source for place search | Oct 30 (verdict in WP 1.7) | UX |
+| DEP-5 | Legal or open-data read on ODbL | Nov 12 | UX |
+| DEP-6 | Midterm and graduation formats and slot lengths | Oct 30 | PM |
+
+### Decision log
+
+| # | Decision | Status | Rationale |
+| --- | --- | --- | --- |
+| D-01 | Plan runs Oct 26 to Nov 20 with fixed events; feature freeze at G3 | Decided | Fixed dates; testing before the final week |
+| D-02 | Lag cutoff N = 14 days | Decided | p95 = 10 days measured on an already-biased sample |
+| D-03 | Tiers are relative percentile bands (60/25/15); the card also shows the absolute report count | Decided | Simple and comparable; avoids false precision |
+| D-04 | Static JSON is the source of truth; API is an optional layer | Decided | Resilience and maintenance cost |
+| D-05 | Offence windows allocated proportionally across time bands, not EM | Decided | Deterministic, testable, fits the runway |
+| D-06 | Refresh opens a PR instead of pushing to `main` | Decided | Branch protection and human review of data changes |
+| D-07 | Bike class: value band (< EUR 1,000 / >= EUR 1,000) or grouped bike type | Provisional (EDA) | No e-bike field in the data |
+| D-08 | Three daytypes (Mon-Thu, Fri, Weekend) and four dayparts | Provisional (EDA) | Inherited from the audit code; to be tested against the hour curve |
+| D-09 | The answer card has three blocks in this order: [Risk assessment], [Lock advice], [Breakdown of where the information comes from: how risk is assessed and where the lock advice is sourced] | Decided (team) | Answers the core question first, then the action, then the evidence that supports trust |
+| D-10 | No analytics in the MVP. Follow-up: anonymized aggregate usage measurement to gauge success. Individual users are not tracked (a requirement), so a per-user monthly-active-users metric is not available; aggregate visit and event counts are the option | Decided (team); follow-up after the MVP | Success measurement needs some usage signal; it must not identify people. Until then, success is measured through the moderated tests |
+| D-11 | The MVP is English only. Copy lives in a string table from the start (M7); German and other languages are a nice-to-have follow-up if time remains | Decided (team) | Keeps the MVP small; the string table keeps translation cheap later |
+| D-12 | Parking-duration risk is out of scope | Decided | Duration is not in the data |
+| D-13 | The API is not publicly hosted; the deployed site is static and the API is demonstrated locally and in CI | Decided | No paid hosting (A-4); static default is the product |
+
+---
+
+## 10. Open items
+
+| # | Item | Owner | Due |
+| --- | --- | --- | --- |
+| O-1 | Midterm (10 Nov) and graduation (20 Nov) formats, slot lengths, audience, whether a live demo is allowed (= DEP-6) | PM | Oct 30 |
+| O-2 | Confirm the PM rotation in section 11 | Both | Oct 26 |
+| O-3 | Whether graduation needs the live deployed URL or a recorded fallback demo (plan: both; recording and local copy are WPs 3.1 and 4.5) | PM | Oct 30 |
+
+---
+
+## 11. Team organisation
+
+### PM rotation and stream allocation
+
+| Week | PM | Fritz | Burcak | Joint deliverable |
+| --- | --- | --- | --- | --- |
+| 0 tail (Oct 23-26) | Burcak | Data: WP 0.1, 0.2 | PM + UX: WP 0.3, 0.4 | G0 review Mon 11:30 |
+| 1 (Oct 26-30) | Fritz | PM + Data: EDA, pipeline, baselines, EB model | UX: scaffold, basemap, gazetteer | Capability table; schema lock (Fri 11:00); G1 Fri |
+| 2 (Nov 2-6) | Burcak | Data: generator, stats, OSM/GLM | PM + UX: advice, UI on real data, deploy, slides | Usability test #1 (one moderator, one note-taker); G2 Fri |
+| 3 (Nov 9-13) | Fritz | PM + Data: container, refresh PR, anomaly, stress test | UX: governance, test #2, fixes, midterm deck | Midterm Tue; G3 Fri |
+| 4 (Nov 16-20) | Burcak | Data: report, docs, resilience re-check | PM + UX: polish, accessibility, deck | G4 Tue; dry-run Wed; graduation Fri |
+
+The rotation is an assumption; swap names if the actual order differs. Single-person risk is managed explicitly: PR reviews are returned within 24 hours (a pending review blocks the critical path, so the reviewer clears it first); if the Data owner is out, the UX owner takes over the generator, documentation and the report skeleton, and the scope ladder is applied at once; G1 near-miss fallback (c) is pre-authorised at Mon 2 Nov noon without a new meeting. Fixed rules: the PM owns the board, the weekly priorities, the gate call and the handoff note; **a "narrow or stop" decision at a gate needs both people**; schema changes need a version bump and both sign-offs; the outgoing PM hands over at most two half-finished items.
+
+### RACI
+
+| Workstream | Responsible | Accountable | Consulted | Informed |
+| --- | --- | --- | --- | --- |
+| Data ingestion, audit, pipeline, model | Data owner | PM of the week | Outside reviewer | Other person |
+| Schema and artifact | Both | PM of the week | n/a | n/a |
+| Advice catalog and copy | UX owner | PM of the week | Lock-tier doc owner | Both |
+| Frontend and deployment | UX owner | PM of the week | Data owner | Both |
+| API, container, refresh workflow | Data owner | PM of the week | n/a | Both |
+| Usability tests | Both | PM of the week | Recruited riders | Both |
+| Gate decisions | PM of the week | Both (on narrow/stop) | n/a | n/a |
+| Midterm and graduation presentations | Both | PM of the week | n/a | Programme staff |
+
+### Cadence
+
+| Ritual | When | Purpose |
+| --- | --- | --- |
+| Monday handoff sync | Mon 09:00, 15 min | Context transfer and the week's plan (template below) |
+| Midweek check | Wed, 10 min | Burn-down against WPs; early cut-order call |
+| Gate review | Dates in section 7, 30 min | Go/no-go against criteria |
+| Handoff note | Fri by 17:00 | Outgoing PM writes `STATUS.md` |
+
+Special weeks: Mon 26 Oct has the sync at 09:00 and the G0 review at 11:30, then the EDA starts; Mon 9 Nov is shortened (rehearsal day, midterm on Tuesday); Mon 16 Nov also covers the dry-run and graduation plan.
 
 ### Monday Morning 15-Minute Handoff Sync
 
-Written note by the outgoing PM by Friday evening (`STATUS.md`, max one page); the meeting verifies it, it does not replace it.
-
-| Min | Topic | Owner | Output |
+| Min | Topic | Lead | Output |
 | --- | --- | --- | --- |
-| 0-2 | **Gate status:** which gate is next, date, which criteria are green/red | Outgoing | Red items named |
-| 2-6 | **Done / in flight / blocked** since last Monday (from the board, not memory); what is merged on `main`; what is open and why | Outgoing | At most 2 carry-over items |
-| 6-9 | **Decisions made** and the reasoning (incl. anything that changed the schema, model or copy); link to the decision log | Outgoing | Log up to date |
-| 9-12 | **This week's plan:** top 3 outcomes, who does which stream, what gets cut if we slip (cut order is pre-agreed) | Incoming | Board updated |
-| 12-14 | **Risks and surprises:** register changes, data oddities, external dependencies (testers, reviewer, legal) | Both | Register updated |
-| 14-15 | **Confirm:** one sentence each: "this week succeeds if..." and who unblocks whom | Both | Written at the top of `STATUS.md` |
-
-Template for `STATUS.md`:
+| 0-2 | Gate status: next gate, its date, criteria red and green | Outgoing PM | Red items named |
+| 2-6 | Done, in flight and blocked, taken from the board; what is on `main`; at most two carry-over items | Outgoing PM | Carry-over list |
+| 6-9 | Decisions made last week and why; decision log current | Outgoing PM | Log updated |
+| 9-12 | This week: top three outcomes, who does what, cut order if behind | Incoming PM | Board updated |
+| 12-14 | Risks and surprises; external dependencies (riders, reviewer, legal) | Both | RAID updated |
+| 14-15 | Confirm: "this week succeeds if..." and who unblocks whom | Both | One line at the top of `STATUS.md` |
 
 ```md
 # Status, week N (PM: <name>), updated <date>
 
 ## Gate
-Next gate: <Gate X>, <date>. Criteria red: <list> | green: <list>
+Next gate: <G?>, <date>. Criteria red: <list> | green: <list>
 
 ## Last week
 - Done (merged): <issue/PR links>
-- In flight (owner, % , blocker): <max 2>
+- In flight (owner, % done, blocker): <max 2>
 - Dropped or parked, and why: <items>
 
-## Decisions (also in decision log)
+## Decisions (also in the decision log)
 - <decision> - <why> - <who agreed>
 
 ## This week: top 3 outcomes
-1. 
-2. 
-3. 
+1.
+2.
+3.
 Cut order if we slip: <1, 2, 3>
 
 ## Risks / surprises
@@ -362,15 +472,53 @@ Cut order if we slip: <1, 2, 3>
 - <review waiting, tester slots, legal answer...>
 
 ## Where things live
-Branches: <list>. Env/data: CSV fetched <date>, last lookup generated <date>. Open PRs: <links>.
+Branches: <list>. Data: CSV fetched <date>, lookup generated <date>. Open PRs: <links>.
 ```
 
 ---
 
-## Appendix: Evidence behind the numbers
+## Appendix A: Documentation reconciliation
 
-- Audit re-run on the local `Fahrraddiebstahl.csv` (30,788 rows; 29,212 after excluding cellar cases; 534 distinct areas; lag p50/p90/p95 = 0/4/10 days; offence windows <=1 h / 4 h / 24 h = 19% / 36% / 86%).
-- Last-12-month density computed in this review: 15,465 street rows; median 19 per area; 178 areas <10; 88 areas <5 (including areas with zero).
-- `ART_DES_FAHRRADS` values and `ERFASSUNGSGRUND` mix: 27,499 "schwerer Diebstahl", 1,713 "Einfacher Diebstahl", 1,496 + 80 cellar cases. Median `SCHADENSHOEHE` EUR 899.
-- Workflow run history (`gh run list`): scheduled run 2026-10-19 succeeded because the commit step had nothing to commit; one earlier manual run failed on 2026-10-16.
-- Not verified here: CC-BY 4.0 on the dataset page itself, the OSM extraction cost for all 542 areas, hosting terms of any tile provider, and whether the 2025 gap to PKS (17,190 vs. 22,630) is a coverage or a definition difference.
+Changes the team agrees to make so the documents tell one story. "Done" items are committed on `docs/roadmap`.
+
+| # | Conflict | Resolution | State |
+| --- | --- | --- | --- |
+| 1 | `scope-definition.md` plans 3 weeks with a Week 4 "cushion"; the programme runs to Week 4 with fixed events | Four phases through Week 4; feature freeze at G3; stress-testing in Week 3 | Done once the 2.1 edit to `scope-definition.md` is committed |
+| 2 | OSM, FastAPI, anomaly flag and weekly refresh were Should/Could in scope docs but are required by the delivery plan | Refresh promoted to Must (M11); OSM and FastAPI kept Should with kill criteria; anomaly flag Should | This document |
+| 3 | `executive-summary.md` asks for a two-week validation before building; scope docs build immediately | Validation questions become tests in G0-G2 | This document |
+| 4 | Sample JSON window 2024-01-01 and lag 14 vs. measured window 2025-01-01 and p95 lag 10 | Metadata generated from data; N = 14 by decision | This document |
+| 5 | README: "542 alignment", "about 20,000 outdoor thefts", "15-20 MB" | Corrected to measured values; status table added | Done (README) |
+| 6 | Daytype "weekday/weekend" (scope docs) vs. three daytypes (audit, sample) | Provisional until the EDA (D-08) | Done (scope-definition) |
+| 7 | `EBIKE` class in the schema vs. no e-bike field in the data | Value band or grouped type (D-07) | This document |
+| 8 | Advice catalog cites Sold Secure and "frame + U-lock" | Regenerate from `lock-tier-documentation.md` (M7) | Open (WP 2.2) |
+| 9 | README describes React/Vite, `src/api/main.py` and a push-to-`main` refresh that do not exist | Marked planned in the README; rewritten at G4 | Partly done |
+| 10 | `scope-exploration.md`, `technical-brief.md`, `product-discovery.md` still reference "3 weeks", "24 months" and Week 1-2 validation | Update at G1 once the EDA fixes the facts | Open |
+| 11 | Branch protection on `main` vs. a workflow that pushes to `main` | PR-based refresh (D-06) | Open (WP 3.4) |
+
+## Appendix B: Evidence and limits
+
+- Data figures in section 3.2 come from the local `Fahrraddiebstahl.csv` dump of 2026-10-13 and the audit script; density and hour-curve figures were computed from the same file during planning (and independently re-checked in a plan review) and are re-derived formally in WP 1.1.
+- Not yet verified: the CC-BY 4.0 licence on the dataset page; the cost of `osmnx` extraction for all 542 areas; tile-provider terms; whether the gap to the PKS 2025 figure is coverage or definition.
+- The user research in `docs/user-research/` used AI personas on the mock prototype; it informs hypotheses H1-H7 and the test scripts, not requirements.
+
+## Appendix C: Glossary
+
+| Term | Meaning |
+| --- | --- |
+| LOR / Planungsraum | One of Berlin's 542 official small areas; the map returns one result per area. A Bezirksregion (143) is the parent level; a Bezirk (12) is a district |
+| PKS | Polizeiliche Kriminalstatistik, the official police crime statistics (here the 2025 short report) |
+| EDA | Exploratory data analysis: profiling the dataset to decide what the product can honestly offer |
+| EB / Empirical Bayes | Smoothing that pulls noisy counts from areas with few reports toward the parent area's average |
+| Tier | Low / Medium / High risk band: relative percentile bands of 60% / 25% / 15% of areas |
+| Daytype / daypart | Day grouping (Mon-Thu, Fri, Weekend) and time-of-day band |
+| Deviance | A fit measure for count models; lower is better |
+| Spearman | Rank correlation between predicted and actual theft ranking across areas |
+| VdS 2597 A+/B+ | German lock-test standard referenced by the police and ADFC |
+| G0-G4 | Milestone gates (section 7) |
+| RC1 | Release candidate 1: the build tagged at Gate 3 |
+| P0 / P1 | Defect severity: P0 blocks the core user loop or breaks a promise (privacy, honesty); P1 is a serious defect with a workaround |
+| EOD | End of day |
+| pd | Person-day |
+| go / narrow / stop | The three possible outcomes of a gate: continue, reduce scope, or stop |
+| WP | Work package (section 6.2) |
+| ODbL, CC-BY 4.0, dl-de/by-2-0 | The licences of OpenStreetMap, the police data and the LOR boundaries |

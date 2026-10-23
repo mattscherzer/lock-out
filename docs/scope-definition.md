@@ -1,6 +1,6 @@
 # LockOut - 4-Week Development Plan
 
-Details and reasoning: [Scope Exploration.md](Scope%20Exploration.md). The authoritative schedule, gates and risk register are in [product-roadmap.md](product-roadmap.md): four phases through Week 4, with feature freeze at the end of Week 3. Week 4 is testing, stress-testing and polish, not new features.
+Details and reasoning: [Scope Exploration.md](Scope%20Exploration.md). The authoritative schedule, gates and risk register are in [product-roadmap.md](product-roadmap.md): four phases through Week 4, with feature freeze at the end of Week 3. Stress-testing is in Week 3 (Gate 3); Week 4 is defect fixing, polish, documentation and rehearsal, not new features.
 
 ## MVP Goal
 
