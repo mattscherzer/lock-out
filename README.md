@@ -133,7 +133,7 @@ uv run uvicorn src.api.main:app --reload --port 8000
 
 ### 4. Run the Front-End Client (local server only, not deployed yet)
 
-Needs Node 20+ and internet access (OSM tiles load from `tile.openstreetmap.org`).
+Needs Node 20.19+ (or 22.12+) and internet access (OSM tiles load from `tile.openstreetmap.org`).
 
 ```bash
 cd frontend
@@ -149,7 +149,7 @@ npm run build && npm run preview   # serves dist/ at http://localhost:4173
 
 Expected: a map of Berlin with 542 area polygons (counter top left reads "542 areas") and the OSM and Polizei Berlin attribution bottom right; the browser console stays empty. Works from 375 px up.
 
-The fixtures in `frontend/public/` are generated from `data/raw/lor_planungsraeume_2021.geojson` and the draft schema; regenerate with `python3 frontend/scripts/build_fixture.py`. The existing `demo/` prototype is untouched; open it with `python3 -m http.server -d demo`.
+The fixtures in `frontend/public/` are generated from `data/raw/lor_planungsraeume_2021.geojson` and a subset of the draft schema (metadata, risk bands, area names; no predictions); regenerate with `python3 frontend/scripts/build_fixture.py`. The existing `demo/` prototype is untouched; open it with `python3 -m http.server -d demo`.
 
 ---
 
