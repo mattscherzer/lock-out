@@ -31,6 +31,16 @@ def test_truncation_removes_exactly_rows_newer_than_cutoff(raw):
     assert (kept["TATZEIT_ENDE_DATUM"] <= cutoff).all()
 
 
+def test_truncation_keeps_rows_ending_on_the_cutoff_day():
+    # Latest report 24 Oct, so with the 14-day cutoff the last kept end date is 10 Oct.
+    df = pd.DataFrame({
+        "ANGELEGT_AM": pd.to_datetime(["2026-10-24"] * 3),
+        "TATZEIT_ENDE_DATUM": pd.to_datetime(["2026-10-09", "2026-10-10", "2026-10-11"]),
+        "row": ["day before", "on the cutoff", "day after"],
+    })
+    assert list(truncate(df)["row"]) == ["day before", "on the cutoff"]
+
+
 def test_street_filter_applied(raw):
     assert not clean(raw)["ERFASSUNGSGRUND"].str.contains("Keller").any()
 
