@@ -1,0 +1,2742 @@
+{
+ "metadata": {
+  "generated_at": "2026-10-15T00:00:00Z",
+  "version": "v1.0.0",
+  "model_type": "hierarchical_eb_poisson_glm",
+  "data_window": "2024-01-01 to 2026-09-30",
+  "truncation_lag_days": 14,
+  "attribution": {
+   "police": "Datenquelle: Polizei Berlin (CC-BY 4.0)",
+   "osm": "© OpenStreetMap contributors (ODbL)"
+  }
+ },
+ "risk_bands": {
+  "LOW": {
+   "min_percentile": 0.0,
+   "max_percentile": 0.6,
+   "color": "#22C55E"
+  },
+  "MEDIUM": {
+   "min_percentile": 0.6,
+   "max_percentile": 0.85,
+   "color": "#F59E0B"
+  },
+  "HIGH": {
+   "min_percentile": 0.85,
+   "max_percentile": 1.0,
+   "color": "#EF4444"
+  }
+ },
+ "areas": {
+  "01100101": {
+   "name": "Stülerstraße",
+   "bzr_id": "011001",
+   "bzr_name": "Tiergarten Süd"
+  },
+  "01100102": {
+   "name": "Großer Tiergarten",
+   "bzr_id": "011001",
+   "bzr_name": "Tiergarten Süd"
+  },
+  "01100103": {
+   "name": "Lützowstraße",
+   "bzr_id": "011001",
+   "bzr_name": "Tiergarten Süd"
+  },
+  "01100104": {
+   "name": "Körnerstraße",
+   "bzr_id": "011001",
+   "bzr_name": "Tiergarten Süd"
+  },
+  "01100205": {
+   "name": "Wilhelmstraße",
+   "bzr_id": "011002",
+   "bzr_name": "Regierungsviertel"
+  },
+  "01100206": {
+   "name": "Unter den Linden",
+   "bzr_id": "011002",
+   "bzr_name": "Regierungsviertel"
+  },
+  "01100207": {
+   "name": "Leipziger Straße",
+   "bzr_id": "011002",
+   "bzr_name": "Regierungsviertel"
+  },
+  "01100308": {
+   "name": "Charitéviertel",
+   "bzr_id": "011003",
+   "bzr_name": "Alexanderplatz"
+  },
+  "01100309": {
+   "name": "Oranienburger Straße",
+   "bzr_id": "011003",
+   "bzr_name": "Alexanderplatz"
+  },
+  "01100310": {
+   "name": "Alexanderplatzviertel",
+   "bzr_id": "011003",
+   "bzr_name": "Alexanderplatz"
+  },
+  "01100311": {
+   "name": "Karl-Marx-Allee",
+   "bzr_id": "011003",
+   "bzr_name": "Alexanderplatz"
+  },
+  "01100312": {
+   "name": "Heine-Viertel West",
+   "bzr_id": "011003",
+   "bzr_name": "Alexanderplatz"
+  },
+  "01100313": {
+   "name": "Heine-Viertel Ost",
+   "bzr_id": "011003",
+   "bzr_name": "Alexanderplatz"
+  },
+  "01100414": {
+   "name": "Nordbahnhof",
+   "bzr_id": "011004",
+   "bzr_name": "Brunnenstraße Süd"
+  },
+  "01100415": {
+   "name": "Invalidenstraße",
+   "bzr_id": "011004",
+   "bzr_name": "Brunnenstraße Süd"
+  },
+  "01100416": {
+   "name": "Arkonaplatz",
+   "bzr_id": "011004",
+   "bzr_name": "Brunnenstraße Süd"
+  },
+  "01200517": {
+   "name": "Huttenkiez",
+   "bzr_id": "012005",
+   "bzr_name": "Moabit West"
+  },
+  "01200518": {
+   "name": "Beusselkiez",
+   "bzr_id": "012005",
+   "bzr_name": "Moabit West"
+  },
+  "01200519": {
+   "name": "Emdener Straße",
+   "bzr_id": "012005",
+   "bzr_name": "Moabit West"
+  },
+  "01200520": {
+   "name": "Bremer Straße",
+   "bzr_id": "012005",
+   "bzr_name": "Moabit West"
+  },
+  "01200521": {
+   "name": "Zwinglistraße",
+   "bzr_id": "012005",
+   "bzr_name": "Moabit West"
+  },
+  "01200522": {
+   "name": "Elberfelder Straße",
+   "bzr_id": "012005",
+   "bzr_name": "Moabit West"
+  },
+  "01200623": {
+   "name": "Stephankiez",
+   "bzr_id": "012006",
+   "bzr_name": "Moabit Ost"
+  },
+  "01200624": {
+   "name": "Heidestraße",
+   "bzr_id": "012006",
+   "bzr_name": "Moabit Ost"
+  },
+  "01200625": {
+   "name": "Lübecker Straße",
+   "bzr_id": "012006",
+   "bzr_name": "Moabit Ost"
+  },
+  "01200626": {
+   "name": "Thomasiusstraße",
+   "bzr_id": "012006",
+   "bzr_name": "Moabit Ost"
+  },
+  "01200627": {
+   "name": "Zillesiedlung",
+   "bzr_id": "012006",
+   "bzr_name": "Moabit Ost"
+  },
+  "01200628": {
+   "name": "Lüneburger Straße",
+   "bzr_id": "012006",
+   "bzr_name": "Moabit Ost"
+  },
+  "01200629": {
+   "name": "Hansaviertel",
+   "bzr_id": "012006",
+   "bzr_name": "Moabit Ost"
+  },
+  "01300730": {
+   "name": "Drontheimer Straße",
+   "bzr_id": "013007",
+   "bzr_name": "Osloer Straße"
+  },
+  "01300731": {
+   "name": "Koloniestraße",
+   "bzr_id": "013007",
+   "bzr_name": "Osloer Straße"
+  },
+  "01300732": {
+   "name": "Soldiner Straße",
+   "bzr_id": "013007",
+   "bzr_name": "Osloer Straße"
+  },
+  "01300733": {
+   "name": "Gesundbrunnen",
+   "bzr_id": "013007",
+   "bzr_name": "Osloer Straße"
+  },
+  "01300834": {
+   "name": "Brunnenstraße",
+   "bzr_id": "013008",
+   "bzr_name": "Brunnenstraße Nord"
+  },
+  "01300835": {
+   "name": "Humboldthain Süd",
+   "bzr_id": "013008",
+   "bzr_name": "Brunnenstraße Nord"
+  },
+  "01300836": {
+   "name": "Humboldthain Nordwest",
+   "bzr_id": "013008",
+   "bzr_name": "Brunnenstraße Nord"
+  },
+  "01400937": {
+   "name": "Afrikanische Straße",
+   "bzr_id": "014009",
+   "bzr_name": "Parkviertel"
+  },
+  "01400938": {
+   "name": "Kameruner Straße",
+   "bzr_id": "014009",
+   "bzr_name": "Parkviertel"
+  },
+  "01400939": {
+   "name": "Glasgower Straße",
+   "bzr_id": "014009",
+   "bzr_name": "Parkviertel"
+  },
+  "01400940": {
+   "name": "Schillerpark",
+   "bzr_id": "014009",
+   "bzr_name": "Parkviertel"
+  },
+  "01400941": {
+   "name": "Londoner Straße",
+   "bzr_id": "014009",
+   "bzr_name": "Parkviertel"
+  },
+  "01400942": {
+   "name": "Westliche Müllerstraße",
+   "bzr_id": "014009",
+   "bzr_name": "Parkviertel"
+  },
+  "01401043": {
+   "name": "Antonstraße",
+   "bzr_id": "014010",
+   "bzr_name": "Wedding Zentrum"
+  },
+  "01401044": {
+   "name": "Uferstraße",
+   "bzr_id": "014010",
+   "bzr_name": "Wedding Zentrum"
+  },
+  "01401045": {
+   "name": "Schwedenstraße",
+   "bzr_id": "014010",
+   "bzr_name": "Wedding Zentrum"
+  },
+  "01401046": {
+   "name": "Nordufer",
+   "bzr_id": "014010",
+   "bzr_name": "Wedding Zentrum"
+  },
+  "01401047": {
+   "name": "Sparrplatz",
+   "bzr_id": "014010",
+   "bzr_name": "Wedding Zentrum"
+  },
+  "01401048": {
+   "name": "Leopoldplatz",
+   "bzr_id": "014010",
+   "bzr_name": "Wedding Zentrum"
+  },
+  "01401049": {
+   "name": "Schulstraße",
+   "bzr_id": "014010",
+   "bzr_name": "Wedding Zentrum"
+  },
+  "02100101": {
+   "name": "Askanischer Platz",
+   "bzr_id": "021001",
+   "bzr_name": "Südliche  Friedrichstadt"
+  },
+  "02100102": {
+   "name": "Mehringplatz",
+   "bzr_id": "021001",
+   "bzr_name": "Südliche  Friedrichstadt"
+  },
+  "02100103": {
+   "name": "Am Berlin Museum",
+   "bzr_id": "021001",
+   "bzr_name": "Südliche  Friedrichstadt"
+  },
+  "02100104": {
+   "name": "Moritzplatz",
+   "bzr_id": "021001",
+   "bzr_name": "Südliche  Friedrichstadt"
+  },
+  "02100105": {
+   "name": "Prinzenstraße",
+   "bzr_id": "021001",
+   "bzr_name": "Südliche  Friedrichstadt"
+  },
+  "02100106": {
+   "name": "Wassertorplatz",
+   "bzr_id": "021001",
+   "bzr_name": "Südliche  Friedrichstadt"
+  },
+  "02200207": {
+   "name": "Gleisdreieck",
+   "bzr_id": "022002",
+   "bzr_name": "Tempelhofer Vorstadt"
+  },
+  "02200208": {
+   "name": "Rathaus Yorckstraße",
+   "bzr_id": "022002",
+   "bzr_name": "Tempelhofer Vorstadt"
+  },
+  "02200209": {
+   "name": "Viktoriapark",
+   "bzr_id": "022002",
+   "bzr_name": "Tempelhofer Vorstadt"
+  },
+  "02200210": {
+   "name": "Urbanstraße",
+   "bzr_id": "022002",
+   "bzr_name": "Tempelhofer Vorstadt"
+  },
+  "02200211": {
+   "name": "Chamissokiez",
+   "bzr_id": "022002",
+   "bzr_name": "Tempelhofer Vorstadt"
+  },
+  "02200212": {
+   "name": "Graefekiez Süd",
+   "bzr_id": "022002",
+   "bzr_name": "Tempelhofer Vorstadt"
+  },
+  "02200213": {
+   "name": "Graefekiez Nord",
+   "bzr_id": "022002",
+   "bzr_name": "Tempelhofer Vorstadt"
+  },
+  "02300314": {
+   "name": "Oranienplatz",
+   "bzr_id": "023003",
+   "bzr_name": "Nördliche Luisenstadt"
+  },
+  "02300315": {
+   "name": "Lausitzer Platz",
+   "bzr_id": "023003",
+   "bzr_name": "Nördliche Luisenstadt"
+  },
+  "02300316": {
+   "name": "Köpenicker Straße",
+   "bzr_id": "023003",
+   "bzr_name": "Nördliche Luisenstadt"
+  },
+  "02300417": {
+   "name": "Reichenberger Straße West",
+   "bzr_id": "023004",
+   "bzr_name": "Südliche Luisenstadt"
+  },
+  "02300418": {
+   "name": "Reichenberger Straße Ost",
+   "bzr_id": "023004",
+   "bzr_name": "Südliche Luisenstadt"
+  },
+  "02300419": {
+   "name": "Wrangelkiez",
+   "bzr_id": "023004",
+   "bzr_name": "Südliche Luisenstadt"
+  },
+  "02400520": {
+   "name": "Barnimkiez",
+   "bzr_id": "024005",
+   "bzr_name": "Karl-Marx-Allee Nord"
+  },
+  "02400521": {
+   "name": "Friedenstraße",
+   "bzr_id": "024005",
+   "bzr_name": "Karl-Marx-Allee Nord"
+  },
+  "02400522": {
+   "name": "Richard-Sorge-Viertel",
+   "bzr_id": "024005",
+   "bzr_name": "Karl-Marx-Allee Nord"
+  },
+  "02400623": {
+   "name": "Andreasviertel",
+   "bzr_id": "024006",
+   "bzr_name": "Karl-Marx-Allee Süd"
+  },
+  "02400624": {
+   "name": "Weberwiese",
+   "bzr_id": "024006",
+   "bzr_name": "Karl-Marx-Allee Süd"
+  },
+  "02400625": {
+   "name": "Wriezener Bahnhof",
+   "bzr_id": "024006",
+   "bzr_name": "Karl-Marx-Allee Süd"
+  },
+  "02500726": {
+   "name": "Hausburgviertel",
+   "bzr_id": "025007",
+   "bzr_name": "Frankfurter Allee Nord"
+  },
+  "02500727": {
+   "name": "Forckenbeckplatz",
+   "bzr_id": "025007",
+   "bzr_name": "Frankfurter Allee Nord"
+  },
+  "02500728": {
+   "name": "Samariterviertel",
+   "bzr_id": "025007",
+   "bzr_name": "Frankfurter Allee Nord"
+  },
+  "02500729": {
+   "name": "Pettenkofer Straße",
+   "bzr_id": "025007",
+   "bzr_name": "Frankfurter Allee Nord"
+  },
+  "02500830": {
+   "name": "Niederbarnimstraße",
+   "bzr_id": "025008",
+   "bzr_name": "Frankfurter Allee Süd FK"
+  },
+  "02500831": {
+   "name": "Wismarplatz",
+   "bzr_id": "025008",
+   "bzr_name": "Frankfurter Allee Süd FK"
+  },
+  "02500832": {
+   "name": "Traveplatz",
+   "bzr_id": "025008",
+   "bzr_name": "Frankfurter Allee Süd FK"
+  },
+  "02500833": {
+   "name": "Boxhagener Platz",
+   "bzr_id": "025008",
+   "bzr_name": "Frankfurter Allee Süd FK"
+  },
+  "02500834": {
+   "name": "Revaler Straße",
+   "bzr_id": "025008",
+   "bzr_name": "Frankfurter Allee Süd FK"
+  },
+  "02500835": {
+   "name": "Stralauer Kiez",
+   "bzr_id": "025008",
+   "bzr_name": "Frankfurter Allee Süd FK"
+  },
+  "02500836": {
+   "name": "Stralauer Halbinsel",
+   "bzr_id": "025008",
+   "bzr_name": "Frankfurter Allee Süd FK"
+  },
+  "03100101": {
+   "name": "Bucher Forst",
+   "bzr_id": "031001",
+   "bzr_name": "Buch"
+  },
+  "03100102": {
+   "name": "Klinikum Buch",
+   "bzr_id": "031001",
+   "bzr_name": "Buch"
+  },
+  "03100103": {
+   "name": "Karower Chaussee",
+   "bzr_id": "031001",
+   "bzr_name": "Buch"
+  },
+  "03200204": {
+   "name": "Blankenfelde",
+   "bzr_id": "032002",
+   "bzr_name": "Blankenfelde/Niederschönhausen"
+  },
+  "03200205": {
+   "name": "Uhlandstraße",
+   "bzr_id": "032002",
+   "bzr_name": "Blankenfelde/Niederschönhausen"
+  },
+  "03200206": {
+   "name": "Pastor-Niemöller-Platz",
+   "bzr_id": "032002",
+   "bzr_name": "Blankenfelde/Niederschönhausen"
+  },
+  "03200207": {
+   "name": "Herthaplatz",
+   "bzr_id": "032002",
+   "bzr_name": "Blankenfelde/Niederschönhausen"
+  },
+  "03200308": {
+   "name": "Nisbléstraße",
+   "bzr_id": "032003",
+   "bzr_name": "Buchholz"
+  },
+  "03200309": {
+   "name": "Eddastraße",
+   "bzr_id": "032003",
+   "bzr_name": "Buchholz"
+  },
+  "03200310": {
+   "name": "Krugpfuhl",
+   "bzr_id": "032003",
+   "bzr_name": "Buchholz"
+  },
+  "03300411": {
+   "name": "Karow Nord",
+   "bzr_id": "033004",
+   "bzr_name": "Karow"
+  },
+  "03300412": {
+   "name": "Karow Bahnhof",
+   "bzr_id": "033004",
+   "bzr_name": "Karow"
+  },
+  "03300413": {
+   "name": "Karow Ost",
+   "bzr_id": "033004",
+   "bzr_name": "Karow"
+  },
+  "03300514": {
+   "name": "Blankenburg",
+   "bzr_id": "033005",
+   "bzr_name": "Blankenburg/Heinersdorf/Märchenland"
+  },
+  "03300515": {
+   "name": "Blankenburger Süden",
+   "bzr_id": "033005",
+   "bzr_name": "Blankenburg/Heinersdorf/Märchenland"
+  },
+  "03300516": {
+   "name": "Heinersdorf",
+   "bzr_id": "033005",
+   "bzr_name": "Blankenburg/Heinersdorf/Märchenland"
+  },
+  "03300517": {
+   "name": "Märchenland",
+   "bzr_id": "033005",
+   "bzr_name": "Blankenburg/Heinersdorf/Märchenland"
+  },
+  "03400618": {
+   "name": "Rosenthal",
+   "bzr_id": "034006",
+   "bzr_name": "Schönholz/Wilhelmsruh/Rosenthal"
+  },
+  "03400619": {
+   "name": "Wilhelmsruh",
+   "bzr_id": "034006",
+   "bzr_name": "Schönholz/Wilhelmsruh/Rosenthal"
+  },
+  "03400620": {
+   "name": "Schönholz",
+   "bzr_id": "034006",
+   "bzr_name": "Schönholz/Wilhelmsruh/Rosenthal"
+  },
+  "03400721": {
+   "name": "Florakiez",
+   "bzr_id": "034007",
+   "bzr_name": "Pankow Zentrum"
+  },
+  "03400722": {
+   "name": "Parkstraße",
+   "bzr_id": "034007",
+   "bzr_name": "Pankow Zentrum"
+  },
+  "03400723": {
+   "name": "Garbátyplatz",
+   "bzr_id": "034007",
+   "bzr_name": "Pankow Zentrum"
+  },
+  "03400724": {
+   "name": "Wolfshagener Straße",
+   "bzr_id": "034007",
+   "bzr_name": "Pankow Zentrum"
+  },
+  "03400725": {
+   "name": "Schlosspark",
+   "bzr_id": "034007",
+   "bzr_name": "Pankow Zentrum"
+  },
+  "03400826": {
+   "name": "Tiroler Viertel",
+   "bzr_id": "034008",
+   "bzr_name": "Pankow Süd"
+  },
+  "03400827": {
+   "name": "Trelleborger Viertel",
+   "bzr_id": "034008",
+   "bzr_name": "Pankow Süd"
+  },
+  "03400828": {
+   "name": "Spiekermann Straße",
+   "bzr_id": "034008",
+   "bzr_name": "Pankow Süd"
+  },
+  "03400829": {
+   "name": "Arnold-Zweig-Straße",
+   "bzr_id": "034008",
+   "bzr_name": "Pankow Süd"
+  },
+  "03400830": {
+   "name": "Kissingenviertel",
+   "bzr_id": "034008",
+   "bzr_name": "Pankow Süd"
+  },
+  "03400831": {
+   "name": "Pankower Tor",
+   "bzr_id": "034008",
+   "bzr_name": "Pankow Süd"
+  },
+  "03500932": {
+   "name": "Bühringstraße",
+   "bzr_id": "035009",
+   "bzr_name": "Weißensee"
+  },
+  "03500933": {
+   "name": "Weißer See",
+   "bzr_id": "035009",
+   "bzr_name": "Weißensee"
+  },
+  "03500934": {
+   "name": "Weißenseer Spitze",
+   "bzr_id": "035009",
+   "bzr_name": "Weißensee"
+  },
+  "03500935": {
+   "name": "Behaimstraße",
+   "bzr_id": "035009",
+   "bzr_name": "Weißensee"
+  },
+  "03500936": {
+   "name": "Komponistenviertel Weißensee",
+   "bzr_id": "035009",
+   "bzr_name": "Weißensee"
+  },
+  "03501037": {
+   "name": "Rathaus Weißensee",
+   "bzr_id": "035010",
+   "bzr_name": "Weißensee Ost"
+  },
+  "03501038": {
+   "name": "Hansastraße",
+   "bzr_id": "035010",
+   "bzr_name": "Weißensee Ost"
+  },
+  "03601139": {
+   "name": "Norweger Viertel",
+   "bzr_id": "036011",
+   "bzr_name": "Prenzlauer Berg Nordwest"
+  },
+  "03601140": {
+   "name": "Malmöer Straße",
+   "bzr_id": "036011",
+   "bzr_name": "Prenzlauer Berg Nordwest"
+  },
+  "03601141": {
+   "name": "Arnimplatz",
+   "bzr_id": "036011",
+   "bzr_name": "Prenzlauer Berg Nordwest"
+  },
+  "03601142": {
+   "name": "Falkplatz",
+   "bzr_id": "036011",
+   "bzr_name": "Prenzlauer Berg Nordwest"
+  },
+  "03601243": {
+   "name": "Rodenbergstraße",
+   "bzr_id": "036012",
+   "bzr_name": "Prenzlauer Berg Nord"
+  },
+  "03601244": {
+   "name": "Humannplatz",
+   "bzr_id": "036012",
+   "bzr_name": "Prenzlauer Berg Nord"
+  },
+  "03601245": {
+   "name": "Ostseestraße",
+   "bzr_id": "036012",
+   "bzr_name": "Prenzlauer Berg Nord"
+  },
+  "03601346": {
+   "name": "Gethsemanekirche",
+   "bzr_id": "036013",
+   "bzr_name": "Helmholtzplatz"
+  },
+  "03601347": {
+   "name": "Helmholtzplatz",
+   "bzr_id": "036013",
+   "bzr_name": "Helmholtzplatz"
+  },
+  "03601348": {
+   "name": "Senefelderstraße",
+   "bzr_id": "036013",
+   "bzr_name": "Helmholtzplatz"
+  },
+  "03601449": {
+   "name": "Michelangelostraße",
+   "bzr_id": "036014",
+   "bzr_name": "Prenzlauer Berg Ost"
+  },
+  "03601450": {
+   "name": "Volkspark Prenzlauer Berg",
+   "bzr_id": "036014",
+   "bzr_name": "Prenzlauer Berg Ost"
+  },
+  "03601451": {
+   "name": "Anton-Saefkow-Park",
+   "bzr_id": "036014",
+   "bzr_name": "Prenzlauer Berg Ost"
+  },
+  "03601452": {
+   "name": "Velodrom",
+   "bzr_id": "036014",
+   "bzr_name": "Prenzlauer Berg Ost"
+  },
+  "03601453": {
+   "name": "Alter Schlachthof",
+   "bzr_id": "036014",
+   "bzr_name": "Prenzlauer Berg Ost"
+  },
+  "03701554": {
+   "name": "Teutoburger Platz",
+   "bzr_id": "037015",
+   "bzr_name": "Prenzlauer Berg Südwest"
+  },
+  "03701555": {
+   "name": "Sredzkistraße",
+   "bzr_id": "037015",
+   "bzr_name": "Prenzlauer Berg Südwest"
+  },
+  "03701556": {
+   "name": "Kollwitzplatz",
+   "bzr_id": "037015",
+   "bzr_name": "Prenzlauer Berg Südwest"
+  },
+  "03701657": {
+   "name": "Thälmannpark",
+   "bzr_id": "037016",
+   "bzr_name": "Prenzlauer Berg Süd"
+  },
+  "03701658": {
+   "name": "Christburger Straße",
+   "bzr_id": "037016",
+   "bzr_name": "Prenzlauer Berg Süd"
+  },
+  "03701659": {
+   "name": "Immanuelkirchstraße",
+   "bzr_id": "037016",
+   "bzr_name": "Prenzlauer Berg Süd"
+  },
+  "03701660": {
+   "name": "Bötzowstraße",
+   "bzr_id": "037016",
+   "bzr_name": "Prenzlauer Berg Süd"
+  },
+  "04100101": {
+   "name": "Jungfernheide/Plötzensee",
+   "bzr_id": "041001",
+   "bzr_name": "Charlottenburg Nord"
+  },
+  "04100102": {
+   "name": "Paul-Hertz-Siedlung",
+   "bzr_id": "041001",
+   "bzr_name": "Charlottenburg Nord"
+  },
+  "04200203": {
+   "name": "Olympiagelände",
+   "bzr_id": "042002",
+   "bzr_name": "Heerstraße"
+  },
+  "04200204": {
+   "name": "Angerburger Allee",
+   "bzr_id": "042002",
+   "bzr_name": "Heerstraße"
+  },
+  "04200205": {
+   "name": "Flatowallee",
+   "bzr_id": "042002",
+   "bzr_name": "Heerstraße"
+  },
+  "04200206": {
+   "name": "Kranzallee",
+   "bzr_id": "042002",
+   "bzr_name": "Heerstraße"
+  },
+  "04200207": {
+   "name": "Eichkamp",
+   "bzr_id": "042002",
+   "bzr_name": "Heerstraße"
+  },
+  "04200308": {
+   "name": "Branitzer Platz",
+   "bzr_id": "042003",
+   "bzr_name": "Westend"
+  },
+  "04200309": {
+   "name": "Neu Westend",
+   "bzr_id": "042003",
+   "bzr_name": "Westend"
+  },
+  "04200310": {
+   "name": "Fürstenplatz",
+   "bzr_id": "042003",
+   "bzr_name": "Westend"
+  },
+  "04200311": {
+   "name": "Königin-Elisabeth-Straße",
+   "bzr_id": "042003",
+   "bzr_name": "Westend"
+  },
+  "04300412": {
+   "name": "Schlossgarten",
+   "bzr_id": "043004",
+   "bzr_name": "Schloss Charlottenburg"
+  },
+  "04300413": {
+   "name": "Klausenerplatz",
+   "bzr_id": "043004",
+   "bzr_name": "Schloss Charlottenburg"
+  },
+  "04300414": {
+   "name": "Schloßstraße",
+   "bzr_id": "043004",
+   "bzr_name": "Schloss Charlottenburg"
+  },
+  "04300415": {
+   "name": "Lietzensee",
+   "bzr_id": "043004",
+   "bzr_name": "Schloss Charlottenburg"
+  },
+  "04300416": {
+   "name": "Amtsgerichtsplatz",
+   "bzr_id": "043004",
+   "bzr_name": "Schloss Charlottenburg"
+  },
+  "04300517": {
+   "name": "Tegeler Weg",
+   "bzr_id": "043005",
+   "bzr_name": "Mierendorffplatz"
+  },
+  "04300518": {
+   "name": "Kaiserin-Augusta-Allee",
+   "bzr_id": "043005",
+   "bzr_name": "Mierendorffplatz"
+  },
+  "04300619": {
+   "name": "Alt-Lietzow",
+   "bzr_id": "043006",
+   "bzr_name": "Otto-Suhr-Allee/Kantstraße"
+  },
+  "04300620": {
+   "name": "Spreestadt",
+   "bzr_id": "043006",
+   "bzr_name": "Otto-Suhr-Allee/Kantstraße"
+  },
+  "04300621": {
+   "name": "Richard-Wagner-Straße",
+   "bzr_id": "043006",
+   "bzr_name": "Otto-Suhr-Allee/Kantstraße"
+  },
+  "04300622": {
+   "name": "Ernst-Reuter-Platz",
+   "bzr_id": "043006",
+   "bzr_name": "Otto-Suhr-Allee/Kantstraße"
+  },
+  "04300623": {
+   "name": "Karl-August-Platz",
+   "bzr_id": "043006",
+   "bzr_name": "Otto-Suhr-Allee/Kantstraße"
+  },
+  "04300624": {
+   "name": "Savignyplatz",
+   "bzr_id": "043006",
+   "bzr_name": "Otto-Suhr-Allee/Kantstraße"
+  },
+  "04400725": {
+   "name": "Güterbahnhof Grunewald",
+   "bzr_id": "044007",
+   "bzr_name": "Grunewald"
+  },
+  "04400726": {
+   "name": "Bismarckallee",
+   "bzr_id": "044007",
+   "bzr_name": "Grunewald"
+  },
+  "04400727": {
+   "name": "Flinsberger Platz",
+   "bzr_id": "044007",
+   "bzr_name": "Grunewald"
+  },
+  "04400728": {
+   "name": "Hagenplatz",
+   "bzr_id": "044007",
+   "bzr_name": "Grunewald"
+  },
+  "04400729": {
+   "name": "Hundekehle",
+   "bzr_id": "044007",
+   "bzr_name": "Grunewald"
+  },
+  "04400830": {
+   "name": "Forckenbeckstraße",
+   "bzr_id": "044008",
+   "bzr_name": "Schmargendorf"
+  },
+  "04400831": {
+   "name": "Messelpark",
+   "bzr_id": "044008",
+   "bzr_name": "Schmargendorf"
+  },
+  "04400832": {
+   "name": "Breite Straße",
+   "bzr_id": "044008",
+   "bzr_name": "Schmargendorf"
+  },
+  "04400833": {
+   "name": "Schlangenbader Straße",
+   "bzr_id": "044008",
+   "bzr_name": "Schmargendorf"
+  },
+  "04400834": {
+   "name": "Binger Straße",
+   "bzr_id": "044008",
+   "bzr_name": "Schmargendorf"
+  },
+  "04400835": {
+   "name": "Rüdesheimer Platz",
+   "bzr_id": "044008",
+   "bzr_name": "Schmargendorf"
+  },
+  "04500936": {
+   "name": "Droysenstraße",
+   "bzr_id": "045009",
+   "bzr_name": "Halensee"
+  },
+  "04500937": {
+   "name": "Halensee",
+   "bzr_id": "045009",
+   "bzr_name": "Halensee"
+  },
+  "04500938": {
+   "name": "Hochmeisterplatz",
+   "bzr_id": "045009",
+   "bzr_name": "Halensee"
+  },
+  "04500939": {
+   "name": "Eisenzahnstraße",
+   "bzr_id": "045009",
+   "bzr_name": "Halensee"
+  },
+  "04501040": {
+   "name": "Hindemithplatz",
+   "bzr_id": "045010",
+   "bzr_name": "Lietzenburger Straße"
+  },
+  "04501041": {
+   "name": "George-Grosz-Platz",
+   "bzr_id": "045010",
+   "bzr_name": "Lietzenburger Straße"
+  },
+  "04501042": {
+   "name": "Breitscheidplatz",
+   "bzr_id": "045010",
+   "bzr_name": "Lietzenburger Straße"
+  },
+  "04501043": {
+   "name": "Preußenpark",
+   "bzr_id": "045010",
+   "bzr_name": "Lietzenburger Straße"
+  },
+  "04501044": {
+   "name": "Ludwigkirchplatz",
+   "bzr_id": "045010",
+   "bzr_name": "Lietzenburger Straße"
+  },
+  "04501045": {
+   "name": "Schaperstraße",
+   "bzr_id": "045010",
+   "bzr_name": "Lietzenburger Straße"
+  },
+  "04501146": {
+   "name": "Barstraße",
+   "bzr_id": "045011",
+   "bzr_name": "Volkspark Wilmersdorf"
+  },
+  "04501147": {
+   "name": "Leon-Jessel-Platz",
+   "bzr_id": "045011",
+   "bzr_name": "Volkspark Wilmersdorf"
+  },
+  "04501148": {
+   "name": "Brabanter Platz",
+   "bzr_id": "045011",
+   "bzr_name": "Volkspark Wilmersdorf"
+  },
+  "04501149": {
+   "name": "Nikolsburger Platz",
+   "bzr_id": "045011",
+   "bzr_name": "Volkspark Wilmersdorf"
+  },
+  "04501150": {
+   "name": "Wilhelmsaue",
+   "bzr_id": "045011",
+   "bzr_name": "Volkspark Wilmersdorf"
+  },
+  "04501151": {
+   "name": "Hildegardstraße",
+   "bzr_id": "045011",
+   "bzr_name": "Volkspark Wilmersdorf"
+  },
+  "04501152": {
+   "name": "Prager Platz",
+   "bzr_id": "045011",
+   "bzr_name": "Volkspark Wilmersdorf"
+  },
+  "04501153": {
+   "name": "Babelsberger Straße",
+   "bzr_id": "045011",
+   "bzr_name": "Volkspark Wilmersdorf"
+  },
+  "05100101": {
+   "name": "Hakenfelde Nord",
+   "bzr_id": "051001",
+   "bzr_name": "Hakenfelde"
+  },
+  "05100102": {
+   "name": "Am Forstacker",
+   "bzr_id": "051001",
+   "bzr_name": "Hakenfelde"
+  },
+  "05100103": {
+   "name": "Mertensstraße",
+   "bzr_id": "051001",
+   "bzr_name": "Hakenfelde"
+  },
+  "05100104": {
+   "name": "Maselake",
+   "bzr_id": "051001",
+   "bzr_name": "Hakenfelde"
+  },
+  "05100105": {
+   "name": "Amorbacher Weg",
+   "bzr_id": "051001",
+   "bzr_name": "Hakenfelde"
+  },
+  "05100206": {
+   "name": "Griesingerstraße",
+   "bzr_id": "051002",
+   "bzr_name": "Falkenhagener Feld"
+  },
+  "05100207": {
+   "name": "An der Tränke",
+   "bzr_id": "051002",
+   "bzr_name": "Falkenhagener Feld"
+  },
+  "05100208": {
+   "name": "Im Spektefeld",
+   "bzr_id": "051002",
+   "bzr_name": "Falkenhagener Feld"
+  },
+  "05100209": {
+   "name": "Westerwaldstraße",
+   "bzr_id": "051002",
+   "bzr_name": "Falkenhagener Feld"
+  },
+  "05100210": {
+   "name": "Germersheimer Platz",
+   "bzr_id": "051002",
+   "bzr_name": "Falkenhagener Feld"
+  },
+  "05100211": {
+   "name": "An der Kappe",
+   "bzr_id": "051002",
+   "bzr_name": "Falkenhagener Feld"
+  },
+  "05100312": {
+   "name": "Eckschanze",
+   "bzr_id": "051003",
+   "bzr_name": "Spandau Mitte"
+  },
+  "05100313": {
+   "name": "Eiswerder",
+   "bzr_id": "051003",
+   "bzr_name": "Spandau Mitte"
+  },
+  "05100314": {
+   "name": "Kurstraße",
+   "bzr_id": "051003",
+   "bzr_name": "Spandau Mitte"
+  },
+  "05100315": {
+   "name": "Ackerstraße",
+   "bzr_id": "051003",
+   "bzr_name": "Spandau Mitte"
+  },
+  "05100316": {
+   "name": "Carl-Schurz-Straße",
+   "bzr_id": "051003",
+   "bzr_name": "Spandau Mitte"
+  },
+  "05100317": {
+   "name": "Freiheit",
+   "bzr_id": "051003",
+   "bzr_name": "Spandau Mitte"
+  },
+  "05200418": {
+   "name": "Isenburger Weg",
+   "bzr_id": "052004",
+   "bzr_name": "Brunsbütteler Damm"
+  },
+  "05200419": {
+   "name": "Am Heideberg",
+   "bzr_id": "052004",
+   "bzr_name": "Brunsbütteler Damm"
+  },
+  "05200420": {
+   "name": "Staakener Straße",
+   "bzr_id": "052004",
+   "bzr_name": "Brunsbütteler Damm"
+  },
+  "05200421": {
+   "name": "Spandauer Straße",
+   "bzr_id": "052004",
+   "bzr_name": "Brunsbütteler Damm"
+  },
+  "05200422": {
+   "name": "Werkstraße",
+   "bzr_id": "052004",
+   "bzr_name": "Brunsbütteler Damm"
+  },
+  "05200423": {
+   "name": "Magistratsweg",
+   "bzr_id": "052004",
+   "bzr_name": "Brunsbütteler Damm"
+  },
+  "05200524": {
+   "name": "Döberitzer Weg",
+   "bzr_id": "052005",
+   "bzr_name": "Heerstraße"
+  },
+  "05200525": {
+   "name": "Pillnitzer Weg",
+   "bzr_id": "052005",
+   "bzr_name": "Heerstraße"
+  },
+  "05200526": {
+   "name": "Rudolf-Wissell-Großsiedlung",
+   "bzr_id": "052005",
+   "bzr_name": "Heerstraße"
+  },
+  "05200527": {
+   "name": "Maulbeerallee",
+   "bzr_id": "052005",
+   "bzr_name": "Heerstraße"
+  },
+  "05200528": {
+   "name": "Weinmeisterhornweg",
+   "bzr_id": "052005",
+   "bzr_name": "Heerstraße"
+  },
+  "05200629": {
+   "name": "Borkumer Straße",
+   "bzr_id": "052006",
+   "bzr_name": "Wilhelmstadt"
+  },
+  "05200630": {
+   "name": "Wilhelmstadt West",
+   "bzr_id": "052006",
+   "bzr_name": "Wilhelmstadt"
+  },
+  "05200631": {
+   "name": "Wilhelmstadt Ost",
+   "bzr_id": "052006",
+   "bzr_name": "Wilhelmstadt"
+  },
+  "05200632": {
+   "name": "Tiefwerder",
+   "bzr_id": "052006",
+   "bzr_name": "Wilhelmstadt"
+  },
+  "05200633": {
+   "name": "Graetschelsteig",
+   "bzr_id": "052006",
+   "bzr_name": "Wilhelmstadt"
+  },
+  "05200634": {
+   "name": "Börnicker Straße",
+   "bzr_id": "052006",
+   "bzr_name": "Wilhelmstadt"
+  },
+  "05300735": {
+   "name": "Haveleck",
+   "bzr_id": "053007",
+   "bzr_name": "Haselhorst"
+  },
+  "05300736": {
+   "name": "Zitadellenweg",
+   "bzr_id": "053007",
+   "bzr_name": "Haselhorst"
+  },
+  "05300737": {
+   "name": "Gartenfelder Straße",
+   "bzr_id": "053007",
+   "bzr_name": "Haselhorst"
+  },
+  "05300838": {
+   "name": "Gartenfeld",
+   "bzr_id": "053008",
+   "bzr_name": "Siemensstadt"
+  },
+  "05300839": {
+   "name": "Rohrdamm",
+   "bzr_id": "053008",
+   "bzr_name": "Siemensstadt"
+  },
+  "05300840": {
+   "name": "Nonnendammallee",
+   "bzr_id": "053008",
+   "bzr_name": "Siemensstadt"
+  },
+  "05300841": {
+   "name": "Siemensdamm",
+   "bzr_id": "053008",
+   "bzr_name": "Siemensstadt"
+  },
+  "05400942": {
+   "name": "Alt-Gatow",
+   "bzr_id": "054009",
+   "bzr_name": "Gatow/Kladow"
+  },
+  "05400943": {
+   "name": "Jägerallee",
+   "bzr_id": "054009",
+   "bzr_name": "Gatow/Kladow"
+  },
+  "05400944": {
+   "name": "Kladower Damm",
+   "bzr_id": "054009",
+   "bzr_name": "Gatow/Kladow"
+  },
+  "05400945": {
+   "name": "Kafkastraße",
+   "bzr_id": "054009",
+   "bzr_name": "Gatow/Kladow"
+  },
+  "06100101": {
+   "name": "Fichtenberg",
+   "bzr_id": "061001",
+   "bzr_name": "Schloßstraße"
+  },
+  "06100102": {
+   "name": "Schloßstraße",
+   "bzr_id": "061001",
+   "bzr_name": "Schloßstraße"
+  },
+  "06100103": {
+   "name": "Markelstraße",
+   "bzr_id": "061001",
+   "bzr_name": "Schloßstraße"
+  },
+  "06100204": {
+   "name": "Munsterdamm",
+   "bzr_id": "061002",
+   "bzr_name": "Albrechtstraße"
+  },
+  "06100205": {
+   "name": "Südende",
+   "bzr_id": "061002",
+   "bzr_name": "Albrechtstraße"
+  },
+  "06100206": {
+   "name": "Stadtpark",
+   "bzr_id": "061002",
+   "bzr_name": "Albrechtstraße"
+  },
+  "06100207": {
+   "name": "Mittelstraße",
+   "bzr_id": "061002",
+   "bzr_name": "Albrechtstraße"
+  },
+  "06100208": {
+   "name": "Bergstraße",
+   "bzr_id": "061002",
+   "bzr_name": "Albrechtstraße"
+  },
+  "06100209": {
+   "name": "Feuerbachstraße",
+   "bzr_id": "061002",
+   "bzr_name": "Albrechtstraße"
+  },
+  "06100210": {
+   "name": "Bismarckstraße",
+   "bzr_id": "061002",
+   "bzr_name": "Albrechtstraße"
+  },
+  "06200311": {
+   "name": "Alt-Lankwitz",
+   "bzr_id": "062003",
+   "bzr_name": "Lankwitz"
+  },
+  "06200312": {
+   "name": "Komponistenviertel Lankwitz",
+   "bzr_id": "062003",
+   "bzr_name": "Lankwitz"
+  },
+  "06200313": {
+   "name": "Lankwitz Kirche",
+   "bzr_id": "062003",
+   "bzr_name": "Lankwitz"
+  },
+  "06200314": {
+   "name": "Kaiser-Wilhelm-Straße",
+   "bzr_id": "062003",
+   "bzr_name": "Lankwitz"
+  },
+  "06200315": {
+   "name": "Gallwitzallee",
+   "bzr_id": "062003",
+   "bzr_name": "Lankwitz"
+  },
+  "06200316": {
+   "name": "Belßstraße",
+   "bzr_id": "062003",
+   "bzr_name": "Lankwitz"
+  },
+  "06200317": {
+   "name": "Lankwitz Süd",
+   "bzr_id": "062003",
+   "bzr_name": "Lankwitz"
+  },
+  "06200418": {
+   "name": "Landweg",
+   "bzr_id": "062004",
+   "bzr_name": "Ostpreußendamm"
+  },
+  "06200419": {
+   "name": "Thermometersiedlung",
+   "bzr_id": "062004",
+   "bzr_name": "Ostpreußendamm"
+  },
+  "06200420": {
+   "name": "Lichterfelde Süd",
+   "bzr_id": "062004",
+   "bzr_name": "Ostpreußendamm"
+  },
+  "06200421": {
+   "name": "Königsberger Straße",
+   "bzr_id": "062004",
+   "bzr_name": "Ostpreußendamm"
+  },
+  "06200422": {
+   "name": "Oberhofer Platz",
+   "bzr_id": "062004",
+   "bzr_name": "Ostpreußendamm"
+  },
+  "06200423": {
+   "name": "Schütte-Lanz-Straße",
+   "bzr_id": "062004",
+   "bzr_name": "Ostpreußendamm"
+  },
+  "06300524": {
+   "name": "Berlepschstraße",
+   "bzr_id": "063005",
+   "bzr_name": "Teltower Damm"
+  },
+  "06300525": {
+   "name": "Zehlendorf Süd",
+   "bzr_id": "063005",
+   "bzr_name": "Teltower Damm"
+  },
+  "06300526": {
+   "name": "Zehlendorf Mitte",
+   "bzr_id": "063005",
+   "bzr_name": "Teltower Damm"
+  },
+  "06300527": {
+   "name": "Sundgauer Straße",
+   "bzr_id": "063005",
+   "bzr_name": "Teltower Damm"
+  },
+  "06300528": {
+   "name": "Teltower Damm",
+   "bzr_id": "063005",
+   "bzr_name": "Teltower Damm"
+  },
+  "06300629": {
+   "name": "Botanischer Garten",
+   "bzr_id": "063006",
+   "bzr_name": "Drakestraße"
+  },
+  "06300630": {
+   "name": "Hindenburgdamm",
+   "bzr_id": "063006",
+   "bzr_name": "Drakestraße"
+  },
+  "06300631": {
+   "name": "Goerzwerke",
+   "bzr_id": "063006",
+   "bzr_name": "Drakestraße"
+  },
+  "06300632": {
+   "name": "Schweizer Viertel",
+   "bzr_id": "063006",
+   "bzr_name": "Drakestraße"
+  },
+  "06300633": {
+   "name": "Augustaplatz",
+   "bzr_id": "063006",
+   "bzr_name": "Drakestraße"
+  },
+  "06300634": {
+   "name": "Lichterfelde West",
+   "bzr_id": "063006",
+   "bzr_name": "Drakestraße"
+  },
+  "06400735": {
+   "name": "Wannsee",
+   "bzr_id": "064007",
+   "bzr_name": "Zehlendorf Südwest"
+  },
+  "06400736": {
+   "name": "Düppel",
+   "bzr_id": "064007",
+   "bzr_name": "Zehlendorf Südwest"
+  },
+  "06400737": {
+   "name": "Nikolassee",
+   "bzr_id": "064007",
+   "bzr_name": "Zehlendorf Südwest"
+  },
+  "06400838": {
+   "name": "Krumme Lanke",
+   "bzr_id": "064008",
+   "bzr_name": "Zehlendorf Nord"
+  },
+  "06400839": {
+   "name": "Fischerhüttenstraße",
+   "bzr_id": "064008",
+   "bzr_name": "Zehlendorf Nord"
+  },
+  "06400840": {
+   "name": "Fischtal",
+   "bzr_id": "064008",
+   "bzr_name": "Zehlendorf Nord"
+  },
+  "06400841": {
+   "name": "Zehlendorf Eiche",
+   "bzr_id": "064008",
+   "bzr_name": "Zehlendorf Nord"
+  },
+  "06400842": {
+   "name": "Hüttenweg",
+   "bzr_id": "064008",
+   "bzr_name": "Zehlendorf Nord"
+  },
+  "06400843": {
+   "name": "Thielallee",
+   "bzr_id": "064008",
+   "bzr_name": "Zehlendorf Nord"
+  },
+  "06400844": {
+   "name": "Dahlem",
+   "bzr_id": "064008",
+   "bzr_name": "Zehlendorf Nord"
+  },
+  "07100101": {
+   "name": "Wittenbergplatz",
+   "bzr_id": "071001",
+   "bzr_name": "Schöneberg Nordwest"
+  },
+  "07100102": {
+   "name": "Kalckreuthstraße",
+   "bzr_id": "071001",
+   "bzr_name": "Schöneberg Nordwest"
+  },
+  "07100103": {
+   "name": "Frobenstraße",
+   "bzr_id": "071001",
+   "bzr_name": "Schöneberg Nordwest"
+  },
+  "07100204": {
+   "name": "Barbarossaplatz",
+   "bzr_id": "071002",
+   "bzr_name": "Schöneberg Nordost"
+  },
+  "07100205": {
+   "name": "Alvenslebenstraße",
+   "bzr_id": "071002",
+   "bzr_name": "Schöneberg Nordost"
+  },
+  "07100206": {
+   "name": "Großgörschenstraße",
+   "bzr_id": "071002",
+   "bzr_name": "Schöneberg Nordost"
+  },
+  "07200307": {
+   "name": "Bayerischer Platz",
+   "bzr_id": "072003",
+   "bzr_name": "Schöneberg Südwest"
+  },
+  "07200308": {
+   "name": "Volkspark (Rudolph-Wilde-Park)",
+   "bzr_id": "072003",
+   "bzr_name": "Schöneberg Südwest"
+  },
+  "07200409": {
+   "name": "Belziger Straße",
+   "bzr_id": "072004",
+   "bzr_name": "Schöneberg Südost"
+  },
+  "07200410": {
+   "name": "Feurigstraße",
+   "bzr_id": "072004",
+   "bzr_name": "Schöneberg Südost"
+  },
+  "07200411": {
+   "name": "Julius-Leber-Brücke",
+   "bzr_id": "072004",
+   "bzr_name": "Schöneberg Südost"
+  },
+  "07200412": {
+   "name": "Schöneberger Linse",
+   "bzr_id": "072004",
+   "bzr_name": "Schöneberg Südost"
+  },
+  "07200413": {
+   "name": "Cheruskerstraße",
+   "bzr_id": "072004",
+   "bzr_name": "Schöneberg Südost"
+  },
+  "07200414": {
+   "name": "Hohenfriedbergstraße",
+   "bzr_id": "072004",
+   "bzr_name": "Schöneberg Südost"
+  },
+  "07300515": {
+   "name": "Taunusstraße",
+   "bzr_id": "073005",
+   "bzr_name": "Friedenau West"
+  },
+  "07300516": {
+   "name": "Odenwaldstraße",
+   "bzr_id": "073005",
+   "bzr_name": "Friedenau West"
+  },
+  "07300517": {
+   "name": "Perelsplatz",
+   "bzr_id": "073005",
+   "bzr_name": "Friedenau West"
+  },
+  "07300618": {
+   "name": "Ceciliengärten",
+   "bzr_id": "073006",
+   "bzr_name": "Friedenau Ost"
+  },
+  "07300619": {
+   "name": "Grazer Platz",
+   "bzr_id": "073006",
+   "bzr_name": "Friedenau Ost"
+  },
+  "07400720": {
+   "name": "Gontermannstraße",
+   "bzr_id": "074007",
+   "bzr_name": "Tempelhof Nord"
+  },
+  "07400721": {
+   "name": "Paradestraße",
+   "bzr_id": "074007",
+   "bzr_name": "Tempelhof Nord"
+  },
+  "07400822": {
+   "name": "Lindenhofsiedlung",
+   "bzr_id": "074008",
+   "bzr_name": "Tempelhof Südwest"
+  },
+  "07400823": {
+   "name": "Wittekindstraße",
+   "bzr_id": "074008",
+   "bzr_name": "Tempelhof Südwest"
+  },
+  "07400824": {
+   "name": "Bosepark",
+   "bzr_id": "074008",
+   "bzr_name": "Tempelhof Südwest"
+  },
+  "07400825": {
+   "name": "Friedrich-Karl-Straße",
+   "bzr_id": "074008",
+   "bzr_name": "Tempelhof Südwest"
+  },
+  "07400826": {
+   "name": "Marienhöhe",
+   "bzr_id": "074008",
+   "bzr_name": "Tempelhof Südwest"
+  },
+  "07400927": {
+   "name": "Rathaus Tempelhof",
+   "bzr_id": "074009",
+   "bzr_name": "Tempelhof Südost"
+  },
+  "07400928": {
+   "name": "Germaniagarten",
+   "bzr_id": "074009",
+   "bzr_name": "Tempelhof Südost"
+  },
+  "07501029": {
+   "name": "Ringstraße",
+   "bzr_id": "075010",
+   "bzr_name": "Mariendorf Nord"
+  },
+  "07501030": {
+   "name": "Machonstraße",
+   "bzr_id": "075010",
+   "bzr_name": "Mariendorf Nord"
+  },
+  "07501031": {
+   "name": "Eisenacher Straße",
+   "bzr_id": "075010",
+   "bzr_name": "Mariendorf Nord"
+  },
+  "07501032": {
+   "name": "Imbrosweg",
+   "bzr_id": "075010",
+   "bzr_name": "Mariendorf Nord"
+  },
+  "07501133": {
+   "name": "Fritz-Werner-Straße",
+   "bzr_id": "075011",
+   "bzr_name": "Mariendorf Süd"
+  },
+  "07501134": {
+   "name": "Hundsteinweg",
+   "bzr_id": "075011",
+   "bzr_name": "Mariendorf Süd"
+  },
+  "07501135": {
+   "name": "Birnhornweg",
+   "bzr_id": "075011",
+   "bzr_name": "Mariendorf Süd"
+  },
+  "07601236": {
+   "name": "Marienfelder Allee Nordwest",
+   "bzr_id": "076012",
+   "bzr_name": "Marienfelde Nord"
+  },
+  "07601237": {
+   "name": "Kirchstraße",
+   "bzr_id": "076012",
+   "bzr_name": "Marienfelde Nord"
+  },
+  "07601238": {
+   "name": "Marienfelde Nordost",
+   "bzr_id": "076012",
+   "bzr_name": "Marienfelde Nord"
+  },
+  "07601339": {
+   "name": "Tirschenreuther Ring West",
+   "bzr_id": "076013",
+   "bzr_name": "Marienfelde Süd"
+  },
+  "07601340": {
+   "name": "Tirschenreuther Ring Ost",
+   "bzr_id": "076013",
+   "bzr_name": "Marienfelde Süd"
+  },
+  "07601341": {
+   "name": "Diedersdorfer Weg",
+   "bzr_id": "076013",
+   "bzr_name": "Marienfelde Süd"
+  },
+  "07601442": {
+   "name": "Kettinger Straße",
+   "bzr_id": "076014",
+   "bzr_name": "Lichtenrade Nord"
+  },
+  "07601443": {
+   "name": "Töpchiner Weg",
+   "bzr_id": "076014",
+   "bzr_name": "Lichtenrade Nord"
+  },
+  "07601544": {
+   "name": "John-Locke-Straße",
+   "bzr_id": "076015",
+   "bzr_name": "Lichtenrade Süd"
+  },
+  "07601545": {
+   "name": "Nahariyastraße",
+   "bzr_id": "076015",
+   "bzr_name": "Lichtenrade Süd"
+  },
+  "07601546": {
+   "name": "Franziusweg",
+   "bzr_id": "076015",
+   "bzr_name": "Lichtenrade Süd"
+  },
+  "07601547": {
+   "name": "Horstwalder Straße",
+   "bzr_id": "076015",
+   "bzr_name": "Lichtenrade Süd"
+  },
+  "07601548": {
+   "name": "Wittelsbacherstraße",
+   "bzr_id": "076015",
+   "bzr_name": "Lichtenrade Süd"
+  },
+  "08100101": {
+   "name": "Hasenheide",
+   "bzr_id": "081001",
+   "bzr_name": "Schillerpromenade"
+  },
+  "08100102": {
+   "name": "Schillerpromenade Nord",
+   "bzr_id": "081001",
+   "bzr_name": "Schillerpromenade"
+  },
+  "08100103": {
+   "name": "Schillerpromenade Süd",
+   "bzr_id": "081001",
+   "bzr_name": "Schillerpromenade"
+  },
+  "08100104": {
+   "name": "Wartheplatz",
+   "bzr_id": "081001",
+   "bzr_name": "Schillerpromenade"
+  },
+  "08100105": {
+   "name": "Silbersteinstraße",
+   "bzr_id": "081001",
+   "bzr_name": "Schillerpromenade"
+  },
+  "08100206": {
+   "name": "Flughafenstraße",
+   "bzr_id": "081002",
+   "bzr_name": "Neuköllner Mitte/Zentrum"
+  },
+  "08100207": {
+   "name": "Rollberg",
+   "bzr_id": "081002",
+   "bzr_name": "Neuköllner Mitte/Zentrum"
+  },
+  "08100208": {
+   "name": "Körnerpark",
+   "bzr_id": "081002",
+   "bzr_name": "Neuköllner Mitte/Zentrum"
+  },
+  "08100209": {
+   "name": "Glasower Straße",
+   "bzr_id": "081002",
+   "bzr_name": "Neuköllner Mitte/Zentrum"
+  },
+  "08100310": {
+   "name": "Maybachufer",
+   "bzr_id": "081003",
+   "bzr_name": "Reuterstraße"
+  },
+  "08100311": {
+   "name": "Reuterplatz",
+   "bzr_id": "081003",
+   "bzr_name": "Reuterstraße"
+  },
+  "08100312": {
+   "name": "Weichselplatz",
+   "bzr_id": "081003",
+   "bzr_name": "Reuterstraße"
+  },
+  "08100313": {
+   "name": "Bouchéstraße",
+   "bzr_id": "081003",
+   "bzr_name": "Reuterstraße"
+  },
+  "08100314": {
+   "name": "Donaustraße",
+   "bzr_id": "081003",
+   "bzr_name": "Reuterstraße"
+  },
+  "08100415": {
+   "name": "Ganghoferstraße",
+   "bzr_id": "081004",
+   "bzr_name": "Rixdorf"
+  },
+  "08100416": {
+   "name": "Alt-Rixdorf",
+   "bzr_id": "081004",
+   "bzr_name": "Rixdorf"
+  },
+  "08100417": {
+   "name": "Braunschweiger Straße",
+   "bzr_id": "081004",
+   "bzr_name": "Rixdorf"
+  },
+  "08100418": {
+   "name": "Hertzbergplatz",
+   "bzr_id": "081004",
+   "bzr_name": "Rixdorf"
+  },
+  "08100419": {
+   "name": "Treptower Straße Nord",
+   "bzr_id": "081004",
+   "bzr_name": "Rixdorf"
+  },
+  "08100520": {
+   "name": "Weiße Siedlung",
+   "bzr_id": "081005",
+   "bzr_name": "Köllnische Heide"
+  },
+  "08100521": {
+   "name": "Schulenburgpark",
+   "bzr_id": "081005",
+   "bzr_name": "Köllnische Heide"
+  },
+  "08200622": {
+   "name": "Jahnstraße",
+   "bzr_id": "082006",
+   "bzr_name": "Britz Nord"
+  },
+  "08200623": {
+   "name": "Park am Buschkrug",
+   "bzr_id": "082006",
+   "bzr_name": "Britz Nord"
+  },
+  "08200624": {
+   "name": "Tempelhofer Weg",
+   "bzr_id": "082006",
+   "bzr_name": "Britz Nord"
+  },
+  "08200725": {
+   "name": "Mohriner Allee Nord",
+   "bzr_id": "082007",
+   "bzr_name": "Britz"
+  },
+  "08200726": {
+   "name": "Hufeisensiedlung",
+   "bzr_id": "082007",
+   "bzr_name": "Britz"
+  },
+  "08200727": {
+   "name": "Parchimer Allee Süd",
+   "bzr_id": "082007",
+   "bzr_name": "Britz"
+  },
+  "08200728": {
+   "name": "Ortolanweg",
+   "bzr_id": "082007",
+   "bzr_name": "Britz"
+  },
+  "08200729": {
+   "name": "Britzer Garten",
+   "bzr_id": "082007",
+   "bzr_name": "Britz"
+  },
+  "08200730": {
+   "name": "Handwerker-Siedlung",
+   "bzr_id": "082007",
+   "bzr_name": "Britz"
+  },
+  "08200831": {
+   "name": "Buckow West",
+   "bzr_id": "082008",
+   "bzr_name": "Buckow"
+  },
+  "08200832": {
+   "name": "Buckow Mitte",
+   "bzr_id": "082008",
+   "bzr_name": "Buckow"
+  },
+  "08200833": {
+   "name": "Buckow Ost",
+   "bzr_id": "082008",
+   "bzr_name": "Buckow"
+  },
+  "08300934": {
+   "name": "Gropiusstadt Nord-West",
+   "bzr_id": "083009",
+   "bzr_name": "Gropiusstadt West"
+  },
+  "08300935": {
+   "name": "Gropiusstadt Süd-West",
+   "bzr_id": "083009",
+   "bzr_name": "Gropiusstadt West"
+  },
+  "08301036": {
+   "name": "Gropiusstadt Mitte",
+   "bzr_id": "083010",
+   "bzr_name": "Gropiusstadt Ost"
+  },
+  "08301037": {
+   "name": "Gropiusstadt Süd-Ost",
+   "bzr_id": "083010",
+   "bzr_name": "Gropiusstadt Ost"
+  },
+  "08401138": {
+   "name": "Goldhähnchenweg",
+   "bzr_id": "084011",
+   "bzr_name": "Buckow Nord"
+  },
+  "08401139": {
+   "name": "Vogelviertel Süd",
+   "bzr_id": "084011",
+   "bzr_name": "Buckow Nord"
+  },
+  "08401140": {
+   "name": "Vogelviertel Nord",
+   "bzr_id": "084011",
+   "bzr_name": "Buckow Nord"
+  },
+  "08401241": {
+   "name": "Blumenviertel",
+   "bzr_id": "084012",
+   "bzr_name": "Rudow"
+  },
+  "08401242": {
+   "name": "Zittauer Straße",
+   "bzr_id": "084012",
+   "bzr_name": "Rudow"
+  },
+  "08401243": {
+   "name": "Alt-Rudow",
+   "bzr_id": "084012",
+   "bzr_name": "Rudow"
+  },
+  "08401244": {
+   "name": "Waßmannsdorfer Chaussee",
+   "bzr_id": "084012",
+   "bzr_name": "Rudow"
+  },
+  "08401245": {
+   "name": "Frauenviertel",
+   "bzr_id": "084012",
+   "bzr_name": "Rudow"
+  },
+  "08401246": {
+   "name": "Waltersdorfer Chaussee Ost",
+   "bzr_id": "084012",
+   "bzr_name": "Rudow"
+  },
+  "09100101": {
+   "name": "Alt-Treptow",
+   "bzr_id": "091001",
+   "bzr_name": "Alt-Treptow"
+  },
+  "09100202": {
+   "name": "Plänterwald West",
+   "bzr_id": "091002",
+   "bzr_name": "Plänterwald"
+  },
+  "09100203": {
+   "name": "Plänterwald Ost",
+   "bzr_id": "091002",
+   "bzr_name": "Plänterwald"
+  },
+  "09100304": {
+   "name": "Baumschulenweg West",
+   "bzr_id": "091003",
+   "bzr_name": "Baumschulenweg"
+  },
+  "09100305": {
+   "name": "Baumschulenweg Ost",
+   "bzr_id": "091003",
+   "bzr_name": "Baumschulenweg"
+  },
+  "09100306": {
+   "name": "Späthsfelde",
+   "bzr_id": "091003",
+   "bzr_name": "Baumschulenweg"
+  },
+  "09100407": {
+   "name": "Johannisthal West",
+   "bzr_id": "091004",
+   "bzr_name": "Johannisthal"
+  },
+  "09100408": {
+   "name": "Johannisthal Ost",
+   "bzr_id": "091004",
+   "bzr_name": "Johannisthal"
+  },
+  "09100409": {
+   "name": "Landschaftspark Adlershof",
+   "bzr_id": "091004",
+   "bzr_name": "Johannisthal"
+  },
+  "09200510": {
+   "name": "Helmholtz-Kiez",
+   "bzr_id": "092005",
+   "bzr_name": "Oberschöneweide"
+  },
+  "09200511": {
+   "name": "Griechischer Park",
+   "bzr_id": "092005",
+   "bzr_name": "Oberschöneweide"
+  },
+  "09200512": {
+   "name": "Wuhlheide",
+   "bzr_id": "092005",
+   "bzr_name": "Oberschöneweide"
+  },
+  "09200613": {
+   "name": "Bahnhof Schöneweide",
+   "bzr_id": "092006",
+   "bzr_name": "Niederschöneweide"
+  },
+  "09200614": {
+   "name": "Oberspree",
+   "bzr_id": "092006",
+   "bzr_name": "Niederschöneweide"
+  },
+  "09200715": {
+   "name": "Wista",
+   "bzr_id": "092007",
+   "bzr_name": "Adlershof"
+  },
+  "09200716": {
+   "name": "Dörpfeldstraße West",
+   "bzr_id": "092007",
+   "bzr_name": "Adlershof"
+  },
+  "09200717": {
+   "name": "Dörpfeldstraße Ost",
+   "bzr_id": "092007",
+   "bzr_name": "Adlershof"
+  },
+  "09200818": {
+   "name": "Spindlersfeld",
+   "bzr_id": "092008",
+   "bzr_name": "Köllnische Vorstadt/Spindlersfeld"
+  },
+  "09200819": {
+   "name": "Köllnische Vorstadt",
+   "bzr_id": "092008",
+   "bzr_name": "Köllnische Vorstadt/Spindlersfeld"
+  },
+  "09300920": {
+   "name": "Dorf Altglienicke",
+   "bzr_id": "093009",
+   "bzr_name": "Altglienicke"
+  },
+  "09300921": {
+   "name": "Preußen Siedlung",
+   "bzr_id": "093009",
+   "bzr_name": "Altglienicke"
+  },
+  "09300922": {
+   "name": "Kosmos Viertel",
+   "bzr_id": "093009",
+   "bzr_name": "Altglienicke"
+  },
+  "09300923": {
+   "name": "Kölner Viertel",
+   "bzr_id": "093009",
+   "bzr_name": "Altglienicke"
+  },
+  "09301024": {
+   "name": "Falkenberg",
+   "bzr_id": "093010",
+   "bzr_name": "Bohnsdorf"
+  },
+  "09301025": {
+   "name": "Alt-Bohnsdorf",
+   "bzr_id": "093010",
+   "bzr_name": "Bohnsdorf"
+  },
+  "09301126": {
+   "name": "Grünau",
+   "bzr_id": "093011",
+   "bzr_name": "Grünau"
+  },
+  "09301227": {
+   "name": "Karolinenhof",
+   "bzr_id": "093012",
+   "bzr_name": "Schmöckwitz"
+  },
+  "09301228": {
+   "name": "Schmöckwitz/Rauchfangswerder",
+   "bzr_id": "093012",
+   "bzr_name": "Schmöckwitz"
+  },
+  "09401329": {
+   "name": "Kietzer Feld/Nachtheide",
+   "bzr_id": "094013",
+   "bzr_name": "Köpenick Süd"
+  },
+  "09401330": {
+   "name": "Wendenschloß",
+   "bzr_id": "094013",
+   "bzr_name": "Köpenick Süd"
+  },
+  "09401431": {
+   "name": "Allende I",
+   "bzr_id": "094014",
+   "bzr_name": "Allende-Viertel"
+  },
+  "09401432": {
+   "name": "Siedlung Kämmereiheide",
+   "bzr_id": "094014",
+   "bzr_name": "Allende-Viertel"
+  },
+  "09401433": {
+   "name": "Allende II",
+   "bzr_id": "094014",
+   "bzr_name": "Allende-Viertel"
+  },
+  "09401534": {
+   "name": "Altstadt Köpenick",
+   "bzr_id": "094015",
+   "bzr_name": "Altstadt Köpenick"
+  },
+  "09401635": {
+   "name": "Müggelheim",
+   "bzr_id": "094016",
+   "bzr_name": "Müggelheim"
+  },
+  "09501736": {
+   "name": "Hirschgarten",
+   "bzr_id": "095017",
+   "bzr_name": "Friedrichshagen"
+  },
+  "09501737": {
+   "name": "Alt-Friedrichshagen",
+   "bzr_id": "095017",
+   "bzr_name": "Friedrichshagen"
+  },
+  "09501838": {
+   "name": "Rahnsdorf",
+   "bzr_id": "095018",
+   "bzr_name": "Rahnsdorf"
+  },
+  "09501939": {
+   "name": "Bahnhofstraße",
+   "bzr_id": "095019",
+   "bzr_name": "Dammvorstadt"
+  },
+  "09501940": {
+   "name": "Güterbahnhof Köpenick",
+   "bzr_id": "095019",
+   "bzr_name": "Dammvorstadt"
+  },
+  "09501941": {
+   "name": "Friedrichshagener Straße",
+   "bzr_id": "095019",
+   "bzr_name": "Dammvorstadt"
+  },
+  "09502042": {
+   "name": "Mittelheide",
+   "bzr_id": "095020",
+   "bzr_name": "Köpenick Nord"
+  },
+  "09502043": {
+   "name": "Dammheide",
+   "bzr_id": "095020",
+   "bzr_name": "Köpenick Nord"
+  },
+  "10100101": {
+   "name": "Marzahn West",
+   "bzr_id": "101001",
+   "bzr_name": "Marzahn Nord"
+  },
+  "10100102": {
+   "name": "Rosenbecker Straße",
+   "bzr_id": "101001",
+   "bzr_name": "Marzahn Nord"
+  },
+  "10100103": {
+   "name": "Wittenberger Straße",
+   "bzr_id": "101001",
+   "bzr_name": "Marzahn Nord"
+  },
+  "10100104": {
+   "name": "Golliner Straße",
+   "bzr_id": "101001",
+   "bzr_name": "Marzahn Nord"
+  },
+  "10100205": {
+   "name": "Gewerbegebiet Bitterfelder Straße",
+   "bzr_id": "101002",
+   "bzr_name": "Marzahn Mitte"
+  },
+  "10100206": {
+   "name": "Wuhletalstraße",
+   "bzr_id": "101002",
+   "bzr_name": "Marzahn Mitte"
+  },
+  "10100207": {
+   "name": "Ahrensfelder Berge",
+   "bzr_id": "101002",
+   "bzr_name": "Marzahn Mitte"
+  },
+  "10100208": {
+   "name": "Bürgerpark",
+   "bzr_id": "101002",
+   "bzr_name": "Marzahn Mitte"
+  },
+  "10100209": {
+   "name": "Lea-Grundig-Straße",
+   "bzr_id": "101002",
+   "bzr_name": "Marzahn Mitte"
+  },
+  "10100210": {
+   "name": "Marzahner Promenade",
+   "bzr_id": "101002",
+   "bzr_name": "Marzahn Mitte"
+  },
+  "10100311": {
+   "name": "Marzahner Chaussee",
+   "bzr_id": "101003",
+   "bzr_name": "Marzahn Süd"
+  },
+  "10100312": {
+   "name": "Springpfuhl",
+   "bzr_id": "101003",
+   "bzr_name": "Marzahn Süd"
+  },
+  "10100313": {
+   "name": "Alt-Marzahn",
+   "bzr_id": "101003",
+   "bzr_name": "Marzahn Süd"
+  },
+  "10100314": {
+   "name": "Auersbergstraße",
+   "bzr_id": "101003",
+   "bzr_name": "Marzahn Süd"
+  },
+  "10100315": {
+   "name": "Bärenstein",
+   "bzr_id": "101003",
+   "bzr_name": "Marzahn Süd"
+  },
+  "10100316": {
+   "name": "Landsberger Tor",
+   "bzr_id": "101003",
+   "bzr_name": "Marzahn Süd"
+  },
+  "10200417": {
+   "name": "Zossener Straße",
+   "bzr_id": "102004",
+   "bzr_name": "Hellersdorf Nord"
+  },
+  "10200418": {
+   "name": "Kyritzer Straße",
+   "bzr_id": "102004",
+   "bzr_name": "Hellersdorf Nord"
+  },
+  "10200419": {
+   "name": "Havelländer Ring",
+   "bzr_id": "102004",
+   "bzr_name": "Hellersdorf Nord"
+  },
+  "10200420": {
+   "name": "Gut Hellersdorf",
+   "bzr_id": "102004",
+   "bzr_name": "Hellersdorf Nord"
+  },
+  "10200421": {
+   "name": "Helle Mitte",
+   "bzr_id": "102004",
+   "bzr_name": "Hellersdorf Nord"
+  },
+  "10200422": {
+   "name": "Hellersdorfer Promenade",
+   "bzr_id": "102004",
+   "bzr_name": "Hellersdorf Nord"
+  },
+  "10200423": {
+   "name": "Böhlener Straße",
+   "bzr_id": "102004",
+   "bzr_name": "Hellersdorf Nord"
+  },
+  "10200524": {
+   "name": "Adele-Sandrock-Straße",
+   "bzr_id": "102005",
+   "bzr_name": "Hellersdorf Ost"
+  },
+  "10200525": {
+   "name": "Schleipfuhl",
+   "bzr_id": "102005",
+   "bzr_name": "Hellersdorf Ost"
+  },
+  "10200526": {
+   "name": "Boulevard Kastanienallee",
+   "bzr_id": "102005",
+   "bzr_name": "Hellersdorf Ost"
+  },
+  "10200627": {
+   "name": "Am Kienberg",
+   "bzr_id": "102006",
+   "bzr_name": "Hellersdorf Süd"
+  },
+  "10200628": {
+   "name": "Neue Grottkauer Straße",
+   "bzr_id": "102006",
+   "bzr_name": "Hellersdorf Süd"
+  },
+  "10200629": {
+   "name": "Teterower Ring",
+   "bzr_id": "102006",
+   "bzr_name": "Hellersdorf Süd"
+  },
+  "10200630": {
+   "name": "Cecilienplatz",
+   "bzr_id": "102006",
+   "bzr_name": "Hellersdorf Süd"
+  },
+  "10300731": {
+   "name": "Oberfeldstraße",
+   "bzr_id": "103007",
+   "bzr_name": "Biesdorf"
+  },
+  "10300732": {
+   "name": "Buckower Ring",
+   "bzr_id": "103007",
+   "bzr_name": "Biesdorf"
+  },
+  "10300733": {
+   "name": "Alt-Biesdorf",
+   "bzr_id": "103007",
+   "bzr_name": "Biesdorf"
+  },
+  "10300734": {
+   "name": "Biesdorf Süd",
+   "bzr_id": "103007",
+   "bzr_name": "Biesdorf"
+  },
+  "10400835": {
+   "name": "Kaulsdorf Nord",
+   "bzr_id": "104008",
+   "bzr_name": "Kaulsdorf"
+  },
+  "10400836": {
+   "name": "Alt-Kaulsdorf",
+   "bzr_id": "104008",
+   "bzr_name": "Kaulsdorf"
+  },
+  "10400837": {
+   "name": "Kaulsdorf Süd",
+   "bzr_id": "104008",
+   "bzr_name": "Kaulsdorf"
+  },
+  "10400938": {
+   "name": "Mahlsdorf Nord",
+   "bzr_id": "104009",
+   "bzr_name": "Mahlsdorf"
+  },
+  "10400939": {
+   "name": "Alt-Mahlsdorf",
+   "bzr_id": "104009",
+   "bzr_name": "Mahlsdorf"
+  },
+  "10400940": {
+   "name": "Elsensee",
+   "bzr_id": "104009",
+   "bzr_name": "Mahlsdorf"
+  },
+  "10400941": {
+   "name": "Pilgramer Straße",
+   "bzr_id": "104009",
+   "bzr_name": "Mahlsdorf"
+  },
+  "11100101": {
+   "name": "Dörfer Malchow-Wartenberg",
+   "bzr_id": "111001",
+   "bzr_name": "Malchow, Wartenberg und Falkenberg"
+  },
+  "11100102": {
+   "name": "Dorf Falkenberg",
+   "bzr_id": "111001",
+   "bzr_name": "Malchow, Wartenberg und Falkenberg"
+  },
+  "11100203": {
+   "name": "Falkenberg Ost",
+   "bzr_id": "111002",
+   "bzr_name": "Neu-Hohenschönhausen Nord"
+  },
+  "11100204": {
+   "name": "Falkenberg West",
+   "bzr_id": "111002",
+   "bzr_name": "Neu-Hohenschönhausen Nord"
+  },
+  "11100205": {
+   "name": "Wartenberg Süd",
+   "bzr_id": "111002",
+   "bzr_name": "Neu-Hohenschönhausen Nord"
+  },
+  "11100206": {
+   "name": "Wartenberg Nord",
+   "bzr_id": "111002",
+   "bzr_name": "Neu-Hohenschönhausen Nord"
+  },
+  "11100307": {
+   "name": "Zingster Straße Ost",
+   "bzr_id": "111003",
+   "bzr_name": "Neu-Hohenschönhausen Süd"
+  },
+  "11100308": {
+   "name": "Zingster Straße West",
+   "bzr_id": "111003",
+   "bzr_name": "Neu-Hohenschönhausen Süd"
+  },
+  "11100309": {
+   "name": "Mühlengrund",
+   "bzr_id": "111003",
+   "bzr_name": "Neu-Hohenschönhausen Süd"
+  },
+  "11200410": {
+   "name": "Malchower Weg",
+   "bzr_id": "112004",
+   "bzr_name": "Alt-Hohenschönhausen Nord"
+  },
+  "11200411": {
+   "name": "Hauptstraße",
+   "bzr_id": "112004",
+   "bzr_name": "Alt-Hohenschönhausen Nord"
+  },
+  "11200512": {
+   "name": "Orankesee",
+   "bzr_id": "112005",
+   "bzr_name": "Alt-Hohenschönhausen Süd"
+  },
+  "11200513": {
+   "name": "Große-Leege-Straße",
+   "bzr_id": "112005",
+   "bzr_name": "Alt-Hohenschönhausen Süd"
+  },
+  "11200514": {
+   "name": "Landsberger Allee",
+   "bzr_id": "112005",
+   "bzr_name": "Alt-Hohenschönhausen Süd"
+  },
+  "11200515": {
+   "name": "Weiße Taube",
+   "bzr_id": "112005",
+   "bzr_name": "Alt-Hohenschönhausen Süd"
+  },
+  "11300616": {
+   "name": "Hohenschönhauser Straße",
+   "bzr_id": "113006",
+   "bzr_name": "Fennpfuhl"
+  },
+  "11300617": {
+   "name": "Fennpfuhlpark",
+   "bzr_id": "113006",
+   "bzr_name": "Fennpfuhl"
+  },
+  "11300618": {
+   "name": "Storkower Bogen",
+   "bzr_id": "113006",
+   "bzr_name": "Fennpfuhl"
+  },
+  "11300619": {
+   "name": "Rudolf-Seiffert-Park",
+   "bzr_id": "113006",
+   "bzr_name": "Fennpfuhl"
+  },
+  "11300620": {
+   "name": "Fennpfuhl Ost",
+   "bzr_id": "113006",
+   "bzr_name": "Fennpfuhl"
+  },
+  "11300721": {
+   "name": "Herzbergstraße",
+   "bzr_id": "113007",
+   "bzr_name": "Alt-Lichtenberg"
+  },
+  "11300722": {
+   "name": "Rathaus Lichtenberg",
+   "bzr_id": "113007",
+   "bzr_name": "Alt-Lichtenberg"
+  },
+  "11300723": {
+   "name": "Bornitzstraße",
+   "bzr_id": "113007",
+   "bzr_name": "Alt-Lichtenberg"
+  },
+  "11300724": {
+   "name": "Roedeliusplatz",
+   "bzr_id": "113007",
+   "bzr_name": "Alt-Lichtenberg"
+  },
+  "11300725": {
+   "name": "Nibelungenviertel",
+   "bzr_id": "113007",
+   "bzr_name": "Alt-Lichtenberg"
+  },
+  "11300826": {
+   "name": "Frankfurter Allee Süd",
+   "bzr_id": "113008",
+   "bzr_name": "Frankfurter Allee Süd"
+  },
+  "11400927": {
+   "name": "Victoriastadt",
+   "bzr_id": "114009",
+   "bzr_name": "Neu-Lichtenberg"
+  },
+  "11400928": {
+   "name": "Nöldnerplatz",
+   "bzr_id": "114009",
+   "bzr_name": "Neu-Lichtenberg"
+  },
+  "11400929": {
+   "name": "Weitlingkiez",
+   "bzr_id": "114009",
+   "bzr_name": "Neu-Lichtenberg"
+  },
+  "11400930": {
+   "name": "Zachertstraße",
+   "bzr_id": "114009",
+   "bzr_name": "Neu-Lichtenberg"
+  },
+  "11400931": {
+   "name": "Massower Straße",
+   "bzr_id": "114009",
+   "bzr_name": "Neu-Lichtenberg"
+  },
+  "11401032": {
+   "name": "Rosenfelder Ring",
+   "bzr_id": "114010",
+   "bzr_name": "Friedrichsfelde Nord"
+  },
+  "11401033": {
+   "name": "Gensinger Straße",
+   "bzr_id": "114010",
+   "bzr_name": "Friedrichsfelde Nord"
+  },
+  "11401034": {
+   "name": "Tierpark",
+   "bzr_id": "114010",
+   "bzr_name": "Friedrichsfelde Nord"
+  },
+  "11401135": {
+   "name": "Dolgenseestraße",
+   "bzr_id": "114011",
+   "bzr_name": "Friedrichsfelde Süd"
+  },
+  "11401136": {
+   "name": "Volkradstraße",
+   "bzr_id": "114011",
+   "bzr_name": "Friedrichsfelde Süd"
+  },
+  "11401137": {
+   "name": "Erieseering",
+   "bzr_id": "114011",
+   "bzr_name": "Friedrichsfelde Süd"
+  },
+  "11501238": {
+   "name": "Rummelsburg",
+   "bzr_id": "115012",
+   "bzr_name": "Rummelsburger Bucht"
+  },
+  "11501339": {
+   "name": "Karlshorst West",
+   "bzr_id": "115013",
+   "bzr_name": "Karlshorst"
+  },
+  "11501340": {
+   "name": "Karlshorst Nord",
+   "bzr_id": "115013",
+   "bzr_name": "Karlshorst"
+  },
+  "11501341": {
+   "name": "Karlshorst Süd",
+   "bzr_id": "115013",
+   "bzr_name": "Karlshorst"
+  },
+  "12100101": {
+   "name": "Letteplatz",
+   "bzr_id": "121001",
+   "bzr_name": "Ost 1 - Reginhardstraße"
+  },
+  "12100102": {
+   "name": "Hausotterplatz",
+   "bzr_id": "121001",
+   "bzr_name": "Ost 1 - Reginhardstraße"
+  },
+  "12100103": {
+   "name": "Breitkopfbecken",
+   "bzr_id": "121001",
+   "bzr_name": "Ost 1 - Reginhardstraße"
+  },
+  "12100204": {
+   "name": "Schäfersee",
+   "bzr_id": "121002",
+   "bzr_name": "Ost 2 - Alt-Reinickendorf"
+  },
+  "12100205": {
+   "name": "Teichstraße",
+   "bzr_id": "121002",
+   "bzr_name": "Ost 2 - Alt-Reinickendorf"
+  },
+  "12100206": {
+   "name": "Humboldtstraße",
+   "bzr_id": "121002",
+   "bzr_name": "Ost 2 - Alt-Reinickendorf"
+  },
+  "12200307": {
+   "name": "Reinickes Hof",
+   "bzr_id": "122003",
+   "bzr_name": "West 4 - Auguste-Viktoria-Allee"
+  },
+  "12200308": {
+   "name": "Meller Bogen",
+   "bzr_id": "122003",
+   "bzr_name": "West 4 - Auguste-Viktoria-Allee"
+  },
+  "12200309": {
+   "name": "Scharnweberstraße",
+   "bzr_id": "122003",
+   "bzr_name": "West 4 - Auguste-Viktoria-Allee"
+  },
+  "12200310": {
+   "name": "Klixstraße",
+   "bzr_id": "122003",
+   "bzr_name": "West 4 - Auguste-Viktoria-Allee"
+  },
+  "12200411": {
+   "name": "Schumacher-Quartier",
+   "bzr_id": "122004",
+   "bzr_name": "West 1 - Tegel-Süd/Flughafensee"
+  },
+  "12200412": {
+   "name": "Waldidyll/Flughafensee",
+   "bzr_id": "122004",
+   "bzr_name": "West 1 - Tegel-Süd/Flughafensee"
+  },
+  "12200413": {
+   "name": "Tegel Süd",
+   "bzr_id": "122004",
+   "bzr_name": "West 1 - Tegel-Süd/Flughafensee"
+  },
+  "12200414": {
+   "name": "TXL",
+   "bzr_id": "122004",
+   "bzr_name": "West 1 - Tegel-Süd/Flughafensee"
+  },
+  "12200515": {
+   "name": "Alt-Tegel",
+   "bzr_id": "122005",
+   "bzr_name": "West 5 - Tegel"
+  },
+  "12400616": {
+   "name": "Konradshöhe/Tegelort",
+   "bzr_id": "124006",
+   "bzr_name": "West 2 - Heiligensee/Konradshöhe"
+  },
+  "12400617": {
+   "name": "Alt-Heiligensee",
+   "bzr_id": "124006",
+   "bzr_name": "West 2 - Heiligensee/Konradshöhe"
+  },
+  "12400618": {
+   "name": "Heiligensee Nord",
+   "bzr_id": "124006",
+   "bzr_name": "West 2 - Heiligensee/Konradshöhe"
+  },
+  "12400619": {
+   "name": "Heiligensee",
+   "bzr_id": "124006",
+   "bzr_name": "West 2 - Heiligensee/Konradshöhe"
+  },
+  "12400720": {
+   "name": "Frohnau West",
+   "bzr_id": "124007",
+   "bzr_name": "Nord 1 - Frohnau/Hermsdorf"
+  },
+  "12400721": {
+   "name": "Frohnau Ost",
+   "bzr_id": "124007",
+   "bzr_name": "Nord 1 - Frohnau/Hermsdorf"
+  },
+  "12400722": {
+   "name": "Hermsdorf West",
+   "bzr_id": "124007",
+   "bzr_name": "Nord 1 - Frohnau/Hermsdorf"
+  },
+  "12400723": {
+   "name": "Hermsdorf Ost/Waldsee",
+   "bzr_id": "124007",
+   "bzr_name": "Nord 1 - Frohnau/Hermsdorf"
+  },
+  "12500824": {
+   "name": "Ziekowstraße/Freie Scholle",
+   "bzr_id": "125008",
+   "bzr_name": "West 3 - Borsigwalde/Freie Scholle"
+  },
+  "12500825": {
+   "name": "Borsigwalde",
+   "bzr_id": "125008",
+   "bzr_name": "West 3 - Borsigwalde/Freie Scholle"
+  },
+  "12500926": {
+   "name": "Wittenau Mitte",
+   "bzr_id": "125009",
+   "bzr_name": "Nord 2 - Waidmannslust/Wittenau/Lübars"
+  },
+  "12500927": {
+   "name": "Wittenau Nord",
+   "bzr_id": "125009",
+   "bzr_name": "Nord 2 - Waidmannslust/Wittenau/Lübars"
+  },
+  "12500928": {
+   "name": "Waidmannslust",
+   "bzr_id": "125009",
+   "bzr_name": "Nord 2 - Waidmannslust/Wittenau/Lübars"
+  },
+  "12500929": {
+   "name": "Lübars",
+   "bzr_id": "125009",
+   "bzr_name": "Nord 2 - Waidmannslust/Wittenau/Lübars"
+  },
+  "12500930": {
+   "name": "Wittenau Süd",
+   "bzr_id": "125009",
+   "bzr_name": "Nord 2 - Waidmannslust/Wittenau/Lübars"
+  },
+  "12601031": {
+   "name": "Lübarser Straße",
+   "bzr_id": "126010",
+   "bzr_name": "Rollbergesiedlung"
+  },
+  "12601032": {
+   "name": "Rollbergesiedlung",
+   "bzr_id": "126010",
+   "bzr_name": "Rollbergesiedlung"
+  },
+  "12601133": {
+   "name": "Treuenbrietzener Straße",
+   "bzr_id": "126011",
+   "bzr_name": "MV Nord"
+  },
+  "12601134": {
+   "name": "Märkisches Zentrum",
+   "bzr_id": "126011",
+   "bzr_name": "MV Nord"
+  },
+  "12601235": {
+   "name": "Dannenwalder Weg",
+   "bzr_id": "126012",
+   "bzr_name": "MV Süd"
+  },
+  "12601236": {
+   "name": "Schorfheidestraße",
+   "bzr_id": "126012",
+   "bzr_name": "MV Süd"
+  }
+ }
+}
