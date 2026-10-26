@@ -504,6 +504,71 @@
                 BERLIN_BOUNDS = L.latLngBounds(all);
             }
             const DATA_DATE = "30 Sep 2025 (mock)";
+            // ---------- Place search: postcode / street / station -> planning areas (demo/gazetteer.json, built by src/build_gazetteer.py) ----------
+            // The area is the answer, the place is the evidence. A place spanning several areas shows one row per area (largest share first).
+            let GAZ = null,
+                GAZ_IDX = null;
+            const fold = s =>
+                s
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[̀-ͯ]/g, "")
+                    .replace(/ß/g, "ss")
+                    .replace(/str\./g, "strasse")
+                    .replace(/[^a-z0-9 ]/g, " ")
+                    .replace(/\s+/g, " ")
+                    .trim();
+            const loadGaz = g => {
+                GAZ = g;
+                GAZ_IDX = {
+                    streets: Object.keys(g.streets).map(n => [fold(n), n]),
+                    stations: g.stations.map(s => [fold(s[0]), s])
+                };
+            };
+            const PER_PLACE = 6;
+            function searchPlaces(q) {
+                const n = fold(q),
+                    rows = [];
+                if (!GAZ || n.length < 2) return rows;
+                const add = (label, kind, list, ll) =>
+                    list
+                        .filter(([id]) => AREAS[id])
+                        .slice(0, PER_PLACE)
+                        .forEach(([id, pct], i, a) =>
+                            rows.push({
+                                label,
+                                kind,
+                                id,
+                                ll,
+                                pct: list.length > 1 ? pct : null,
+                                more: i === a.length - 1 ? list.length - a.length : 0
+                            })
+                        );
+                if (/^\d+$/.test(n)) {
+                    Object.keys(GAZ.plz)
+                        .filter(p => p.startsWith(n))
+                        .slice(0, 3)
+                        .forEach(p => add(p, "postcode", GAZ.plz[p]));
+                } else {
+                    GAZ_IDX.stations
+                        .filter(([f]) => f.includes(n))
+                        .slice(0, 4)
+                        .forEach(([, s]) =>
+                            add(s[0], s[1] + " station", [[s[2], 100]], [s[3], s[4]])
+                        );
+                    const ss = GAZ_IDX.streets.filter(([f]) => f.includes(n));
+                    ss.sort(
+                        (a, b) =>
+                            (b[0].startsWith(n) ? 1 : 0) -
+                                (a[0].startsWith(n) ? 1 : 0) ||
+                            a[0].length - b[0].length
+                    );
+                    ss.slice(0, 3).forEach(([, name]) =>
+                        add(name, "street", GAZ.streets[name])
+                    );
+                }
+                return rows;
+            }
             const ringHas = ([y, x], ring) => {
                 // ray casting; points are [lat, lng]
                 let ins = false;
@@ -1180,10 +1245,11 @@
             }
 
             // M3 filtering menu (combobox): type to narrow the 500+ planning areas
-            function AreaPicker({ selected, onSelect }) {
+            function AreaPicker({ selected, onSelect, via }) {
                 const [q, setQ] = useState(""),
                     [open, setOpen] = useState(false),
-                    [hi, setHi] = useState(0);
+                    [hi, setHi] = useState(0),
+                    [last, setLast] = useState(null);
                 const all = useMemo(
                     () =>
                         Object.values(AREAS).sort((x, y) =>
@@ -1191,18 +1257,29 @@
                         ),
                     []
                 );
-                const n = q.trim().toLowerCase(),
+                // "Invalidenstraße 43": no house-number data, so search the street part and say so
+                const hn = q.trim().match(/^(.*\D)\s+\d+\s*[a-z]?$/i),
+                    sq = hn ? hn[1] : q,
+                    n = sq.trim().toLowerCase(),
                     match = n
                         ? all.filter(a =>
                               (a.name + " " + a.bez).toLowerCase().includes(n)
                           )
                         : all,
-                    hits = match.slice(0, 40);
+                    places = useMemo(() => searchPlaces(sq), [sq]),
+                    hits = [
+                        ...places.map(p => ({
+                            ...AREAS[p.id],
+                            via: p,
+                            key: p.kind + p.label + p.id
+                        })),
+                        ...match.slice(0, places.length ? 8 : 40)
+                    ];
                 const pick = a => {
                     if (!a) return;
-                    onSelect(a.id);
+                    onSelect(a.id, a.via);
                     setOpen(false);
-                    setQ("");
+                    setLast({ id: a.id, q }); // reopening edits this search instead of starting over
                 };
                 return (
                     <div className="relative flex-1 min-w-0">
@@ -1213,24 +1290,32 @@
                             aria-expanded={open}
                             aria-controls="area-list"
                             aria-autocomplete="list"
-                            aria-label="Find an area"
+                            aria-label="Search area, street, station or postcode"
                             aria-activedescendant={
                                 open && hits[hi]
-                                    ? "ao-" + hits[hi].id
+                                    ? "ao-" + (hits[hi].key || hits[hi].id)
                                     : undefined
                             }
-                            placeholder="Find an area…"
+                            placeholder="Area, street, station, postcode…"
                             value={
-                                open ? q : selected ? AREAS[selected].name : ""
+                                open
+                                    ? q
+                                    : selected
+                                      ? (via && via.id === selected
+                                            ? via.label + " · "
+                                            : "") + AREAS[selected].name
+                                      : ""
                             }
                             onFocus={e => {
                                 setOpen(true);
-                                setQ("");
+                                setQ(last && last.id === selected ? last.q : "");
                                 setHi(0);
-                                e.target.select();
+                                const t = e.target;
+                                setTimeout(() => t.select(), 0);
                             }}
                             onBlur={() => setOpen(false)}
                             onChange={e => {
+                                setOpen(true);
                                 setQ(e.target.value);
                                 setHi(0);
                             }}
@@ -1251,21 +1336,56 @@
                         />
                         {open && (
                             <ul id="area-list" role="listbox" className="lbx">
+                                {hn && places.length > 0 && (
+                                    <li
+                                        role="presentation"
+                                        className="small muted"
+                                        style={{ cursor: "default" }}
+                                    >
+                                        House numbers aren't searchable yet.
+                                        Showing the areas "{sq.trim()}" runs
+                                        through; pick the part you mean.
+                                    </li>
+                                )}
                                 {hits.map((a, i) => (
                                     <li
-                                        key={a.id}
-                                        id={"ao-" + a.id}
+                                        key={a.key || a.id}
+                                        id={"ao-" + (a.key || a.id)}
                                         role="option"
                                         aria-selected={i === hi}
                                         onMouseDown={e => e.preventDefault()}
                                         onClick={() => pick(a)}
                                     >
-                                        <span>{a.name}</span>
+                                        <span>
+                                            {a.via ? (
+                                                <>
+                                                    {a.via.label}
+                                                    <span
+                                                        className="small"
+                                                        style={{ opacity: 0.75 }}
+                                                    >
+                                                        {` · ${a.via.kind} · in `}
+                                                    </span>
+                                                </>
+                                            ) : null}
+                                            {a.name}
+                                        </span>
                                         <span
                                             className="small"
                                             style={{ opacity: 0.75 }}
                                         >
                                             {a.bez}
+                                            {a.via && a.via.pct != null
+                                                ? " · " +
+                                                  a.via.pct +
+                                                  "% of " +
+                                                  a.via.kind
+                                                : ""}
+                                            {a.via && a.via.more
+                                                ? " · +" +
+                                                  a.via.more +
+                                                  " more areas"
+                                                : ""}
                                             {a.limited ? " · limited data" : ""}
                                         </span>
                                     </li>
@@ -1276,7 +1396,9 @@
                                         aria-selected="false"
                                         style={{ cursor: "default" }}
                                     >
-                                        No area matches "{q}"
+                                        No match for "{q}". Search by area, street,
+                                        station or postcode. Full addresses aren't
+                                        supported.
                                     </li>
                                 )}
                                 {match.length > hits.length && (
@@ -1368,7 +1490,8 @@
                     part: "evening",
                     bike: "standard"
                 });
-                const [selected, setSelected] = useState(null);
+                const [selected, setSelected] = useState(null),
+                    [via, setVia] = useState(null);
                 const [hint, setHint] = useState(true);
                 const [loc, setLoc] = useState("idle");
                 const [locErr, setLocErr] = useState(null);
@@ -1424,6 +1547,34 @@
                     setSelected(id);
                     setHint(false);
                 };
+                const onPick = (id, v) => {
+                    onSelect(id);
+                    setVia(v ? { ...v, id } : null);
+                    // show the whole area, not a street-level zoom on the place
+                    mapRef.current?.fitBounds(AREAS[id].bbox, {
+                        padding: [60, 60],
+                        maxZoom: 15
+                    });
+                };
+                useEffect(() => {
+                    // pin = "you searched here"; only while its area is still the selection
+                    const m = mapRef.current;
+                    if (!m || !via || !via.ll || via.id !== selected) return;
+                    const pin = L.circleMarker(via.ll, {
+                        radius: 7,
+                        color: CUR.card,
+                        weight: 3,
+                        fillColor: CUR.located,
+                        fillOpacity: 1,
+                        interactive: false
+                    })
+                        .bindTooltip(via.label, {
+                            permanent: true,
+                            direction: "top"
+                        })
+                        .addTo(m);
+                    return () => pin.remove();
+                }, [via, selected]);
                 const onOutside = (c, ev) => {
                     const out = !areaAt([c.lat, c.lng]);
                     clearTimeout(hideT.current);
@@ -1569,7 +1720,8 @@
                                             <div>
                                                 <AreaPicker
                                                     selected={selected}
-                                                    onSelect={onSelect}
+                                                    onSelect={onPick}
+ via={via}
                                                 />
                                             </div>
                                             <Chips
@@ -1615,7 +1767,8 @@
                                         <div className="flex items-center gap-2">
                                             <AreaPicker
                                                 selected={selected}
-                                                onSelect={onSelect}
+                                                onSelect={onPick}
+ via={via}
                                             />
                                             <button
                                                 className="fab"
@@ -1824,7 +1977,7 @@
                                     </p>
                                     <p className="small muted">
                                         Map © OpenStreetMap contributors (ODbL).
-                                        Data source: Polizei Berlin (CC-BY 4.0).
+                                        Data source: Polizei Berlin (CC-BY 4.0). Search: Amt für Statistik Berlin-Brandenburg (postcodes, street sections, CC-BY 3.0), VBB (stations).
                                     </p>
                                     <button
                                         className="btn"
@@ -1839,10 +1992,16 @@
                 );
             }
 
-            fetch("lor.json")
-                .then(r => r.json())
-                .then(rows => {
+            Promise.all([
+                fetch("lor.json").then(r => r.json()),
+                // search is optional: without the lookup the picker still finds areas by name
+                fetch("gazetteer.json")
+                    .then(r => r.json())
+                    .catch(() => null)
+            ])
+                .then(([rows, gaz]) => {
                     loadAreas(rows);
+                    if (gaz) loadGaz(gaz);
                     // Self-check: every combination (incl. bogus keys) yields a complete answer; location mocks resolve as expected.
                     for (const a of [
                         ...Object.keys(AREAS).slice(0, 20),

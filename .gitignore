@@ -18,3 +18,5 @@ data/raw/.fetched_at
 # OS / IDE
 .DS_Store
 .vscode/
+# Gazetteer source downloads (rebuilt by src/build_gazetteer.py)
+data/raw/gazetteer/
