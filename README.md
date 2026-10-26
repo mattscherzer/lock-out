@@ -15,7 +15,7 @@ Work in progress; see [docs/product-roadmap.md](docs/product-roadmap.md) for the
 | Cleaning pipeline, model, `build_lookup_json.py` | Not started |
 | `lookup_schema_v1.json` | Hand-written sample, not generated |
 | FastAPI service (`src/api/main.py`) | Not started |
-| Frontend | Single-file prototype in `demo/` with mock data; `frontend/` is empty |
+| Frontend | Prototype in `demo/` with mock data; `frontend/` is a Vite + Leaflet scaffold that draws the 542 areas on an OSM map (local only, not deployed) |
 | Weekly refresh workflow | Runs fetch + audit only; will open a PR once the build step exists |
 
 Only 534 of the 542 areas have any police record; the other 8 are shrunk to their parent area and flagged "no data".
@@ -84,7 +84,7 @@ lock-out/
 │   ├── audit_police_csv.py                  # Data integrity, lag cutoff & cell sparsity audit
 │   └── api/
 │       └── main.py                          # FastAPI serving wrapper
-├── frontend/                                # React + Vite + Tailwind CSS + Leaflet client
+├── frontend/                                # Vite + Leaflet client (scaffold: map and 542 areas)
 ├── pyproject.toml / uv.lock                 # Dependencies and the exact locked versions
 ├── .python-version                          # Python version used by uv
 └── README.md
@@ -131,15 +131,25 @@ Start the local FastAPI server:
 uv run uvicorn src.api.main:app --reload --port 8000
 ```
 
-### 4. Run the Front-End Client *(planned; for now open the prototype in `demo/` via a local web server)*
+### 4. Run the Front-End Client (local server only, not deployed yet)
 
-In a separate terminal, launch the React/Vite application:
+Needs Node 20+ and internet access (OSM tiles load from `tile.openstreetmap.org`).
 
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev        # dev server, open the printed URL (http://localhost:5173)
 ```
+
+To test the production build instead:
+
+```bash
+npm run build && npm run preview   # serves dist/ at http://localhost:4173
+```
+
+Expected: a map of Berlin with 542 area polygons (counter top left reads "542 areas") and the OSM and Polizei Berlin attribution bottom right; the browser console stays empty. Works from 375 px up.
+
+The fixtures in `frontend/public/` are generated from `data/raw/lor_planungsraeume_2021.geojson` and the draft schema; regenerate with `python3 frontend/scripts/build_fixture.py`. The existing `demo/` prototype is untouched; open it with `python3 -m http.server -d demo`.
 
 ---
 
