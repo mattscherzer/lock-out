@@ -1,18 +1,20 @@
+import sys
+
 import pandas as pd
 import numpy as np
-import json
 
+from audit_checks import AuditError, check_csv, polygon_ids, street_rows
 from config import daytype_of
 from fetch_police_csv import RAW_DIR, find_raw_csv
 
 # 1. Load Police CSV (handle daten.berlin.de delimiter and encoding quirks)
 csv_path = find_raw_csv()
 if csv_path is None:
-    raise SystemExit(f"No police CSV found in {RAW_DIR}; run fetch_police_csv.py first.")
+    sys.exit(f"No police CSV found in {RAW_DIR}; run fetch_police_csv.py first.")
 try:
-    df = pd.read_csv(csv_path, sep=None, engine="python", encoding="utf-8")
-except UnicodeDecodeError:
-    df = pd.read_csv(csv_path, sep=None, engine="python", encoding="iso-8859-1")
+    df = check_csv(csv_path)
+except AuditError as e:
+    sys.exit(f"AUDIT FAILED: {e}")
 
 print(f"=== 1. RAW DATASET OVERVIEW ===")
 print(f"Total Rows: {len(df):,}")
@@ -28,8 +30,7 @@ if "ERFASSUNGSGRUND" in df.columns:
     print(df["ERFASSUNGSGRUND"].value_counts(dropna=False), "\n")
 
 # Filter out basement break-ins (Keller- und Bodeneinbruch) for outdoor analysis
-outdoor_mask = ~df.apply(lambda r: r.astype(str).str.contains("Keller|Boden", case=False).any(), axis=1)
-df_outdoor = df[outdoor_mask].copy()
+df_outdoor = street_rows(df).copy()
 print(f"Outdoor rows retained: {len(df_outdoor):,} ({len(df_outdoor)/len(df):.1%} of total)\n")
 
 # 3. Verify 8-Digit LOR Hierarchy & GeoJSON Match
@@ -42,19 +43,9 @@ print(f"Unique Prognoseräume (digits 1-4):  {df_outdoor[lor_col].str[:4].nuniqu
 print(f"Unique Bezirksregionen (digits 1-6):{df_outdoor[lor_col].str[:6].nunique()} (Expected: 143)")
 print(f"Unique Planungsräume (digits 1-8):  {df_outdoor[lor_col].nunique()} (Expected: 542)")
 
-# Optional GeoJSON diff check if file is present
-try:
-    with open(RAW_DIR / "lor_planungsraeume_2021.geojson", "r", encoding="utf-8") as f:
-        geo = json.load(f)
-    # Adjust property key below based on exact Berlin Open Data GeoJSON schema (usually 'PLR_ID')
-    sample_props = geo["features"][0]["properties"]
-    geo_key = [k for k in sample_props.keys() if "plr" in k.lower() or "id" in k.lower()][0]
-    geo_lors = {str(feat["properties"][geo_key]).zfill(8) for feat in geo["features"]}
-    police_lors = set(df_outdoor[lor_col].unique())
-    print(f"In Police CSV but missing from GeoJSON: {police_lors - geo_lors}")
-    print(f"In GeoJSON but 0 thefts in Police CSV:  {len(geo_lors - police_lors)} areas\n")
-except FileNotFoundError:
-    print("Note: 'lor_planungsraeume_2021.geojson' not found in data/raw; skipping polygon diff.\n")
+zero_areas = sorted(polygon_ids() - set(df[lor_col].str.zfill(8)))
+print(f"Street rows: {len(df_outdoor):,}")
+print(f"Areas with no record ({len(zero_areas)}): {zero_areas}\n")
 
 # 4. Quantify Reporting Lag (ANGELEGT_AM - TATZEIT_ENDE_DATUM)
 print(f"=== 4. REPORTING LAG DISTRIBUTION (HOLDOUT TRUNCATION CUTOFF) ===")
