@@ -23,3 +23,11 @@ REQUIRED_COLUMNS = [
     "TATZEIT_ENDE_DATUM", "TATZEIT_ENDE_STUNDE", "LOR", "SCHADENSHOEHE",
     "VERSUCH", "ART_DES_FAHRRADS", "DELIKT", "ERFASSUNGSGRUND",
 ]
+
+# Time bands by hour of day (provisional until G1, roadmap D-08).
+DAYPARTS = {
+    "Morning": tuple(range(6, 11)),
+    "Afternoon": tuple(range(11, 17)),
+    "Evening": tuple(range(17, 22)),
+    "Night": (22, 23, 0, 1, 2, 3, 4, 5),
+}
