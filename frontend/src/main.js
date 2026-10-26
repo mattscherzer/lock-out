@@ -24,7 +24,8 @@ try {
     onEachFeature: (feature, polygon) => {
       const area = fixture.areas[feature.properties.id];
       // element, not a string: Leaflet would parse a string as HTML
-      polygon.bindTooltip(Object.assign(document.createElement("span"), { textContent: `${area.name} (${area.bzr_name})` }));
+      const label = Object.assign(document.createElement("span"), { textContent: `${area.name} (${area.bzr_name})` });
+      polygon.bindTooltip(label);
     },
   }).addTo(map);
 

@@ -28,7 +28,7 @@ def simplify_line(pts, tol):
 
 
 def simplify_ring(r):
-    # closed ring: split at the point farthest from the start so dp has a real baseline
+    # closed ring: split at the point farthest from the start so simplify_line has a real baseline
     pts = [[round(x, 5), round(y, 5)] for x, y in r[:-1]]
     k = max(range(len(pts)), key=lambda i: (pts[i][0] - pts[0][0]) ** 2 + (pts[i][1] - pts[0][1]) ** 2)
     out = simplify_line(pts[: k + 1], TOL)[:-1] + simplify_line(pts[k:] + [pts[0]], TOL)
