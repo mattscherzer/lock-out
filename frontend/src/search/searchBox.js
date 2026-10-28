@@ -8,9 +8,14 @@ export function createSearchBox({ input, list, index, areas, onSelect }) {
 
   const setActive = (i) => {
     active = i;
-    options.forEach(({ el }, n) => el.classList.toggle("active", n === i));
-    if (i >= 0) input.setAttribute("aria-activedescendant", options[i].el.id);
-    else input.removeAttribute("aria-activedescendant");
+    options.forEach(({ el }, n) => {
+      el.classList.toggle("active", n === i);
+      el.setAttribute("aria-selected", String(n === i));
+    });
+    if (i >= 0) {
+      input.setAttribute("aria-activedescendant", options[i].el.id);
+      options[i].el.scrollIntoView({ block: "nearest" });
+    } else input.removeAttribute("aria-activedescendant");
   };
 
   // entries without `choose` are notes: shown, not selectable
@@ -47,6 +52,7 @@ export function createSearchBox({ input, list, index, areas, onSelect }) {
   };
 
   input.addEventListener("input", search);
+  input.addEventListener("blur", () => show([]));
   input.addEventListener("keydown", (e) => {
     if (!options.length && e.key !== "Escape") return;
     if (onKey[e.key]) {

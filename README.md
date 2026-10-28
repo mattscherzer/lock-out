@@ -149,7 +149,9 @@ npm run build && npm run preview   # serves dist/ at http://localhost:4173
 
 Expected: a map of Berlin with 542 area polygons (counter top left reads "542 areas") and the OSM and Polizei Berlin attribution bottom right; the browser console stays empty. Works from 375 px up.
 
-The fixtures in `frontend/public/` are generated from `data/raw/lor_planungsraeume_2021.geojson` and a subset of the draft schema (metadata, risk bands, area names; no predictions); regenerate with `python3 frontend/scripts/build_fixture.py`. The existing `demo/` prototype is untouched; open it with `python3 -m http.server -d demo`. It shares the place-search lookup `frontend/public/gazetteer.json`; link it once with `ln -s ../frontend/public/gazetteer.json demo/gazetteer.json` (git-ignored; Pages copies the file at deploy).
+The fixtures in `frontend/public/` are generated from `data/raw/lor_planungsraeume_2021.geojson` and a subset of the draft schema (metadata, risk bands, area names; no predictions); regenerate with `python3 frontend/scripts/build_fixture.py`. The existing `demo/` prototype is untouched; open it with `python3 -m http.server -d demo`.
+
+The demo shares the place-search lookup `frontend/public/gazetteer.json`. Link it once with `ln -s ../frontend/public/gazetteer.json demo/gazetteer.json` (git-ignored; Pages copies the file at deploy). Without the link the demo still works, with area-name search only.
 
 ---
 

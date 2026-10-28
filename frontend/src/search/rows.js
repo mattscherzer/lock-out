@@ -6,8 +6,9 @@ export const note = (text) => li("search-note", text);
 
 // "Invalidenstraße · street · in Nordbahnhof", then district and share; an area-name match is just the name.
 export function row({ place, pct, more }, info) {
-  const via = place.kind === "area" ? "" : `${place.label} · ${place.kind} · in `;
-  const share = pct == null ? "" : ` · ${pct}% of ${place.kind}`;
+  const kind = place.sub ? `${place.sub} ${place.kind}` : place.kind; // "S station"
+  const via = place.kind === "area" ? "" : `${place.label} · ${kind} · in `;
+  const share = pct == null ? "" : ` · ${pct}% of ${kind}`;
   const rest = more ? ` · +${more} more areas` : "";
   return li("search-option", `${via}${info.name} (${info.bzr_name})${share}${rest}`);
 }

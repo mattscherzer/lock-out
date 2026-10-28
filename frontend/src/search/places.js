@@ -17,7 +17,7 @@ export const fold = (s) =>
 
 // "Invalidenstraße 43": there is no house-number data, so search the street part and say so.
 export function parseQuery(q) {
-  const m = q.trim().match(/^(.*\D)\s+\d+\s*[a-z]?$/i);
+  const m = q.trim().match(/^(.*\D)\s+\d+(?:\s*[-/]\s*\d+)?\s*[a-z]?$/i);
   return m ? { text: m[1], houseNumber: true } : { text: q, houseNumber: false };
 }
 
@@ -36,7 +36,7 @@ export function buildIndex(gazetteer, areas) {
     .sort((a, b) => a.label.localeCompare(b.label, "de"));
   return {
     postcode: kept(Object.entries(gazetteer.plz).map(([plz, list]) => place(plz, "postcode", list))),
-    station: kept(gazetteer.stations.map(([name, kind, id, lat, lon]) => place(name, `${kind} station`, [[id, 100]], { ll: [lat, lon] }))),
+    station: kept(gazetteer.stations.map(([name, kind, id, lat, lon]) => place(name, "station", [[id, 100]], { sub: kind, ll: [lat, lon] }))),
     street: kept(Object.entries(gazetteer.streets).map(([name, list]) => place(name, "street", list))),
     area: byName,
   };

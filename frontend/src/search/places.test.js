@@ -22,6 +22,10 @@ describe("fold", () => {
 });
 
 describe("parseQuery", () => {
+  it("treats a house-number range or fraction as a house number", () => {
+    expect(parseQuery("Hauptstraße 5-6").houseNumber).toBe(true);
+    expect(parseQuery("Hauptstraße 5/6")).toEqual({ text: "Hauptstraße", houseNumber: true });
+  });
   it("splits a trailing house number off a street", () => {
     expect(parseQuery("Invalidenstraße 43a")).toEqual({ text: "Invalidenstraße", houseNumber: true });
   });
@@ -38,7 +42,7 @@ describe("searchPlaces", () => {
     expect(street.areas).toEqual([{ id: "A3", pct: 60 }, { id: "A2", pct: 40 }]);
   });
   it("finds a station as a single area", () => {
-    expect(searchPlaces(index, "ostbahnhof")[0]).toMatchObject({ kind: "S station", areas: [{ id: "A3", pct: 100 }] });
+    expect(searchPlaces(index, "ostbahnhof")[0]).toMatchObject({ kind: "station", sub: "S", areas: [{ id: "A3", pct: 100 }] });
   });
   it("matches a postcode by prefix", () => {
     expect(labels("101")).toEqual(["10115"]);
@@ -68,5 +72,16 @@ describe("searchPlaces", () => {
   });
   it("returns nothing for a one-letter query", () => {
     expect(labels("a")).toEqual([]);
+  });
+});
+
+describe("ordering and limits", () => {
+  const streets = ["Frankfurter Allee", "Alte Allee", "Allee der Kosmonauten", "Allee Vier", "Allee Fuenf"];
+  const idx = buildIndex(
+    { plz: {}, streets: Object.fromEntries(streets.map((s) => [s, [["A1", 100]]])), stations: [["Allee Bahnhof", "S", "A2", 1, 2]] },
+    areas,
+  );
+  it("lists stations before streets, prefix matches first then shorter, at most 3 streets", () => {
+    expect(searchPlaces(idx, "allee").map((p) => p.label)).toEqual(["Allee Bahnhof", "Allee Vier", "Allee Fuenf", "Allee der Kosmonauten"]);
   });
 });
