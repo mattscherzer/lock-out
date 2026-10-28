@@ -102,6 +102,13 @@ describe("umlaut spellings", () => {
     expect(found("koeln")).toEqual(["Köln Platz"]);
     expect(found("koln")).toEqual(["Köln Platz"]);
   });
+  it.each([["Märkisches Ufer", ["markisches", "maerkisches"]], ["Schöneberger Ufer", ["schoneberger", "schoeneberger"]]])(
+    "%s is found by both spellings",
+    (label, queries) => {
+      const i = buildIndex({ plz: {}, streets: { [label]: [["A1", 100]] }, stations: [] }, areas);
+      for (const q of queries) expect(searchPlaces(i, q).map((p) => p.label)).toEqual([label]);
+    },
+  );
   it("does not merge ue into u", () => {
     expect(found("neue")).toEqual([]);
     expect(found("neuk")).toEqual(["Neukölln Weg"]);
