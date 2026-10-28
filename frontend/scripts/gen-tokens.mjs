@@ -30,6 +30,13 @@ export function generate(t) {
       if (g === "shadow" && k.name !== "focus-ring") theme.push(`  --shadow-${k.name}: var(--${k.name});`);
       // same name as Tailwind's radius namespace: literal, a var() would point at itself
       if (g === "radius") theme.push(`  --${k.name}: ${k.value};`);
+      // sizes become h-/w-/size-/min-h-... utilities (control-md, tap-target); the 4px spacing grid already matches Tailwind's p-*/gap-*
+      if (g === "size") theme.push(`  --${k.name === "content-max" ? "container" : "spacing"}-${k.name}: var(--${k.name});`);
+      if (g === "zIndex") theme.push(`  --z-index-${k.name.replace(/^z-/, "")}: var(--${k.name});`);
+      if (g === "timing") {
+        const [ns, rest] = k.name.startsWith("easing-") ? ["ease", k.name.slice(7)] : ["transition-duration", k.name.replace(/^duration-/, "")];
+        theme.push(`  --${ns}-${rest}: var(--${k.name});`);
+      }
     }
   }
   for (const [name, stack] of Object.entries(t.type.families)) {

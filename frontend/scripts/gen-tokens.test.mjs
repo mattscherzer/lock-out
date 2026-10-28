@@ -12,7 +12,9 @@ const fixture = {
   color: { tokens: [{ name: "primary", value: { light: "#111", dark: "#eee" } }, { name: "same", value: { light: "#222", dark: "#222" } }] },
   shadow: { tokens: [{ name: "elevation-1", value: { light: "a", dark: "b" } }, { name: "focus-ring", value: "ring" }] },
   radius: { tokens: [{ name: "radius-md", value: "12px" }] },
-  timing: { tokens: [{ name: "duration-fast", value: "100ms" }] },
+  timing: { tokens: [{ name: "duration-fast", value: "100ms" }, { name: "easing-standard", value: "cubic-bezier(0.2, 0, 0, 1)" }] },
+  size: { tokens: [{ name: "tap-target", value: "44px" }, { name: "content-max", value: "1120px" }] },
+  zIndex: { tokens: [{ name: "z-sheet", value: "1000" }] },
   type: {
     families: { sans: "Sans, sans-serif" },
     groups: [{ name: "Data", family: "sans", styles: [{ name: "data-md", fontSize: "13px", letterSpacing: "1px" }] }],
@@ -41,6 +43,15 @@ test("theme mapping: colour vars, literal radius, no focus-ring utility", () => 
   assert.match(css, /--radius-md: 12px;/);
   assert.doesNotMatch(css, /--shadow-focus-ring/);
   assert.match(css, /--color-\*: initial;/);
+});
+
+test("sizes, z-index, easing and duration map to Tailwind namespaces", () => {
+  const css = generate(fixture);
+  assert.match(css, /--spacing-tap-target: var\(--tap-target\);/);
+  assert.match(css, /--container-content-max: var\(--content-max\);/);
+  assert.match(css, /--z-index-sheet: var\(--z-sheet\);/);
+  assert.match(css, /--ease-standard: var\(--easing-standard\);/);
+  assert.match(css, /--transition-duration-fast: var\(--duration-fast\);/);
 });
 
 test("type styles become kebab-cased vars and a class with only the props the style has", () => {
