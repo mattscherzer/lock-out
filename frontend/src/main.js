@@ -1,5 +1,6 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "./styles/index.css";
 
 const getJson = (name) =>
   fetch(`${import.meta.env.BASE_URL}${name}`).then((res) => {

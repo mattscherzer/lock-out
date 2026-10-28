@@ -1,0 +1,34 @@
+/* Base styles: surface colours, type-style classes, focus ring, reduced motion. Values come from tokens.css. */
+
+@layer base {
+  html { background: var(--surface); color: var(--on-surface); }
+  body { margin: 0; font: var(--body-md-font-weight) var(--body-md-font-size)/var(--body-md-line-height) var(--font-sans); }
+
+  :focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root { --duration-fast: 0ms; --duration-base: 0ms; --duration-slow: 0ms; }
+  }
+}
+
+@layer components {
+  .display-sm, .headline-md, .headline-sm { font-family: var(--font-display); }
+  .title-lg, .title-md, .title-sm, .body-lg, .body-md, .body-sm,
+  .label-lg, .label-md, .label-sm, .data-md { font-family: var(--font-sans); }
+  .attribution-sm, .leaflet-control-attribution { font-family: var(--font-attribution); }
+
+  .display-sm { font-size: var(--display-sm-font-size); line-height: var(--display-sm-line-height); font-weight: var(--display-sm-font-weight); letter-spacing: var(--display-sm-letter-spacing); }
+  .headline-md { font-size: var(--headline-md-font-size); line-height: var(--headline-md-line-height); font-weight: var(--headline-md-font-weight); }
+  .headline-sm { font-size: var(--headline-sm-font-size); line-height: var(--headline-sm-line-height); font-weight: var(--headline-sm-font-weight); }
+  .title-lg { font-size: var(--title-lg-font-size); line-height: var(--title-lg-line-height); font-weight: var(--title-lg-font-weight); }
+  .title-md { font-size: var(--title-md-font-size); line-height: var(--title-md-line-height); font-weight: var(--title-md-font-weight); }
+  .title-sm { font-size: var(--title-sm-font-size); line-height: var(--title-sm-line-height); font-weight: var(--title-sm-font-weight); }
+  .body-lg { font-size: var(--body-lg-font-size); line-height: var(--body-lg-line-height); font-weight: var(--body-lg-font-weight); }
+  .body-md { font-size: var(--body-md-font-size); line-height: var(--body-md-line-height); font-weight: var(--body-md-font-weight); }
+  .body-sm { font-size: var(--body-sm-font-size); line-height: var(--body-sm-line-height); font-weight: var(--body-sm-font-weight); }
+  .label-lg { font-size: var(--label-lg-font-size); line-height: var(--label-lg-line-height); font-weight: var(--label-lg-font-weight); letter-spacing: var(--label-lg-letter-spacing); }
+  .label-md { font-size: var(--label-md-font-size); line-height: var(--label-md-line-height); font-weight: var(--label-md-font-weight); letter-spacing: var(--label-md-letter-spacing); }
+  .label-sm { font-size: var(--label-sm-font-size); line-height: var(--label-sm-line-height); font-weight: var(--label-sm-font-weight); letter-spacing: var(--label-sm-letter-spacing); }
+  .data-md { font-size: var(--data-md-font-size); line-height: var(--data-md-line-height); font-weight: var(--data-md-font-weight); font-variant-numeric: tabular-nums; }
+  .attribution-sm, .leaflet-control-attribution { font-size: var(--attribution-sm-font-size); line-height: var(--attribution-sm-line-height); font-weight: var(--attribution-sm-font-weight); }
+}
