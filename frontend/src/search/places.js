@@ -4,9 +4,11 @@
 const PER_PLACE = 6; // areas listed per place; the rest become "+N more areas"
 const LIMITS = { postcode: 3, station: 4, street: 3, area: 8 };
 
-export const fold = (s) =>
-  s
-    .toLowerCase()
+const UMLAUTS = { ä: "ae", ö: "oe", ü: "ue" };
+
+// Plain fold drops diacritics ("müller" -> "muller"); expanded writes umlauts out ("mueller").
+export const fold = (s, expandUmlauts = false) =>
+  (expandUmlauts ? s.toLowerCase().replace(/[äöü]/g, (c) => UMLAUTS[c]) : s.toLowerCase())
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/ß/g, "ss")
@@ -14,6 +16,10 @@ export const fold = (s) =>
     .replace(/[^a-z0-9 ]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+
+// English speakers type "muller", Germans "mueller": both must find "Müller". A place keeps both forms
+// and a query matches against either, so "neue" still doesn't match "Neukölln".
+const foldBoth = (s) => [...new Set([fold(s), fold(s, true)])];
 
 // "Invalidenstraße 43": there is no house-number data, so search the street part and say so.
 export function parseQuery(q) {
@@ -26,13 +32,13 @@ export function buildIndex(gazetteer, areas) {
   const place = (label, kind, list, extra = {}) => ({
     label,
     kind,
-    key: fold(label),
+    keys: foldBoth(label),
     areas: list.filter(([id]) => id in areas).map(([id, pct]) => ({ id, pct })),
     ...extra,
   });
   const kept = (places) => places.filter((p) => p.areas.length > 0);
   const byName = Object.entries(areas)
-    .map(([id, a]) => place(a.name, "area", [[id, 100]], { key: fold(`${a.name} ${a.bzr_name}`), detail: a.bzr_name }))
+    .map(([id, a]) => place(a.name, "area", [[id, 100]], { keys: foldBoth(`${a.name} ${a.bzr_name}`), detail: a.bzr_name }))
     .sort((a, b) => a.label.localeCompare(b.label, "de"));
   return {
     postcode: kept(Object.entries(gazetteer.plz).map(([plz, list]) => place(plz, "postcode", list))),
@@ -54,17 +60,21 @@ const placeRows = (place) => {
   }));
 };
 
-const closest = (n) => (a, b) => Number(b.key.startsWith(n)) - Number(a.key.startsWith(n)) || a.key.length - b.key.length;
+const hits = (ns, test) => (p) => p.keys.some((k) => ns.some((n) => test(k, n)));
+const closest = (ns) => {
+  const prefix = hits(ns, (k, n) => k.startsWith(n));
+  return (a, b) => Number(prefix(b)) - Number(prefix(a)) || a.keys[0].length - b.keys[0].length;
+};
 
 export function searchPlaces(index, text) {
-  const n = fold(text);
-  if (n.length < 2) return [];
+  const ns = foldBoth(text);
+  if (ns[0].length < 2) return [];
   const take = (kind, places) => places.slice(0, LIMITS[kind]);
-  if (/^\d+$/.test(n)) return take("postcode", index.postcode.filter((p) => p.key.startsWith(n)));
-  const matching = (places) => places.filter((p) => p.key.includes(n));
+  if (/^\d+$/.test(ns[0])) return take("postcode", index.postcode.filter(hits(ns, (k, n) => k.startsWith(n))));
+  const matching = (places) => places.filter(hits(ns, (k, n) => k.includes(n)));
   return [
     ...take("station", matching(index.station)),
-    ...take("street", matching(index.street).sort(closest(n))),
+    ...take("street", matching(index.street).sort(closest(ns))),
     ...take("area", matching(index.area)),
   ];
 }

@@ -19,6 +19,9 @@ describe("fold", () => {
     expect(fold("Invalidenstr.")).toBe("invalidenstrasse");
     expect(fold("Stülerstraße")).toBe("stulerstrasse");
   });
+  it("can write umlauts out", () => {
+    expect(fold("Müllerstraße", true)).toBe("muellerstrasse");
+  });
 });
 
 describe("parseQuery", () => {
@@ -83,5 +86,24 @@ describe("ordering and limits", () => {
   );
   it("lists stations before streets, prefix matches first then shorter, at most 3 streets", () => {
     expect(searchPlaces(idx, "allee").map((p) => p.label)).toEqual(["Allee Bahnhof", "Allee Vier", "Allee Fuenf", "Allee der Kosmonauten"]);
+  });
+});
+
+describe("umlaut spellings", () => {
+  const idx = buildIndex(
+    { plz: {}, streets: { "Müllerstraße": [["A1", 100]], "Neukölln Weg": [["A2", 100]] }, stations: [["Köln Platz", "S", "A3", 1, 2]] },
+    areas,
+  );
+  const found = (q) => searchPlaces(idx, q).map((p) => p.label);
+  it.each(["muller", "mueller", "müller", "MÜLLER"])("%s finds Müllerstraße", (q) => {
+    expect(found(q)).toEqual(["Müllerstraße"]);
+  });
+  it("finds a station by either spelling", () => {
+    expect(found("koeln")).toEqual(["Köln Platz"]);
+    expect(found("koln")).toEqual(["Köln Platz"]);
+  });
+  it("does not merge ue into u", () => {
+    expect(found("neue")).toEqual([]);
+    expect(found("neuk")).toEqual(["Neukölln Weg"]);
   });
 });
