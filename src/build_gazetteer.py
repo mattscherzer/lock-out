@@ -5,7 +5,7 @@ Inputs, all downloaded into one directory (default data/raw/gazetteer/, git-igno
   strab.json   WFS https://gdi.berlin.de/services/wfs/rbs_strab       typeNames=rbs_strab:rbs_strab
                (both outputFormat=application/json&srsName=EPSG:4326; CC-BY-3.0, Amt fuer Statistik Berlin-Brandenburg)
   stops.txt    stops.txt from the VBB GTFS zip https://www.vbb.de/gtfs
-Output: demo/gazetteer.json
+Output: frontend/public/gazetteer.json (shared with the demo, see README)
   plz / streets: key -> [[lor_id, share_pct], ...] sorted by share, slivers dropped
   stations:      [[display name, kind, lor_id, lat, lon], ...]
 """
@@ -47,7 +47,7 @@ def stations(stops, lor):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", type=Path, default=ROOT / "data/raw/gazetteer")
-    ap.add_argument("--out", type=Path, default=ROOT / "demo/gazetteer.json")
+    ap.add_argument("--out", type=Path, default=ROOT / "frontend/public/gazetteer.json")
     a = ap.parse_args()
 
     lor = gpd.read_file(ROOT / "data/raw/lor_planungsraeume_2021.geojson").to_crs(CRS)

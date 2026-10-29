@@ -1,0 +1,11 @@
+/* Base styles: surface colours, focus ring, attribution. Type-style classes are generated into tokens.css.
+   tokens.css is unlayered (Tailwind needs @theme at top level), so layered CSS can never override a token: override from unlayered CSS or [data-theme] only. */
+
+@layer base {
+  html { background: var(--surface); color: var(--on-surface); }
+  body { margin: 0; font: var(--body-md-font-weight) var(--body-md-font-size)/var(--body-md-line-height) var(--font-sans); }
+}
+
+/* Unlayered on purpose: a shadow utility (layer utilities) must not remove the ring on focus.
+   The transparent outline is drawn in forced-colors mode, where box-shadow is not. */
+:focus-visible { outline: 2px solid transparent; outline-offset: 2px; box-shadow: var(--focus-ring); }
