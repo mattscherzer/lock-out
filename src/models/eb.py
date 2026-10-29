@@ -1,6 +1,6 @@
 """Empirical Bayes model v0: Gamma-Poisson shrinkage from area to Bezirksregion to city (issue #38, roadmap M4).
 
-Run from the repo root: uv run python src/models/eb.py
+Run from the repo root: uv run python src/models/eb.py [path to the police CSV]
 Scores the model on both backtest folds against the targets, writes docs/eb-model-results.md,
 and writes the generator v0 output data/processed/lookup_v0.json for all 542 areas.
 """
@@ -22,7 +22,12 @@ ROOT = Path(__file__).resolve().parents[2]
 RESULTS = ROOT / "docs" / "eb-model-results.md"
 LOOKUP = ROOT / "data" / "processed" / "lookup_v0.json"
 TIERS = [("LOW", 0.60), ("MEDIUM", 0.85), ("HIGH", 1.00)]  # upper percentile of each tier: 60 / 25 / 15 of areas
-LIMITED_DATA_BELOW = 5  # street thefts in 12 months (M6)
+LIMITED_DATA_BELOW = 5  # street thefts in the window (M6)
+BIKE_VALUE_SPLIT_EUR = 1000  # bike value band (D-07)
+TOP_QUARTILE = 0.75
+TARGET_HIGH_IN_TOP_QUARTILE = 0.70
+TARGET_SPEARMAN = 0.6  # checked on the last fold only, as the issue states
+TARGET_WITHIN_RAW = 1.01  # deviance within 1% of the raw area history
 
 
 def strength(y, exposure, prior_mean):
@@ -33,10 +38,13 @@ def strength(y, exposure, prior_mean):
 
 
 def posterior_rate(y, exposure, prior_mean, a):
-    """Posterior mean rate per unit of exposure; with a = inf it is the prior mean."""
+    """Posterior mean rate per unit of exposure; with a = inf it is the prior mean, and a prior mean of 0 stays 0."""
+    prior_mean = np.broadcast_to(np.asarray(prior_mean, dtype=float), np.shape(y))
     if np.isinf(a):
-        return prior_mean * np.ones(len(y))
-    return (a + y) / (a / prior_mean + exposure)
+        return prior_mean.copy()
+    with np.errstate(divide="ignore", invalid="ignore"):
+        rate = (a + np.asarray(y, dtype=float)) / (a / prior_mean + exposure)
+    return np.where(prior_mean > 0, rate, 0.0)
 
 
 def fit(area_counts):
@@ -54,9 +62,15 @@ def fit(area_counts):
 
 
 def tiers(rate):
-    """Relative percentile bands: rank the areas and cut at 60% and 85%."""
-    pct = rate.rank(method="first") / len(rate)
+    """Relative percentile bands, cut at 60% and 85%. Areas with the same rate get the same, higher tier."""
+    pct = rate.rank(method="max") / len(rate)
     return pct.apply(lambda p: next(name for name, top in TIERS if p <= top))
+
+
+def share_in_top_quartile(actual, high):
+    """Share of High-tier areas whose actual count is in the top quartile; a count of 0 never counts as top."""
+    top = (actual >= actual.quantile(TOP_QUARTILE)) & (actual > 0)
+    return float(top[high].mean())
 
 
 def evaluate(df, areas):
@@ -69,14 +83,14 @@ def evaluate(df, areas):
         scale = days(start, end) / days(history_start, history_end)
         base = baselines(history, days(history_start, history_end), days(start, end))
         rate, _ = fit(history)
-        predicted = rate * scale
-        dev, rho = score(actual, predicted)
+        dev, rho = score(actual, rate * scale)
         dev_city, _ = score(actual, base["Citywide share"])
         dev_raw, _ = score(actual, base["Raw area history"])
-        high = tiers(rate) == "HIGH"
-        in_top_quartile = (actual[high] >= actual.quantile(0.75)).mean()
-        rows.append({"fold": f"{start} to {end}", "deviance": dev, "citywide": dev_city, "raw": dev_raw,
-                     "spearman": rho, "high_in_top_quartile": in_top_quartile})
+        rows.append({
+            "fold": f"{start} to {end}", "deviance": dev, "citywide": dev_city, "raw": dev_raw, "spearman": rho,
+            "high_in_top_quartile": share_in_top_quartile(actual, tiers(rate) == "HIGH"),
+            "raw_high_in_top_quartile": share_in_top_quartile(actual, tiers(base["Raw area history"]) == "HIGH"),
+        })
     return rows
 
 
@@ -85,11 +99,11 @@ def targets(rows):
     for r in rows:
         checks += [
             (r["fold"], "Deviance better than citywide share", f"{r['deviance']:.3f} vs {r['citywide']:.3f}", r["deviance"] < r["citywide"]),
-            (r["fold"], "Deviance within 1% of or better than raw area history", f"{r['deviance']:.3f} vs {r['raw']:.3f}", r["deviance"] <= 1.01 * r["raw"]),
-            (r["fold"], "High-tier areas in the actual top quartile >= 70%", f"{r['high_in_top_quartile']:.0%}", r["high_in_top_quartile"] >= 0.70),
+            (r["fold"], "Deviance within 1% of or better than raw area history", f"{r['deviance']:.3f} vs {r['raw']:.3f}", r["deviance"] <= TARGET_WITHIN_RAW * r["raw"]),
+            (r["fold"], "High-tier areas in the actual top quartile >= 70%", f"{r['high_in_top_quartile']:.0%}", r["high_in_top_quartile"] >= TARGET_HIGH_IN_TOP_QUARTILE),
         ]
     last = rows[-1]
-    checks.append((last["fold"], "Spearman >= 0.6", f"{last['spearman']:.3f}", last["spearman"] >= 0.6))
+    checks.append((last["fold"], "Spearman >= 0.6 (last fold only)", f"{last['spearman']:.3f}", last["spearman"] >= TARGET_SPEARMAN))
     return checks
 
 
@@ -97,25 +111,24 @@ def citywide_multipliers(df):
     """Shares of thefts per time band, day group and bike value: the same for every area (D-18)."""
     band = df[list(config.DAYPARTS)].sum() / len(df)
     day = df["TATZEIT_ANFANG_DATUM"].dt.weekday.apply(config.daytype_of).value_counts(normalize=True)
-    value = (pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce") >= 1000).map({True: "eur_1000_or_more", False: "under_eur_1000"})
+    high_value = pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce") >= BIKE_VALUE_SPLIT_EUR
+    value = high_value.map({True: f"eur_{BIKE_VALUE_SPLIT_EUR}_or_more", False: f"under_eur_{BIKE_VALUE_SPLIT_EUR}"})
     r = lambda s: {k: round(float(v), 4) for k, v in s.items()}
     return {"time_band": r(band), "day_group": r(day), "bike_value": r(value.value_counts(normalize=True))}
 
 
-def generate(df, raw, areas, reports_up_to, cutoff):
-    start = cutoff - pd.DateOffset(months=12) + pd.Timedelta(days=1)
+def generate(df, areas, reports_up_to, cutoff, source):
+    start = cutoff - pd.DateOffset(months=HISTORY_MONTHS) + pd.Timedelta(days=1)
     window = df[df["TATZEIT_ENDE_DATUM"].between(start, cutoff)]
     y = counts(window, areas, start, cutoff)
     rate, a = fit(y)
     tier = tiers(rate)
-    shares = tier.value_counts(normalize=True)
-    for name, target in [("LOW", 0.60), ("MEDIUM", 0.25), ("HIGH", 0.15)]:
-        assert abs(shares.get(name, 0) - target) < 0.02, f"{name} share {shares.get(name, 0):.1%} is not near {target:.0%}"
-    recorded = set(raw["LOR"].str.zfill(8))
+    street_record = set(df["LOR"])  # no_record: no street theft at all in the cleaned data
     out = {
         "metadata": {
             "model_type": "eb_gamma_poisson",
             "version": "v0",
+            "source_file": source,
             "data_window": f"{start:%Y-%m-%d} to {cutoff:%Y-%m-%d}",
             "reports_up_to": f"{reports_up_to:%Y-%m-%d}",
             "truncation_lag_days": config.LAG_CUTOFF_DAYS,
@@ -130,7 +143,7 @@ def generate(df, raw, areas, reports_up_to, cutoff):
                 "expected_per_year": round(float(rate[lor]), 2),
                 "reports_12m": int(y[lor]),
                 "limited_data": bool(y[lor] < LIMITED_DATA_BELOW),
-                "no_record": lor not in recorded,
+                "no_record": lor not in street_record,
             }
             for lor in areas
         },
@@ -139,22 +152,24 @@ def generate(df, raw, areas, reports_up_to, cutoff):
     return out
 
 
-def markdown(rows, checks, lookup, reports_up_to, cutoff):
+def markdown(rows, checks, lookup, reports_up_to, cutoff, source):
     lines = [f"| {f} | {t} | {v} | {'pass' if ok else 'MISS'} |" for f, t, v, ok in checks]
-    folds = [f"| {r['fold']} | {r['deviance']:.3f} | {r['citywide']:.3f} | {r['raw']:.3f} | {r['spearman']:.3f} | {r['high_in_top_quartile']:.0%} |" for r in rows]
+    folds = [f"| {r['fold']} | {r['deviance']:.3f} | {r['citywide']:.3f} | {r['raw']:.3f} | {r['spearman']:.3f} | {r['high_in_top_quartile']:.0%} | {r['raw_high_in_top_quartile']:.0%} |" for r in rows]
     flagged = sum(a["no_record"] for a in lookup["areas"].values())
     limited = sum(a["limited_data"] for a in lookup["areas"].values())
     return f"""# EB Model v0 Results
 
-Generated by `uv run python src/models/eb.py` from the police file with reports up to {reports_up_to:%d %b %Y} (thefts counted up to the 14-day cutoff, {cutoff:%d %b %Y}). The baselines and folds are the ones in `docs/backtest-results.md`; compare models on the same file.
+Generated by `uv run python src/models/eb.py data/raw/{source}` from `{source}` (not in Git), with reports up to {reports_up_to:%d %b %Y} and thefts counted up to the 14-day cutoff, {cutoff:%d %b %Y}. The committed `data/processed/lookup_v0.json` comes from the same run. The baselines and folds are the ones in `docs/backtest-results.md`; compare models on the same file.
 
 ## Model
 
 - Gamma-Poisson Empirical Bayes: each area's count is pulled toward its Bezirksregion, and each Bezirksregion toward the city. The prior strengths are estimated from the data (method of moments). An area with few thefts is pulled more strongly.
-- Time band, day group and bike value are citywide multipliers (D-18): they scale every area's expected count by the same factor, so they never change an area's tier.
-- Tiers are relative percentile bands of areas: Low 60%, Medium 25%, High 15%.
+- Tiers are relative percentile bands of areas: Low 60%, Medium 25%, High 15%. Areas with the same rate get the same tier, the higher one.
+- v0 scope: time band, day group and bike value (one split at EUR {BIKE_VALUE_SPLIT_EUR}) are stored as citywide shares in the metadata (D-18). No area carries multiplied values, and the shares are not yet validated; validating every selector on hold-out is issue #39. As citywide multipliers they never change an area's tier.
 
 ## Targets (G1)
+
+The Spearman target is checked on the last fold only, as the issue states.
 
 | Fold | Target | Value | Result |
 | --- | --- | --- | --- |
@@ -162,19 +177,21 @@ Generated by `uv run python src/models/eb.py` from the police file with reports 
 
 ## Per fold
 
-| Fold | EB deviance | Citywide share | Raw area history | Spearman | High in top quartile |
-| --- | --- | --- | --- | --- | --- |
+"High in top quartile" is shown for the raw area history too: on its own it does not show whether the model beats the baseline. Areas with 0 actual thefts never count as top quartile.
+
+| Fold | EB deviance | Citywide share | Raw area history | Spearman | High in top quartile (EB) | High in top quartile (raw history) |
+| --- | --- | --- | --- | --- | --- | --- |
 {chr(10).join(folds)}
 
 ## Generator v0 output
 
-`data/processed/lookup_v0.json`: {len(lookup['areas'])} areas, data window {lookup['metadata']['data_window']}. {flagged} areas have no record at all (`no_record`), {limited} have fewer than {LIMITED_DATA_BELOW} street thefts in the window (`limited_data`).
+`data/processed/lookup_v0.json`: {len(lookup['areas'])} areas, data window {lookup['metadata']['data_window']}. {flagged} areas have no street theft at all in the cleaned data (`no_record`), {limited} have fewer than {LIMITED_DATA_BELOW} street thefts in the window (`limited_data`). The file does not follow `lookup_schema_v1.json` yet; that is aligned at the schema lock (WP 1.5).
 """
 
 
 if __name__ == "__main__":
-    raw = check_csv(find_raw_csv())
-    cleaned = clean(raw)
+    path = Path(sys.argv[1]) if len(sys.argv) > 1 else find_raw_csv()
+    cleaned = clean(check_csv(path))
     cleaned["LOR"] = cleaned["LOR"].str.zfill(8)
     areas = sorted(polygon_ids())
     reports_up_to = cleaned["ANGELEGT_AM"].max()
@@ -183,9 +200,9 @@ if __name__ == "__main__":
         sys.exit(f"The file is only complete up to {cutoff:%d %b %Y}, before the last fold ends; use a newer file.")
     rows = evaluate(cleaned, areas)
     checks = targets(rows)
-    lookup = generate(cleaned, raw, areas, reports_up_to, cutoff)
-    LOOKUP.write_text(json.dumps(lookup, ensure_ascii=False, indent=1), encoding="utf-8")
-    RESULTS.write_text(markdown(rows, checks, lookup, reports_up_to, cutoff), encoding="utf-8")
+    lookup = generate(cleaned, areas, reports_up_to, cutoff, path.name)
+    LOOKUP.write_text(json.dumps(lookup, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    RESULTS.write_text(markdown(rows, checks, lookup, reports_up_to, cutoff, path.name), encoding="utf-8")
     for f, t, v, ok in checks:
         print(f"{'pass' if ok else 'MISS'}  {f}  {t}: {v}")
     print(f"Wrote {LOOKUP} and {RESULTS}")

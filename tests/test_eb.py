@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 from audit_checks import polygon_ids
-from models.eb import fit, generate, posterior_rate, strength, tiers
+from models.eb import LIMITED_DATA_BELOW, fit, generate, posterior_rate, share_in_top_quartile, strength, tiers
 from pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
@@ -14,6 +14,10 @@ FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sampl
 def test_posterior_rate_by_hand():
     # Gamma(a=2) prior with mean 2, one unit of exposure, 4 thefts: (2 + 4) / (2 / 2 + 1) = 3
     assert posterior_rate(np.array([4]), 1, 2.0, 2.0)[0] == 3
+
+
+def test_posterior_rate_with_a_zero_prior_mean_is_zero():
+    assert posterior_rate(np.array([3]), 1, 0.0, 2.0).tolist() == [0]
 
 
 def test_no_extra_variation_means_full_pooling():
@@ -39,16 +43,31 @@ def test_tiers_split_60_25_15():
     assert t.iloc[-1] == "HIGH" and t.iloc[0] == "LOW"
 
 
-def test_generator_emits_all_542_areas_with_flags():
+def test_equal_rates_get_the_same_higher_tier():
+    # Ten areas; the 6th to 8th share a rate across the 60% cut, so all three get MEDIUM, not LOW.
+    t = tiers(pd.Series([1, 2, 3, 4, 5, 6, 6, 6, 9, 10], dtype=float))
+    assert t.tolist() == ["LOW"] * 5 + ["MEDIUM"] * 3 + ["HIGH"] * 2
+
+
+def test_top_quartile_never_counts_zero_thefts():
+    actual = pd.Series([0, 0, 0, 0])
+    assert share_in_top_quartile(actual, pd.Series([True, False, False, False])) == 0
+
+
+def test_generator_emits_all_542_areas_with_flags_from_cleaned_data():
     raw = pd.read_csv(FIXTURE, encoding="iso-8859-1", dtype={"LOR": str})
     raw = raw[raw["LOR"] != "99999999"]
     cleaned = clean(raw)
     cleaned["LOR"] = cleaned["LOR"].str.zfill(8)
     reports_up_to = cleaned["ANGELEGT_AM"].max()
-    out = generate(cleaned, raw, sorted(polygon_ids()), reports_up_to, reports_up_to - pd.Timedelta(days=14))
+    out = generate(cleaned, sorted(polygon_ids()), reports_up_to, reports_up_to - pd.Timedelta(days=14), "sample.csv")
     areas = out["areas"]
     assert len(areas) == 542
     assert out["metadata"]["model_type"] == "eb_gamma_poisson"
-    missing = set(polygon_ids()) - set(raw["LOR"].str.zfill(8))
-    assert {lor for lor, a in areas.items() if a["no_record"]} == missing
-    assert all(a["limited_data"] == (a["reports_12m"] < 5) for a in areas.values())
+    assert out["metadata"]["source_file"] == "sample.csv"
+    no_street_theft = set(polygon_ids()) - set(cleaned["LOR"])
+    assert {lor for lor, a in areas.items() if a["no_record"]} == no_street_theft
+    cellar_only = set(raw["LOR"].str.zfill(8)) & no_street_theft
+    assert cellar_only, "the fixture should contain an area with only cellar rows"
+    assert all(areas[lor]["no_record"] for lor in cellar_only)
+    assert all(a["limited_data"] == (a["reports_12m"] < LIMITED_DATA_BELOW) for a in areas.values())
