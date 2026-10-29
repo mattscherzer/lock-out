@@ -64,6 +64,9 @@ try {
       : undefined;
     map.fitBounds(polygons[id].getBounds());
   };
+  const areaCount = layer.getLayers().length;
+  const notes = new Set(gazetteer ? [] : ["station and postcode search unavailable"]);
+  const showStatus = () => (status.textContent = [`${areaCount} areas`, ...notes].join(" · "));
   const index = buildIndex(gazetteer ?? EMPTY_GAZETTEER, fixture.areas);
   createSearchBox({
     input: document.getElementById("search-input"),
@@ -75,13 +78,15 @@ try {
     loadStreets: () =>
       getJson("gazetteer_streets.json")
         .then((file) => addStreets(index, file, fixture.areas))
+        .then(() => notes.delete("street search unavailable"))
         .catch((err) => {
           console.error("Street search unavailable:", err);
-          status.textContent += " · street search unavailable";
-        }),
+          notes.add("street search unavailable");
+          throw err; // the search box retries on the next focus
+        })
+        .finally(showStatus),
   });
-  const areaCount = layer.getLayers().length;
-  status.textContent = `${areaCount} areas${gazetteer ? "" : " · street and station search unavailable"}`;
+  showStatus();
   status.dataset.count = areaCount; // read by manual/automated checks
 } catch (err) {
   status.textContent = "Could not load map data";

@@ -52,7 +52,7 @@ export function buildIndex(gazetteer, areas) {
 }
 
 // file: the fetched gazetteer_streets.json, {ids, streets: {bezirk: {type: {name: areas}}}}.
-// An entry's areas are an index into ids (one area) or [[index, pct], ...]. Fills index.street in place.
+// An entry's areas are [[index into ids, pct], ...]. Fills index.street in place.
 export function addStreets(index, file, areas) {
   const { ids, streets } = file ?? {};
   if (!Array.isArray(ids) || !streets) throw new Error("gazetteer_streets.json: unexpected shape");
@@ -60,8 +60,7 @@ export function addStreets(index, file, areas) {
   for (const [bezirk, types] of Object.entries(streets))
     for (const [type, names] of Object.entries(types))
       for (const [name, coded] of Object.entries(names)) {
-        const list = typeof coded === "number" ? [[ids[coded], 100]] : coded.map(([i, pct]) => [ids[i], pct]);
-        places.push(placeIn(areas, name, "street", list, { type, bezirk }));
+        places.push(placeIn(areas, name, "street", coded.map(([i, pct]) => [ids[i], pct]), { type, bezirk }));
       }
   index.street = kept(places);
 }

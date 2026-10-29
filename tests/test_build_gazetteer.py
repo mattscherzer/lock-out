@@ -16,10 +16,9 @@ def streets(rows):
 
 
 def build(rows):
-    """{(bezirk, type, name): area ids as [[id, pct], ...] or a bare id} for the given street rows."""
+    """{(bezirk, type, name): [[area id, pct], ...]} for the given street rows."""
     ids, tree = nest(shares(with_keys(streets(rows)), LOR, "key"))
-    decode = lambda v: ids[v] if isinstance(v, int) else [[ids[i], pct] for i, pct in v]
-    return {(b, t, n): decode(v) for b, ts in tree.items() for t, ns in ts.items() for n, v in ns.items()}
+    return {(b, t, n): [[ids[i], pct] for i, pct in v] for b, ts in tree.items() for t, ns in ts.items() for n, v in ns.items()}
 
 
 def test_each_entry_type_gets_its_display_type():
@@ -42,10 +41,24 @@ def test_name_in_two_bezirke_is_split_and_same_name_other_type_stays_apart():
         ("Hauptstraße", "Strasse", "Spandau", 11, 19),
         ("Hauptstraße", "Gewässerabschnitt", "Pankow", 1, 9),
     ])
-    assert out == {("Pankow", "Street", "Hauptstraße"): "A", ("Spandau", "Street", "Hauptstraße"): "B", ("Pankow", "Water", "Hauptstraße"): "A"}
+    assert out == {
+        ("Pankow", "Street", "Hauptstraße"): [["A", 100]],
+        ("Spandau", "Street", "Hauptstraße"): [["B", 100]],
+        ("Pankow", "Water", "Hauptstraße"): [["A", 100]],
+    }
+
+
+def test_street_and_verwaltungsweg_of_one_name_merge_into_one_street():
+    out = build([("Weg", "Strasse", "Mitte", 1, 3), ("Weg", "Verwaltungsweg", "Mitte", 11, 13)])
+    assert out == {("Mitte", "Street", "Weg"): [["A", 50], ["B", 50]]}
+
+
+def test_a_name_in_five_bezirke_gives_five_results():
+    out = build([("Hauptstraße", "Strasse", b, 1, 9) for b in ["Mitte", "Pankow", "Spandau", "Lichtenberg", "Neukölln"]])
+    assert sorted(b for b, _, _ in out) == ["Lichtenberg", "Mitte", "Neukölln", "Pankow", "Spandau"]
 
 
 def test_sliver_is_dropped_and_multi_area_keeps_shares():
     out = build([("Lang", "Strasse", "Mitte", 0, 10.3), ("Quer", "Strasse", "Mitte", 5, 15)])
-    assert out[("Mitte", "Street", "Lang")] == "A"  # 0.3 of 10.3 is under MIN_SHARE, so one bare id
+    assert out[("Mitte", "Street", "Lang")] == [["A", 97]]  # the 0.3 of 10.3 in B is under MIN_SHARE
     assert out[("Mitte", "Street", "Quer")] == [["A", 50], ["B", 50]]

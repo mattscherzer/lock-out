@@ -518,11 +518,11 @@
                     .replace(/[^a-z0-9 ]/g, " ")
                     .replace(/\s+/g, " ")
                     .trim();
-            // g: gazetteer.json; sf: gazetteer_streets.json {ids, streets: {bezirk: {type: {name: areas}}}}, areas = index or [[index, pct], ...]
+            // g: gazetteer.json; sf: gazetteer_streets.json {ids, streets: {bezirk: {type: {name: areas}}}}, areas = [[index, pct], ...]
             const loadGaz = (g, sf) => {
                 GAZ = g;
                 const streets = [];
-                if (sf)
+                if (Array.isArray(sf?.ids) && sf.streets)
                     for (const [bez, types] of Object.entries(sf.streets))
                         for (const [type, names] of Object.entries(types))
                             for (const [name, a] of Object.entries(names))
@@ -530,10 +530,7 @@
                                     f: fold(name),
                                     label: `${name} (${bez})`,
                                     kind: type.toLowerCase(),
-                                    list:
-                                        typeof a === "number"
-                                            ? [[sf.ids[a], 100]]
-                                            : a.map(([i, pct]) => [sf.ids[i], pct])
+                                    list: a.map(([i, pct]) => [sf.ids[i], pct])
                                 });
                 GAZ_IDX = {
                     streets,

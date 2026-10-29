@@ -1,4 +1,4 @@
-"""Build the place-search lookup (postcode, street, station -> planning areas) for the demo.
+"""Build the place-search lookup (postcode, street, station -> planning areas) for the frontend and the demo.
 
 Inputs, all downloaded into one directory (default data/raw/gazetteer/, git-ignored):
   plz.json     WFS https://gdi.berlin.de/services/wfs/postleitzahlen  typeNames=postleitzahlen:postleitzahlen
@@ -13,8 +13,7 @@ Output, two files in frontend/public/ (shared with the demo, see README):
     ids:       [lor_id, ...] every area id used below, sorted; areas refer to it by index
     streets:   {bezirk: {type: {name: areas}}}
                type is the display type: Street, Square, Water, Motorway, Forest or Other.
-               areas is [[ids_index, share_pct], ...] (share of length, largest first, slivers dropped),
-               or just the ids_index when the place lies in one area (the share would be 100).
+               areas is [[ids_index, share_pct], ...]: share of length, largest first, slivers dropped.
                One name in several Bezirke, or under several types, is one entry per Bezirk and type.
 """
 import argparse
@@ -49,14 +48,13 @@ def with_keys(st):
 
 
 def nest(areas):
-    """"name|type|bezirk" -> areas, as (ids, {bezirk: {type: {name: areas}}}) with areas indexed into ids."""
+    """{"name|type|bezirk": [[plr_id, pct], ...]} -> (ids, {bezirk: {type: {name: [[ids_index, pct], ...]}}})."""
     ids = sorted({i for v in areas.values() for i, _ in v})
     at = {i: n for n, i in enumerate(ids)}
     tree = {}
     for key, v in sorted(areas.items(), key=lambda kv: tuple(reversed(kv[0].split("|")))):
         name, kind, bezirk = key.split("|")
-        coded = at[v[0][0]] if len(v) == 1 else [[at[i], pct] for i, pct in v]  # one area: its share would be 100
-        tree.setdefault(bezirk, {}).setdefault(kind, {})[name] = coded
+        tree.setdefault(bezirk, {}).setdefault(kind, {})[name] = [[at[i], pct] for i, pct in v]
     return ids, tree
 
 
@@ -100,9 +98,9 @@ def main():
     # self-check: a few places everybody knows, and no empty answers
     named = {(b, t, n): v for b, ts in tree.items() for t, ns in ts.items() for n, v in ns.items()}
     assert len(eager["plz"]) > 150 and len(named) > 8000 and len(eager["stations"]) > 250
-    assert all(eager["plz"].values()) and all(v != [] for v in named.values())
+    assert all(eager["plz"].values()) and all(named.values())
     assert any(x[0] == "Ostbahnhof" for x in eager["stations"])
-    assert isinstance(tree["Mitte"]["Street"]["Invalidenstraße"], list)  # spans several areas
+    assert len(tree["Mitte"]["Street"]["Invalidenstraße"]) > 1  # spans several areas
     assert sum("Hauptstraße" in ts.get("Street", {}) for ts in tree.values()) > 1  # one result per Bezirk
     assert {t for ts in tree.values() for t in ts} >= {"Street", "Square", "Water", "Motorway", "Forest"}
     assert "Spandauer See" in tree["Spandau"]["Water"] and "Großer Stern" in tree["Charlottenburg-Wilmersdorf"]["Square"]

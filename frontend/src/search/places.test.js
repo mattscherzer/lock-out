@@ -10,7 +10,7 @@ const gazetteer = {
   plz: { 10115: [["A2", 70], ["A1", 30]], 10245: [["GONE", 100]] },
   stations: [["Ostbahnhof", "S", "A3", 52.5, 13.4]],
 };
-// gazetteer_streets.json shape: areas are indexes into ids (one area) or [[index, pct], ...]
+// gazetteer_streets.json shape: areas are [[index into ids, pct], ...]
 const IDS = ["A1", "A2", "A3"];
 const streetFile = (streets) => ({ ids: IDS, streets });
 const indexWith = (streets, g = { plz: {}, stations: [] }) => {
@@ -18,7 +18,7 @@ const indexWith = (streets, g = { plz: {}, stations: [] }) => {
   addStreets(idx, streetFile(streets), areas);
   return idx;
 };
-const index = indexWith({ Friedrichshain: { Street: { "Frankfurter Allee": [[2, 60], [1, 40]] } }, Mitte: { Street: { "Invalidenstraße": 1 } } }, gazetteer);
+const index = indexWith({ Friedrichshain: { Street: { "Frankfurter Allee": [[2, 60], [1, 40]] } }, Mitte: { Street: { "Invalidenstraße": [[1, 100]] } } }, gazetteer);
 const labels = (q) => searchPlaces(index, q).map((p) => p.label);
 
 describe("fold", () => {
@@ -87,14 +87,14 @@ describe("searchPlaces", () => {
 
 describe("ordering and limits", () => {
   const streets = ["Frankfurter Allee", "Alte Allee", "Allee der Kosmonauten", "Allee Vier", "Allee Fuenf"];
-  const idx = indexWith({ Mitte: { Street: Object.fromEntries(streets.map((s) => [s, 0])) } }, { plz: {}, stations: [["Allee Bahnhof", "S", "A2", 1, 2]] });
+  const idx = indexWith({ Mitte: { Street: Object.fromEntries(streets.map((s) => [s, [[0, 100]]])) } }, { plz: {}, stations: [["Allee Bahnhof", "S", "A2", 1, 2]] });
   it("lists stations before streets, prefix matches first then shorter, at most 3 streets", () => {
     expect(searchPlaces(idx, "allee").map((p) => p.label)).toEqual(["Allee Bahnhof", "Allee Vier", "Allee Fuenf", "Allee der Kosmonauten"]);
   });
 });
 
 describe("umlaut spellings", () => {
-  const idx = indexWith({ Mitte: { Street: { "Müllerstraße": 0, "Neukölln Weg": 1 } } }, { plz: {}, stations: [["Köln Platz", "S", "A3", 1, 2]] });
+  const idx = indexWith({ Mitte: { Street: { "Müllerstraße": [[0, 100]], "Neukölln Weg": [[1, 100]] } } }, { plz: {}, stations: [["Köln Platz", "S", "A3", 1, 2]] });
   const found = (q) => searchPlaces(idx, q).map((p) => p.label);
   it.each(["muller", "mueller", "müller", "MÜLLER"])("%s finds Müllerstraße", (q) => {
     expect(found(q)).toEqual(["Müllerstraße"]);
@@ -106,7 +106,7 @@ describe("umlaut spellings", () => {
   it.each([["Märkisches Ufer", ["markisches", "maerkisches"]], ["Schöneberger Ufer", ["schoneberger", "schoeneberger"]]])(
     "%s is found by both spellings",
     (label, queries) => {
-      const i = indexWith({ Mitte: { Street: { [label]: 0 } } });
+      const i = indexWith({ Mitte: { Street: { [label]: [[0, 100]] } } });
       for (const q of queries) expect(searchPlaces(i, q).map((p) => p.label)).toEqual([label]);
     },
   );
@@ -118,8 +118,8 @@ describe("umlaut spellings", () => {
 
 describe("streets from gazetteer_streets.json", () => {
   const idx = indexWith({
-    Pankow: { Street: { Hauptstraße: 0 }, Water: { "Hauptstraße See": [[1, 70], [2, 30]] } },
-    Spandau: { Street: { Hauptstraße: 2 }, Motorway: { "A 100 BAB Stadtring": 1 } },
+    Pankow: { Street: { Hauptstraße: [[0, 100]] }, Water: { "Hauptstraße See": [[1, 70], [2, 30]] } },
+    Spandau: { Street: { Hauptstraße: [[2, 100]] }, Motorway: { "A 100 BAB Stadtring": [[1, 100]] } },
   });
   it("gives a name used in two Bezirke one place each, with its Bezirk and type", () => {
     const hits = searchPlaces(idx, "hauptstrasse").filter((p) => p.label === "Hauptstraße");
@@ -129,13 +129,17 @@ describe("streets from gazetteer_streets.json", () => {
     const [row] = searchRows(idx, "stadtring").map((r) => r.place);
     expect([row.type, row.bezirk]).toEqual(["Motorway", "Spandau"]);
   });
-  it("reads a bare index as one area and a pair list as shares", () => {
+  it("reads index and share pairs into area ids", () => {
     const [lake] = searchPlaces(idx, "hauptstrasse see");
     expect(lake.areas).toEqual([{ id: "A2", pct: 70 }, { id: "A3", pct: 30 }]);
     expect(searchPlaces(idx, "stadtring")[0].areas).toEqual([{ id: "A2", pct: 100 }]);
   });
-  it("rejects a file of the wrong shape", () => {
-    expect(() => addStreets(buildIndex({ plz: {}, stations: [] }, areas), { streets: {} }, areas)).toThrow("unexpected shape");
+  it("keeps one place per Bezirk for a name used in five", () => {
+    const five = indexWith(Object.fromEntries(["Mitte", "Pankow", "Spandau", "Lichtenberg", "Neukölln"].map((b) => [b, { Street: { Hauptstraße: [[0, 100]] } }])));
+    expect(five.street.map((p) => p.bezirk).sort()).toEqual(["Lichtenberg", "Mitte", "Neukölln", "Pankow", "Spandau"]);
+  });
+  it.each([[{ streets: {} }], [{ ids: [] }], [null]])("rejects a file of the wrong shape: %j", (file) => {
+    expect(() => addStreets(buildIndex({ plz: {}, stations: [] }, areas), file, areas)).toThrow("unexpected shape");
   });
   it("finds nothing before the streets are added", () => {
     expect(searchPlaces(buildIndex({ plz: {}, stations: [] }, areas), "hauptstrasse")).toEqual([]);

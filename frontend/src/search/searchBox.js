@@ -2,7 +2,8 @@ import { parseQuery, searchRows } from "./places.js";
 import { note, row } from "./rows.js";
 
 // Dropdown search: type -> one row per matching place and area. onSelect(areaId, place) fires on choosing a row.
-// loadStreets (optional) fetches the street data into index on the first focus; the search reruns once it is in.
+// loadStreets (optional) fetches the street data into index on focus and must reject on failure; a failed load is retried
+// on the next focus, and the search reruns once the data is in.
 export function createSearchBox({ input, list, index, areas, onSelect, loadStreets }) {
   let options = []; // selectable entries: {el, choose}
   let active = -1;
@@ -54,7 +55,15 @@ export function createSearchBox({ input, list, index, areas, onSelect, loadStree
 
   let loading;
   input.addEventListener("focus", () => {
-    loading ??= loadStreets?.().then(() => input.value && document.activeElement === input && search());
+    if (!loadStreets || loading) return;
+    loading = loadStreets().then(
+      () => {
+        if (input.value) search();
+      },
+      () => {
+        loading = undefined;
+      },
+    );
   });
   input.addEventListener("input", search);
   input.addEventListener("blur", () => show([]));
