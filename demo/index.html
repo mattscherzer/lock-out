@@ -504,7 +504,7 @@
                 BERLIN_BOUNDS = L.latLngBounds(all);
             }
             const DATA_DATE = "30 Sep 2025 (mock)";
-            // ---------- Place search: postcode / street / station -> planning areas (frontend/public/gazetteer.json, built by src/build_gazetteer.py) ----------
+            // ---------- Place search: postcode / street / station -> planning areas (frontend/public/gazetteer.json + gazetteer_streets.json, built by src/build_gazetteer.py) ----------
             // The area is the answer, the place is the evidence. A place spanning several areas shows one row per area (largest share first).
             let GAZ = null,
                 GAZ_IDX = null;
@@ -518,10 +518,25 @@
                     .replace(/[^a-z0-9 ]/g, " ")
                     .replace(/\s+/g, " ")
                     .trim();
-            const loadGaz = g => {
+            // g: gazetteer.json; sf: gazetteer_streets.json {ids, streets: {bezirk: {type: {name: areas}}}}, areas = index or [[index, pct], ...]
+            const loadGaz = (g, sf) => {
                 GAZ = g;
+                const streets = [];
+                if (sf)
+                    for (const [bez, types] of Object.entries(sf.streets))
+                        for (const [type, names] of Object.entries(types))
+                            for (const [name, a] of Object.entries(names))
+                                streets.push({
+                                    f: fold(name),
+                                    label: `${name} (${bez})`,
+                                    kind: type.toLowerCase(),
+                                    list:
+                                        typeof a === "number"
+                                            ? [[sf.ids[a], 100]]
+                                            : a.map(([i, pct]) => [sf.ids[i], pct])
+                                });
                 GAZ_IDX = {
-                    streets: Object.keys(g.streets).map(n => [fold(n), n]),
+                    streets,
                     stations: g.stations.map(s => [fold(s[0]), s])
                 };
             };
@@ -556,15 +571,15 @@
                         .forEach(([, s]) =>
                             add(s[0], s[1] + " station", [[s[2], 100]], [s[3], s[4]])
                         );
-                    const ss = GAZ_IDX.streets.filter(([f]) => f.includes(n));
+                    const ss = GAZ_IDX.streets.filter(({ f }) => f.includes(n));
                     ss.sort(
                         (a, b) =>
-                            (b[0].startsWith(n) ? 1 : 0) -
-                                (a[0].startsWith(n) ? 1 : 0) ||
-                            a[0].length - b[0].length
+                            (b.f.startsWith(n) ? 1 : 0) -
+                                (a.f.startsWith(n) ? 1 : 0) ||
+                            a.f.length - b.f.length
                     );
-                    ss.slice(0, 3).forEach(([, name]) =>
-                        add(name, "street", GAZ.streets[name])
+                    ss.slice(0, 3).forEach(({ label, kind, list }) =>
+                        add(label, kind, list)
                     );
                 }
                 return rows;
@@ -1997,11 +2012,14 @@
                 // search is optional: without the lookup the picker still finds areas by name
                 fetch("gazetteer.json")
                     .then(r => r.json())
+                    .catch(() => null),
+                fetch("gazetteer_streets.json")
+                    .then(r => r.json())
                     .catch(() => null)
             ])
-                .then(([rows, gaz]) => {
+                .then(([rows, gaz, streets]) => {
                     loadAreas(rows);
-                    if (gaz) loadGaz(gaz);
+                    if (gaz) loadGaz(gaz, streets);
                     // Self-check: every combination (incl. bogus keys) yields a complete answer; location mocks resolve as expected.
                     for (const a of [
                         ...Object.keys(AREAS).slice(0, 20),

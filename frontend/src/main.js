@@ -1,7 +1,7 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./styles/index.css";
-import { buildIndex } from "./search/places.js";
+import { addStreets, buildIndex } from "./search/places.js";
 import { createSearchBox } from "./search/searchBox.js";
 
 const getJson = (name) =>
@@ -11,13 +11,13 @@ const getJson = (name) =>
   });
 
 const BRAND = "#2563EB";
-const EMPTY_GAZETTEER = { plz: {}, streets: {}, stations: [] };
+const EMPTY_GAZETTEER = { plz: {}, stations: [] };
 
 // Search is optional: a missing or malformed gazetteer (null here) leaves area-name search, not a broken map.
 const loadGazetteer = () =>
   getJson("gazetteer.json")
     .then((g) => {
-      if (!g.plz || !g.streets || !g.stations) throw new Error("gazetteer.json: unexpected shape");
+      if (!g.plz || !g.stations) throw new Error("gazetteer.json: unexpected shape");
       return g;
     })
     .catch((err) => {
@@ -64,12 +64,21 @@ try {
       : undefined;
     map.fitBounds(polygons[id].getBounds());
   };
+  const index = buildIndex(gazetteer ?? EMPTY_GAZETTEER, fixture.areas);
   createSearchBox({
     input: document.getElementById("search-input"),
     list: document.getElementById("search-list"),
-    index: buildIndex(gazetteer ?? EMPTY_GAZETTEER, fixture.areas),
+    index,
     areas: fixture.areas,
     onSelect: showPlace,
+    // streets are the bulk of the lookup: fetched when the user first focuses the search, not before the map
+    loadStreets: () =>
+      getJson("gazetteer_streets.json")
+        .then((file) => addStreets(index, file, fixture.areas))
+        .catch((err) => {
+          console.error("Street search unavailable:", err);
+          status.textContent += " · street search unavailable";
+        }),
   });
   const areaCount = layer.getLayers().length;
   status.textContent = `${areaCount} areas${gazetteer ? "" : " · street and station search unavailable"}`;
