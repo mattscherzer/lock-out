@@ -6,7 +6,11 @@ Inputs, all downloaded into one directory (default data/raw/gazetteer/, git-igno
                (both outputFormat=application/json&srsName=EPSG:4326; CC-BY-3.0, Amt fuer Statistik Berlin-Brandenburg)
   stops.txt    stops.txt from the VBB GTFS zip https://www.vbb.de/gtfs
 Output: frontend/public/gazetteer.json (shared with the demo, see README)
-  plz / streets: key -> [[lor_id, share_pct], ...] sorted by share, slivers dropped
+  plz:           postcode -> [[lor_id, share_pct], ...] sorted by share, slivers dropped
+  streets:       "name|type|bezirk" -> areas; name and Bezirk never contain "|", so key.split("|") reads them back.
+                 type is the display type: Street, Square, Water, Motorway, Forest or Other.
+                 areas is [[lor_id, share_pct], ...] (share of length, largest first, slivers dropped),
+                 or just the lor_id string when the place lies in one area (the share would be 100).
   stations:      [[display name, kind, lor_id, lat, lon], ...]
 """
 import argparse
@@ -20,6 +24,29 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 CRS = "EPSG:25833"
 MIN_SHARE = 5  # percent; below this an overlap is a boundary sliver, not an area the place belongs to
+
+# strabtypname -> display type; every entry stays searchable, unknown types are "Other"
+TYPES = {
+    "Strasse": "Street",
+    "Verwaltungsweg": "Street",
+    "fiktive Strasse Kreuzung1=Kreuzung2": "Square",
+    "Gewässerabschnitt": "Water",
+    "Autobahnabschnitt": "Motorway",
+    "Forstamt/Jagenabschnitt": "Forest",
+}
+
+
+def with_keys(st):
+    """Key every named entry by name, display type and Bezirk."""
+    st = st.assign(name=st.strname.str.strip())
+    st = st[st.name.ne("") & st.name.notna()].copy()
+    st["key"] = st.name + "|" + st.strabtypname.map(TYPES).fillna("Other") + "|" + st.bezname
+    return st
+
+
+def compact(areas):
+    """A place in one area is stored as the bare id: its share would be 100."""
+    return {k: v[0][0] if len(v) == 1 else v for k, v in areas.items()}
 
 
 def shares(layer, lor, key):
@@ -53,20 +80,24 @@ def main():
     lor = gpd.read_file(ROOT / "data/raw/lor_planungsraeume_2021.geojson").to_crs(CRS)
     plz = gpd.read_file(a.src / "plz.json").to_crs(CRS)
     st = gpd.read_file(a.src / "strab.json").to_crs(CRS)
-    st["key"] = st.strname.str.strip()
-    st = st[st.key.ne("") & st.key.notna()]
+    st = with_keys(st)
     stops = pd.read_csv(a.src / "stops.txt", dtype={"stop_name": str})
 
     res = {
         "plz": shares(plz, lor, "plz"),
-        "streets": shares(st, lor, "key"),
+        "streets": compact(shares(st, lor, "key")),
         "stations": [list(x) for x in stations(stops, lor)],
     }
     # self-check: a few places everybody knows, and no empty answers
     assert len(res["plz"]) > 150 and len(res["streets"]) > 8000 and len(res["stations"]) > 250
     assert all(res["plz"].values()) and all(res["streets"].values())
     assert any(x[0] == "Ostbahnhof" for x in res["stations"])
-    assert len(res["streets"]["Frankfurter Allee"]) > 2  # long street spans several areas
+    assert isinstance(res["streets"]["Invalidenstraße|Street|Mitte"], list)  # spans several areas
+    assert sum(k.startswith("Hauptstraße|Street|") for k in res["streets"]) > 1  # one result per Bezirk
+    types = {k.split("|")[1] for k in res["streets"]}
+    assert types >= {"Street", "Square", "Water", "Motorway", "Forest"}
+    assert "Spandauer See|Water|Spandau" in res["streets"] and "Großer Stern|Square|Charlottenburg-Wilmersdorf" in res["streets"]
+    assert any(k.startswith("A 100 BAB Stadtring|Motorway|") for k in res["streets"])
     a.out.write_text(json.dumps(res, ensure_ascii=False, separators=(",", ":")))
     print({k: len(v) for k, v in res.items()}, f"{a.out.stat().st_size / 1e3:.0f} kB")
 
