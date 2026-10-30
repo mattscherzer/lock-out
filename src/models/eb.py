@@ -159,7 +159,7 @@ def generate(df, areas, reports_up_to, cutoff, source, selectors):
             "shrinkage_strength": {k: (None if np.isinf(v) else round(v, 3)) for k, v in a.items()},
             "tiers": "relative percentile bands of areas: LOW 60%, MEDIUM 25%, HIGH 15%",
             "citywide_multipliers": citywide_multipliers(window),
-            "selectors": selectors,
+            "selectors": {s: {**f, "area_values": False} for s, f in selectors.items()},  # v0 carries no area values
             "attribution": {"police": "Datenquelle: Polizei Berlin (CC-BY 4.0)", "osm": "© OpenStreetMap contributors (ODbL)"},
         },
         "areas": {

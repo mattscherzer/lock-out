@@ -28,12 +28,14 @@ def test_fairness_compares_shares_of_the_city():
     assert round(t.loc["Y", "ratio"], 2) == 0.44 and t.loc["Y", "flagged"]
 
 
-def test_zero_on_one_side_is_flagged_only_from_three_on_the_other():
+def test_zero_on_one_side_is_flagged_with_a_small_numbers_note():
     tier = pd.Series(["MEDIUM"] * 5 + ["HIGH"] * 5)
     bezirk = pd.Series(["X"] * 5 + ["Y"] * 5)
-    three = fairness(tier, pd.Series([True] * 3 + [False] * 2 + [True] * 5), bezirk)
-    two = fairness(tier, pd.Series([True] * 2 + [False] * 3 + [True] * 5), bezirk)
-    assert three.loc["X", "flagged"] and not two.loc["X", "flagged"]
+    one = fairness(tier, pd.Series([True] + [False] * 4 + [True] * 5), bezirk)  # X: 0 High, 1 top quartile
+    assert one.loc["X", "ratio"] == 0 and one.loc["X", "flagged"]
+    assert "Small numbers" in explain(one.loc["X"], cut=4)
+    neither = fairness(tier, pd.Series([False] * 5 + [True] * 5), bezirk)  # X: 0 High, 0 top quartile
+    assert not neither.loc["X", "flagged"]
 
 
 def test_explanation_names_the_areas_behind_the_flag():

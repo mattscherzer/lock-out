@@ -23,7 +23,7 @@ from pipeline.clean import clean
 OUT = Path(__file__).resolve().parents[2] / "docs" / "validation-report.md"
 HIGH_OVER_LOW = 2  # calibration: the High mean must be at least this multiple of the Low mean
 FAIRNESS_FACTOR = 2  # a Bezirk is flagged if one share is more than this multiple of the other
-MIN_OTHER_COUNT = 3  # with 0 High or 0 top-quartile areas, a Bezirk is flagged only if the other count is at least this
+SMALL_NUMBERS_BELOW = 3  # a flagged Bezirk with fewer High or top-quartile areas than this gets a small-numbers note
 SELECTOR_NAMES = {"time_band": "Time band", "day_group": "Day group", "bike_value": f"Bike value (EUR {BIKE_VALUE_SPLIT_EUR} split)"}
 
 
@@ -40,11 +40,9 @@ def calibration(actual, tier):
     return means, rising and bool(means["HIGH"] >= HIGH_OVER_LOW * means["LOW"])
 
 
-def off(high, top, ratio):
-    """Flag rule: off by more than the factor, or 0 on one side while the other side has at least MIN_OTHER_COUNT."""
-    if high == 0 or top == 0:
-        return max(high, top) >= MIN_OTHER_COUNT
-    return ratio > FAIRNESS_FACTOR or ratio < 1 / FAIRNESS_FACTOR
+def off(ratio):
+    """Flag rule: one share more than FAIRNESS_FACTOR times the other. 0 on one side counts (ratio 0 or inf), 0 on both does not."""
+    return bool(ratio > FAIRNESS_FACTOR or ratio < 1 / FAIRNESS_FACTOR)
 
 
 def fairness(tier, top, bezirk):
@@ -58,7 +56,7 @@ def fairness(tier, top, bezirk):
     t["share_top"] = t["top"] / t["top"].sum()
     with np.errstate(divide="ignore", invalid="ignore"):
         t["ratio"] = t["share_high"] / t["share_top"]
-    t["flagged"] = [off(h, p, r) for h, p, r in zip(t["high"], t["top"], t["ratio"])]
+    t["flagged"] = [off(r) for r in t["ratio"]]
     return t
 
 
@@ -70,7 +68,7 @@ def explain(b, cut):
     else:
         text = (f"Holds {b['share_high']:.1%} of the city's High areas but {b['share_top']:.1%} of its top-quartile areas. "
                 f"{b['high'] - b['high_and_top']} of its {b['high']} High areas had fewer thefts in this fold than the top-quartile cut ({cut:g}).")
-    if min(b["high"], b["top"]) < MIN_OTHER_COUNT:
+    if min(b["high"], b["top"]) < SMALL_NUMBERS_BELOW:
         text += " Small numbers: one area more or less changes the ratio a lot."
     return text
 
@@ -98,8 +96,9 @@ def markdown(rows, flags, bezirk, reports_up_to, cutoff, source):
     sel_rows = []
     for s in SELECTORS:
         checks = [r["selectors"][s] for r in rows]
+        holdout_alone = "area better in both folds" if all(c["area"] < c["citywide"] for c in checks) else "not better in both folds"
         sel_rows.append([SELECTOR_NAMES[s], *(f"{c['median']:.1f}" for c in checks),
-                         *(f"{c['citywide']:.3f} vs {c['area']:.3f}" for c in checks), flags[s]["pattern"], flags[s]["reason"]])
+                         *(f"{c['citywide']:.3f} vs {c['area']:.3f}" for c in checks), holdout_alone, flags[s]["pattern"], flags[s]["reason"]])
     folds = [r["fold"] for r in rows]
     return f"""# Validation Report: Calibration, District Fairness and Selectors
 
@@ -117,8 +116,8 @@ Per Bezirk, its share of the city's High areas against its share of the city's a
 
 - **Differs from the issue's wording.** Issue #39 asks for the share of a district's own areas in each group. High covers 15% of areas and the top quartile 25%, so those shares would sit near 0.6 even for a perfect model, too close to the 0.5 flag line. With shares of the city, a Bezirk that holds as large a share of the city's High areas as of its top-quartile areas sits at 1.
 - **Not 1 even for a perfect model.** High is the top 15% of areas and the top quartile the top 25%. A Bezirk with many of the city's highest-theft areas sits above 1 (at most about 1.7), and one whose busiest areas rank just below the top 15% sits below 1. The explanations below show which of a flagged Bezirk's areas make the difference.
-- **Flag:** a ratio above {FAIRNESS_FACTOR} or below 1/{FAIRNESS_FACTOR}, in either fold. A Bezirk with 0 High or 0 top-quartile areas is flagged only if the other count is at least {MIN_OTHER_COUNT}.
-- **Small numbers:** a Bezirk has about 36 to 60 areas, so only a handful are High. One area more or less can move a ratio across the flag line.
+- **Flag:** a ratio above {FAIRNESS_FACTOR} or below 1/{FAIRNESS_FACTOR}, in either fold. That includes a Bezirk with 0 High or 0 top-quartile areas while the other side has at least one; a Bezirk with 0 on both sides is not flagged.
+- **Small numbers:** a Bezirk has about 36 to 60 areas, so only a handful are High. One area more or less can move a ratio across the flag line, and a flagged Bezirk with fewer than {SMALL_NUMBERS_BELOW} High or top-quartile areas says so.
 
 {(chr(10) * 2).join(fair_parts)}
 
@@ -133,10 +132,11 @@ Each selector the card shows is checked on both folds. It gets an area pattern o
 - **Sparse:** the median count per area and selector level in the fold's 12-month history is below {MIN_MEDIAN_PER_LEVEL}. This is a working rule from the EDA, not a tested threshold.
 - **Hold-out test:** both versions predict each area's fold count with the same EB rate and differ only in the shares they split it by, so the test measures only whether area-specific shares help. Area-specific shares are pulled toward the citywide shares, with the strength estimated from the data (method of moments, as for the area rates). The score is the mean Poisson deviance over all areas and levels; lower is better.
 - **Time band:** offence hours are spread across the reported window, and the cleaning splits each theft over the bands it covers. Even a passing time band would be weak evidence.
-- **Bike value** is the one split at EUR {BIKE_VALUE_SPLIT_EUR} used in the model ("bike class" in the issue).
+- **Bike value** is the one split at EUR {BIKE_VALUE_SPLIT_EUR} used in the model ("bike class" in the issue). A theft with no recorded value counts in neither level.
+- **Hold-out alone** shows the hold-out result whatever the sparsity rule says, so a flag that rests on the working rule alone is visible.
 - **"Area pattern" is a validation result only.** The v0 output (`lookup_v0.json`) still carries only the citywide shares. Whether to add area values, and how the card words them, is decided at the schema lock (WP 1.5): the data shows which bikes are stolen in an area, not how many of each kind are parked there.
 
-{table(["Selector", *(f"Median, {f}" for f in folds), *(f"Deviance citywide vs area, {f}" for f in folds), "Flag", "Reason"], sel_rows)}
+{table(["Selector", *(f"Median, {f}" for f in folds), *(f"Deviance citywide vs area, {f}" for f in folds), "Hold-out alone", "Flag", "Reason"], sel_rows)}
 """
 
 

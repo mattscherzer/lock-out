@@ -79,7 +79,7 @@ def test_generator_emits_all_542_areas_with_flags_from_cleaned_data():
     assert len(areas) == 542
     assert out["metadata"]["model_type"] == "eb_gamma_poisson"
     assert out["metadata"]["source_file"] == "sample.csv"
-    assert out["metadata"]["selectors"] == flags
+    assert out["metadata"]["selectors"] == {"time_band": {**flags["time_band"], "area_values": False}}
     no_street_theft = set(polygon_ids()) - set(cleaned["LOR"])
     assert {lor for lor, a in areas.items() if a["no_record"]} == no_street_theft
     cellar_only = set(raw["LOR"].str.zfill(8)) & no_street_theft

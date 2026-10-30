@@ -22,10 +22,10 @@ def levels(df, selector):
         group = df["TATZEIT_ANFANG_DATUM"].dt.weekday.apply(config.daytype_of)
         return pd.DataFrame({g: (group == g).astype(float) for g in config.DAYTYPES})
     if selector == "bike_value":
-        high = pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce") >= BIKE_VALUE_SPLIT_EUR
+        value = pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce")  # blank or unreadable: in neither level
         return pd.DataFrame({
-            f"under_eur_{BIKE_VALUE_SPLIT_EUR}": (~high).astype(float),
-            f"eur_{BIKE_VALUE_SPLIT_EUR}_or_more": high.astype(float),
+            f"under_eur_{BIKE_VALUE_SPLIT_EUR}": (value < BIKE_VALUE_SPLIT_EUR).astype(float),
+            f"eur_{BIKE_VALUE_SPLIT_EUR}_or_more": (value >= BIKE_VALUE_SPLIT_EUR).astype(float),
         })
     raise ValueError(f"unknown selector: {selector}")
 

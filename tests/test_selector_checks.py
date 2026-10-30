@@ -35,7 +35,7 @@ def test_level_counts_per_selector():
     assert count("day_group").to_dict("index")["A"] == {"Mon_Thu": 1, "Friday": 1, "Weekend": 0}
     assert count("day_group").loc["B", "Weekend"] == 1
     assert count("bike_value").loc["A"].tolist() == [1, 1]  # under EUR 1000, EUR 1000 or more
-    assert count("bike_value").loc["B"].tolist() == [1, 0]  # an unknown value counts as under
+    assert count("bike_value").loc["B"].tolist() == [0, 0]  # an unknown value counts in neither level
     assert count("time_band").loc["C"].sum() == 0  # an area without thefts is kept with zeros
 
 
@@ -84,6 +84,20 @@ def test_holdout_finds_area_patterns_when_areas_really_differ():
     result = holdout(df, ["A", "B"], [30, 30], ("2026-01-01", "2026-03-31"), ("2026-04-01", "2026-06-30"), "time_band")
     assert result["median"] == 3  # per area: 24 or 0 morning, 3 afternoon, 3 evening, 0 or 24 night
     assert result["area"] < result["citywide"]
+
+def test_flag_through_holdout_at_low_and_ten_times_the_counts():
+    # Area A loses mostly bikes worth EUR 1000 or more, B mostly cheaper ones, in the history and both folds alike.
+    def flagged(n):
+        rows = []
+        for day in ["2026-01-05", "2026-04-06", "2026-07-06"]:
+            rows += [("A", day, day, "2000", 0.0)] * (2 * n) + [("A", day, day, "500", 0.0)] * n
+            rows += [("B", day, day, "2000", 0.0)] * n + [("B", day, day, "500", 0.0)] * (2 * n)
+        df = thefts(rows)
+        folds = [(("2026-01-01", "2026-03-31"), ("2026-04-01", "2026-06-30")), (("2026-01-01", "2026-06-30"), ("2026-07-01", "2026-09-30"))]
+        return flag([holdout(df, ["A", "B"], [3 * n, 3 * n], history, fold, "bike_value") for history, fold in folds])
+
+    assert flagged(1)["pattern"] == "citywide pattern" and flagged(1)["reason"].startswith("too sparse")
+    assert flagged(10)["pattern"] == "area pattern"
 
 
 def test_sample_data_is_too_sparse_for_every_selector():
