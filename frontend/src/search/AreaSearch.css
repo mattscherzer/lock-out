@@ -42,3 +42,14 @@
   .area-search[data-open] .area-search-icon { display: none; } /* the back arrow takes its place */
   .area-search[data-open] .area-search-panel { flex: 1; min-height: 0; max-height: none; }
 }
+
+/* a result in several areas: a parent row (not an option), then indented, tinted child rows */
+.area-search-parent { min-height: 56px; padding-bottom: 6px; cursor: default; }
+.area-search-child { min-height: 44px; padding: 8px var(--space-4) 8px 64px; gap: 10px; background: var(--surface); }
+.area-search-child .area-search-name { font-size: var(--body-md-font-size, 14px); line-height: 20px; font-weight: 500; }
+.area-search-child .area-search-sub { margin-top: 0; font-size: 12px; line-height: 16px; }
+.area-search-child[aria-selected="true"], .area-search-more[aria-selected="true"] { background: var(--surface-container); }
+.area-search-bar { flex: none; width: 44px; height: 6px; border-radius: 3px; background: var(--outline-variant); overflow: hidden; }
+.area-search-bar > span { display: block; height: 100%; border-radius: 3px; background: var(--primary); }
+.area-search-child .area-search-pct { min-width: 34px; padding: 0; background: none; text-align: right; font-size: 12px; color: var(--on-primary-container); }
+.area-search-more { min-height: 44px; gap: 8px; padding: 8px var(--space-4) 8px 64px; font-size: 14px; font-weight: 600; color: var(--on-primary-container); }
