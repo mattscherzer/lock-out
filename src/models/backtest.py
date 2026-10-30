@@ -46,18 +46,25 @@ def score(actual, predicted):
     return mean_poisson_deviance(actual, predicted), rho
 
 
+def fold_periods():
+    """(history start, history end, fold start, fold end) for each fold: the one place every model takes its windows from."""
+    periods = []
+    for start, end in FOLDS:
+        start, end = pd.Timestamp(start), pd.Timestamp(end)
+        periods.append((start - pd.DateOffset(months=HISTORY_MONTHS), start - pd.Timedelta(days=1), start, end))
+    return periods
+
+
 def backtest(df, areas):
     rows = []
-    for start, end in FOLDS:
-        history_start = pd.Timestamp(start) - pd.DateOffset(months=HISTORY_MONTHS)
-        history_end = pd.Timestamp(start) - pd.Timedelta(days=1)
+    for history_start, history_end, start, end in fold_periods():
         history = counts(df, areas, history_start, history_end)
         actual = counts(df, areas, start, end)
         predictions = baselines(history, days(history_start, history_end), days(start, end))
         for name, predicted in predictions.items():
             deviance, rho = score(actual, predicted)
             rows.append({
-                "Fold": f"{start} to {end}",
+                "Fold": f"{start:%Y-%m-%d} to {end:%Y-%m-%d}",
                 "Baseline": name,
                 "Thefts in fold": int(actual.sum()),
                 "Mean Poisson deviance": f"{deviance:.3f}",
