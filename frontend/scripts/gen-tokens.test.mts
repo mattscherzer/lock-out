@@ -3,10 +3,10 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { generate } from "./gen-tokens.mjs";
+import { generate } from "./gen-tokens.mts";
 
 const tokens = JSON.parse(readFileSync(new URL("../../docs/design-system/tokens.json", import.meta.url), "utf8"));
-const script = fileURLToPath(new URL("./gen-tokens.mjs", import.meta.url));
+const script = fileURLToPath(new URL("./gen-tokens.mts", import.meta.url));
 
 const fixture = {
   color: { tokens: [{ name: "primary", value: { light: "#111", dark: "#eee" } }, { name: "same", value: { light: "#222", dark: "#222" } }] },
@@ -27,7 +27,7 @@ test("tokens.css is in sync with tokens.json", () => {
 });
 
 test("--check runs when the script is started from the CLI", () => {
-  execFileSync("node", [script, "--check"]);
+  execFileSync("node", ["--experimental-strip-types", script, "--check"]);
 });
 
 test("light on :root, only differing dark values under data-theme", () => {
