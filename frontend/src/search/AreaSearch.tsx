@@ -63,6 +63,26 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
   const [streetsLoading, setStreetsLoading] = useState(false);
   const [, setLoaded] = useState(0); // bumped when street data arrives: addStreets fills index in place, so rerender to search again
 
+  // the soft keyboard overlays the page instead of resizing it, so size the full-screen panel to the visible area
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const root = document.documentElement.style;
+    const fit = () => {
+      root.setProperty("--vv-height", `${vv.height}px`);
+      root.setProperty("--vv-top", `${vv.offsetTop}px`);
+    };
+    fit();
+    vv.addEventListener("resize", fit);
+    vv.addEventListener("scroll", fit);
+    return () => {
+      vv.removeEventListener("resize", fit);
+      vv.removeEventListener("scroll", fit);
+      root.removeProperty("--vv-height");
+      root.removeProperty("--vv-top");
+    };
+  }, []);
+
   const selectedName = selected ? areas[selected]?.name ?? "" : "";
   const text = draft ?? selectedName;
   // a new selection (a pick, or a click on the map) replaces any draft; a pick from elsewhere forgets what found the last one

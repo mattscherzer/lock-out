@@ -36,7 +36,7 @@
 @media (min-width: 900px) { .area-search-hints { display: flex; } }
 /* phone: focusing the pill opens a full-screen search */
 @media (max-width: 599px) {
-  .area-search[data-open] { position: fixed; inset: 0; width: auto; height: 100dvh; border-radius: 0; box-shadow: none; display: flex; flex-direction: column; }
+  .area-search[data-open] { position: fixed; inset: auto 0 auto 0; top: var(--vv-top, 0px); width: auto; height: var(--vv-height, 100dvh); /* the visual viewport: shrinks with the soft keyboard */ border-radius: 0; box-shadow: none; display: flex; flex-direction: column; }
   .area-search[data-open] .area-search-field { height: 56px; flex: none; border-bottom: 1px solid var(--outline-variant); }
   .area-search[data-open] button.area-search-back { display: grid; }
   .area-search[data-open] .area-search-icon { display: none; } /* the back arrow takes its place */
