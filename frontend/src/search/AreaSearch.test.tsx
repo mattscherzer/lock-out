@@ -24,11 +24,10 @@ it("lists one row per area of a postcode, largest share first, and selects with 
   render(<Harness onSelect={onSelect} />);
   type("10115");
   const rows = screen.getAllByRole("option");
-  expect(rows.map((r) => r.textContent)).toEqual([
-    expect.stringContaining("Postcode · Charitéviertel · Mitte39%"),
-    expect.stringContaining("Invalidenstraße"),
-    expect.stringContaining("Nordbahnhof"),
-  ]);
+  const label = document.querySelector(".area-search-parent")!;
+  expect(label.textContent).toBe("10115Postcode · in 3 areas");
+  expect(label.getAttribute("role")).toBe("presentation");
+  expect(rows.map((r) => r.textContent)).toEqual(["CharitéviertelArea · Mitte39%", "InvalidenstraßeArea · Mitte32%", "NordbahnhofArea · Mitte16%"]);
   expect(screen.getByRole("status").textContent).toBe("3 results");
   fireEvent.keyDown(field(), { key: "ArrowDown" });
   fireEvent.keyDown(field(), { key: "Enter" });
@@ -100,7 +99,7 @@ it("re-focus keeps the picked row first and Enter keeps it", () => {
   const onSelect = vi.fn();
   render(<Harness onSelect={onSelect} />);
   type("nord");
-  fireEvent.click(screen.getAllByRole("option")[1]); // the area row, below the station
+  fireEvent.click(screen.getAllByRole("option")[0]); // the area row, above the station
   fireEvent.focus(field());
   expect(screen.getAllByRole("option")[0].textContent).toContain("Area ·");
   fireEvent.keyDown(field(), { key: "Enter" });
@@ -158,4 +157,28 @@ it("says so when a house number is typed", () => {
   render(<Harness />);
   type("Nordbahnhof 12");
   expect(screen.getByText(/House numbers aren't searchable yet/)).toBeTruthy();
+});
+
+const longName = "100 AS Kaiserdamm Einf v Knobelsdorffstr West";
+const wide = { ...areas, ...Object.fromEntries(["w1", "w2", "w3", "w4", "w5"].map((id) => [id, { name: id, bzr_name: "01 - Mitte" }])) };
+const wideIndex = buildIndex({ plz: { "10999": ["w1", "w2", "w3", "w4", "w5"].map((id, i) => [id, 50 - i * 10] as [string, number]) }, stations: [[longName, "S", "a3", 52.5, 13.4]] }, wide);
+
+it("keeps a long name whole for screen readers and in the tooltip, and the Bezirk without its number", () => {
+  render(<AreaSearch index={wideIndex} areas={wide} selected={null} onSelect={vi.fn()} onClear={vi.fn()} />);
+  type("Kaiserdamm");
+  const option = screen.getByRole("option");
+  expect(option.getAttribute("title")).toBe(longName);
+  expect(option.querySelector(".area-search-name")?.textContent).toBe(longName); // clamped by CSS only
+  type("10999");
+  expect(screen.getAllByRole("option")[0].textContent).toContain("Area · Mitte");
+});
+
+it("expands the areas past the cap with Enter on the +N more row", () => {
+  render(<AreaSearch index={wideIndex} areas={wide} selected={null} onSelect={vi.fn()} onClear={vi.fn()} />);
+  type("10999");
+  expect(screen.getAllByRole("option")).toHaveLength(4);
+  fireEvent.keyDown(field(), { key: "ArrowUp" });
+  expect(screen.getAllByRole("option")[3].textContent).toBe("+2 more areas for 10999");
+  fireEvent.keyDown(field(), { key: "Enter" });
+  expect(screen.getAllByRole("option")).toHaveLength(5);
 });
