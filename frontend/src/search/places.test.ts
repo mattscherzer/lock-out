@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addStreets, buildIndex, fold, parseQuery, buildRows, searchPlaces, sortPlaces, bezirkLabel, MAX_AREAS_PER_RESULT } from "./places.ts";
+import { addStreets, buildIndex, fold, parseQuery, buildRows, searchPlaces, sortPlaces, bezirkLabel, MAX_AREAS_PER_RESULT, placeKey } from "./places.ts";
 import type { Gazetteer, Place, StreetsFile } from "./types.ts";
 
 const areas = {
@@ -80,7 +80,7 @@ describe("searchPlaces", () => {
     const { rows } = buildRows(places, 10);
     expect(rows.map((r) => r.type)).toEqual(["label", ...Array(MAX_AREAS_PER_RESULT).fill("area"), "more"]);
     expect(rows.at(-1)).toMatchObject({ n: 5 });
-    expect(buildRows(places, 20, new Set(["postcode|10999|undefined|undefined"])).rows).toHaveLength(9);
+    expect(buildRows(places, 20, new Set([placeKey(places[0])])).rows).toHaveLength(9);
   });
   it("cuts at the row limit, flags overflow, and never ends on a bare label", () => {
     const wide = Object.fromEntries(["W1", "W2"].map((id) => [id, { name: id, bzr_name: "x" }]));
@@ -89,6 +89,19 @@ describe("searchPlaces", () => {
     expect(buildRows(places, 3)).toMatchObject({ overflow: true, rows: [{ type: "label" }, { type: "area" }, { type: "area" }] });
     expect(buildRows(places, 4).rows.at(-1)?.type).toBe("area"); // 4th row would be the second label
     expect(buildRows(places.slice(0, 1), 3).overflow).toBe(false);
+  });
+  it("keeps every area of an expanded place even past the row limit", () => {
+    const ids = Array.from({ length: 10 }, (_, i) => `W${i}`);
+    const wide = Object.fromEntries(ids.map((id) => [id, { name: id, bzr_name: "x" }]));
+    const places = searchPlaces(buildIndex({ plz: { 10999: ids.map((id, i) => [id, 50 - i]) }, stations: [] }, wide), "10999");
+    const { rows, overflow } = buildRows(places, 8, new Set([placeKey(places[0])]));
+    expect(rows.filter((r) => r.type === "area")).toHaveLength(10);
+    expect(overflow).toBe(false);
+  });
+  it("tells same-named stations apart", () => {
+    const idx = buildIndex({ plz: {}, stations: [["Warschauer Str.", "S", "A1", 1, 2], ["Warschauer Str.", "S+U", "A2", 3, 4]] }, { A1: { name: "a", bzr_name: "x" }, A2: { name: "b", bzr_name: "x" } });
+    const [one, two] = searchPlaces(idx, "warschauer");
+    expect(placeKey(one)).not.toBe(placeKey(two));
   });
   it("shows the Bezirk without its number prefix", () => {
     expect(bezirkLabel("01 - Mitte")).toBe("Mitte");

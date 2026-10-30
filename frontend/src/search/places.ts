@@ -71,32 +71,36 @@ export function addStreets(index: Index, file: StreetsFile | null | undefined, a
   index.street = kept(places);
 }
 
-export const placeKey = (p: Place) => `${p.kind}|${p.label}|${p.bezirk}|${p.type}`; // one name can repeat per Bezirk and type
+export const placeKey = (p: Place) => `${p.kind}|${p.label}|${p.bezirk}|${p.type}|${p.ll}`; // one name can repeat per Bezirk and type, and per station
 
 // Rows for the dropdown: a place in several areas gets a label row, then one row per area (largest share first)
 // and, past MAX_AREAS_PER_RESULT, a "+N more" row until its key is in expanded. overflow: results were cut at limit.
 export function buildRows(places: Place[], limit: number, expanded: ReadonlySet<string> = new Set()) {
   const rows: Row[] = [];
-  for (const place of places.slice(0, limit)) {
+  let extra = 0; // rows an expanded place adds beyond its cap: asking for all areas must not cut them
+  for (const place of places.slice(0, limit)) { // each place gives at least one row, so this only trims work; the cut below is the cap
     const multi = place.areas.length > 1;
-    const shown = expanded.has(placeKey(place)) ? place.areas : place.areas.slice(0, MAX_AREAS_PER_RESULT);
+    const open = expanded.has(placeKey(place));
+    const shown = open ? place.areas : place.areas.slice(0, MAX_AREAS_PER_RESULT);
+    if (open) extra += Math.max(0, shown.length - MAX_AREAS_PER_RESULT);
     if (multi) rows.push({ type: "label", place });
     for (const { id, pct } of shown) rows.push({ type: "area", place, id, pct: multi ? pct : null });
     if (shown.length < place.areas.length) rows.push({ type: "more", place, n: place.areas.length - shown.length });
   }
-  const cut = rows.slice(0, limit);
+  const cut = rows.slice(0, limit + extra);
   if (cut.at(-1)?.type === "label") cut.pop(); // a label with nothing under it
-  return { rows: cut, overflow: places.length > limit || rows.length > limit };
+  return { rows: cut, overflow: places.length > limit || rows.length > limit + extra };
 }
 
 const hits = (ns: string[], test: (k: string, n: string) => boolean) => (p: Place) => p.keys.some((k) => ns.some((n) => test(k, n)));
 // Open: prefix matches first, then area, station, street, other named places, postcode; shorter names first.
-const KIND_ORDER = (p: Place) => (p.kind === "area" ? 0 : p.kind === "station" ? 1 : p.kind === "street" ? (!p.type || p.type === "Street" ? 2 : 3) : 4);
+export const isPlainStreet = (p: Place) => p.kind === "street" && (!p.type || p.type === "Street");
+const kindOrder = (p: Place) => (p.kind === "area" ? 0 : p.kind === "station" ? 1 : isPlainStreet(p) ? 2 : p.kind === "street" ? 3 : 4);
 export function sortPlaces(places: Place[], ns: string[]) {
   const prefix = hits(ns, (k, n) => k.startsWith(n));
   return places
     .map((p) => ({ p, pre: Number(!prefix(p)) }))
-    .sort((a, b) => a.pre - b.pre || KIND_ORDER(a.p) - KIND_ORDER(b.p) || a.p.keys[0].length - b.p.keys[0].length)
+    .sort((a, b) => a.pre - b.pre || kindOrder(a.p) - kindOrder(b.p) || a.p.keys[0].length - b.p.keys[0].length)
     .map(({ p }) => p);
 }
 

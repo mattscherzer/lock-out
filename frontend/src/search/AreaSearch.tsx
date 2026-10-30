@@ -1,7 +1,7 @@
 import { ArrowLeft, ChevronDown, Mail, MapPin, Road, Search, TrainFront, VectorPolygon, X } from "lucide-react";
 import { useEffect, useEffectEvent, useId, useRef, useState, useSyncExternalStore } from "react";
 import "./AreaSearch.css";
-import { bezirkLabel, buildRows, MAX_ROWS, parseQuery, placeKey, searchPlaces } from "./places.ts";
+import { bezirkLabel, buildRows, isPlainStreet, MAX_ROWS, parseQuery, placeKey, searchPlaces } from "./places.ts";
 import type { Areas, Index, Kind, Place, Row } from "./types.ts";
 
 // How the area was found; null when the user picked an area by name.
@@ -23,7 +23,7 @@ const glyph = (place: Place) => {
   if (place.kind === "area") return VectorPolygon;
   if (place.kind === "postcode") return Mail;
   if (place.kind === "station") return TrainFront;
-  return !place.type || place.type === "Street" ? Road : MapPin;
+  return isPlainStreet(place) ? Road : MapPin;
 };
 
 const rowKey = (r: Row) => (r.type === "area" ? `${placeKey(r.place)}|${r.id}` : `${r.type}|${placeKey(r.place)}`); // a place spans several areas
@@ -182,7 +182,6 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
           onChange={(e) => {
             setDraft(e.target.value);
             setActive(null);
-            setExpanded(new Set());
             setOpen(true);
           }}
           onFocus={onFocus}
@@ -227,7 +226,7 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
           {all.map((r) => {
             const area = r.type === "area" ? areas[r.id] : undefined;
             const Glyph = glyph(r.place);
-            const name = r.place.bezirk ? `${r.place.label} (${bezirkLabel(r.place.bezirk)})` : r.place.kind === "area" ? areas[r.place.areas[0].id].name : r.place.label;
+            const name = r.place.bezirk ? `${r.place.label} (${bezirkLabel(r.place.bezirk)})` : r.place.label;
             const key = rowKey(r);
             if (r.type === "label")
               return (
@@ -252,7 +251,7 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
             const full = child ? area!.name : name;
             const sub = child || r.place.kind === "area" ? `Area · ${bezirkLabel(area!.bzr_name)}` : `${kindWord(r.place)} · ${area!.name} · ${bezirkLabel(area!.bzr_name)}`;
             return (
-              <li key={key} {...common} title={full} className={child ? "area-search-option area-search-child" : "area-search-option"}>
+              <li key={key} {...common} title={full} aria-label={child ? `${full}, ${sub}, in ${name}, ${r.pct}%` : undefined} className={child ? "area-search-option area-search-child" : "area-search-option"}>
                 {!child && <span className="area-search-glyph"><Glyph aria-hidden size={18} strokeWidth={1.8} /></span>}
                 <span className="area-search-text">
                   <span className="area-search-name"><Bold text={full} part={query.trim()} /></span>
