@@ -168,16 +168,22 @@ it("keeps a long name whole for screen readers and in the tooltip, and the Bezir
   type("Kaiserdamm");
   const option = screen.getByRole("option");
   expect(option.getAttribute("title")).toBe(longName);
-  expect(option.querySelector(".area-search-name")?.textContent).toBe(longName); // clamped by CSS only
+  expect(option.querySelector(".area-search-name")?.textContent).toBe(longName); // the two-line clamp is CSS only (.area-search-name), which jsdom cannot measure
+});
+
+it("shows the Bezirk without its number prefix, and names the place on each area row", () => {
+  render(<AreaSearch index={wideIndex} areas={wide} selected={null} onSelect={vi.fn()} onClear={vi.fn()} />);
   type("10999");
-  expect(screen.getAllByRole("option")[0].textContent).toContain("Area · Mitte");
+  const first = screen.getAllByRole("option")[0];
+  expect(first.textContent).toContain("Area · Mitte");
+  expect(first.getAttribute("aria-label")).toBe("w1, Area · Mitte, in 10999, 50%");
 });
 
 it("expands the areas past the cap with Enter on the +N more row", () => {
   render(<AreaSearch index={wideIndex} areas={wide} selected={null} onSelect={vi.fn()} onClear={vi.fn()} />);
   type("10999");
   expect(screen.getAllByRole("option")).toHaveLength(4);
-  fireEvent.keyDown(field(), { key: "ArrowUp" });
+  for (let i = 0; i < 3; i++) fireEvent.keyDown(field(), { key: "ArrowDown" });
   expect(screen.getAllByRole("option")[3].textContent).toBe("+2 more areas for 10999");
   fireEvent.keyDown(field(), { key: "Enter" });
   expect(screen.getAllByRole("option")).toHaveLength(5);
