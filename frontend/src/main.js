@@ -1,7 +1,7 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./styles/index.css";
-import { buildIndex } from "./search/places.js";
+import { addStreets, buildIndex } from "./search/places.js";
 import { createSearchBox } from "./search/searchBox.js";
 
 const getJson = (name) =>
@@ -11,13 +11,13 @@ const getJson = (name) =>
   });
 
 const BRAND = "#2563EB";
-const EMPTY_GAZETTEER = { plz: {}, streets: {}, stations: [] };
+const EMPTY_GAZETTEER = { plz: {}, stations: [] };
 
 // Search is optional: a missing or malformed gazetteer (null here) leaves area-name search, not a broken map.
 const loadGazetteer = () =>
   getJson("gazetteer.json")
     .then((g) => {
-      if (!g.plz || !g.streets || !g.stations) throw new Error("gazetteer.json: unexpected shape");
+      if (!g.plz || !g.stations) throw new Error("gazetteer.json: unexpected shape");
       return g;
     })
     .catch((err) => {
@@ -64,15 +64,29 @@ try {
       : undefined;
     map.fitBounds(polygons[id].getBounds());
   };
+  const areaCount = layer.getLayers().length;
+  const notes = new Set(gazetteer ? [] : ["station and postcode search unavailable"]);
+  const showStatus = () => (status.textContent = [`${areaCount} areas`, ...notes].join(" · "));
+  const index = buildIndex(gazetteer ?? EMPTY_GAZETTEER, fixture.areas);
   createSearchBox({
     input: document.getElementById("search-input"),
     list: document.getElementById("search-list"),
-    index: buildIndex(gazetteer ?? EMPTY_GAZETTEER, fixture.areas),
+    index,
     areas: fixture.areas,
     onSelect: showPlace,
+    // streets are the bulk of the lookup: fetched when the user first focuses the search, not before the map
+    loadStreets: () =>
+      getJson("gazetteer_streets.json")
+        .then((file) => addStreets(index, file, fixture.areas))
+        .then(() => notes.delete("street search unavailable"))
+        .catch((err) => {
+          console.error("Street search unavailable:", err);
+          notes.add("street search unavailable");
+          throw err; // the search box retries on the next focus
+        })
+        .finally(showStatus),
   });
-  const areaCount = layer.getLayers().length;
-  status.textContent = `${areaCount} areas${gazetteer ? "" : " · street and station search unavailable"}`;
+  showStatus();
   status.dataset.count = areaCount; // read by manual/automated checks
 } catch (err) {
   status.textContent = "Could not load map data";

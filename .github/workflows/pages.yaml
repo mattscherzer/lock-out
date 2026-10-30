@@ -3,7 +3,7 @@ name: Deploy demo to GitHub Pages
 on:
   push:
     branches: [main]
-    paths: [demo/**, frontend/public/gazetteer.json]
+    paths: [demo/**, frontend/public/gazetteer.json, frontend/public/gazetteer_streets.json]
   workflow_dispatch:
 
 permissions:
@@ -24,8 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
-      # the demo and the frontend share one lookup file; the demo fetches it next to its index.html
-      - run: cp frontend/public/gazetteer.json demo/gazetteer.json
+      # the demo and the frontend share the lookup files; the demo fetches them next to its index.html
+      - run: cp frontend/public/gazetteer.json frontend/public/gazetteer_streets.json demo/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: demo

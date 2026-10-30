@@ -1,13 +1,20 @@
-"""Build the place-search lookup (postcode, street, station -> planning areas) for the demo.
+"""Build the place-search lookup (postcode, street, station -> planning areas) for the frontend and the demo.
 
 Inputs, all downloaded into one directory (default data/raw/gazetteer/, git-ignored):
   plz.json     WFS https://gdi.berlin.de/services/wfs/postleitzahlen  typeNames=postleitzahlen:postleitzahlen
   strab.json   WFS https://gdi.berlin.de/services/wfs/rbs_strab       typeNames=rbs_strab:rbs_strab
                (both outputFormat=application/json&srsName=EPSG:4326; CC-BY-3.0, Amt fuer Statistik Berlin-Brandenburg)
   stops.txt    stops.txt from the VBB GTFS zip https://www.vbb.de/gtfs
-Output: frontend/public/gazetteer.json (shared with the demo, see README)
-  plz / streets: key -> [[lor_id, share_pct], ...] sorted by share, slivers dropped
-  stations:      [[display name, kind, lor_id, lat, lon], ...]
+Output, two files in frontend/public/ (shared with the demo, see README):
+  gazetteer.json          loaded with the page
+    plz:       postcode -> [[lor_id, share_pct], ...] sorted by share, slivers dropped
+    stations:  [[display name, kind, lor_id, lat, lon], ...]
+  gazetteer_streets.json  fetched on the first search (the bulk of the bytes)
+    ids:       [lor_id, ...] every area id used below, sorted; areas refer to it by index
+    streets:   {bezirk: {type: {name: areas}}}
+               type is the display type: Street, Square, Water, Motorway, Forest or Other.
+               areas is [[ids_index, share_pct], ...]: share of length, largest first, slivers dropped.
+               One name in several Bezirke, or under several types, is one entry per Bezirk and type.
 """
 import argparse
 import json
@@ -20,6 +27,35 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 CRS = "EPSG:25833"
 MIN_SHARE = 5  # percent; below this an overlap is a boundary sliver, not an area the place belongs to
+
+# strabtypname -> display type; every entry stays searchable, unknown types are "Other"
+TYPES = {
+    "Strasse": "Street",
+    "Verwaltungsweg": "Street",
+    "fiktive Strasse Kreuzung1=Kreuzung2": "Square",
+    "Gewässerabschnitt": "Water",
+    "Autobahnabschnitt": "Motorway",
+    "Forstamt/Jagenabschnitt": "Forest",
+}
+
+
+def with_keys(st):
+    """Key every named entry by name, display type and Bezirk."""
+    st = st.assign(name=st.strname.str.strip())
+    st = st[st.name.ne("") & st.name.notna()].copy()
+    st["key"] = st.name + "|" + st.strabtypname.map(TYPES).fillna("Other") + "|" + st.bezname
+    return st
+
+
+def nest(areas):
+    """{"name|type|bezirk": [[plr_id, pct], ...]} -> (ids, {bezirk: {type: {name: [[ids_index, pct], ...]}}})."""
+    ids = sorted({i for v in areas.values() for i, _ in v})
+    at = {i: n for n, i in enumerate(ids)}
+    tree = {}
+    for key, v in sorted(areas.items(), key=lambda kv: tuple(reversed(kv[0].split("|")))):
+        name, kind, bezirk = key.split("|")
+        tree.setdefault(bezirk, {}).setdefault(kind, {})[name] = [[at[i], pct] for i, pct in v]
+    return ids, tree
 
 
 def shares(layer, lor, key):
@@ -53,22 +89,25 @@ def main():
     lor = gpd.read_file(ROOT / "data/raw/lor_planungsraeume_2021.geojson").to_crs(CRS)
     plz = gpd.read_file(a.src / "plz.json").to_crs(CRS)
     st = gpd.read_file(a.src / "strab.json").to_crs(CRS)
-    st["key"] = st.strname.str.strip()
-    st = st[st.key.ne("") & st.key.notna()]
+    st = with_keys(st)
     stops = pd.read_csv(a.src / "stops.txt", dtype={"stop_name": str})
 
-    res = {
-        "plz": shares(plz, lor, "plz"),
-        "streets": shares(st, lor, "key"),
-        "stations": [list(x) for x in stations(stops, lor)],
-    }
+    ids, tree = nest(shares(st, lor, "key"))
+    eager = {"plz": shares(plz, lor, "plz"), "stations": [list(x) for x in stations(stops, lor)]}
+    lazy = {"ids": ids, "streets": tree}
     # self-check: a few places everybody knows, and no empty answers
-    assert len(res["plz"]) > 150 and len(res["streets"]) > 8000 and len(res["stations"]) > 250
-    assert all(res["plz"].values()) and all(res["streets"].values())
-    assert any(x[0] == "Ostbahnhof" for x in res["stations"])
-    assert len(res["streets"]["Frankfurter Allee"]) > 2  # long street spans several areas
-    a.out.write_text(json.dumps(res, ensure_ascii=False, separators=(",", ":")))
-    print({k: len(v) for k, v in res.items()}, f"{a.out.stat().st_size / 1e3:.0f} kB")
+    named = {(b, t, n): v for b, ts in tree.items() for t, ns in ts.items() for n, v in ns.items()}
+    assert len(eager["plz"]) > 150 and len(named) > 8000 and len(eager["stations"]) > 250
+    assert all(eager["plz"].values()) and all(named.values())
+    assert any(x[0] == "Ostbahnhof" for x in eager["stations"])
+    assert len(tree["Mitte"]["Street"]["Invalidenstraße"]) > 1  # spans several areas
+    assert sum("Hauptstraße" in ts.get("Street", {}) for ts in tree.values()) > 1  # one result per Bezirk
+    assert {t for ts in tree.values() for t in ts} >= {"Street", "Square", "Water", "Motorway", "Forest"}
+    assert "Spandauer See" in tree["Spandau"]["Water"] and "Großer Stern" in tree["Charlottenburg-Wilmersdorf"]["Square"]
+    assert any("A 100 BAB Stadtring" in ts.get("Motorway", {}) for ts in tree.values())
+    for path, data in ((a.out, eager), (a.out.with_name("gazetteer_streets.json"), lazy)):
+        path.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")))
+        print(path.name, {k: len(v) for k, v in data.items()}, f"{path.stat().st_size / 1e3:.0f} kB")
 
 
 if __name__ == "__main__":

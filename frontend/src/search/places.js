@@ -27,25 +27,42 @@ export function parseQuery(q) {
   return m ? { text: m[1], houseNumber: true } : { text: q, houseNumber: false };
 }
 
+const placeIn = (areas, label, kind, list, extra = {}) => ({
+  label,
+  kind,
+  keys: foldBoth(label),
+  areas: list.filter(([id]) => id in areas).map(([id, pct]) => ({ id, pct })),
+  ...extra,
+});
+const kept = (places) => places.filter((p) => p.areas.length > 0);
+
 // areas: id -> {name, bzr_name}. Gazetteer ids unknown to the map are dropped.
+// Streets come separately (addStreets) because their file is fetched on the first search.
 export function buildIndex(gazetteer, areas) {
-  const place = (label, kind, list, extra = {}) => ({
-    label,
-    kind,
-    keys: foldBoth(label),
-    areas: list.filter(([id]) => id in areas).map(([id, pct]) => ({ id, pct })),
-    ...extra,
-  });
-  const kept = (places) => places.filter((p) => p.areas.length > 0);
+  const place = (...args) => placeIn(areas, ...args);
   const byName = Object.entries(areas)
     .map(([id, a]) => place(a.name, "area", [[id, 100]], { keys: foldBoth(`${a.name} ${a.bzr_name}`), detail: a.bzr_name }))
     .sort((a, b) => a.label.localeCompare(b.label, "de"));
   return {
     postcode: kept(Object.entries(gazetteer.plz).map(([plz, list]) => place(plz, "postcode", list))),
     station: kept(gazetteer.stations.map(([name, kind, id, lat, lon]) => place(name, "station", [[id, 100]], { sub: kind, ll: [lat, lon] }))),
-    street: kept(Object.entries(gazetteer.streets).map(([name, list]) => place(name, "street", list))),
+    street: [],
     area: byName,
   };
+}
+
+// file: the fetched gazetteer_streets.json, {ids, streets: {bezirk: {type: {name: areas}}}}.
+// An entry's areas are [[index into ids, pct], ...]. Fills index.street in place.
+export function addStreets(index, file, areas) {
+  const { ids, streets } = file ?? {};
+  if (!Array.isArray(ids) || !streets) throw new Error("gazetteer_streets.json: unexpected shape");
+  const places = [];
+  for (const [bezirk, types] of Object.entries(streets))
+    for (const [type, names] of Object.entries(types))
+      for (const [name, coded] of Object.entries(names)) {
+        places.push(placeIn(areas, name, "street", coded.map(([i, pct]) => [ids[i], pct]), { type, bezirk }));
+      }
+  index.street = kept(places);
 }
 
 // One row per area of a place, so the dropdown itself is the pick-an-area step.
