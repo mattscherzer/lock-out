@@ -15,7 +15,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import config
 from audit_checks import check_csv, polygon_ids
 from fetch_police_csv import find_raw_csv
-from models.backtest import FOLDS, HISTORY_MONTHS, baselines, counts, days, score
+from models.backtest import FOLDS, HISTORY_MONTHS, baselines, counts, days, fold_periods, score
+from models.selector_checks import BIKE_VALUE_SPLIT_EUR, SELECTORS, flag, holdout, levels
 from pipeline.clean import clean
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -23,7 +24,6 @@ RESULTS = ROOT / "docs" / "eb-model-results.md"
 LOOKUP = ROOT / "data" / "processed" / "lookup_v0.json"
 TIERS = [("LOW", 0.60), ("MEDIUM", 0.85), ("HIGH", 1.00)]  # upper percentile of each tier: 60 / 25 / 15 of areas
 LIMITED_DATA_BELOW = 5  # street thefts in the window (M6)
-BIKE_VALUE_SPLIT_EUR = 1000  # bike value band (D-07)
 TOP_QUARTILE = 0.75
 TARGET_HIGH_IN_TOP_QUARTILE = 0.70
 TARGET_SPEARMAN = 0.6  # checked on the last fold only, as the issue states
@@ -78,31 +78,43 @@ def check_tier_shares(tier):
         lower = top
 
 
+def top_quartile(actual):
+    """Areas whose actual count is in the top quartile; a count of 0 never counts as top."""
+    return (actual >= actual.quantile(TOP_QUARTILE)) & (actual > 0)
+
+
 def share_in_top_quartile(actual, high):
-    """Share of High-tier areas whose actual count is in the top quartile; a count of 0 never counts as top."""
-    top = (actual >= actual.quantile(TOP_QUARTILE)) & (actual > 0)
-    return float(top[high].mean())
+    """Share of High-tier areas whose actual count is in the top quartile."""
+    return float(top_quartile(actual)[high].mean())
 
 
 def evaluate(df, areas):
+    """Per fold: the scores against the targets, plus the tiers, actual counts and selector checks behind them."""
     rows = []
-    for start, end in FOLDS:
-        history_start = pd.Timestamp(start) - pd.DateOffset(months=HISTORY_MONTHS)
-        history_end = pd.Timestamp(start) - pd.Timedelta(days=1)
+    for history_start, history_end, start, end in fold_periods():
         history = counts(df, areas, history_start, history_end)
         actual = counts(df, areas, start, end)
         scale = days(start, end) / days(history_start, history_end)
         base = baselines(history, days(history_start, history_end), days(start, end))
         rate, _ = fit(history)
-        dev, rho = score(actual, rate * scale)
+        expected = rate * scale
+        tier = tiers(rate)
+        dev, rho = score(actual, expected)
         dev_city, _ = score(actual, base["Citywide share"])
         dev_raw, _ = score(actual, base["Raw area history"])
         rows.append({
-            "fold": f"{start} to {end}", "deviance": dev, "citywide": dev_city, "raw": dev_raw, "spearman": rho,
-            "high_in_top_quartile": share_in_top_quartile(actual, tiers(rate) == "HIGH"),
+            "fold": f"{start:%Y-%m-%d} to {end:%Y-%m-%d}", "deviance": dev, "citywide": dev_city, "raw": dev_raw, "spearman": rho,
+            "high_in_top_quartile": share_in_top_quartile(actual, tier == "HIGH"),
             "raw_high_in_top_quartile": share_in_top_quartile(actual, tiers(base["Raw area history"]) == "HIGH"),
+            "tier": tier, "actual": actual,
+            "selectors": {s: holdout(df, areas, expected, (history_start, history_end), (start, end), s) for s in SELECTORS},
         })
     return rows
+
+
+def selector_flags(rows):
+    """Per selector: "area pattern" or "citywide pattern", with the reason, from the checks on both folds."""
+    return {s: flag([r["selectors"][s] for r in rows]) for s in SELECTORS}
 
 
 def targets(rows):
@@ -119,16 +131,16 @@ def targets(rows):
 
 
 def citywide_multipliers(df):
-    """Shares of thefts per time band, day group and bike value: the same for every area (D-18)."""
-    band = df[list(config.DAYPARTS)].sum() / len(df)
-    day = df["TATZEIT_ANFANG_DATUM"].dt.weekday.apply(config.daytype_of).value_counts(normalize=True)
-    high_value = pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce") >= BIKE_VALUE_SPLIT_EUR
-    value = high_value.map({True: f"eur_{BIKE_VALUE_SPLIT_EUR}_or_more", False: f"under_eur_{BIKE_VALUE_SPLIT_EUR}"})
-    r = lambda s: {k: round(float(v), 4) for k, v in s.items()}
-    return {"time_band": r(band), "day_group": r(day), "bike_value": r(value.value_counts(normalize=True))}
+    """Share of thefts in each level of each selector: the same for every area (D-18)."""
+    out = {}
+    for s in SELECTORS:
+        n = levels(df, s).sum()
+        out[s] = {level: round(float(v / n.sum()), 4) for level, v in n.items()}
+    return out
 
 
-def generate(df, areas, reports_up_to, cutoff, source):
+def generate(df, areas, reports_up_to, cutoff, source, selectors):
+    """The generator v0 output. selectors: the per-selector flags from selector_flags()."""
     start = cutoff - pd.DateOffset(months=HISTORY_MONTHS) + pd.Timedelta(days=1)
     window = df[df["TATZEIT_ENDE_DATUM"].between(start, cutoff)]
     y = counts(window, areas, start, cutoff)
@@ -147,6 +159,7 @@ def generate(df, areas, reports_up_to, cutoff, source):
             "shrinkage_strength": {k: (None if np.isinf(v) else round(v, 3)) for k, v in a.items()},
             "tiers": "relative percentile bands of areas: LOW 60%, MEDIUM 25%, HIGH 15%",
             "citywide_multipliers": citywide_multipliers(window),
+            "selectors": {s: {**f, "area_values": False} for s, f in selectors.items()},  # v0 carries no area values
             "attribution": {"police": "Datenquelle: Polizei Berlin (CC-BY 4.0)", "osm": "© OpenStreetMap contributors (ODbL)"},
         },
         "areas": {
@@ -177,7 +190,7 @@ Generated by `uv run python src/models/eb.py data/raw/{source}` from `{source}` 
 
 - Gamma-Poisson Empirical Bayes: each area's count is pulled toward its Bezirksregion, and each Bezirksregion toward the city. The prior strengths are estimated from the data (method of moments). An area with few thefts is pulled more strongly.
 - Tiers are relative percentile bands of areas: Low 60%, Medium 25%, High 15%. Areas with the same rate get the same tier, the higher one.
-- v0 scope: time band, day group and bike value (one split at EUR {BIKE_VALUE_SPLIT_EUR}) are stored as citywide shares in the metadata (D-18). No area carries multiplied values, and the shares are not yet validated; validating every selector on hold-out is issue #39. As citywide multipliers they never change an area's tier.
+- v0 scope: time band, day group and bike value (one split at EUR {BIKE_VALUE_SPLIT_EUR}) are stored as citywide shares in the metadata (D-18). No area carries multiplied values, and as citywide multipliers they never change an area's tier. Each selector carries a flag from the hold-out validation (`selectors` in the metadata); the checks are in `docs/validation-report.md`.
 
 ## Targets (G1)
 
@@ -212,9 +225,12 @@ if __name__ == "__main__":
         sys.exit(f"The file is only complete up to {cutoff:%d %b %Y}, before the last fold ends; use a newer file.")
     rows = evaluate(cleaned, areas)
     checks = targets(rows)
-    lookup = generate(cleaned, areas, reports_up_to, cutoff, path.name)
+    flags = selector_flags(rows)
+    lookup = generate(cleaned, areas, reports_up_to, cutoff, path.name, flags)
     LOOKUP.write_text(json.dumps(lookup, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     RESULTS.write_text(markdown(rows, checks, lookup, reports_up_to, cutoff, path.name), encoding="utf-8")
     for f, t, v, ok in checks:
         print(f"{'pass' if ok else 'MISS'}  {f}  {t}: {v}")
+    for s, result in flags.items():
+        print(f"{s}: {result['pattern']} ({result['reason']})")
     print(f"Wrote {LOOKUP} and {RESULTS}")
