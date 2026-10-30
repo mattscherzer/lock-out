@@ -90,6 +90,15 @@ describe("searchPlaces", () => {
     expect(buildRows(places, 4).rows.at(-1)?.type).toBe("area"); // 4th row would be the second label
     expect(buildRows(places.slice(0, 1), 3).overflow).toBe(false);
   });
+  it("trims a place that hits the row limit but keeps its +N more row", () => {
+    const ids = ["W1", "W2", "W3", "W4", "W5"];
+    const wide = Object.fromEntries(ids.map((id) => [id, { name: id, bzr_name: "x" }]));
+    const plz = { 10001: ids.map((id, i) => [id, 50 - i] as [string, number]), 10002: ids.slice(0, 4).map((id, i) => [id, 50 - i] as [string, number]) };
+    const { rows, overflow } = buildRows(searchPlaces(buildIndex({ plz, stations: [] }, wide), "1000"), 8);
+    expect(rows.map((r) => r.type)).toEqual(["label", "area", "area", "area", "more", "label", "area", "more"]);
+    expect(rows.at(-1)).toMatchObject({ n: 3 });
+    expect(overflow).toBe(false);
+  });
   it("keeps every area of an expanded place even past the row limit", () => {
     const ids = Array.from({ length: 10 }, (_, i) => `W${i}`);
     const wide = Object.fromEntries(ids.map((id) => [id, { name: id, bzr_name: "x" }]));

@@ -77,19 +77,22 @@ export const placeKey = (p: Place) => `${p.kind}|${p.label}|${p.bezirk}|${p.type
 // and, past MAX_AREAS_PER_RESULT, a "+N more" row until its key is in expanded. overflow: results were cut at limit.
 export function buildRows(places: Place[], limit: number, expanded: ReadonlySet<string> = new Set()) {
   const rows: Row[] = [];
-  let extra = 0; // rows an expanded place adds beyond its cap: asking for all areas must not cut them
-  for (const place of places.slice(0, limit)) { // each place gives at least one row, so this only trims work; the cut below is the cap
+  let cap = limit; // an expanded place adds the rows past its cap: asking for all areas must not cut them
+  let overflow = false;
+  for (const place of places) {
     const multi = place.areas.length > 1;
     const open = expanded.has(placeKey(place));
-    const shown = open ? place.areas : place.areas.slice(0, MAX_AREAS_PER_RESULT);
-    if (open) extra += Math.max(0, shown.length - MAX_AREAS_PER_RESULT);
+    let shown = open ? place.areas : place.areas.slice(0, MAX_AREAS_PER_RESULT);
+    if (open) cap += Math.max(0, shown.length - MAX_AREAS_PER_RESULT);
+    const room = cap - rows.length - (multi ? 1 : 0); // rows left for this place's areas and its "+N more"
+    if (room < 1 || (multi && room < 2)) { overflow = true; break; }
+    // a place that does not fit loses areas, never its "+N more" row, so the rest stays reachable
+    if (shown.length + (shown.length < place.areas.length ? 1 : 0) > room) shown = shown.slice(0, Math.max(room - 1, 1));
     if (multi) rows.push({ type: "label", place });
     for (const { id, pct } of shown) rows.push({ type: "area", place, id, pct: multi ? pct : null });
     if (shown.length < place.areas.length) rows.push({ type: "more", place, n: place.areas.length - shown.length });
   }
-  const cut = rows.slice(0, limit + extra);
-  if (cut.at(-1)?.type === "label") cut.pop(); // a label with nothing under it
-  return { rows: cut, overflow: places.length > limit || rows.length > limit + extra };
+  return { rows, overflow };
 }
 
 const hits = (ns: string[], test: (k: string, n: string) => boolean) => (p: Place) => p.keys.some((k) => ns.some((n) => test(k, n)));
