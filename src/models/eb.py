@@ -28,6 +28,7 @@ TOP_QUARTILE = 0.75
 TARGET_HIGH_IN_TOP_QUARTILE = 0.70
 TARGET_SPEARMAN = 0.6  # checked on the last fold only, as the issue states
 TARGET_WITHIN_RAW = 1.01  # deviance within 1% of the raw area history
+TIER_SHARE_TOLERANCE = 0.05  # ties can move a tier's share a little; a bigger gap means the rates are degenerate
 
 
 def strength(y, exposure, prior_mean):
@@ -65,6 +66,16 @@ def tiers(rate):
     """Relative percentile bands, cut at 60% and 85%. Areas with the same rate get the same, higher tier."""
     pct = rate.rank(method="max") / len(rate)
     return pct.apply(lambda p: next(name for name, top in TIERS if p <= top))
+
+
+def check_tier_shares(tier):
+    """Each tier must hold its share of areas (60 / 25 / 15), give or take the tolerance."""
+    shares = tier.value_counts(normalize=True)
+    lower = 0.0
+    for name, top in TIERS:
+        target, share = top - lower, float(shares.get(name, 0.0))
+        assert abs(share - target) <= TIER_SHARE_TOLERANCE, f"{name} holds {share:.1%} of areas, target {target:.0%}"
+        lower = top
 
 
 def share_in_top_quartile(actual, high):
@@ -123,6 +134,7 @@ def generate(df, areas, reports_up_to, cutoff, source):
     y = counts(window, areas, start, cutoff)
     rate, a = fit(y)
     tier = tiers(rate)
+    check_tier_shares(tier)
     street_record = set(df["LOR"])  # no_record: no street theft at all in the cleaned data
     out = {
         "metadata": {

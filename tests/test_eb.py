@@ -3,9 +3,10 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from audit_checks import polygon_ids
-from models.eb import LIMITED_DATA_BELOW, fit, generate, posterior_rate, share_in_top_quartile, strength, tiers
+from models.eb import LIMITED_DATA_BELOW, check_tier_shares, fit, generate, posterior_rate, share_in_top_quartile, strength, tiers
 from pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
@@ -49,16 +50,28 @@ def test_equal_rates_get_the_same_higher_tier():
     assert t.tolist() == ["LOW"] * 5 + ["MEDIUM"] * 3 + ["HIGH"] * 2
 
 
+def test_tier_check_rejects_a_degenerate_split():
+    with pytest.raises(AssertionError, match="LOW holds 0.0%"):
+        check_tier_shares(tiers(pd.Series([1.0] * 10)))  # all 10 HIGH
+    with pytest.raises(AssertionError, match="LOW holds 0.0%"):
+        check_tier_shares(tiers(pd.Series([0.0] * 8 + [1.0] * 2)))  # 8 MEDIUM, 2 HIGH
+
+
 def test_top_quartile_never_counts_zero_thefts():
     actual = pd.Series([0, 0, 0, 0])
     assert share_in_top_quartile(actual, pd.Series([True, False, False, False])) == 0
 
 
-def test_generator_emits_all_542_areas_with_flags_from_cleaned_data():
+def cleaned_fixture():
     raw = pd.read_csv(FIXTURE, encoding="iso-8859-1", dtype={"LOR": str})
     raw = raw[raw["LOR"] != "99999999"]
     cleaned = clean(raw)
     cleaned["LOR"] = cleaned["LOR"].str.zfill(8)
+    return raw, cleaned
+
+
+def test_generator_emits_all_542_areas_with_flags_from_cleaned_data():
+    raw, cleaned = cleaned_fixture()
     reports_up_to = cleaned["ANGELEGT_AM"].max()
     out = generate(cleaned, sorted(polygon_ids()), reports_up_to, reports_up_to - pd.Timedelta(days=14), "sample.csv")
     areas = out["areas"]
@@ -71,3 +84,10 @@ def test_generator_emits_all_542_areas_with_flags_from_cleaned_data():
     assert cellar_only, "the fixture should contain an area with only cellar rows"
     assert all(areas[lor]["no_record"] for lor in cellar_only)
     assert all(a["limited_data"] == (a["reports_12m"] < LIMITED_DATA_BELOW) for a in areas.values())
+
+
+def test_generator_raises_on_degenerate_rates():
+    # A cutoff before the data leaves no theft in the window, so every area gets the same rate and lands in HIGH.
+    _, cleaned = cleaned_fixture()
+    with pytest.raises(AssertionError, match="LOW holds 0.0%"):
+        generate(cleaned, sorted(polygon_ids()), cleaned["ANGELEGT_AM"].max(), pd.Timestamp("2000-01-01"), "sample.csv")
