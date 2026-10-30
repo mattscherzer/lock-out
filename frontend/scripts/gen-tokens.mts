@@ -1,19 +1,29 @@
 // Generates src/styles/tokens.css from docs/design-system/tokens.json (the single source of truth).
-// `node scripts/gen-tokens.mjs` writes it, `--check` exits 1 if the committed file is stale.
+// `node scripts/gen-tokens.mts` writes it, `--check` exits 1 if the committed file is stale.
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-const kebab = (s) => s.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+const kebab = (s: string) => s.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 
-export function generate(t) {
-  const light = ["  color-scheme: light;"];
-  const dark = ["  color-scheme: dark;"];
-  const theme = [];
-  const types = [];
+type Value = string | { light: string; dark?: string };
+type Token = { name: string; value: Value };
+type Group = { tokens: Token[] };
+type TypeStyle = Record<string, string>;
+export type Tokens = {
+  color: { tokens: { name: string; value: { light: string; dark?: string } }[] };
+  type: { families: Record<string, string>; groups: { name: string; family: string; styles: TypeStyle[] }[] };
+  [group: string]: unknown;
+};
+
+export function generate(t: Tokens) {
+  const light: string[] = ["  color-scheme: light;"];
+  const dark: string[] = ["  color-scheme: dark;"];
+  const theme: string[] = [];
+  const types: string[] = [];
 
   // value is a string, or {light, dark}; dark is only emitted when it differs.
-  const add = (name, value) => {
-    const v = typeof value === "object" && value !== null ? value : { light: value };
+  const add = (name: string, value: Value) => {
+    const v: { light: string; dark?: string } = typeof value === "object" ? value : { light: value };
     light.push(`  --${name}: ${v.light};`);
     if (v.dark && v.dark !== v.light) dark.push(`  --${name}: ${v.dark};`);
   };
@@ -23,7 +33,7 @@ export function generate(t) {
     add(k.name, k.value);
     theme.push(`  --color-${k.name}: var(--${k.name});`);
   }
-  for (const [g, { tokens }] of Object.entries(t)) {
+  for (const [g, { tokens }] of Object.entries(t) as [string, Group][]) {
     if (g === "color" || !Array.isArray(tokens)) continue;
     for (const k of tokens) {
       add(k.name, k.value);
@@ -56,7 +66,7 @@ export function generate(t) {
     }
   }
 
-  return `/* LockOut Plum: generated from docs/design-system/tokens.json by scripts/gen-tokens.mjs. Do not edit. */
+  return `/* LockOut Plum: generated from docs/design-system/tokens.json by scripts/gen-tokens.mts. Do not edit. */
 :root {
 ${light.join("\n")}
 }
@@ -93,7 +103,7 @@ if (realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
     try {
       current = readFileSync(out, "utf8").replace(/\r\n/g, "\n");
     } catch (e) {
-      if (e.code !== "ENOENT") throw e;
+      if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
     }
     if (current !== css) {
       console.error("tokens.css is out of date: run `npm run tokens`");

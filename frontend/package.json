@@ -3,21 +3,33 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "^20.19.0 || >=22.12.0"
+    "node": ">=22.12.0"
   },
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/gen-tokens.mjs --check && vite build",
+    "typecheck": "tsc",
+    "build": "npm run typecheck && node --experimental-strip-types scripts/gen-tokens.mts --check && vite build",
     "preview": "vite preview",
-    "tokens": "node scripts/gen-tokens.mjs",
-    "test": "node --test scripts/gen-tokens.test.mjs && vitest run"
+    "tokens": "node --experimental-strip-types scripts/gen-tokens.mts",
+    "test": "node --experimental-strip-types --test scripts/gen-tokens.test.mts && vitest run"
   },
   "dependencies": {
-    "leaflet": "^1.9.4"
+    "leaflet": "^1.9.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/leaflet": "^1.9.22",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^29.1.1",
     "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
     "vite": "^8.3.5",
     "vitest": "^5.0.5"
   }

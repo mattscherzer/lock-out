@@ -1,13 +1,15 @@
 // Place search over the static gazetteer: pure functions, no DOM, no network.
 // A place (postcode, street, station or area name) maps to one or more areas, largest share first.
 
-const PER_PLACE = 6; // areas listed per place; the rest become "+N more areas"
-const LIMITS = { postcode: 3, station: 4, street: 3, area: 8 };
+import type { Areas, Gazetteer, Index, Kind, Place, Row, Share, StreetsFile } from "./types.ts";
 
-const UMLAUTS = { ä: "ae", ö: "oe", ü: "ue" };
+const PER_PLACE = 6; // areas listed per place; the rest become "+N more areas"
+const LIMITS: Record<Kind, number> = { postcode: 3, station: 4, street: 3, area: 8 };
+
+const UMLAUTS: Record<string, string> = { ä: "ae", ö: "oe", ü: "ue" };
 
 // Plain fold drops diacritics ("müller" -> "muller"); expanded writes umlauts out ("mueller").
-export const fold = (s, expandUmlauts = false) =>
+export const fold = (s: string, expandUmlauts = false) =>
   (expandUmlauts ? s.toLowerCase().replace(/[äöü]/g, (c) => UMLAUTS[c]) : s.toLowerCase())
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
@@ -19,27 +21,27 @@ export const fold = (s, expandUmlauts = false) =>
 
 // English speakers type "muller", Germans "mueller": both must find "Müller". A place keeps both forms
 // and a query matches against either, so "neue" still doesn't match "Neukölln".
-const foldBoth = (s) => [...new Set([fold(s), fold(s, true)])];
+const foldBoth = (s: string) => [...new Set([fold(s), fold(s, true)])];
 
 // "Invalidenstraße 43": there is no house-number data, so search the street part and say so.
-export function parseQuery(q) {
+export function parseQuery(q: string) {
   const m = q.trim().match(/^(.*\D)\s+\d+(?:\s*[-/]\s*\d+)?\s*[a-z]?$/i);
   return m ? { text: m[1], houseNumber: true } : { text: q, houseNumber: false };
 }
 
-const placeIn = (areas, label, kind, list, extra = {}) => ({
+const placeIn = (areas: Areas, label: string, kind: Kind, list: Share[], extra: Partial<Place> = {}): Place => ({
   label,
   kind,
   keys: foldBoth(label),
   areas: list.filter(([id]) => id in areas).map(([id, pct]) => ({ id, pct })),
   ...extra,
 });
-const kept = (places) => places.filter((p) => p.areas.length > 0);
+const kept = (places: Place[]) => places.filter((p) => p.areas.length > 0);
 
 // areas: id -> {name, bzr_name}. Gazetteer ids unknown to the map are dropped.
 // Streets come separately (addStreets) because their file is fetched on the first search.
-export function buildIndex(gazetteer, areas) {
-  const place = (...args) => placeIn(areas, ...args);
+export function buildIndex(gazetteer: Gazetteer, areas: Areas): Index {
+  const place = (label: string, kind: Kind, list: Share[], extra: Partial<Place> = {}) => placeIn(areas, label, kind, list, extra);
   const byName = Object.entries(areas)
     .map(([id, a]) => place(a.name, "area", [[id, 100]], { keys: foldBoth(`${a.name} ${a.bzr_name}`), detail: a.bzr_name }))
     .sort((a, b) => a.label.localeCompare(b.label, "de"));
@@ -51,23 +53,23 @@ export function buildIndex(gazetteer, areas) {
   };
 }
 
-// file: the fetched gazetteer_streets.json, {ids, streets: {bezirk: {type: {name: areas}}}}.
-// An entry's areas are [[index into ids, pct], ...]. Fills index.street in place.
-export function addStreets(index, file, areas) {
+// file: the fetched gazetteer_streets.json. An entry's areas are [[index into ids, pct], ...].
+// Fills index.street in place.
+export function addStreets(index: Index, file: StreetsFile | null | undefined, areas: Areas) {
   const { ids, streets } = file ?? {};
   if (!Array.isArray(ids) || !streets) throw new Error("gazetteer_streets.json: unexpected shape");
-  const places = [];
+  const places: Place[] = [];
   for (const [bezirk, types] of Object.entries(streets))
     for (const [type, names] of Object.entries(types))
       for (const [name, coded] of Object.entries(names)) {
-        places.push(placeIn(areas, name, "street", coded.map(([i, pct]) => [ids[i], pct]), { type, bezirk }));
+        places.push(placeIn(areas, name, "street", coded.map(([i, pct]): Share => [ids[i], pct]), { type, bezirk }));
       }
   index.street = kept(places);
 }
 
 // One row per area of a place, so the dropdown itself is the pick-an-area step.
 // pct is null for a place in a single area; more is set on the last row only.
-const placeRows = (place) => {
+const placeRows = (place: Place): Row[] => {
   const shown = place.areas.slice(0, PER_PLACE);
   return shown.map(({ id, pct }, i) => ({
     place,
@@ -77,18 +79,18 @@ const placeRows = (place) => {
   }));
 };
 
-const hits = (ns, test) => (p) => p.keys.some((k) => ns.some((n) => test(k, n)));
-const closest = (ns) => {
+const hits = (ns: string[], test: (k: string, n: string) => boolean) => (p: Place) => p.keys.some((k) => ns.some((n) => test(k, n)));
+const closest = (ns: string[]) => {
   const prefix = hits(ns, (k, n) => k.startsWith(n));
-  return (a, b) => Number(prefix(b)) - Number(prefix(a)) || a.keys[0].length - b.keys[0].length;
+  return (a: Place, b: Place) => Number(prefix(b)) - Number(prefix(a)) || a.keys[0].length - b.keys[0].length;
 };
 
-export function searchPlaces(index, text) {
+export function searchPlaces(index: Index, text: string) {
   const ns = foldBoth(text);
   if (ns[0].length < 2) return [];
-  const take = (kind, places) => places.slice(0, LIMITS[kind]);
+  const take = (kind: Kind, places: Place[]) => places.slice(0, LIMITS[kind]);
   if (/^\d+$/.test(ns[0])) return take("postcode", index.postcode.filter(hits(ns, (k, n) => k.startsWith(n))));
-  const matching = (places) => places.filter(hits(ns, (k, n) => k.includes(n)));
+  const matching = (places: Place[]) => places.filter(hits(ns, (k, n) => k.includes(n)));
   return [
     ...take("station", matching(index.station)),
     ...take("street", matching(index.street).sort(closest(ns))),
@@ -96,4 +98,4 @@ export function searchPlaces(index, text) {
   ];
 }
 
-export const searchRows = (index, text) => searchPlaces(index, text).flatMap(placeRows);
+export const searchRows = (index: Index, text: string) => searchPlaces(index, text).flatMap(placeRows);
