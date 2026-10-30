@@ -4,9 +4,7 @@ import "./styles/index.css";
 import type { FeatureCollection } from "geojson";
 import { addStreets, buildIndex } from "./search/places.ts";
 import { createSearchBox } from "./search/searchBox.ts";
-import type { Areas, Gazetteer, Place, StreetsFile } from "./search/types.ts";
-
-type Fixture = { metadata: { attribution: { police: string; osm: string } }; areas: Areas };
+import type { Fixture, Gazetteer, Place, StreetsFile } from "./search/types.ts";
 
 const getJson = <T,>(name: string): Promise<T> =>
   fetch(`${import.meta.env.BASE_URL}${name}`).then((res) => {

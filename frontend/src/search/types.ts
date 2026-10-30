@@ -6,6 +6,8 @@ export type Gazetteer = { plz: Record<string, Share[]>; stations: Station[] };
 // gazetteer_streets.json: shares are [index into ids, pct]; streets nest as bezirk -> street type -> name.
 export type StreetsFile = { ids: string[]; streets: Record<string, Record<string, Record<string, [number, number][]>>> };
 
+export type Fixture = { metadata: { attribution: { police: string; osm: string } }; areas: Areas };
+
 export type Kind = "postcode" | "station" | "street" | "area";
 export type Place = {
   label: string;
