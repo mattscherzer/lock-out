@@ -1,6 +1,6 @@
 # Lock Out frontend
 
-TypeScript (strict), React, Vite, Tailwind and Leaflet. Needs Node 22.12 or newer.
+TypeScript (strict), React, Vite, Tailwind and Leaflet. Needs Node 22.13+ (22.x, 24 or 26+; not 23 or 25).
 
 ```bash
 npm run dev        # dev server
