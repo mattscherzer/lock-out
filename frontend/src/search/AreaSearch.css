@@ -14,6 +14,7 @@
 .area-search button:focus-visible { outline: 0; box-shadow: var(--focus-ring); }
 .area-search button.area-search-back { display: none; }
 
+.area-search-panel[hidden] { display: none; } /* display: flex below would otherwise win over the hidden attribute */
 .area-search-panel { display: flex; flex-direction: column; max-height: min(60vh, 520px); }
 .area-search-panel ul { flex: 1; min-height: 0; overflow-y: auto; } /* only the list scrolls, so the footer hint stays in view */
 .area-search ul { margin: 0; padding: 0; list-style: none; }
