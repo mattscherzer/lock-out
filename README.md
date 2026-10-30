@@ -133,7 +133,7 @@ uv run uvicorn src.api.main:app --reload --port 8000
 
 ### 4. Run the Front-End Client (local server only, not deployed yet)
 
-Needs Node 20.19+ (or 22.12+) and internet access (OSM tiles load from `tile.openstreetmap.org`).
+Needs Node 22.13+ (22.x, 24 or 26+; not 23 or 25) and internet access (OSM tiles load from `tile.openstreetmap.org`).
 
 ```bash
 cd frontend
