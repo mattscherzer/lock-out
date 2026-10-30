@@ -63,12 +63,44 @@ try {
   }).addTo(map);
 
   map.fitBounds(layer.getBounds());
-  // pin = "you searched here"; only stations have coordinates
-  let pin: L.CircleMarker | undefined;
   let selected: string | null = null;
   let closeSignal = 0;
+  const notes = new Set(gazetteer ? [] : ["station and postcode search unavailable"]);
+  const showStatus = () => (status.textContent = [...notes].join(" · "));
+  const index = buildIndex(gazetteer ?? EMPTY_GAZETTEER, fixture.areas);
+  // streets are the bulk of the lookup: fetched when the user first focuses the search, not before the map
+  const loadStreets = () =>
+    getJson<StreetsFile>("gazetteer_streets.json")
+      .then((file) => addStreets(index, file, fixture.areas))
+      .then(() => notes.delete("street search unavailable"))
+      .catch((err) => {
+        console.error("Street search unavailable:", err);
+        notes.add("street search unavailable");
+        throw err; // the search box retries on the next focus
+      })
+      .finally(showStatus);
+  const searchRoot = createRoot(document.getElementById("search")!);
+  const renderSearch = () =>
+    searchRoot.render(
+      <AreaSearch
+        index={index}
+        areas={fixture.areas}
+        selected={selected}
+        onSelect={(id, context) => {
+          select(id, context);
+          map.fitBounds(polygons[id].getBounds());
+        }}
+        onClear={() => select(null, null)}
+        closeSignal={closeSignal}
+        loadStreets={loadStreets}
+      />,
+    );
+
+  // pin = "you searched here"; only stations have coordinates
+  let pin: L.CircleMarker | undefined;
   const select = (id: string | null, context: Context | null) => {
     if (selected) polygons[selected].setStyle(AREA_STYLE);
+    Object.values(polygons).forEach((polygon) => polygon.closeTooltip()); // a hover tooltip would stay open after the map moves
     pin?.remove();
     pin = context?.ll
       ? L.circleMarker(context.ll, { radius: 7, color: "#fff", weight: 3, fillColor: BRAND, fillOpacity: 1, interactive: false })
@@ -85,35 +117,6 @@ try {
     renderSearch();
   });
   Object.entries(polygons).forEach(([id, polygon]) => polygon.on("click", () => select(id, null)));
-  const notes = new Set(gazetteer ? [] : ["station and postcode search unavailable"]);
-  const showStatus = () => (status.textContent = [...notes].join(" · "));
-  const index = buildIndex(gazetteer ?? EMPTY_GAZETTEER, fixture.areas);
-  const searchRoot = createRoot(document.getElementById("search")!);
-  const renderSearch = () =>
-    searchRoot.render(
-      <AreaSearch
-        index={index}
-        areas={fixture.areas}
-        selected={selected}
-        onSelect={(id, context) => {
-          select(id, context);
-          map.fitBounds(polygons[id].getBounds());
-        }}
-        onClear={() => select(null, null)}
-        closeSignal={closeSignal}
-        // streets are the bulk of the lookup: fetched when the user first focuses the search, not before the map
-        loadStreets={() =>
-          getJson<StreetsFile>("gazetteer_streets.json")
-            .then((file) => addStreets(index, file, fixture.areas))
-            .then(() => notes.delete("street search unavailable"))
-            .catch((err) => {
-              console.error("Street search unavailable:", err);
-              notes.add("street search unavailable");
-              throw err; // the search box retries on the next focus
-            })
-                .finally(showStatus)}
-      />,
-    );
   renderSearch();
   showStatus();
 } catch (err) {

@@ -2,18 +2,19 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
 import { expect, it, vi } from "vitest";
 import { AreaSearch } from "./AreaSearch.tsx";
-import { buildIndex } from "./places.ts";
+import { addStreets, buildIndex } from "./places.ts";
 
 const areas = {
   a1: { name: "Charitéviertel", bzr_name: "Mitte" },
   a2: { name: "Invalidenstraße", bzr_name: "Mitte" },
   a3: { name: "Nordbahnhof", bzr_name: "Mitte" },
 };
-const index = buildIndex({ plz: { "10115": [["a1", 39], ["a2", 32], ["a3", 16]] }, stations: [] }, areas);
+const gazetteer = { plz: { "10115": [["a1", 39], ["a2", 32], ["a3", 16]] as [string, number][] }, stations: [["Nordbahnhof", "S", "a3", 52.53, 13.38] as [string, string, string, number, number]] };
+const index = buildIndex(gazetteer, areas);
 
-function Harness({ onSelect = vi.fn() }) {
+function Harness({ onSelect = vi.fn(), onClear = vi.fn(), ...rest }: { onSelect?: (...a: unknown[]) => void; onClear?: () => void } & Partial<Parameters<typeof AreaSearch>[0]>) {
   const [selected, setSelected] = useState<string | null>(null);
-  return <AreaSearch index={index} areas={areas} selected={selected} onSelect={(id, c) => { setSelected(id); onSelect(id, c); }} onClear={() => setSelected(null)} />;
+  return <AreaSearch index={index} areas={areas} selected={selected} onSelect={(id, c) => { setSelected(id); onSelect(id, c); }} onClear={() => { setSelected(null); onClear(); }} {...rest} />;
 }
 const field = () => screen.getByRole("combobox") as HTMLInputElement;
 const type = (v: string) => { fireEvent.focus(field()); fireEvent.change(field(), { target: { value: v } }); };
@@ -44,18 +45,23 @@ it("re-focus reopens the list with the selection first; Esc keeps it; retyping r
   fireEvent.focus(field());
   expect(screen.getAllByRole("option")[0].textContent).toContain("Charitéviertel");
   fireEvent.change(field(), { target: { value: "nord" } });
+  expect(screen.getAllByRole("option")[0].textContent).toContain("Nordbahnhof");
   fireEvent.keyDown(field(), { key: "Escape" });
   expect(field().value).toBe("Charitéviertel");
   expect(screen.queryByRole("option")).toBeNull();
 });
 
 it("clear drops the selection and empties the field", () => {
-  render(<Harness />);
+  const onClear = vi.fn();
+  render(<Harness onClear={onClear} />);
   type("nordbahnhof");
   fireEvent.keyDown(field(), { key: "Enter" });
   fireEvent.click(screen.getByLabelText("Clear search"));
   expect(field().value).toBe("");
   expect(screen.queryByLabelText("Clear search")).toBeNull();
+  expect(onClear).toHaveBeenCalledOnce();
+  fireEvent.blur(field());
+  expect(field().value).toBe(""); // the selection is gone, it does not come back on blur
 });
 
 it("says so when nothing matches", () => {
@@ -88,4 +94,68 @@ it("asks for more characters instead of saying not found", () => {
   type("n");
   expect(screen.getByText("Type at least two characters.")).toBeTruthy();
   expect(screen.queryByText(/not found/)).toBeNull();
+});
+
+it("re-focus keeps the picked row first and Enter keeps it", () => {
+  const onSelect = vi.fn();
+  render(<Harness onSelect={onSelect} />);
+  type("nord");
+  fireEvent.click(screen.getAllByRole("option")[1]); // the area row, below the station
+  fireEvent.focus(field());
+  expect(screen.getAllByRole("option")[0].textContent).toContain("Area ·");
+  fireEvent.keyDown(field(), { key: "Enter" });
+  expect(onSelect).toHaveBeenLastCalledWith("a3", null); // the area row, so no station pin
+});
+
+it("a pick with the pointer blurs the field, a pick with Enter keeps focus", () => {
+  render(<Harness />);
+  field().focus();
+  fireEvent.change(field(), { target: { value: "nord" } });
+  fireEvent.keyDown(field(), { key: "Enter" });
+  expect(document.activeElement).toBe(field());
+  fireEvent.change(field(), { target: { value: "nord" } });
+  fireEvent.click(screen.getAllByRole("option")[0]);
+  expect(document.activeElement).not.toBe(field());
+});
+
+it("a selection made elsewhere replaces a typed draft", () => {
+  const props = { index, areas, onSelect: vi.fn(), onClear: vi.fn() };
+  const { rerender } = render(<AreaSearch {...props} selected={null} />);
+  type("foo");
+  rerender(<AreaSearch {...props} selected="a2" />);
+  expect(field().value).toBe("Invalidenstraße");
+});
+
+it("ArrowDown reopens a closed list", () => {
+  render(<Harness />);
+  type("nord");
+  fireEvent.keyDown(field(), { key: "Escape" });
+  expect(screen.queryByRole("option")).toBeNull();
+  fireEvent.keyDown(field(), { key: "ArrowDown" });
+  expect(screen.getAllByRole("option").length).toBeGreaterThan(0);
+});
+
+it("closes when told to from outside", () => {
+  const { rerender } = render(<Harness closeSignal={0} />);
+  type("nord");
+  expect(screen.getAllByRole("option").length).toBeGreaterThan(0);
+  rerender(<Harness closeSignal={1} />);
+  expect(screen.queryByRole("option")).toBeNull();
+});
+
+it("searches again once the street data has loaded", async () => {
+  const withStreets = buildIndex(gazetteer, areas);
+  const file = { ids: ["a2"], streets: { Mitte: { Street: { Zimmerstraße: [[0, 100]] as [number, number][] } } } };
+  const loadStreets = () => Promise.resolve().then(() => addStreets(withStreets, file, areas));
+  render(<AreaSearch index={withStreets} areas={areas} selected={null} onSelect={vi.fn()} onClear={vi.fn()} loadStreets={loadStreets} />);
+  fireEvent.focus(field());
+  fireEvent.change(field(), { target: { value: "zimmer" } });
+  expect(screen.queryByRole("option")).toBeNull();
+  expect((await screen.findAllByRole("option"))[0].textContent).toContain("Zimmerstraße"); // the typed part is bold, so match the row, not a text node
+});
+
+it("says so when a house number is typed", () => {
+  render(<Harness />);
+  type("Nordbahnhof 12");
+  expect(screen.getByText(/House numbers aren't searchable yet/)).toBeTruthy();
 });
