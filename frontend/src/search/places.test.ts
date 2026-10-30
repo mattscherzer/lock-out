@@ -99,6 +99,15 @@ describe("searchPlaces", () => {
     expect(rows.at(-1)).toMatchObject({ n: 3 });
     expect(overflow).toBe(false);
   });
+  it("shows all areas of an expanded place that follows a long one", () => {
+    const ids = ["W1", "W2", "W3", "W4", "W5"];
+    const wide = Object.fromEntries(ids.map((id) => [id, { name: id, bzr_name: "x" }]));
+    const plz = { 13051: ids.map((id, i) => [id, 50 - i] as [string, number]), 13053: ids.map((id, i) => [id, 40 - i] as [string, number]) };
+    const places = searchPlaces(buildIndex({ plz, stations: [] }, wide), "13");
+    const { rows } = buildRows(places, 8, new Set([placeKey(places[1])]));
+    expect(rows.filter((r) => r.type === "area" && r.place === places[1])).toHaveLength(5);
+    expect(rows.filter((r) => r.type === "more" && r.place === places[1])).toHaveLength(0);
+  });
   it("keeps every area of an expanded place even past the row limit", () => {
     const ids = Array.from({ length: 10 }, (_, i) => `W${i}`);
     const wide = Object.fromEntries(ids.map((id) => [id, { name: id, bzr_name: "x" }]));

@@ -77,13 +77,13 @@ export const placeKey = (p: Place) => `${p.kind}|${p.label}|${p.bezirk}|${p.type
 // and, past MAX_AREAS_PER_RESULT, a "+N more" row until its key is in expanded. overflow: results were cut at limit.
 export function buildRows(places: Place[], limit: number, expanded: ReadonlySet<string> = new Set()) {
   const rows: Row[] = [];
-  let cap = limit; // an expanded place adds the rows past its cap: asking for all areas must not cut them
+  let cap = limit; // grows for an expanded place: asking for all areas must not cut them
   let overflow = false;
   for (const place of places) {
     const multi = place.areas.length > 1;
     const open = expanded.has(placeKey(place));
     let shown = open ? place.areas : place.areas.slice(0, MAX_AREAS_PER_RESULT);
-    if (open) cap += Math.max(0, shown.length - MAX_AREAS_PER_RESULT);
+    if (open) cap = Math.max(cap, rows.length + (multi ? 1 : 0) + shown.length); // never trimmed, whatever came before it
     const room = cap - rows.length - (multi ? 1 : 0); // rows left for this place's areas and its "+N more"
     if (room < 1 || (multi && room < 2)) { overflow = true; break; }
     // a place that does not fit loses areas, never its "+N more" row, so the rest stays reachable
