@@ -88,7 +88,9 @@ try {
         selected={selected}
         onSelect={(id, context) => {
           select(id, context);
-          map.fitBounds(polygons[id].getBounds());
+          // a fly (zoom out, pan, zoom in) reads smoother than a straight jump; the motion token is 0 under reduced motion
+          const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--duration-slow"));
+          map.flyToBounds(polygons[id].getBounds(), { duration: ms / 1000, animate: ms > 0 });
         }}
         onClear={() => select(null, null)}
         closeSignal={closeSignal}
