@@ -70,6 +70,7 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
     const root = document.documentElement.style;
     const fit = () => {
       root.setProperty("--vv-height", `${vv.height}px`);
+      root.setProperty("--vv-covered", `${Math.max(0, window.innerHeight - vv.offsetTop - vv.height)}px`); // keyboard and Safari's floating bars
       root.setProperty("--vv-top", `${vv.offsetTop}px`);
     };
     fit();
@@ -80,6 +81,7 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
       vv.removeEventListener("scroll", fit);
       root.removeProperty("--vv-height");
       root.removeProperty("--vv-top");
+      root.removeProperty("--vv-covered");
     };
   }, []);
 
