@@ -1,5 +1,6 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { addStreets, buildIndex, fold, parseQuery, buildRows, searchPlaces, sortPlaces, bezirkLabel, MAX_AREAS_PER_RESULT, placeKey } from "./places.ts";
+import { addStreets, buildIndex, EXAMPLES, fold, parseQuery, buildRows, searchPlaces, sortPlaces, bezirkLabel, MAX_AREAS_PER_RESULT, placeKey } from "./places.ts";
 import type { Gazetteer, Place, StreetsFile } from "./types.ts";
 
 const areas = {
@@ -198,4 +199,13 @@ describe("streets from gazetteer_streets.json", () => {
   it("finds nothing before the streets are added", () => {
     expect(searchPlaces(buildIndex({ plz: {}, stations: [] }, areas), "hauptstrasse")).toEqual([]);
   });
+});
+
+// The empty-state examples are quick filters: each must exist in the shipped data, as its own kind.
+it("every empty-state example is a real place in the shipped data", () => {
+  const load = (f: string) => JSON.parse(readFileSync(`public/${f}`, "utf8"));
+  const real = buildIndex(load("gazetteer.json"), load("lookup_fixture.json").areas);
+  addStreets(real, load("gazetteer_streets.json"), load("lookup_fixture.json").areas);
+  const word = (p: { kind: string; type?: string }) => (p.kind === "street" ? p.type ?? "Street" : { postcode: "Postcode", station: "Station", area: "Area" }[p.kind]);
+  for (const { label, word: w } of EXAMPLES) expect(searchPlaces(real, label).some((p) => p.label === label && word(p) === w), label).toBe(true);
 });
