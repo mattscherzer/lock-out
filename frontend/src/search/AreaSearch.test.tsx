@@ -160,7 +160,7 @@ it("says so when a house number is typed", () => {
 });
 
 const longName = "100 AS Kaiserdamm Einf v Knobelsdorffstr West";
-const wide = { ...areas, ...Object.fromEntries(["w1", "w2", "w3", "w4", "w5"].map((id) => [id, { name: id, bzr_name: "01 - Mitte" }])) };
+const wide = { ...areas, ...Object.fromEntries(["w1", "w2", "w3", "w4", "w5"].map((id) => [id, { name: id, bzr_name: "Tiergarten Süd" }])) };
 const wideIndex = buildIndex({ plz: { "10999": ["w1", "w2", "w3", "w4", "w5"].map((id, i) => [id, 50 - i * 10] as [string, number]) }, stations: [[longName, "S", "a3", 52.5, 13.4]] }, wide);
 
 it("keeps a long name whole for screen readers and in the tooltip, and the Bezirk without its number", () => {
@@ -171,12 +171,12 @@ it("keeps a long name whole for screen readers and in the tooltip, and the Bezir
   expect(option.querySelector(".area-search-name")?.textContent).toBe(longName); // the two-line clamp is CSS only (.area-search-name), which jsdom cannot measure
 });
 
-it("shows the Bezirk without its number prefix, and names the place on each area row", () => {
+it("shows the region on each area row, and names the place on each area row", () => {
   render(<AreaSearch index={wideIndex} areas={wide} selected={null} onSelect={vi.fn()} onClear={vi.fn()} />);
   type("10999");
   const first = screen.getAllByRole("option")[0];
-  expect(first.textContent).toContain("Area · Mitte");
-  expect(first.getAttribute("aria-label")).toBe("w1, Area · Mitte, in 10999, 50%");
+  expect(first.textContent).toContain("Area · Tiergarten Süd");
+  expect(first.getAttribute("aria-label")).toBe("w1, Area · Tiergarten Süd, in 10999, 50%");
 });
 
 it("expands the areas past the cap with Enter on the +N more row", () => {
