@@ -6,28 +6,18 @@
     <title>Lock Out – Berlin areas</title>
     <style>
       html, body, #map { height: 100%; margin: 0; }
-      /* left clears Leaflet's zoom control */
-      #count { position: absolute; z-index: 1000; top: 8px; left: 50px; padding: 4px 8px;
+      #map { z-index: 0; } /* own stacking context: Leaflet's controls stay below the search (z-search) */
+      /* the browser draws a focus outline on a clicked area; areas are selected by pointer, the search is the keyboard route */
+      path.leaflet-interactive:focus { outline: none; }
+      #status:empty { display: none; }
+      #status { position: absolute; z-index: 800; bottom: 24px; left: 8px; padding: 4px 8px;
         background: #fff; border-radius: 4px; font: 14px system-ui, sans-serif; }
-      #search { position: absolute; z-index: 1000; top: 44px; left: 50px; width: min(320px, calc(100% - 66px));
-        font: 14px system-ui, sans-serif; }
-      #search input { box-sizing: border-box; width: 100%; padding: 6px 8px; }
-      #search ul { margin: 2px 0 0; padding: 0; list-style: none; background: #fff; border-radius: 4px; max-height: 50vh; overflow-y: auto; }
-      #search li { padding: 6px 8px; }
-      #search .search-option { cursor: pointer; }
-      #search .search-option.active { background: #dbeafe; }
-      #search .search-note { color: #555; }
     </style>
   </head>
   <body>
     <div id="map"></div>
-    <div id="count" aria-live="polite"></div>
-    <div id="search">
-      <input id="search-input" type="search" role="combobox" aria-expanded="false" aria-controls="search-list"
-        aria-autocomplete="list" aria-label="Search area, street, station or postcode"
-        placeholder="Area, street, station, postcode…" autocomplete="off" />
-      <ul id="search-list" role="listbox" hidden></ul>
-    </div>
+    <div id="status" aria-live="polite"></div>
+    <div id="search"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

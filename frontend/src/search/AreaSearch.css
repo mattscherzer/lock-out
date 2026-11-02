@@ -1,0 +1,44 @@
+/* One surface: a floating pill while closed, the same surface grows into a card when the list opens. */
+.area-search { position: absolute; z-index: var(--z-search); top: 16px; left: 16px; width: min(400px, calc(100% - 32px)); box-sizing: border-box; overflow: hidden; border-radius: var(--radius-full); background: var(--surface-container-lowest); box-shadow: var(--elevation-2); font-family: var(--font-sans); color: var(--on-surface); }
+.area-search:focus-within { box-shadow: var(--elevation-2), 0 0 0 2px var(--tertiary); outline: 2px solid transparent; /* shown in forced-colors mode */ }
+.area-search[data-list] { border-radius: var(--radius-lg); box-shadow: var(--elevation-3), 0 0 0 2px var(--tertiary); }
+/* a quiet ring: a text field is always :focus-visible, so the two-tone focus-ring would flash on every click */
+.area-search input:focus-visible { box-shadow: none; outline: 0; }
+.area-search-field { display: flex; align-items: center; height: 48px; padding: 0 var(--space-1); box-sizing: border-box; }
+.area-search[data-list] .area-search-field { height: 56px; border-bottom: 1px solid var(--outline-variant); }
+.area-search input { flex: 1; min-width: 0; height: 44px; border: 0; background: none; color: inherit; outline: 0; padding: 0 var(--space-2) 0 0; font-size: var(--body-lg-font-size); line-height: var(--body-lg-line-height); font-weight: 500; font-family: inherit; }
+.area-search input::placeholder { font-weight: 400; color: var(--on-surface-variant); }
+.area-search-icon { flex: none; display: grid; place-items: center; width: 44px; height: 44px; color: var(--on-surface-variant); }
+.area-search button { flex: none; width: 44px; height: 44px; border: 0; border-radius: var(--radius-full); background: none; color: var(--on-surface-variant); cursor: pointer; display: grid; place-items: center; }
+.area-search button:hover { background: color-mix(in srgb, var(--on-surface) calc(var(--state-hover) * 100%), transparent); }
+.area-search button:focus-visible { outline: 0; box-shadow: var(--focus-ring); }
+.area-search button.area-search-back { display: none; }
+
+.area-search-panel[hidden] { display: none; } /* display: flex below would otherwise win over the hidden attribute */
+.area-search-panel { display: flex; flex-direction: column; max-height: min(60vh, 520px); }
+.area-search-panel ul { flex: 1; min-height: 0; overflow-y: auto; } /* only the list scrolls, so the footer hint stays in view */
+.area-search ul { margin: 0; padding: 0; list-style: none; }
+.area-search-option { display: flex; align-items: center; gap: var(--space-3); min-height: 64px; box-sizing: border-box; padding: 10px var(--space-4); cursor: pointer; }
+.area-search-option[aria-selected="true"] { background: var(--surface-container); }
+.area-search-glyph { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--radius-full); background: var(--secondary-container); color: var(--on-secondary-container); }
+.area-search-text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.area-search-name { font-size: var(--body-lg-font-size); line-height: var(--body-lg-line-height); font-weight: 400; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.area-search-name b { font-weight: 600; }
+.area-search-sub { margin-top: 2px; font-size: 13px; line-height: 18px; color: var(--on-surface-variant); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.area-search-pct { flex: none; padding: 3px var(--space-2); border-radius: var(--radius-full); background: var(--primary-container); color: var(--on-primary-container); font-size: var(--body-sm-font-size); line-height: 16px; font-weight: 600; }
+.area-search-note { margin: 0; padding: var(--space-3) var(--space-4); color: var(--on-surface-variant); font-size: var(--body-sm-font-size); line-height: var(--body-sm-line-height); }
+.area-search-empty { padding: var(--space-6); }
+.area-search-empty p { margin: 0 0 var(--space-1); }
+.area-search-empty .title-sm { color: var(--on-surface); font-size: var(--body-lg-font-size); line-height: var(--body-lg-line-height); font-weight: 600; }
+.area-search-hints { flex: none; display: none; gap: var(--space-4); padding: 10px var(--space-4); border-top: 1px solid var(--outline-variant); background: var(--surface); color: var(--on-surface-variant); font-size: var(--body-sm-font-size); line-height: var(--body-sm-line-height); }
+
+@media (min-width: 600px) and (max-width: 899px) { .area-search { width: 360px; } }
+@media (min-width: 900px) { .area-search-hints { display: flex; } }
+/* phone: focusing the pill opens a full-screen search */
+@media (max-width: 599px) {
+  .area-search[data-open] { position: fixed; inset: 0; width: auto; height: 100dvh; border-radius: 0; box-shadow: none; display: flex; flex-direction: column; }
+  .area-search[data-open] .area-search-field { height: 56px; flex: none; border-bottom: 1px solid var(--outline-variant); }
+  .area-search[data-open] button.area-search-back { display: grid; }
+  .area-search[data-open] .area-search-icon { display: none; } /* the back arrow takes its place */
+  .area-search[data-open] .area-search-panel { flex: 1; min-height: 0; max-height: none; }
+}
