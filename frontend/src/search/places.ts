@@ -9,6 +9,16 @@ export const MAX_ROWS = { mobile: 8, wide: 10 };
 
 // "01 - Mitte" -> "Mitte"
 export const bezirkLabel = (s: string) => s.replace(/^\d+\s*-\s*/, "");
+export const LOADING_DELAY_MS = 300; // a reply faster than this never flashes the loading rows
+
+// Fixed quick filters for the empty field, one per kind and across Bezirke; places.test.ts checks each against the shipped data.
+export const EXAMPLES = [
+  { label: "Kurfürstendamm", word: "Street" },
+  { label: "12043", word: "Postcode" },
+  { label: "Hermannplatz", word: "Station" },
+  { label: "Kollwitzplatz", word: "Area" },
+  { label: "Großer Müggelsee", word: "Water" },
+];
 
 const UMLAUTS: Record<string, string> = { ä: "ae", ö: "oe", ü: "ue" };
 

@@ -30,6 +30,23 @@
 .area-search-empty { padding: var(--space-6); }
 .area-search-empty p { margin: 0 0 var(--space-1); }
 .area-search-empty .title-sm { color: var(--on-surface); font-size: var(--body-lg-font-size); line-height: var(--body-lg-line-height); font-weight: 600; }
+.area-search-label { padding-bottom: var(--space-1); font-weight: 600; }
+.area-search-spinner { flex: none; display: grid; place-items: center; width: 44px; height: 44px; color: var(--on-surface-variant); }
+.area-search-spinner svg { animation: area-search-spin 1s linear infinite; }
+.area-search-skeleton li { display: flex; align-items: center; gap: var(--space-3); min-height: 64px; box-sizing: border-box; padding: 10px var(--space-4); }
+.area-search-skeleton span:first-child { flex: none; width: 36px; height: 36px; border-radius: var(--radius-full); }
+.area-search-skeleton span:last-child { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.area-search-skeleton i { display: block; height: 10px; border-radius: var(--radius-full); width: 60%; }
+.area-search-skeleton i + i { width: 40%; }
+.area-search-skeleton span:first-child, .area-search-skeleton i { background: var(--surface-container); animation: area-search-pulse 1.2s ease-in-out infinite; }
+.area-search-error { padding: var(--space-6); }
+.area-search-error p { margin: 0 0 var(--space-1); }
+.area-search-error .title-sm { color: var(--error); font-size: var(--body-lg-font-size); line-height: var(--body-lg-line-height); font-weight: 600; }
+.area-search .area-search-error button { width: auto; height: 44px; margin-top: var(--space-3); padding: 0 var(--space-5); border-radius: var(--radius-full); background: var(--primary); color: var(--on-primary); font: inherit; font-weight: 600; }
+.area-search .area-search-error button:hover { background: color-mix(in srgb, var(--primary), var(--on-primary) calc(var(--state-hover) * 100%)); }
+@keyframes area-search-spin { to { transform: rotate(360deg); } }
+@keyframes area-search-pulse { 50% { opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .area-search-spinner svg, .area-search-skeleton * { animation: none; } }
 .area-search-hints { flex: none; display: none; gap: var(--space-4); padding: 10px var(--space-4); border-top: 1px solid var(--outline-variant); background: var(--surface); color: var(--on-surface-variant); font-size: var(--body-sm-font-size); line-height: var(--body-sm-line-height); }
 
 @media (min-width: 600px) and (max-width: 899px) { .area-search { width: 360px; } }

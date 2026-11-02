@@ -1,8 +1,8 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
-import { expect, it, vi } from "vitest";
+import { afterEach, expect, it, vi } from "vitest";
 import { AreaSearch } from "./AreaSearch.tsx";
-import { addStreets, buildIndex } from "./places.ts";
+import { addStreets, buildIndex, EXAMPLES, LOADING_DELAY_MS } from "./places.ts";
 
 const areas = {
   a1: { name: "Charitéviertel", bzr_name: "Mitte" },
@@ -187,4 +187,121 @@ it("expands the areas past the cap with Enter on the +N more row", () => {
   expect(screen.getAllByRole("option")[3].textContent).toBe("+2 more areas for 10999");
   fireEvent.keyDown(field(), { key: "Enter" });
   expect(screen.getAllByRole("option")).toHaveLength(5);
+});
+
+afterEach(() => vi.useRealTimers());
+
+it("an empty focused field offers the examples; one fills the field and searches", () => {
+  render(<Harness />);
+  fireEvent.focus(field());
+  expect(field().placeholder).toBe("Street, postcode, area or station");
+  expect(screen.getByText("Try searching for")).toBeTruthy();
+  expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(EXAMPLES.map((e) => e.label + e.word));
+  fireEvent.click(screen.getAllByRole("option")[1]);
+  expect(field().value).toBe(EXAMPLES[1].label);
+  expect(screen.queryByText("Try searching for")).toBeNull();
+});
+
+it("arrow keys and Enter pick an example", () => {
+  render(<Harness />);
+  fireEvent.focus(field());
+  fireEvent.keyDown(field(), { key: "ArrowDown" });
+  fireEvent.keyDown(field(), { key: "Enter" });
+  expect(field().value).toBe(EXAMPLES[1].label);
+});
+
+it("clear brings the examples back", () => {
+  render(<Harness />);
+  type("10115");
+  fireEvent.keyDown(field(), { key: "Enter" });
+  fireEvent.click(screen.getByLabelText("Clear search"));
+  expect(screen.getAllByRole("option")).toHaveLength(EXAMPLES.length);
+});
+
+it("shows the spinner and placeholder rows only after the loading delay", async () => {
+  vi.useFakeTimers();
+  let done!: () => void;
+  render(<Harness loadStreets={() => new Promise<void>((r) => (done = r))} />);
+  type("zimmer");
+  expect(screen.getByRole("status").textContent).toBe("Searching");
+  expect(document.querySelector(".area-search-skeleton")).toBeNull();
+  expect(screen.getByLabelText("Clear search")).toBeTruthy();
+  act(() => void vi.advanceTimersByTime(LOADING_DELAY_MS));
+  expect(document.querySelectorAll(".area-search-skeleton li")).toHaveLength(3);
+  expect(screen.queryByLabelText("Clear search")).toBeNull();
+  expect(field().value).toBe("zimmer");
+  await act(async () => done());
+  expect(document.querySelector(".area-search-skeleton")).toBeNull();
+  expect(screen.getByLabelText("Clear search")).toBeTruthy();
+});
+
+it("a fast reply never flashes the placeholder rows", async () => {
+  vi.useFakeTimers();
+  render(<Harness loadStreets={() => Promise.resolve()} />);
+  type("zimmer");
+  await act(async () => void vi.advanceTimersByTime(LOADING_DELAY_MS * 2));
+  expect(document.querySelector(".area-search-skeleton")).toBeNull();
+});
+
+it("a failed load says so, keeps the text, and Try again recovers", async () => {
+  const loadStreets = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValue(undefined);
+  render(<Harness loadStreets={loadStreets} />);
+  type("zimmer");
+  const alert = await screen.findByRole("alert");
+  expect(alert.textContent).toContain("Search isn't responding");
+  expect(alert.textContent).toContain("We kept what you typed.");
+  expect(screen.queryByText(/not found/)).toBeNull();
+  expect(field().value).toBe("zimmer");
+  fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+  expect(loadStreets).toHaveBeenCalledTimes(2);
+  await act(async () => {});
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(screen.getByText(/not found/)).toBeTruthy();
+  expect(field().value).toBe("zimmer");
+});
+
+it("Tab from the field to Try again keeps the panel open; leaving it closes", async () => {
+  render(<Harness loadStreets={() => Promise.reject(new Error("offline"))} />);
+  type("zimmer");
+  const retry = await screen.findByRole("button", { name: "Try again" });
+  fireEvent.blur(field(), { relatedTarget: retry });
+  expect(screen.getByRole("alert")).toBeTruthy();
+  fireEvent.blur(retry, { relatedTarget: null });
+  expect(screen.queryByRole("alert")).toBeNull();
+});
+
+it("the error is not announced as 'No results', and the empty field has no short-query note", async () => {
+  render(<Harness loadStreets={() => Promise.reject(new Error("offline"))} />);
+  fireEvent.focus(field());
+  expect(screen.queryByText("Type at least two characters.")).toBeNull();
+  fireEvent.change(field(), { target: { value: "zzzz" } });
+  await screen.findByRole("alert");
+  expect(screen.getByRole("status").textContent).toBe("");
+});
+
+it("ArrowDown reopens the examples after Esc on an empty field", () => {
+  render(<Harness />);
+  fireEvent.focus(field());
+  fireEvent.keyDown(field(), { key: "Escape" });
+  expect(screen.queryByRole("option")).toBeNull();
+  fireEvent.keyDown(field(), { key: "ArrowDown" });
+  expect(screen.getAllByRole("option")).toHaveLength(EXAMPLES.length);
+});
+
+it("Try again hands focus back to the field without selecting the text", async () => {
+  const loadStreets = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValue(undefined);
+  render(<Harness loadStreets={loadStreets} />);
+  type("zimmer");
+  fireEvent.click(await screen.findByRole("button", { name: "Try again" }));
+  expect(document.activeElement).toBe(field());
+  expect(field().selectionStart).not.toBe(0);
+});
+
+it("names the street search when other results are still listed", async () => {
+  render(<Harness loadStreets={() => Promise.reject(new Error("offline"))} />);
+  type("nord");
+  const alert = await screen.findByRole("alert");
+  expect(alert.textContent).toContain("Street search isn't available right now");
+  expect(alert.textContent).not.toContain("Search isn't responding");
+  expect(screen.getAllByRole("option").length).toBeGreaterThan(0);
 });
