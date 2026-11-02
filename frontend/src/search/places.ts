@@ -3,8 +3,12 @@
 
 import type { Areas, Gazetteer, Index, Kind, Place, Row, Share, StreetsFile } from "./types.ts";
 
-const PER_PLACE = 6; // areas listed per place; the rest become "+N more areas"
-const LIMITS: Record<Kind, number> = { postcode: 3, station: 4, street: 3, area: 8 };
+// Proposals to tune after the usability test (#67).
+export const MAX_AREAS_PER_RESULT = 3; // the rest sit behind one "+N more areas" row
+export const MAX_ROWS = { mobile: 8, wide: 10 };
+
+// "01 - Mitte" -> "Mitte"
+export const bezirkLabel = (s: string) => s.replace(/^\d+\s*-\s*/, "");
 
 const UMLAUTS: Record<string, string> = { ä: "ae", ö: "oe", ü: "ue" };
 
@@ -33,7 +37,7 @@ const placeIn = (areas: Areas, label: string, kind: Kind, list: Share[], extra: 
   label,
   kind,
   keys: foldBoth(label),
-  areas: list.filter(([id]) => id in areas).map(([id, pct]) => ({ id, pct })),
+  areas: list.filter(([id]) => id in areas).map(([id, pct]) => ({ id, pct })).sort((a, b) => b.pct - a.pct), // largest share first; the file does not guarantee it
   ...extra,
 });
 const kept = (places: Place[]) => places.filter((p) => p.areas.length > 0);
@@ -67,35 +71,46 @@ export function addStreets(index: Index, file: StreetsFile | null | undefined, a
   index.street = kept(places);
 }
 
-// One row per area of a place, so the dropdown itself is the pick-an-area step.
-// pct is null for a place in a single area; more is set on the last row only.
-const placeRows = (place: Place): Row[] => {
-  const shown = place.areas.slice(0, PER_PLACE);
-  return shown.map(({ id, pct }, i) => ({
-    place,
-    id,
-    pct: place.areas.length > 1 ? pct : null,
-    more: i === shown.length - 1 ? place.areas.length - shown.length : 0,
-  }));
-};
+export const placeKey = (p: Place) => `${p.kind}|${p.label}|${p.bezirk}|${p.type}|${p.ll}`; // one name can repeat per Bezirk and type, and per station
+
+// Rows for the dropdown: a place in several areas gets a label row, then one row per area (largest share first)
+// and, past MAX_AREAS_PER_RESULT, a "+N more" row until its key is in expanded. overflow: results were cut at limit.
+export function buildRows(places: Place[], limit: number, expanded: ReadonlySet<string> = new Set()) {
+  const rows: Row[] = [];
+  let cap = limit; // grows for an expanded place: asking for all areas must not cut them
+  let overflow = false;
+  for (const place of places) {
+    const multi = place.areas.length > 1;
+    const open = expanded.has(placeKey(place));
+    let shown = open ? place.areas : place.areas.slice(0, MAX_AREAS_PER_RESULT);
+    if (open) cap = Math.max(cap, rows.length + (multi ? 1 : 0) + shown.length); // never trimmed, whatever came before it
+    const room = cap - rows.length - (multi ? 1 : 0); // rows left for this place's areas and its "+N more"
+    if (room < 1 || (multi && room < 2)) { overflow = true; break; }
+    // a place that does not fit loses areas, never its "+N more" row, so the rest stays reachable
+    if (shown.length + (shown.length < place.areas.length ? 1 : 0) > room) shown = shown.slice(0, Math.max(room - 1, 1));
+    if (multi) rows.push({ type: "label", place });
+    for (const { id, pct } of shown) rows.push({ type: "area", place, id, pct: multi ? pct : null });
+    if (shown.length < place.areas.length) rows.push({ type: "more", place, n: place.areas.length - shown.length });
+  }
+  return { rows, overflow };
+}
 
 const hits = (ns: string[], test: (k: string, n: string) => boolean) => (p: Place) => p.keys.some((k) => ns.some((n) => test(k, n)));
-const closest = (ns: string[]) => {
+// Open: prefix matches first, then area, station, street, other named places, postcode; shorter names first.
+export const isPlainStreet = (p: Place) => p.kind === "street" && (!p.type || p.type === "Street");
+const kindOrder = (p: Place) => (p.kind === "area" ? 0 : p.kind === "station" ? 1 : isPlainStreet(p) ? 2 : p.kind === "street" ? 3 : 4);
+export function sortPlaces(places: Place[], ns: string[]) {
   const prefix = hits(ns, (k, n) => k.startsWith(n));
-  return (a: Place, b: Place) => Number(prefix(b)) - Number(prefix(a)) || a.keys[0].length - b.keys[0].length;
-};
+  return places
+    .map((p) => ({ p, pre: Number(!prefix(p)) }))
+    .sort((a, b) => a.pre - b.pre || kindOrder(a.p) - kindOrder(b.p) || a.p.keys[0].length - b.p.keys[0].length)
+    .map(({ p }) => p);
+}
 
 export function searchPlaces(index: Index, text: string) {
   const ns = foldBoth(text);
   if (ns[0].length < 2) return [];
-  const take = (kind: Kind, places: Place[]) => places.slice(0, LIMITS[kind]);
-  if (/^\d+$/.test(ns[0])) return take("postcode", index.postcode.filter(hits(ns, (k, n) => k.startsWith(n))));
+  if (/^\d+$/.test(ns[0])) return sortPlaces(index.postcode.filter(hits(ns, (k, n) => k.startsWith(n))), ns);
   const matching = (places: Place[]) => places.filter(hits(ns, (k, n) => k.includes(n)));
-  return [
-    ...take("station", matching(index.station)),
-    ...take("street", matching(index.street).sort(closest(ns))),
-    ...take("area", matching(index.area)),
-  ];
+  return sortPlaces([...matching(index.area), ...matching(index.station), ...matching(index.street)], ns);
 }
-
-export const searchRows = (index: Index, text: string) => searchPlaces(index, text).flatMap(placeRows);

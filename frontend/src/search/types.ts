@@ -20,5 +20,9 @@ export type Place = {
   type?: string; // street type, e.g. "Water"; streets only
   bezirk?: string; // streets only: one name can exist in several Bezirke
 };
-export type Row = { place: Place; id: string; pct: number | null; more: number };
+// label: not selectable, heads the areas of one place; more: expands the areas past the cap
+export type Row =
+  | { type: "label"; place: Place }
+  | { type: "area"; place: Place; id: string; pct: number | null }
+  | { type: "more"; place: Place; n: number };
 export type Index = Record<Kind, Place[]>;
