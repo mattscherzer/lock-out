@@ -296,3 +296,12 @@ it("Try again hands focus back to the field without selecting the text", async (
   expect(document.activeElement).toBe(field());
   expect(field().selectionStart).not.toBe(0);
 });
+
+it("names the street search when other results are still listed", async () => {
+  render(<Harness loadStreets={() => Promise.reject(new Error("offline"))} />);
+  type("nord");
+  const alert = await screen.findByRole("alert");
+  expect(alert.textContent).toContain("Street search isn't available right now");
+  expect(alert.textContent).not.toContain("Search isn't responding");
+  expect(screen.getAllByRole("option").length).toBeGreaterThan(0);
+});

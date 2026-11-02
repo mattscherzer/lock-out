@@ -273,7 +273,7 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
         {shown && tooShort && <p className="area-search-note">Type at least two characters.</p>}
         {shown && !tooShort && streetsError && (
           <div className="area-search-note area-search-error" role="alert">
-            <p className="title-sm">Search isn't responding</p>
+            <p className="title-sm">{rows.length ? "Street search isn't available right now" : "Search isn't responding"}</p>
             <p>We kept what you typed. Check your connection and try again.</p>
             <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={retry}>Try again</button>
           </div>
