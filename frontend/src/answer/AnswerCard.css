@@ -32,9 +32,9 @@
 
 .answer-tab { display: none; }
 
-/* Tablet and desktop: full-height left sheet flush with the edge, as in Google Maps; the search pill floats over its top (hence the 80px header offset). */
+/* Tablet and desktop: full-height left sheet flush with the edge, as in Google Maps; the search pill (400px, 16px inset) floats over its top, hence 432px wide and the 80px header offset. */
 @media (min-width: 600px) {
-  .answer-card, .answer-card[data-open][data-stop] { top: 0; bottom: 0; left: 0; right: auto; width: 408px; height: auto; border-radius: 0 var(--radius-lg) var(--radius-lg) 0; box-shadow: var(--elevation-3); z-index: calc(var(--z-search) - 1); }
+  .answer-card, .answer-card[data-open][data-stop] { top: 0; bottom: 0; left: 0; right: auto; width: 432px; height: auto; border-radius: 0 var(--radius-lg) var(--radius-lg) 0; box-shadow: var(--elevation-3); z-index: calc(var(--z-search) - 1); }
   .answer-card { transform: translateX(-100%); }
   .answer-card[data-open][data-stop] { transform: none; }
   .answer-card[data-open][data-collapsed] { transform: translateX(-100%); visibility: hidden; transition-delay: 0s, 0s, var(--duration-slow); }
@@ -43,9 +43,10 @@
   .answer-header { padding-top: 80px; }
   .answer-drag { touch-action: auto; }
   /* edge tab: collapses the sheet to the pill alone, and brings it back */
-  .answer-tab { position: fixed; z-index: calc(var(--z-search) - 1); top: 276px; left: 408px; width: 20px; height: 48px; padding: 0; border: 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: var(--surface-container-lowest); color: var(--on-surface); box-shadow: var(--elevation-2); display: none; place-items: center; cursor: pointer; transition: left var(--duration-slow) var(--ease-standard); }
+  .answer-tab { position: fixed; z-index: calc(var(--z-search) - 1); top: 276px; left: 432px; width: 20px; height: 48px; padding: 0; border: 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: var(--surface-container-lowest); color: var(--on-surface); box-shadow: var(--elevation-2); display: none; place-items: center; cursor: pointer; transition: left var(--duration-slow) var(--ease-standard); }
   .answer-tab::after { content: ""; position: absolute; inset: 0 -24px 0 0; } /* 44px wide hit area */
   .answer-tab[data-open] { display: grid; }
   .answer-tab[data-collapsed] { left: 0; }
   .answer-tab svg { width: 16px; height: 16px; }
 }
+@media (min-width: 600px) and (max-width: 899px) { .answer-card, .answer-card[data-open][data-stop] { width: 392px; } .answer-tab { left: 392px; } } /* the pill is 360px here */

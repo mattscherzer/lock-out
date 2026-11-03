@@ -87,7 +87,7 @@ try {
   // keep the area clear of the side panel (desktop) or the sheet and the search above it (phone, sheet at its opening height)
   const flyPadding = () =>
     innerWidth >= 600
-      ? { paddingTopLeft: L.point(408, 0) }
+      ? { paddingTopLeft: L.point(innerWidth >= 900 ? 432 : 392, 0) }
       : { paddingTopLeft: L.point(0, 110), paddingBottomRight: L.point(0, Math.min(520, Math.round(innerHeight * 0.64))) };
   const searchRoot = createRoot(document.getElementById("search")!);
   const cardRoot = createRoot(document.getElementById("answer")!);
@@ -107,7 +107,8 @@ try {
         onClose={() => {
           cardOpen = false;
           renderCard();
-          document.querySelector<HTMLInputElement>("#search input")?.focus(); // the field shows the still-selected area
+          // desktop: back to the field, which shows the still-selected area. Not on a phone: focusing opens the full-screen search and hides the map.
+          if (innerWidth >= 600) document.querySelector<HTMLInputElement>("#search input")?.focus();
         }}
       />,
     );
