@@ -9,8 +9,8 @@
 
   body {
     margin: 0;
-    font: var(--body-md-font-weight) var(--body-md-font-size)/var(--body-md-line-height)
-      var(--font-sans);
+
+    @apply body-md;
   }
 }
 

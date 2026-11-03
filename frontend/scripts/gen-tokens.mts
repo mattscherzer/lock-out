@@ -57,7 +57,6 @@ export function generate(t: Tokens) {
   for (const group of t.type.groups) {
     for (const { name, usage, ...s } of group.styles) {
       const props = Object.keys(s).map(kebab);
-      for (const [prop, v] of Object.entries(s)) add(`${name}-${kebab(prop)}`, String(v));
       const decls = Object.entries(s).map(([p, v]) => `${kebab(p)}: ${v};`);
       // shortcut: tokens.json only mentions tabular-nums in prose, so it is keyed on the name; add a field there if a second numeric style appears
       if (name === "data-md") decls.push("font-variant-numeric: tabular-nums;");

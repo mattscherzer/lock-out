@@ -58,10 +58,6 @@
   color: inherit;
   outline: 0;
   padding: 0 var(--space-2) 0 0;
-  font-size: var(--body-lg-font-size);
-  line-height: var(--body-lg-line-height);
-  font-weight: 500;
-  font-family: inherit;
 }
 
 .area-search input::placeholder {

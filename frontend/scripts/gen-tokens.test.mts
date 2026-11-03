@@ -58,6 +58,7 @@ test("sizes, z-index, easing and duration map to Tailwind namespaces", () => {
 test("type styles become @utility with literal values and only the props the style has", () => {
   const css = generate(fixture);
   assert.match(css, /@utility data-md \{ font-family: var\(--font-sans\); font-size: 13px; letter-spacing: 1px; font-variant-numeric: tabular-nums; \}/);
+  assert.doesNotMatch(css, /--data-md-font-size/);
 });
 
 test("reduced motion override is outside any @layer", () => {

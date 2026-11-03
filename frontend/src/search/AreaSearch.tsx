@@ -249,6 +249,7 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
           ref={input}
           type="text"
           role="combobox"
+          className="body-lg font-medium"
           aria-expanded={(shown || empty) && count > 0}
           aria-controls={`${id}-list`}
           aria-autocomplete="list"
