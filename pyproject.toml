@@ -22,4 +22,5 @@ pythonpath = ["src"]
 [dependency-groups]
 dev = [
     "ipykernel>=7.4.0",
+    "jsonschema>=4.26.0",
 ]

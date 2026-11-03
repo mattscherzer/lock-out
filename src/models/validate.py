@@ -1,7 +1,7 @@
 """Calibration, district fairness and selector validation on the backtest folds (issue #39, roadmap WP 1.4).
 
 Run from the repo root: uv run python src/models/validate.py [path to the police CSV]
-Writes docs/validation-report.md. The selector flags in data/processed/lookup_v0.json come from
+Writes docs/validation-report.md. The selector flags in data/processed/lookup_schema_v1.json come from
 the same checks, written by src/models/eb.py.
 """
 import json
@@ -134,8 +134,7 @@ Each selector the card shows is checked on both folds. It gets an area pattern o
 - **Time band:** offence hours are spread across the reported window, and the cleaning splits each theft over the bands it covers. Even a passing time band would be weak evidence.
 - **Bike value** is the one split at EUR {BIKE_VALUE_SPLIT_EUR} used in the model ("bike class" in the issue). A theft with no recorded value counts in neither level.
 - **Hold-out alone** shows the hold-out result whatever the sparsity rule says, so a flag that rests on the working rule alone is visible.
-- **"Area pattern" is a validation result only.** The v0 output (`lookup_v0.json`) still carries only the citywide shares. Whether to add area values, and how the card words them, is decided at the schema lock (WP 1.5): the data shows which bikes are stolen in an area, not how many of each kind are parked there.
-
+- **"Area pattern" is a validation result only.** The lookup file (`lookup_schema_v1.json`) still carries only the citywide shares (`area_values` is false). Adding area values, and deciding how the card words them, would be an additive change to schema v1: the data shows which bikes are stolen in an area, not how many of each kind are parked there.
 {table(["Selector", *(f"Median, {f}" for f in folds), *(f"Deviance citywide vs area, {f}" for f in folds), "Hold-out alone", "Flag", "Reason"], sel_rows)}
 """
 

@@ -73,13 +73,13 @@ def cleaned_fixture():
 def test_generator_emits_all_542_areas_with_flags_from_cleaned_data():
     raw, cleaned = cleaned_fixture()
     reports_up_to = cleaned["ANGELEGT_AM"].max()
-    flags = {"time_band": {"pattern": "citywide pattern", "reason": "test"}}
+    flags = {s: {"pattern": "citywide pattern", "reason": "test"} for s in ["time_band", "day_group", "bike_value"]}
     out = generate(cleaned, sorted(polygon_ids()), reports_up_to, reports_up_to - pd.Timedelta(days=14), "sample.csv", flags)
     areas = out["areas"]
     assert len(areas) == 542
     assert out["metadata"]["model_type"] == "eb_gamma_poisson"
     assert out["metadata"]["source_file"] == "sample.csv"
-    assert out["metadata"]["selectors"] == {"time_band": {**flags["time_band"], "area_values": False}}
+    assert out["selectors"]["time_band"]["pattern"] == "citywide pattern" and out["selectors"]["time_band"]["area_values"] is False
     no_street_theft = set(polygon_ids()) - set(cleaned["LOR"])
     assert {lor for lor, a in areas.items() if a["no_record"]} == no_street_theft
     cellar_only = set(raw["LOR"].str.zfill(8)) & no_street_theft

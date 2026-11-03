@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lookup_v1.schema.json",
+  "title": "LockOut lookup v1",
+  "description": "The shape of data/processed/lookup_schema_v1.json, locked with issue #40. After the lock, changes are additive only: a new optional field is a minor bump of metadata.schema_version (1.x.0) and needs both approvals; removing or renaming a field, or changing its meaning, is a new major version. In 1.0.0, metadata.citywide_facts and each area's confidence and area_stats may be absent; filling them in later (WP 2.2/2.3, issue #57) is additive and needs no new major version. Display wording for every enum value lives in the frontend string table, not here.",
+  "type": "object",
+  "required": ["metadata", "risk_bands", "selectors", "areas"],
+  "additionalProperties": false,
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "reports_up_to",
+        "data_window",
+        "truncation_lag_days",
+        "source_file",
+        "model_type",
+        "shrinkage_strength",
+        "attribution"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {"const": "1.0.0"},
+        "reports_up_to": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+          "description": "Date of the latest police report in the source file."
+        },
+        "data_window": {
+          "type": "object",
+          "required": ["start", "end"],
+          "additionalProperties": false,
+          "properties": {
+            "start": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+            "end": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"}
+          },
+          "description": "Thefts counted: those whose window ended between start and end, both days included. end is the 14-day lag cutoff."
+        },
+        "truncation_lag_days": {"type": "integer", "minimum": 0},
+        "source_file": {"type": "string", "minLength": 1},
+        "model_type": {
+          "enum": ["eb_gamma_poisson", "raw_area_history", "citywide_share"],
+          "description": "The model behind the tiers; a baseline name if the better baseline ships (M4)."
+        },
+        "shrinkage_strength": {
+          "type": "object",
+          "required": ["bezirksregion", "area"],
+          "additionalProperties": false,
+          "properties": {"bezirksregion": {"type": ["number", "null"]}, "area": {"type": ["number", "null"]}},
+          "description": "Method-of-moments prior strengths; null means no extra variation, so full pooling."
+        },
+        "attribution": {
+          "type": "object",
+          "required": ["police", "osm", "lor"],
+          "additionalProperties": false,
+          "properties": {
+            "police": {"type": "string", "minLength": 1},
+            "osm": {"type": "string", "minLength": 1},
+            "lor": {"type": "string", "minLength": 1}
+          },
+          "description": "Credit lines that must be shown in the UI (M10)."
+        },
+        "citywide_facts": {
+          "type": "object",
+          "required": ["lock_defeated_share", "median_stolen_value_eur"],
+          "additionalProperties": false,
+          "properties": {
+            "lock_defeated_share": {"type": "number", "minimum": 0, "maximum": 1},
+            "median_stolen_value_eur": {"type": "integer", "minimum": 0}
+          },
+          "description": "Facts for the whole city, not per area (issue #57). May be absent in 1.0.0."
+        }
+      }
+    },
+    "risk_bands": {
+      "type": "object",
+      "required": ["LOW", "MEDIUM", "HIGH"],
+      "additionalProperties": false,
+      "properties": {
+        "LOW": {
+          "type": "object",
+          "required": ["min_percentile", "max_percentile"],
+          "additionalProperties": false,
+          "properties": {
+            "min_percentile": {"type": "number", "minimum": 0, "maximum": 1},
+            "max_percentile": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "MEDIUM": {
+          "type": "object",
+          "required": ["min_percentile", "max_percentile"],
+          "additionalProperties": false,
+          "properties": {
+            "min_percentile": {"type": "number", "minimum": 0, "maximum": 1},
+            "max_percentile": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "HIGH": {
+          "type": "object",
+          "required": ["min_percentile", "max_percentile"],
+          "additionalProperties": false,
+          "properties": {
+            "min_percentile": {"type": "number", "minimum": 0, "maximum": 1},
+            "max_percentile": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        }
+      },
+      "description": "Relative percentile bands of areas (D-03). Colours come from the design tokens, not from here."
+    },
+    "selectors": {
+      "type": "object",
+      "required": ["time_band", "day_group", "bike_value"],
+      "additionalProperties": false,
+      "properties": {
+        "time_band": {
+          "allOf": [
+            {"$ref": "#/$defs/selector"},
+            {
+              "properties": {
+                "shares": {
+                  "type": "object",
+                  "required": ["Morning", "Afternoon", "Evening", "Night"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "Morning": {"type": "number", "minimum": 0, "maximum": 1},
+                    "Afternoon": {"type": "number", "minimum": 0, "maximum": 1},
+                    "Evening": {"type": "number", "minimum": 0, "maximum": 1},
+                    "Night": {"type": "number", "minimum": 0, "maximum": 1}
+                  },
+                  "description": "Share of street thefts in each level, the same for every area."
+                }
+              }
+            }
+          ]
+        },
+        "day_group": {
+          "allOf": [
+            {"$ref": "#/$defs/selector"},
+            {
+              "properties": {
+                "shares": {
+                  "type": "object",
+                  "required": ["Mon_Thu", "Friday", "Weekend"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "Mon_Thu": {"type": "number", "minimum": 0, "maximum": 1},
+                    "Friday": {"type": "number", "minimum": 0, "maximum": 1},
+                    "Weekend": {"type": "number", "minimum": 0, "maximum": 1}
+                  },
+                  "description": "Share of street thefts in each level, the same for every area."
+                }
+              }
+            }
+          ]
+        },
+        "bike_value": {
+          "allOf": [
+            {"$ref": "#/$defs/selector"},
+            {
+              "properties": {
+                "shares": {
+                  "type": "object",
+                  "required": ["under_eur_1000", "eur_1000_or_more"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "under_eur_1000": {"type": "number", "minimum": 0, "maximum": 1},
+                    "eur_1000_or_more": {"type": "number", "minimum": 0, "maximum": 1}
+                  },
+                  "description": "Share of street thefts in each level, the same for every area."
+                }
+              }
+            }
+          ]
+        }
+      },
+      "description": "Citywide shares per selector (D-18) and the hold-out flag from issue #39."
+    },
+    "areas": {
+      "type": "object",
+      "minProperties": 542,
+      "maxProperties": 542,
+      "propertyNames": {"pattern": "^[0-9]{8}$"},
+      "additionalProperties": {"$ref": "#/$defs/area"},
+      "description": "All 542 planning areas, keyed by their 8-digit LOR id."
+    }
+  },
+  "$defs": {
+    "selector": {
+      "type": "object",
+      "required": ["shares", "pattern", "reason", "area_values"],
+      "additionalProperties": false,
+      "properties": {
+        "shares": {"type": "object"},
+        "pattern": {"enum": ["citywide pattern", "area pattern"]},
+        "reason": {"type": "string", "minLength": 1},
+        "area_values": {
+          "type": "boolean",
+          "description": "true only once area-specific values for this selector are in the file; always false in 1.0.0."
+        }
+      }
+    },
+    "area": {
+      "type": "object",
+      "required": [
+        "name",
+        "bzr_id",
+        "bzr_name",
+        "bez_name",
+        "tier",
+        "expected_per_year",
+        "reports_12m",
+        "limited_data",
+        "no_record"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "bzr_id": {"type": "string", "pattern": "^[0-9]{6}$"},
+        "bzr_name": {"type": "string", "minLength": 1, "description": "Bezirksregion (143 in Berlin)."},
+        "bez_name": {"type": "string", "minLength": 1, "description": "Bezirk (12 in Berlin), without its number."},
+        "tier": {"enum": ["LOW", "MEDIUM", "HIGH"]},
+        "expected_per_year": {"type": "number", "minimum": 0},
+        "reports_12m": {"type": "integer", "minimum": 0, "description": "Street thefts in metadata.data_window."},
+        "limited_data": {"type": "boolean", "description": "Fewer than 5 street thefts in the window (M6)."},
+        "no_record": {"type": "boolean", "description": "No street theft at all in the cleaned data."},
+        "confidence": {
+          "enum": ["LOW", "MEDIUM", "HIGH"],
+          "description": "From the theft count (issue #57). May be absent in 1.0.0."
+        },
+        "area_stats": {
+          "type": "object",
+          "required": ["median_stolen_value_eur", "median_source"],
+          "additionalProperties": false,
+          "properties": {
+            "median_stolen_value_eur": {"type": "integer", "minimum": 0},
+            "median_source": {"enum": ["area", "citywide"]}
+          },
+          "description": "Issue #57: the area's own median from 20 street thefts, otherwise the citywide one. May be absent in 1.0.0."
+        }
+      }
+    }
+  }
+}
