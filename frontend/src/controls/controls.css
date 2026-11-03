@@ -1,0 +1,32 @@
+/* Buttons and choices (chips, segmented). Hover/focus/pressed are a foreground-coloured layer drawn by ::before;
+   the 44px tap target is ::after. Buttons get the global :focus-visible ring (base.css); a choice's focus lands on its hidden radio, so the label draws the ring itself. */
+.btn, .choice {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: var(--control-md); min-width: var(--tap-target); box-sizing: border-box; cursor: pointer; user-select: none;
+  font: inherit; border: var(--border-2) solid transparent; color: var(--fg);
+  background: var(--bg);
+}
+.btn::before, .choice::before { content: ""; position: absolute; inset: calc(-1 * var(--border-2)); border-radius: inherit; background: var(--fg); opacity: 0; pointer-events: none; }
+.btn::after, .choice::after { content: ""; position: absolute; inset: calc((var(--control-md) - var(--tap-target)) / 2 - var(--border-2)) 0; }
+.btn:hover::before, .choice:hover::before { opacity: var(--state-hover); }
+.btn:focus-visible::before, .choice:has(input:focus-visible)::before { opacity: var(--state-focus); }
+.btn:active::before, .choice:active::before { opacity: var(--state-pressed); }
+.choice:has(input:focus-visible) { box-shadow: var(--focus-ring); outline: 2px solid transparent; outline-offset: 2px; /* shown in forced-colors mode */ }
+.btn:disabled, .choice:has(input:disabled) { opacity: var(--opacity-disabled); pointer-events: none; }
+
+.btn { --fg: var(--primary); --bg: transparent; padding: 0 var(--space-6); border-radius: var(--radius-full); }
+.btn-primary { --fg: var(--on-primary); --bg: var(--primary); }
+.btn-tonal { --fg: var(--on-primary-container); --bg: var(--primary-container); }
+.btn-outlined { border-color: var(--outline); }
+.btn-text { padding: 0 var(--space-3); }
+
+.choices { margin: 0; padding: 0; border: 0; min-width: 0; }
+.choice-list { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.choice-list-segmented { gap: var(--space-1); padding: var(--space-1); border-radius: var(--radius-md); background: var(--secondary-container); }
+.choice { --fg: var(--on-secondary-container); --bg: var(--secondary-container); padding: 0 var(--space-4); border-radius: var(--radius-full); }
+.choice-list-segmented .choice { --bg: transparent; border-radius: var(--radius-sm); }
+.choice:has(input:checked) { --fg: var(--on-primary-container); --bg: var(--primary-container); border-color: var(--on-primary-container); }
+.choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: inherit; }
+.choice svg { display: none; flex: none; }
+.choice:has(input:checked) svg { display: block; }
+.choices-pattern { margin: var(--space-2) 0 0; color: var(--on-surface-variant); }
