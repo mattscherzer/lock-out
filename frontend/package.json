@@ -8,10 +8,14 @@
   "scripts": {
     "dev": "vite",
     "typecheck": "tsc --noEmit",
-    "build": "npm run typecheck && node --experimental-strip-types scripts/gen-tokens.mts --check && vite build",
+    "build": "npm run typecheck && npm run lint:css && npm run format:check && node --experimental-strip-types scripts/gen-tokens.mts --check && vite build",
     "preview": "vite preview",
     "tokens": "node --experimental-strip-types scripts/gen-tokens.mts",
-    "test": "node --experimental-strip-types --test scripts/gen-tokens.test.mts && vitest run"
+    "test": "node --experimental-strip-types --test scripts/gen-tokens.test.mts && vitest run",
+    "format": "prettier --write \"src/**/*.css\"",
+    "lint:css": "stylelint \"src/**/*.css\"",
+    "lint:css:fix": "stylelint \"src/**/*.css\" --fix",
+    "format:check": "prettier --check \"src/**/*.css\""
   },
   "dependencies": {
     "leaflet": "^1.9.4",
@@ -29,6 +33,9 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "jsdom": "^29.1.1",
+    "prettier": "^3.9.10",
+    "stylelint": "^17.16.0",
+    "stylelint-config-standard": "^40.0.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.5",
