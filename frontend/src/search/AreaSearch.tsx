@@ -28,6 +28,29 @@ const glyph = (place: Place) => {
 
 const exampleGlyph = { Street: Road, Postcode: Mail, Station: TrainFront, Area: VectorPolygon, Water: MapPin }; // keyed by EXAMPLES' word
 
+// Class strings are written out whole so Tailwind sees them; a variant is a separate string, never a concatenation that depends on state.
+// shortcut: py-[10px], gap-[10px], pb-[6px], text-[13px]/[18px], min-w-[34px], rounded-[3px] are off the token scale; they match the old CSS pixel for pixel, a follow-up snaps them.
+const OPTION = "box-border flex min-h-16 cursor-pointer items-center gap-3 px-4 py-[10px] aria-selected:bg-surface-container";
+const PARENT = "area-search-parent box-border flex min-h-14 cursor-default items-center gap-3 px-4 pt-[10px] pb-[6px]"; // a group label, not an option
+const CHILD = "box-border flex min-h-tap-target cursor-pointer items-center gap-[10px] bg-surface py-2 pr-4 pl-16 aria-selected:bg-surface-container";
+const MORE = "body-md box-border flex min-h-tap-target cursor-pointer items-center gap-2 py-2 pr-4 pl-16 font-semibold text-on-primary-container aria-selected:bg-surface-container";
+const GLYPH = "grid size-9 flex-none place-items-center rounded-full bg-secondary-container text-on-secondary-container";
+const TEXT = "flex min-w-0 flex-1 flex-col";
+const NAME = "area-search-name body-lg line-clamp-2 [overflow-wrap:anywhere] [&_b]:font-semibold"; // area-search-name: a test hook
+const NAME_CHILD = "area-search-name body-md line-clamp-2 font-medium [overflow-wrap:anywhere] [&_b]:font-semibold";
+const SUB = "mt-0.5 truncate text-[13px]/[18px] text-on-surface-variant";
+const SUB_CHILD = "body-sm truncate text-on-surface-variant";
+const BAR = "h-1.5 w-11 flex-none overflow-hidden rounded-[3px] bg-outline-variant";
+const PCT = "body-sm min-w-[34px] flex-none text-right font-semibold text-on-primary-container";
+const NOTE = "body-sm m-0 px-4 py-3 text-on-surface-variant";
+const LABEL = "body-sm m-0 px-4 pt-3 pb-1 font-semibold text-on-surface-variant";
+const MESSAGE = "body-sm p-6 text-on-surface-variant"; // the empty and error blocks
+const MESSAGE_TITLE = "body-lg m-0 mb-1 font-semibold";
+const ICON_BOX = "grid size-tap-target flex-none place-items-center text-on-surface-variant";
+const SKELETON_ROW = "box-border flex min-h-16 items-center gap-3 px-4 py-[10px]";
+const PULSE = "animate-pulse bg-surface-container motion-reduce:animate-none";
+const HINTS = "body-sm hidden flex-none gap-4 border-t border-outline-variant bg-surface px-4 py-[10px] text-on-surface-variant min-[900px]:flex";
+
 const rowKey = (r: Row) => (r.type === "area" ? `${placeKey(r.place)}|${r.id}` : `${r.type}|${placeKey(r.place)}`); // a place spans several areas
 const WIDE = "(min-width: 600px)"; // tablet and desktop: more rows
 const subscribeWide = (cb: () => void) => {
@@ -219,7 +242,7 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
         <button type="button" className="area-search-back" aria-label="Close search" onMouseDown={(e) => e.preventDefault()} onClick={() => { close(); input.current?.blur(); }}>
           <ArrowLeft aria-hidden size={22} />
         </button>
-        <span className="area-search-icon" onClick={() => input.current?.focus()}>
+        <span className={`area-search-icon ${ICON_BOX}`} onClick={() => input.current?.focus()}>
           <Search aria-hidden size={22} />
         </span>
         <input
@@ -249,7 +272,7 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
           onBlur={() => (justFocused.current = false)}
           onKeyDown={onKeyDown}
         />
-        {slow && streetsLoading && <span className="area-search-spinner" aria-hidden><LoaderCircle size={22} /></span>}
+        {slow && streetsLoading && <span className={ICON_BOX} aria-hidden><LoaderCircle className="animate-spin motion-reduce:animate-none" size={22} /></span>}
         {text && !(slow && streetsLoading) && (
           <button
             type="button"
@@ -269,38 +292,44 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
         )}
       </div>
       <div className="area-search-panel" hidden={!open}>
-        {houseNumber && <p className="area-search-note">House numbers aren't searchable yet, showing the street.</p>}
-        {shown && tooShort && <p className="area-search-note">Type at least two characters.</p>}
+        {houseNumber && <p className={NOTE}>House numbers aren't searchable yet, showing the street.</p>}
+        {shown && tooShort && <p className={NOTE}>Type at least two characters.</p>}
         {shown && !tooShort && streetsError && (
-          <div className="area-search-note area-search-error" role="alert">
-            <p className="title-sm">{rows.length ? "Street search isn't available right now" : "Search isn't responding"}</p>
-            <p>We kept what you typed. Check your connection and try again.</p>
+          <div className={`area-search-error ${MESSAGE}`} role="alert">
+            <p className={`${MESSAGE_TITLE} text-error`}>{rows.length ? "Street search isn't available right now" : "Search isn't responding"}</p>
+            <p className="m-0 mb-1">We kept what you typed. Check your connection and try again.</p>
             <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={retry}>Try again</button>
           </div>
         )}
         {shown && !tooShort && !rows.length && streetsLoading && slow && (
           <ul className="area-search-skeleton" aria-hidden>
             {[0, 1, 2].map((i) => (
-              <li key={i}><span /><span><i /><i /></span></li>
+              <li key={i} className={SKELETON_ROW}>
+                <span className={`size-9 flex-none rounded-full ${PULSE}`} />
+                <span className="flex flex-1 flex-col gap-2">
+                  <i className={`block h-[10px] w-3/5 rounded-full ${PULSE}`} />
+                  <i className={`block h-[10px] w-2/5 rounded-full ${PULSE}`} />
+                </span>
+              </li>
             ))}
           </ul>
         )}
-        {empty && <p className="area-search-note area-search-label">Try searching for</p>}
+        {empty && <p className={LABEL}>Try searching for</p>}
         {shown && !tooShort && !rows.length && !streetsLoading && !streetsError && (
-          <div className="area-search-note area-search-empty">
-            <p className="title-sm">‘{query.trim()}’ not found</p>
-            <p>lock-out covers Berlin only. Try a Berlin street, postcode, area or station.</p>
+          <div className={MESSAGE}>
+            <p className={`${MESSAGE_TITLE} text-on-surface`}>‘{query.trim()}’ not found</p>
+            <p className="m-0 mb-1">lock-out covers Berlin only. Try a Berlin street, postcode, area or station.</p>
           </div>
         )}
         <ul id={`${id}-list`} role="listbox" aria-label={empty ? "Examples" : "Areas"} hidden={!count} onMouseDown={(e) => e.preventDefault()}>
           {empty && EXAMPLES.map((ex, i) => {
             const Glyph = exampleGlyph[ex.word as keyof typeof exampleGlyph];
             return (
-              <li key={ex.label} id={`${id}-${i}`} role="option" aria-selected={i === current} className="area-search-option" onClick={() => pickExample(ex.label)} onMouseMove={() => setActive(i)}>
-                <span className="area-search-glyph"><Glyph aria-hidden size={18} strokeWidth={1.8} /></span>
-                <span className="area-search-text">
-                  <span className="area-search-name">{ex.label}</span>
-                  <span className="area-search-sub">{ex.word}</span>
+              <li key={ex.label} id={`${id}-${i}`} role="option" aria-selected={i === current} className={OPTION} onClick={() => pickExample(ex.label)} onMouseMove={() => setActive(i)}>
+                <span className={GLYPH}><Glyph aria-hidden size={18} strokeWidth={1.8} /></span>
+                <span className={TEXT}>
+                  <span className={NAME}>{ex.label}</span>
+                  <span className={SUB}>{ex.word}</span>
                 </span>
               </li>
             );
@@ -312,11 +341,11 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
             const key = rowKey(r);
             if (r.type === "label")
               return (
-                <li key={key} role="presentation" className="area-search-option area-search-parent" title={name}>
-                  <span className="area-search-glyph"><Glyph aria-hidden size={18} strokeWidth={1.8} /></span>
-                  <span className="area-search-text">
-                    <span className="area-search-name"><Bold text={name} part={query.trim()} /></span>
-                    <span className="area-search-sub">{kindWord(r.place)} · in {r.place.areas.length} areas</span>
+                <li key={key} role="presentation" className={PARENT} title={name}>
+                  <span className={GLYPH}><Glyph aria-hidden size={18} strokeWidth={1.8} /></span>
+                  <span className={TEXT}>
+                    <span className={NAME}><Bold text={name} part={query.trim()} /></span>
+                    <span className={SUB}>{kindWord(r.place)} · in {r.place.areas.length} areas</span>
                   </span>
                 </li>
               );
@@ -324,7 +353,7 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
             const common = { id: `${id}-${i}`, role: "option", "aria-selected": i === current, onClick: () => choose(r, true), onMouseMove: () => setActive(i) } as const;
             if (r.type === "more")
               return (
-                <li key={key} {...common} className="area-search-option area-search-more">
+                <li key={key} {...common} className={MORE}>
                   +{r.n} more areas for {name}
                   <ChevronDown aria-hidden size={16} strokeWidth={2} />
                 </li>
@@ -333,24 +362,24 @@ export function AreaSearch({ index, areas, selected, onSelect, onClear, closeSig
             const full = child ? area!.name : name;
             const sub = child || r.place.kind === "area" ? `Area · ${bezirkLabel(area!.bzr_name)}` : `${kindWord(r.place)} · ${area!.name} · ${bezirkLabel(area!.bzr_name)}`;
             return (
-              <li key={key} {...common} title={full} aria-label={child ? `${full}, ${sub}, in ${name}, ${r.pct}%` : undefined} className={child ? "area-search-option area-search-child" : "area-search-option"}>
-                {!child && <span className="area-search-glyph"><Glyph aria-hidden size={18} strokeWidth={1.8} /></span>}
-                <span className="area-search-text">
-                  <span className="area-search-name"><Bold text={full} part={query.trim()} /></span>
-                  <span className="area-search-sub">{sub}</span>
+              <li key={key} {...common} title={full} aria-label={child ? `${full}, ${sub}, in ${name}, ${r.pct}%` : undefined} className={child ? CHILD : OPTION}>
+                {!child && <span className={GLYPH}><Glyph aria-hidden size={18} strokeWidth={1.8} /></span>}
+                <span className={TEXT}>
+                  <span className={child ? NAME_CHILD : NAME}><Bold text={full} part={query.trim()} /></span>
+                  <span className={child ? SUB_CHILD : SUB}>{sub}</span>
                 </span>
                 {child && (
                   <>
-                    <span className="area-search-bar" aria-hidden><span style={{ width: `${r.pct}%` }} /></span>
-                    <span className="area-search-pct">{r.pct}%</span>
+                    <span className={BAR} aria-hidden><span className="block h-full rounded-[3px] bg-primary" style={{ width: `${r.pct}%` }} /></span>
+                    <span className={PCT}>{r.pct}%</span>
                   </>
                 )}
               </li>
             );
           })}
         </ul>
-        {overflow && <p className="area-search-note">Keep typing to narrow down</p>}
-        <div className="area-search-hints" aria-hidden>
+        {overflow && <p className={NOTE}>Keep typing to narrow down</p>}
+        <div className={HINTS} aria-hidden>
           <span>↑ ↓ navigate</span>
           <span>↵ select</span>
           <span>esc close</span>
