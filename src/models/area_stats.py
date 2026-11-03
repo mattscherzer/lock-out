@@ -21,8 +21,8 @@ LOCK_DEFEATED = "schwerer"  # ERFASSUNGSGRUND marks a theft where a lock was def
 
 
 def confidence(n):
-    """Confidence from an area's street thefts in 12 months. Below 5 is LOW, the same line as "limited data" (M6),
-    so a thin or empty area never gets a reassuring label; HIGH from 20, the same number the own median needs."""
+    """Confidence from all of an area's street thefts in 12 months. Below 5 is LOW, the same line as "limited data" (M6),
+    so a thin or empty area never gets a reassuring label; HIGH from 20 thefts, even if fewer than 20 have a usable value."""
     if n < LIMITED_DATA_BELOW:
         return "LOW"
     return "MEDIUM" if n < OWN_MEDIAN_FROM else "HIGH"
@@ -40,7 +40,7 @@ def citywide_facts(window):
     defeated = window["ERFASSUNGSGRUND"].str.contains(LOCK_DEFEATED, na=False)
     median = stolen_value(window).median()
     if pd.isna(median):
-        raise ValueError("No theft in the window has a usable stolen value, so there is no citywide median to fall back on")
+        raise ValueError("No usable stolen value in the window, so no citywide median")
     return {"lock_defeated_share": round(float(defeated.mean()), 4), "median_stolen_value_eur": round(float(median))}
 
 
