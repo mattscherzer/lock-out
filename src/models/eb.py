@@ -194,6 +194,14 @@ def generate(df, areas, reports_up_to, cutoff, source, selectors):
     return out
 
 
+def write_lookup(lookup, path=LOOKUP):
+    """Write the lookup file only if it matches the schema. allow_nan=False also refuses NaN and infinity: the schema
+    lets them through as numbers, but one of them would break JSON.parse for the whole page."""
+    if found := problems(lookup):
+        sys.exit("The output does not match schemas/lookup_v1.schema.json:\n" + "\n".join(found[:20]))
+    path.write_text(json.dumps(lookup, ensure_ascii=False, separators=(",", ":"), allow_nan=False), encoding="utf-8")
+
+
 def markdown(rows, checks, lookup, reports_up_to, cutoff, source):
     lines = [f"| {f} | {t} | {v} | {'pass' if ok else 'MISS'} |" for f, t, v, ok in checks]
     folds = [f"| {r['fold']} | {r['deviance']:.3f} | {r['citywide']:.3f} | {r['raw']:.3f} | {r['spearman']:.3f} | {r['high_in_top_quartile']:.0%} | {r['raw_high_in_top_quartile']:.0%} |" for r in rows]
@@ -244,9 +252,7 @@ if __name__ == "__main__":
     checks = targets(rows)
     flags = selector_flags(rows)
     lookup = generate(cleaned, areas, reports_up_to, cutoff, path.name, flags)
-    if found := problems(lookup):
-        sys.exit("The output does not match schemas/lookup_v1.schema.json:\n" + "\n".join(found[:20]))
-    LOOKUP.write_text(json.dumps(lookup, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    write_lookup(lookup)
     RESULTS.write_text(markdown(rows, checks, lookup, reports_up_to, cutoff, path.name), encoding="utf-8")
     for f, t, v, ok in checks:
         print(f"{'pass' if ok else 'MISS'}  {f}  {t}: {v}")
