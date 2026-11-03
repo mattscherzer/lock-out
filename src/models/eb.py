@@ -139,10 +139,15 @@ def citywide_multipliers(df):
     return out
 
 
+def generator_window(df, cutoff):
+    """The thefts the generator counts: those whose window ended in the 12 months up to the cutoff; also that first day."""
+    start = cutoff - pd.DateOffset(months=HISTORY_MONTHS) + pd.Timedelta(days=1)
+    return df[df["TATZEIT_ENDE_DATUM"].between(start, cutoff)], start
+
+
 def generate(df, areas, reports_up_to, cutoff, source, selectors):
     """The generator v0 output. selectors: the per-selector flags from selector_flags()."""
-    start = cutoff - pd.DateOffset(months=HISTORY_MONTHS) + pd.Timedelta(days=1)
-    window = df[df["TATZEIT_ENDE_DATUM"].between(start, cutoff)]
+    window, start = generator_window(df, cutoff)
     y = counts(window, areas, start, cutoff)
     rate, a = fit(y)
     tier = tiers(rate)
