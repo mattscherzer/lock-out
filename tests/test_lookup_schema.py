@@ -29,7 +29,7 @@ def test_the_schema_itself_is_valid_and_accepts_every_1_x_version(output):
     Draft202012Validator.check_schema(load(SCHEMA))
     assert output["metadata"]["schema_version"] == SCHEMA_VERSION
     # a minor bump (1.1.0) must not need a change to this rule; a new major version (2.0.0) must
-    for version, ok in [("1.0.0", True), ("1.1.0", True), ("1.12.3", True), ("2.0.0", False), ("1.1", False)]:
+    for version, ok in [("1.0.0", True), ("1.1.0", True), ("1.12.3", True), ("2.0.0", False), ("1.1", False), ("1.00.0", False), ("1.0.0\n", False)]:
         doc = copy.deepcopy(output)
         doc["metadata"]["schema_version"] = version
         assert (problems(doc) == []) == ok, version
