@@ -1,8 +1,8 @@
 """Build frontend/public fixtures from the LOR GeoJSON (stdlib only).
 
-Writes areas.geojson (simplified boundaries) and lookup_fixture.json
-(draft lookup_schema_v1 shape: metadata, risk_bands, areas without predictions).
-Run from the repo root: python3 frontend/scripts/build_fixture.py
+Writes areas.geojson (simplified boundaries) and lookup_fixture.json, a copy of the generator output
+data/processed/lookup_schema_v1.json, so the fixture follows schemas/lookup_v1.schema.json (checked in pytest).
+Run from the repo root after src/models/eb.py: python3 frontend/scripts/build_fixture.py
 """
 import json
 from pathlib import Path
@@ -35,10 +35,10 @@ def simplify_ring(r):
     return out if len(out) >= 4 else None
 
 
-src = json.loads((ROOT / "data/raw/lor_planungsraeume_2021.geojson").read_text())
-schema = json.loads((ROOT / "data/processed/lookup_schema_v1.json").read_text())
+src = json.loads((ROOT / "data/raw/lor_planungsraeume_2021.geojson").read_text(encoding="utf-8"))
+lookup = json.loads((ROOT / "data/processed/lookup_schema_v1.json").read_text(encoding="utf-8"))
 
-features, areas, dropped = [], {}, 0
+features, dropped = [], 0
 for f in src["features"]:
     p = f["properties"]
     polys = []
@@ -50,11 +50,10 @@ for f in src["features"]:
             dropped += 1
     features.append({"type": "Feature", "properties": {"id": p["plr_id"]},
                      "geometry": {"type": "MultiPolygon", "coordinates": polys}})
-    areas[p["plr_id"]] = {"name": p["plr_name"], "bzr_id": p["bzr_id"], "bzr_name": p["bzr_name"]}
 
 print(f"dropped {dropped} collapsed polygon parts")
-assert len(features) == 542 and len(areas) == 542
+assert len(features) == 542 and len(lookup["areas"]) == 542
+assert {f["properties"]["id"] for f in features} == set(lookup["areas"])
 out = ROOT / "frontend/public"
-(out / "areas.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": features}, separators=(",", ":")))
-fixture = {"metadata": schema["metadata"], "risk_bands": schema["risk_bands"], "areas": areas}
-(out / "lookup_fixture.json").write_text(json.dumps(fixture, ensure_ascii=False, indent=1))
+(out / "areas.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": features}, separators=(",", ":")), encoding="utf-8")
+(out / "lookup_fixture.json").write_text(json.dumps(lookup, ensure_ascii=False, indent=1), encoding="utf-8")
