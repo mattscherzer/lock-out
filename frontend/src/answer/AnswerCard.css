@@ -11,7 +11,7 @@
 .answer-header { display: flex; gap: var(--space-2); align-items: flex-start; padding: 0 var(--space-4) var(--space-2); }
 .answer-title { flex: 1; min-width: 0; }
 .answer-title h2 { margin: 0; overflow-wrap: anywhere; }
-.answer-title h2:focus-visible { outline-offset: 4px; }
+.answer-title h2:focus-visible { box-shadow: none; outline: 0; } /* focus moves here for screen readers; the heading is not interactive, so no ring after a keyboard search */
 .answer-title p { margin: 0 0 var(--space-2); color: var(--on-surface-variant); }
 .answer-close, .answer-appbar button { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: var(--radius-full); background: none; color: var(--on-surface); cursor: pointer; }
 .answer-close { margin: -6px -8px 0 0; }
