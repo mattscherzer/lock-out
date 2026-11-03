@@ -132,7 +132,7 @@
   cursor: pointer;
 }
 
-.area-search-option[aria-selected='true'] {
+.area-search-option[aria-selected="true"] {
   background: var(--surface-container);
 }
 
@@ -406,8 +406,8 @@
   line-height: var(--body-sm-line-height);
 }
 
-.area-search-child[aria-selected='true'],
-.area-search-more[aria-selected='true'] {
+.area-search-child[aria-selected="true"],
+.area-search-more[aria-selected="true"] {
   background: var(--surface-container);
 }
 
