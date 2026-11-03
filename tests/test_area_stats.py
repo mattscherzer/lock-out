@@ -5,6 +5,7 @@ import pandas as pd
 from audit_checks import polygon_ids
 from models.area_stats import OWN_MEDIAN_FROM, area_stats, citywide_facts, confidence
 from models.eb import generate, generator_window
+from models.selector_checks import SELECTORS
 from pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
@@ -56,5 +57,5 @@ def test_report_counts_match_the_generator():
     cutoff = cleaned["ANGELEGT_AM"].max() - pd.Timedelta(days=14)
     areas = sorted(polygon_ids())
     t = area_stats(generator_window(cleaned, cutoff)[0], areas)
-    out = generate(cleaned, areas, cleaned["ANGELEGT_AM"].max(), cutoff, "sample.csv", {})
+    out = generate(cleaned, areas, cleaned["ANGELEGT_AM"].max(), cutoff, "sample.csv", {s: {"pattern": "citywide pattern", "reason": "test"} for s in SELECTORS})
     assert t["reports_12m"].to_dict() == {lor: a["reports_12m"] for lor, a in out["areas"].items()}
