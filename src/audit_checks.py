@@ -35,6 +35,13 @@ def polygon_ids():
     return {f["properties"]["plr_id"] for f in geo["features"]}
 
 
+def area_names():
+    """8-digit area id -> area name, Bezirksregion id and name, and Bezirk name ("01 - Mitte" -> "Mitte")."""
+    geo = json.loads(POLYGONS.read_text(encoding="utf-8"))
+    return {p["plr_id"]: {"name": p["plr_name"], "bzr_id": p["bzr_id"], "bzr_name": p["bzr_name"], "bez_name": p["bez"].split(" - ", 1)[-1]}
+            for p in (f["properties"] for f in geo["features"])}
+
+
 def street_rows(df):
     cellar = (df["DELIKT"] == "Keller- und Bodeneinbruch") | df["ERFASSUNGSGRUND"].str.contains("Keller", na=False)
     return df[~cellar]

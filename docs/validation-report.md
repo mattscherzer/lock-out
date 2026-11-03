@@ -71,7 +71,7 @@ Each selector the card shows is checked on both folds. It gets an area pattern o
 - **Time band:** offence hours are spread across the reported window, and the cleaning splits each theft over the bands it covers. Even a passing time band would be weak evidence.
 - **Bike value** is the one split at EUR 1000 used in the model ("bike class" in the issue). A theft with no recorded value counts in neither level.
 - **Hold-out alone** shows the hold-out result whatever the sparsity rule says, so a flag that rests on the working rule alone is visible.
-- **"Area pattern" is a validation result only.** The v0 output (`lookup_v0.json`) still carries only the citywide shares. Whether to add area values, and how the card words them, is decided at the schema lock (WP 1.5): the data shows which bikes are stolen in an area, not how many of each kind are parked there.
+- **"Area pattern" is a validation result only.** The lookup file (`lookup_schema_v1.json`) still carries only the citywide shares (`area_values` is false). Adding area values, and deciding how the card words them, would be an additive change to schema v1: the data shows which bikes are stolen in an area, not how many of each kind are parked there.
 
 | Selector | Median, 2026-04-01 to 2026-06-30 | Median, 2026-07-01 to 2026-09-29 | Deviance citywide vs area, 2026-04-01 to 2026-06-30 | Deviance citywide vs area, 2026-07-01 to 2026-09-29 | Hold-out alone | Flag | Reason |
 | --- | --- | --- | --- | --- | --- | --- | --- |
