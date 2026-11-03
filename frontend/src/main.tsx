@@ -3,6 +3,8 @@ import "leaflet/dist/leaflet.css";
 import "./styles/index.css";
 import type { FeatureCollection } from "geojson";
 import { createRoot } from "react-dom/client";
+import { AnswerCard, higherPx } from "./answer/AnswerCard.tsx";
+import type { Tier } from "./answer/RiskChip.tsx";
 import { AreaSearch, type Context } from "./search/AreaSearch.tsx";
 import { addStreets, buildIndex } from "./search/places.ts";
 import type { Fixture, Gazetteer, StreetsFile } from "./search/types.ts";
@@ -65,6 +67,8 @@ try {
   map.fitBounds(layer.getBounds());
   let selected: string | null = null;
   let closeSignal = 0;
+  let cardOpen = false;
+  let lowerSignal = 0; // focusing the search lowers the phone sheet out of the way
   const notes = new Set(gazetteer ? [] : ["station and postcode search unavailable"]);
   const showStatus = () => (status.textContent = [...notes].join(" · "));
   const index = buildIndex(gazetteer ?? EMPTY_GAZETTEER, fixture.areas);
@@ -79,7 +83,41 @@ try {
         throw err; // the search box retries on the next focus
       })
       .finally(showStatus);
+  // keep the area clear of the side panel (desktop) or the sheet and the search above it (phone, sheet at its opening height)
+  const flyPadding = () =>
+    innerWidth >= 600
+      ? { paddingTopLeft: L.point(document.querySelector<HTMLElement>(".answer-card")!.offsetWidth, 0) }
+      : { paddingTopLeft: L.point(0, 110), paddingBottomRight: L.point(0, higherPx()) };
   const searchRoot = createRoot(document.getElementById("search")!);
+  const cardRoot = createRoot(document.getElementById("answer")!);
+  // TODO(#64): stub until real answers arrive: spreads areas over the tiers so every card state can be seen.
+  const TIERS: Tier[] = ["low", "medium", "high", "no-data"];
+  const tierOf = (id: string) => TIERS[[...id].reduce((n, c) => n + c.charCodeAt(0), 0) % TIERS.length];
+  const renderCard = () => {
+    const tier = selected ? tierOf(selected) : "no-data";
+    cardRoot.render(
+      <AnswerCard
+        open={selected !== null && cardOpen}
+        area={selected ? fixture.areas[selected] : null}
+        areaId={selected}
+        state={tier === "no-data" ? "no-data" : "ready"}
+        tier={tier}
+        lowerSignal={lowerSignal}
+        blocks={{ risk: "Placeholder: the risk assessment arrives with #64.", advice: "Placeholder: lock advice arrives with #64.", source: "Police reports and OpenStreetMap." }}
+        onClose={() => {
+          cardOpen = false;
+          renderCard();
+          // desktop: back to the field, which shows the still-selected area. Not on a phone: focusing opens the full-screen search and hides the map.
+          if (innerWidth >= 600) document.querySelector<HTMLInputElement>("#search input")?.focus();
+        }}
+      />,
+    );
+  };
+  // a fly (zoom out, pan, zoom in) reads smoother than a straight jump; the motion token is 0 under reduced motion
+  const fly = (id: string, options: L.FitBoundsOptions = {}) => {
+    const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--duration-slow"));
+    map.flyToBounds(polygons[id].getBounds(), { ...flyPadding(), ...options, duration: ms / 1000, animate: ms > 0 });
+  };
   const renderSearch = () =>
     searchRoot.render(
       <AreaSearch
@@ -88,9 +126,7 @@ try {
         selected={selected}
         onSelect={(id, context) => {
           select(id, context);
-          // a fly (zoom out, pan, zoom in) reads smoother than a straight jump; the motion token is 0 under reduced motion
-          const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--duration-slow"));
-          map.flyToBounds(polygons[id].getBounds(), { duration: ms / 1000, animate: ms > 0 });
+          fly(id);
         }}
         onClear={() => select(null, null)}
         closeSignal={closeSignal}
@@ -111,15 +147,28 @@ try {
       : undefined;
     selected = id;
     if (id) polygons[id].setStyle(SELECTED_STYLE).bringToFront();
+    cardOpen = id !== null;
     renderSearch();
+    renderCard();
   };
   // a tap on the map closes the list; a tap on an area also selects it
   map.on("click", () => {
     closeSignal++;
     renderSearch();
   });
-  Object.entries(polygons).forEach(([id, polygon]) => polygon.on("click", () => select(id, null)));
+  Object.entries(polygons).forEach(([id, polygon]) =>
+    polygon.on("click", () => {
+      select(id, null);
+      fly(id, { maxZoom: map.getZoom() }); // pan clear of the card, never zoom in on a tap
+    }),
+  );
+  document.getElementById("search")!.addEventListener("focusin", () => {
+    if (!cardOpen) return;
+    lowerSignal++;
+    renderCard();
+  });
   renderSearch();
+  renderCard();
   showStatus();
 } catch (err) {
   status.textContent = "Could not load map data";
