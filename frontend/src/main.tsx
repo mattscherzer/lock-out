@@ -86,7 +86,7 @@ try {
   // keep the area clear of the side panel (desktop) or the sheet and the search above it (phone, sheet at its opening height)
   const flyPadding = () =>
     innerWidth >= 600
-      ? { paddingTopLeft: L.point(document.querySelector<HTMLElement>(".answer-card")!.offsetWidth, 0) } // the panel's own width
+      ? { paddingTopLeft: L.point(document.querySelector<HTMLElement>(".answer-card")!.offsetWidth, 0) }
       : { paddingTopLeft: L.point(0, 110), paddingBottomRight: L.point(0, higherPx()) };
   const searchRoot = createRoot(document.getElementById("search")!);
   const cardRoot = createRoot(document.getElementById("answer")!);

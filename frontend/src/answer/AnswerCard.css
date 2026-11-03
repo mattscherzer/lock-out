@@ -1,5 +1,4 @@
-/* The card is one element with two layouts: phone (<600px) a Material 3 standard bottom sheet with three heights, from 600px a full-height left panel.
-   It stays mounted so it can slide; hidden visibility keeps it out of the tab order while closed. */
+/* One element, two layouts. It stays mounted so it can slide; visibility: hidden keeps it out of the tab order while closed. */
 .answer-card {
   position: fixed;
   z-index: calc(var(--z-search) - 1);
@@ -73,7 +72,7 @@
 .answer-title h2:focus-visible {
   box-shadow: none;
   outline: 0;
-} /* focus moves here for screen readers; the heading is not interactive, so no ring after a keyboard search */
+} /* programmatic focus only: no ring on a non-interactive heading */
 .answer-title p {
   margin: 0 0 var(--space-2);
   color: var(--on-surface-variant);
@@ -189,7 +188,8 @@
 
   .answer-card[data-open][data-stop="higher"] {
     transform: translateY(calc(100% - var(--answer-higher)));
-  } /* opens here; the map stays usable above it */
+  }
+
   .answer-card[data-open][data-stop="full"] {
     transform: none;
     border-radius: 0;
@@ -199,7 +199,7 @@
     touch-action: none;
   }
 
-  /* the card is 100dvh tall and slid down, so pad the scroll area by the hidden part or the last block stays off screen */
+  /* the card is 100dvh tall and slid down: pad by the hidden part so the last block can scroll into view */
   .answer-card[data-open][data-stop="lowered"] .answer-body {
     padding-bottom: calc(var(--space-4) + 100dvh - var(--answer-lowered));
   }
@@ -218,7 +218,7 @@
   }
 }
 
-/* Full-height left panel flush with the edge, as in Google Maps. The search pill (400px, 16px inset) floats over its top: hence 432px wide and the 80px header offset. */
+/* The search pill (400px, 16px inset) floats over the panel's top: hence 432px wide and the 80px header offset. */
 @media (width >= 600px) {
   .answer-card {
     top: 0;
@@ -252,7 +252,6 @@
     padding-top: 80px;
   }
 
-  /* edge tab: collapses the panel to the pill alone, and brings it back */
   .answer-tab {
     position: fixed;
     z-index: calc(var(--z-search) - 1);
@@ -275,7 +274,8 @@
     content: "";
     position: absolute;
     inset: 0 calc(var(--space-6) * -1) 0 0;
-  } /* 44px wide hit area */
+  }
+
   .answer-tab[data-open] {
     display: grid;
   }

@@ -31,13 +31,12 @@ const NOTE: Record<Exclude<CardState, "ready">, [title: string, text: string]> =
   error: ["Could not load this area", "Something went wrong. Pick the area again to retry."],
 };
 
-// Phone: Material 3 standard bottom sheet with three heights (lowered, higher, full screen); from 600px a full-height left panel.
-// The layout switch is CSS; on a phone the sheet follows the finger and settles on the stop nearest to where it would coast to.
+// Phone: bottom sheet with three stops; from 600px a left panel. The layout switch is CSS; the drag settles on the stop nearest where the sheet would coast to.
 export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, lowerSignal }: Props) {
   const card = useRef<HTMLElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
   const [stop, setStop] = useState<Stop>("higher");
-  const [collapsed, setCollapsed] = useState(false); // desktop: panel hidden, edge tab left
+  const [collapsed, setCollapsed] = useState(false);
   const before = useRef<Stop>("higher"); // where Collapse returns to from full screen
   const last = useRef(area); // keeps the content while the card slides out
   if (area) last.current = area;
@@ -55,7 +54,7 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
   };
 
   useEffect(() => {
-    if (open) setStop("higher"); // opens at the middle height; picking another area keeps the height
+    if (open) setStop("higher"); // picking another area keeps the height
   }, [open]);
   useEffect(() => {
     if (!open) return;
@@ -99,7 +98,7 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
     if (!d?.moved || !card.current) return;
     const idle = d.last ? performance.now() - d.last[1] > 50 : true; // a held finger has no velocity
     const at = Math.max(0, d.from + e.clientY - d.y) + (idle ? 0 : d.v) * FLICK_MS;
-    card.current.style.removeProperty("transition"); // from here the CSS transition (token duration and easing) settles it
+    card.current.style.removeProperty("transition"); // the CSS transition settles it from here
     card.current.style.removeProperty("transform");
     const i = d.stops.reduce((best, s, k) => (Math.abs(s - at) < Math.abs(d.stops[best] - at) ? k : best), 0);
     if (i === CLOSED) onClose();
@@ -115,7 +114,6 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
     e.stopPropagation();
     onClose();
   };
-  // the handle steps lowered, higher, full, lowered: the single-pointer alternative to dragging
   const step = () => go(STOPS[(STOPS.indexOf(stop) + 1) % STOPS.length]);
 
   return (
