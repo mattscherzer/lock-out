@@ -59,7 +59,7 @@ const exampleGlyph = {
   Water: MapPin,
 }; // keyed by EXAMPLES' word
 
-// Class strings are written out whole so Tailwind sees them; a variant is a separate string, never a concatenation that depends on state.
+// Class strings are written out whole so Tailwind sees them; a variant is a separate string, never a class built from state.
 // shortcut: py-[10px], gap-[10px], pb-[6px], text-[13px]/[18px], min-w-[34px], rounded-[3px] are off the token scale; they match the old CSS pixel for pixel, a follow-up snaps them.
 const OPTION =
   "box-border flex min-h-16 cursor-pointer items-center gap-3 px-4 py-[10px] aria-selected:bg-surface-container";
@@ -72,7 +72,7 @@ const MORE =
 const GLYPH =
   "grid size-9 flex-none place-items-center rounded-full bg-secondary-container text-on-secondary-container";
 const TEXT = "flex min-w-0 flex-1 flex-col";
-const NAME = "area-search-name body-lg line-clamp-2 [overflow-wrap:anywhere] [&_b]:font-semibold"; // area-search-name: a test hook
+const NAME = "area-search-name body-lg line-clamp-2 [overflow-wrap:anywhere] [&_b]:font-semibold"; // area-search-name (here and on NAME_CHILD) is only a hook for the tests; no CSS selects it
 const NAME_CHILD =
   "area-search-name body-md line-clamp-2 font-medium [overflow-wrap:anywhere] [&_b]:font-semibold";
 const SUB = "mt-0.5 truncate text-[13px]/[18px] text-on-surface-variant";

@@ -29,7 +29,7 @@ Colours, radii, spacing sizes, shadows, z-index, durations and fonts are tokens 
 - selectors for markup you do not own (Leaflet).
 
 **Rules that have bitten us**
-- Component CSS and `tokens.css` are unlayered, so they beat every utility. When you move a property to a class, delete the CSS rule for it, and check descendant selectors (`.area-search button`) too. `focus-visible:shadow-*` loses to the global `:focus-visible` ring for the same reason.
+- Component CSS and `tokens.css` are unlayered, so they beat every utility (only the Leaflet attribution rule is in `@layer components`). When you move a property to a class, delete the CSS rule for it, and check descendant selectors (`.area-search button`) too. `focus-visible:shadow-*` loses to the global `:focus-visible` ring for the same reason.
 - Before you remove a class from markup, grep for every selector and test that uses it. A class that only CSS or a test targets stays as a hook (`area-search-parent`). jsdom does not load CSS, so tests will not catch a dropped rule.
 - Tailwind only generates classes it finds as whole strings. Write each variant out in full (`child ? CHILD : OPTION`); never build a class with a template or concatenation that depends on state.
 - Preflight is not loaded, so `p`, `h2`, `ul` and `button` keep their browser margins and padding: add `m-0` and the like.

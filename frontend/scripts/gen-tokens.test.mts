@@ -41,7 +41,7 @@ test("theme mapping: colour vars, literal radius, no focus-ring utility", () => 
   const css = generate(fixture);
   assert.match(css, /--color-primary: var\(--primary\);/);
   assert.match(css, /--radius-md: 12px;/);
-  assert.doesNotMatch(css, /--(radius-md|font-sans): var\(--(radius-md|font-sans)\)/);
+  assert.doesNotMatch(generate(tokens), /--([\w-]+): var\(--\1\)/); // Tailwind would emit a circular variable into its theme layer
   assert.doesNotMatch(css, /--shadow-focus-ring/);
   assert.match(css, /--color-\*: initial;/);
 });
@@ -71,7 +71,11 @@ test("a colour without a dark value is rejected", () => {
   assert.throws(() => generate({ ...fixture, color: { tokens: [{ name: "x", value: { light: "#fff" } }] } }), /no dark value/);
 });
 
-test("every real type style gets a class", () => {
+test("the Leaflet attribution control shares the attribution-sm declarations, in a layer", () => {
+  assert.match(generate(tokens), /@layer components \{\s*\.leaflet-control-attribution \{ font-family: [^}]*font-size: \d+px;/);
+});
+
+test("every real type style gets a utility", () => {
   const css = generate(tokens);
   for (const g of tokens.type.groups) for (const s of g.styles) assert.match(css, new RegExp(`^@utility ${s.name} \\{`, "m"), s.name);
 });
