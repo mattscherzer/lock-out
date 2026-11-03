@@ -17,7 +17,9 @@ type Props = {
 const STOPS = ["lowered", "higher", "full"] as const;
 type Stop = (typeof STOPS)[number];
 const LOWERED_PX = 280;
-const higherPx = () => Math.min(520, Math.round(window.innerHeight * 0.64));
+// at least 40px above lowered, so a short landscape phone never inverts the stops
+export const higherPx = () => Math.max(LOWERED_PX + 40, Math.min(520, Math.round(window.innerHeight * 0.64)));
+const CLOSED = STOPS.length; // index after the last stop in the drag stops
 const SLOP_PX = 6; // movement below this is a tap, not a drag
 const FLICK_MS = 150; // how far ahead the release velocity projects the sheet
 const phone = () => !window.matchMedia?.("(min-width: 600px)").matches;
@@ -28,15 +30,23 @@ const NOTE: Record<Exclude<CardState, "ready">, [title: string, text: string]> =
   error: ["Could not load this area", "Something went wrong. Pick the area again to retry."],
 };
 
-// Bottom sheet on phones (peek or expanded), side panel from 600px; the layout switch is pure CSS.
 // Phone: Material 3 standard bottom sheet with three heights (lowered, higher, full screen); from 600px a full-height left panel.
-// The layout switch is CSS; the sheet follows the finger and settles on the stop nearest to where it would coast to.
+// The layout switch is CSS; on a phone the sheet follows the finger and settles on the stop nearest to where it would coast to.
 export function AnswerCard({ open, area, state, tier, blocks, onClose, lowerSignal }: Props) {
   const card = useRef<HTMLElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
   const [stop, setStop] = useState<Stop>("higher");
   const [collapsed, setCollapsed] = useState(false); // desktop: panel hidden, edge tab left
   const before = useRef<Stop>("higher"); // where Collapse returns to from full screen
+  const last = useRef(area); // keeps the content while the card slides out
+  if (area) last.current = area;
+  const shown = area ?? last.current;
+  const [, resized] = useState(0); // stops are measured from the viewport, so a rotation needs a re-render
+  useEffect(() => {
+    const bump = () => resized((n) => n + 1);
+    window.addEventListener("resize", bump);
+    return () => window.removeEventListener("resize", bump);
+  }, []);
 
   const go = (next: Stop) => {
     if (next === "full" && stop !== "full") before.current = stop;
@@ -44,11 +54,13 @@ export function AnswerCard({ open, area, state, tier, blocks, onClose, lowerSign
   };
 
   useEffect(() => {
-    if (!open) return;
-    setStop("higher"); // opens at the middle height every time
-    setCollapsed(false);
-    title.current?.focus();
+    if (open) setStop("higher"); // opens at the middle height; picking another area keeps the height
   }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    setCollapsed(false); // a new area must not stay hidden behind a collapsed panel
+    title.current?.focus();
+  }, [open, shown?.name]);
 
   const signal = useRef(lowerSignal);
   useEffect(() => {
@@ -60,7 +72,7 @@ export function AnswerCard({ open, area, state, tier, blocks, onClose, lowerSign
   const down = (e: PointerEvent) => {
     if (!phone()) return;
     const h = card.current!.offsetHeight;
-    const stops = [h - LOWERED_PX, h - higherPx(), 0, h]; // translateY of lowered, higher, full, closed
+    const stops = [h - LOWERED_PX, h - higherPx(), 0, h]; // translateY of lowered, higher, full, then CLOSED
     drag.current = { y: e.clientY, from: stops[STOPS.indexOf(stop)], stops, moved: false, last: null, v: 0 };
   };
   const move = (e: PointerEvent) => {
@@ -84,11 +96,12 @@ export function AnswerCard({ open, area, state, tier, blocks, onClose, lowerSign
     const d = drag.current;
     drag.current = null;
     if (!d?.moved || !card.current) return;
-    const at = Math.max(0, d.from + e.clientY - d.y) + d.v * FLICK_MS;
+    const idle = d.last ? performance.now() - d.last[1] > 50 : true; // a held finger has no velocity
+    const at = Math.max(0, d.from + e.clientY - d.y) + (idle ? 0 : d.v) * FLICK_MS;
     card.current.style.removeProperty("transition"); // from here the CSS transition (token duration and easing) settles it
     card.current.style.removeProperty("transform");
     const i = d.stops.reduce((best, s, k) => (Math.abs(s - at) < Math.abs(d.stops[best] - at) ? k : best), 0);
-    if (i === 3) onClose();
+    if (i === CLOSED) onClose();
     else go(STOPS[i]);
   };
   const cancel = () => {
@@ -109,7 +122,7 @@ export function AnswerCard({ open, area, state, tier, blocks, onClose, lowerSign
       <section
         ref={card}
         role="dialog"
-        aria-label={area?.name ?? "Area details"}
+        aria-label={shown?.name ?? "Area details"}
         className="answer-card"
         data-open={open || undefined}
         data-stop={stop}
@@ -131,8 +144,8 @@ export function AnswerCard({ open, area, state, tier, blocks, onClose, lowerSign
           </div>
           <header className="answer-header">
             <div className="answer-title">
-              <h2 ref={title} tabIndex={-1} className="headline-sm">{area?.name}</h2>
-              <p className="data-md">{area?.bzr_name}</p>
+              <h2 ref={title} tabIndex={-1} className="headline-sm">{shown?.name}</h2>
+              <p className="data-md">{shown?.bzr_name}</p>
               {state === "ready" && <RiskChip tier={tier} />}
             </div>
             <button type="button" className="answer-close" aria-label="Close area details" onClick={onClose}>

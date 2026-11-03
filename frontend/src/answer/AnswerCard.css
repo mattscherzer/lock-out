@@ -1,16 +1,13 @@
-/* Phone: Material 3 standard bottom sheet with three heights. It stays mounted so it can slide; hidden visibility keeps it out of the tab order when closed. */
-.answer-card { position: fixed; z-index: calc(var(--z-search) - 1); left: 0; right: 0; bottom: 0; height: 100dvh; box-sizing: border-box; display: flex; flex-direction: column; background: var(--surface-container-lowest); color: var(--on-surface); font-family: var(--font-sans); border-radius: var(--radius-xl) var(--radius-xl) 0 0; box-shadow: var(--elevation-sheet); transform: translateY(100%); visibility: hidden; transition: transform var(--duration-slow) var(--ease-standard), border-radius var(--duration-slow) var(--ease-standard), visibility 0s linear var(--duration-slow); }
-.answer-card[data-open] { visibility: visible; transition-delay: 0s; }
-.answer-card[data-open][data-stop="lowered"] { transform: translateY(calc(100% - var(--answer-lowered))); }
-.answer-card[data-open][data-stop="higher"] { transform: translateY(calc(100% - var(--answer-higher))); } /* opens here; the map stays usable above it */
-.answer-card[data-open][data-stop="full"] { transform: none; border-radius: 0; z-index: calc(var(--z-search) + 1); } /* covers the search pill */
-.answer-drag { flex: none; touch-action: none; }
+/* The card is one element with two layouts: phone (<600px) a Material 3 standard bottom sheet with three heights, from 600px a full-height left panel.
+   It stays mounted so it can slide; hidden visibility keeps it out of the tab order while closed. */
+.answer-card { position: fixed; z-index: calc(var(--z-search) - 1); box-sizing: border-box; display: flex; flex-direction: column; background: var(--surface-container-lowest); color: var(--on-surface); font-family: var(--font-sans); visibility: hidden; }
+.answer-card[data-open] { visibility: visible; }
+.answer-card:focus { outline: 0; }
+.answer-drag { flex: none; }
 .answer-handle { display: grid; place-items: center; width: 100%; height: 32px; border: 0; background: none; cursor: pointer; }
 .answer-handle span { width: 32px; height: 4px; border-radius: var(--radius-full); background: var(--outline); }
 .answer-handle:focus-visible { border-radius: var(--radius-full); }
 .answer-appbar { display: none; height: 56px; padding: 0 var(--space-2); align-items: center; justify-content: space-between; }
-.answer-card[data-stop="full"] .answer-handle, .answer-card[data-stop="full"] .answer-close { display: none; }
-.answer-card[data-stop="full"] .answer-appbar { display: flex; }
 .answer-header { display: flex; gap: var(--space-2); align-items: flex-start; padding: 0 var(--space-4) var(--space-2); }
 .answer-title { flex: 1; min-width: 0; }
 .answer-title h2 { margin: 0; overflow-wrap: anywhere; }
@@ -26,27 +23,34 @@
 .answer-note[data-state="error"] { background: transparent; border: 2px solid var(--error); color: var(--on-surface); } /* error colour is a border only, never text */
 .answer-note p { margin: 0; }
 .answer-note p + p { margin-top: var(--space-1); }
+.answer-tab { display: none; }
 
 .risk-chip { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 28px; padding: 0 var(--space-3); box-sizing: border-box; border-radius: var(--radius-full); background: var(--surface-container); color: var(--on-surface); font-size: var(--body-md-font-size); font-weight: 600; }
 .risk-chip-dot { width: 10px; height: 10px; border-radius: var(--radius-full); }
 
-.answer-tab { display: none; }
+@media (max-width: 599px) {
+  .answer-card { left: 0; right: 0; bottom: 0; height: 100dvh; border-radius: var(--radius-xl) var(--radius-xl) 0 0; box-shadow: var(--elevation-sheet); transform: translateY(100%); transition: transform var(--duration-slow) var(--ease-standard), border-radius var(--duration-slow) var(--ease-standard), visibility 0s linear var(--duration-slow); }
+  .answer-card[data-open] { transition-delay: 0s; }
+  .answer-card[data-open][data-stop="lowered"] { transform: translateY(calc(100% - var(--answer-lowered))); }
+  .answer-card[data-open][data-stop="higher"] { transform: translateY(calc(100% - var(--answer-higher))); } /* opens here; the map stays usable above it */
+  .answer-card[data-open][data-stop="full"] { transform: none; border-radius: 0; z-index: calc(var(--z-search) + 1); } /* covers the search pill */
+  .answer-drag { touch-action: none; }
+  .answer-card[data-stop="full"] .answer-handle, .answer-card[data-stop="full"] .answer-close { display: none; }
+  .answer-card[data-stop="full"] .answer-appbar { display: flex; }
+}
 
-/* Tablet and desktop: full-height left sheet flush with the edge, as in Google Maps; the search pill (400px, 16px inset) floats over its top, hence 432px wide and the 80px header offset. */
+/* Full-height left panel flush with the edge, as in Google Maps. The search pill (400px, 16px inset) floats over its top: hence 432px wide and the 80px header offset. */
 @media (min-width: 600px) {
-  .answer-card, .answer-card[data-open][data-stop] { top: 0; bottom: 0; left: 0; right: auto; width: 432px; height: auto; border-radius: 0 var(--radius-lg) var(--radius-lg) 0; box-shadow: var(--elevation-3); z-index: calc(var(--z-search) - 1); }
-  .answer-card { transform: translateX(-100%); }
-  .answer-card[data-open][data-stop] { transform: none; }
-  .answer-card[data-open][data-collapsed] { transform: translateX(-100%); visibility: hidden; transition-delay: 0s, 0s, var(--duration-slow); }
-  .answer-handle, .answer-appbar, .answer-card[data-stop="full"] .answer-appbar { display: none; }
-  .answer-card[data-stop="full"] .answer-close { display: grid; }
+  .answer-card { top: 0; bottom: 0; left: 0; width: 432px; border-radius: 0 var(--radius-lg) var(--radius-lg) 0; box-shadow: var(--elevation-3); transform: translateX(-100%); transition: transform var(--duration-slow) var(--ease-standard), visibility 0s linear var(--duration-slow); }
+  .answer-card[data-open] { transform: none; transition-delay: 0s; }
+  .answer-card[data-open][data-collapsed] { transform: translateX(-100%); visibility: hidden; transition-delay: 0s, var(--duration-slow); }
+  .answer-handle { display: none; }
   .answer-header { padding-top: 80px; }
-  .answer-drag { touch-action: auto; }
-  /* edge tab: collapses the sheet to the pill alone, and brings it back */
-  .answer-tab { position: fixed; z-index: calc(var(--z-search) - 1); top: 276px; left: 432px; width: 20px; height: 48px; padding: 0; border: 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: var(--surface-container-lowest); color: var(--on-surface); box-shadow: var(--elevation-2); display: none; place-items: center; cursor: pointer; transition: left var(--duration-slow) var(--ease-standard); }
+  /* edge tab: collapses the panel to the pill alone, and brings it back */
+  .answer-tab { position: fixed; z-index: calc(var(--z-search) - 1); top: 276px; left: 432px; width: 20px; height: 48px; padding: 0; border: 0; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: var(--surface-container-lowest); color: var(--on-surface); box-shadow: var(--elevation-2); place-items: center; cursor: pointer; transition: left var(--duration-slow) var(--ease-standard); }
   .answer-tab::after { content: ""; position: absolute; inset: 0 -24px 0 0; } /* 44px wide hit area */
   .answer-tab[data-open] { display: grid; }
   .answer-tab[data-collapsed] { left: 0; }
   .answer-tab svg { width: 16px; height: 16px; }
 }
-@media (min-width: 600px) and (max-width: 899px) { .answer-card, .answer-card[data-open][data-stop] { width: 392px; } .answer-tab { left: 392px; } } /* the pill is 360px here */
+@media (min-width: 600px) and (max-width: 899px) { .answer-card { width: 392px; } .answer-tab { left: 392px; } } /* the pill is 360px here */

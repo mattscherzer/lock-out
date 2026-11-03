@@ -1,5 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { expect, it, vi } from "vitest";
+import { afterEach, expect, it, vi } from "vitest";
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
+// jsdom has no matchMedia, which the card reads as a phone; say so explicitly
+const asPhone = () => vi.stubGlobal("matchMedia", () => ({ matches: false }));
 import { AnswerCard, type CardState } from "./AnswerCard.tsx";
 
 const area = { name: "Tempelhof-Schöneberg", bzr_name: "Tempelhof" };
@@ -19,6 +26,11 @@ it.each<[CardState, string]>([["empty", "Nothing to show yet"], ["no-data", "Not
   expect(screen.getByText(title)).toBeTruthy();
   expect(screen.queryByText("High risk")).toBeNull();
   expect(screen.queryByText("Lock advice")).toBeNull();
+});
+
+it("announces the error state", () => {
+  render(card({ state: "error" }));
+  expect(screen.getByRole("alert").textContent).toContain("Could not load this area");
 });
 
 it("closes on the close button and on Escape", () => {
@@ -51,8 +63,9 @@ it("opens at higher; the handle steps lowered, higher, full, lowered; collapse r
 });
 
 it("drags like a sheet: follows the finger, settles on the nearest stop, closes below lowered", () => {
-  Object.defineProperty(HTMLElement.prototype, "offsetHeight", { configurable: true, value: 800 });
-  Object.defineProperty(window, "innerHeight", { configurable: true, value: 800 }); // higher = 512, so stops are 520 / 288 / 0 / 800
+  asPhone();
+  vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(800);
+  vi.stubGlobal("innerHeight", 800); // higher = 512, so stops are 520 / 288 / 0 / 800
   const onClose = vi.fn();
   render(card({ onClose }));
   const drag = (from: number, to: number) => {
@@ -73,6 +86,42 @@ it("drags like a sheet: follows the finger, settles on the nearest stop, closes 
   expect(onClose).not.toHaveBeenCalled();
   drag(100, 400); // from lowered down 300: past it, closed
   expect(onClose).toHaveBeenCalledTimes(1);
+});
+
+it("a new area uncollapses the desktop panel and takes focus", () => {
+  const { rerender } = render(card());
+  fireEvent.click(screen.getByLabelText("Collapse area details", { selector: ".answer-tab" }));
+  rerender(card({ area: { name: "Mitte", bzr_name: "Mitte" } }));
+  expect(dialog().hasAttribute("data-collapsed")).toBe(false);
+  expect(document.activeElement).toBe(screen.getByRole("heading", { level: 2, hidden: true }));
+});
+
+it("a held finger carries no velocity: releasing after a pause settles where it is", () => {
+  asPhone();
+  vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(800);
+  vi.stubGlobal("innerHeight", 800);
+  vi.spyOn(performance, "now").mockReturnValueOnce(0).mockReturnValueOnce(20).mockReturnValue(1000); // fast move, then a long hold
+  render(card());
+  const el = dialog().querySelector(".answer-drag")!;
+  fireEvent.pointerDown(el, { clientY: 100 });
+  fireEvent.pointerMove(el, { clientY: 110 });
+  fireEvent.pointerMove(el, { clientY: 200 });
+  fireEvent.pointerUp(el, { clientY: 200 });
+  expect(stop()).toBe("higher"); // 288 + 100 = 388 is nearest higher; the stale 4.5px/ms would have flicked it shut
+});
+
+it("does not drag from 600px up", () => {
+  vi.stubGlobal("matchMedia", () => ({ matches: true }));
+  vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(800);
+  const onClose = vi.fn();
+  render(card({ onClose }));
+  const el = dialog().querySelector(".answer-drag")!;
+  fireEvent.pointerDown(el, { clientY: 100 });
+  fireEvent.pointerMove(el, { clientY: 700 });
+  fireEvent.pointerUp(el, { clientY: 700 });
+  expect((dialog() as HTMLElement).style.transform).toBe("");
+  expect(onClose).not.toHaveBeenCalled();
+  expect(stop()).toBe("higher");
 });
 
 it("lowers the phone sheet when the signal changes", () => {
