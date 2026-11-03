@@ -99,6 +99,7 @@ try {
       <AnswerCard
         open={selected !== null && cardOpen}
         area={selected ? fixture.areas[selected] : null}
+        areaId={selected}
         state={tier === "no-data" ? "no-data" : "ready"}
         tier={tier}
         lowerSignal={lowerSignal}

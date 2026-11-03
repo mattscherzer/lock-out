@@ -7,6 +7,7 @@ export type CardState = "ready" | "empty" | "no-data" | "error";
 type Props = {
   open: boolean;
   area: { name: string; bzr_name: string } | null;
+  areaId?: string | null; // names are not unique (two Schloßstraße), so the id decides when the area changed
   state: CardState;
   tier: Tier;
   blocks: { risk: ReactNode; advice: ReactNode; source: ReactNode };
@@ -32,7 +33,7 @@ const NOTE: Record<Exclude<CardState, "ready">, [title: string, text: string]> =
 
 // Phone: Material 3 standard bottom sheet with three heights (lowered, higher, full screen); from 600px a full-height left panel.
 // The layout switch is CSS; on a phone the sheet follows the finger and settles on the stop nearest to where it would coast to.
-export function AnswerCard({ open, area, state, tier, blocks, onClose, lowerSignal }: Props) {
+export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, lowerSignal }: Props) {
   const card = useRef<HTMLElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
   const [stop, setStop] = useState<Stop>("higher");
@@ -60,7 +61,7 @@ export function AnswerCard({ open, area, state, tier, blocks, onClose, lowerSign
     if (!open) return;
     setCollapsed(false); // a new area must not stay hidden behind a collapsed panel
     title.current?.focus();
-  }, [open, shown?.name]);
+  }, [open, areaId ?? shown?.name]);
 
   const signal = useRef(lowerSignal);
   useEffect(() => {

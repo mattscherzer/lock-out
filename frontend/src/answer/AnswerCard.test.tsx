@@ -96,6 +96,14 @@ it("a new area uncollapses the desktop panel and takes focus", () => {
   expect(document.activeElement).toBe(screen.getByRole("heading", { level: 2, hidden: true }));
 });
 
+it("two areas with the same name still uncollapse the panel, told apart by id", () => {
+  const same = { name: "Schloßstraße", bzr_name: "Steglitz" };
+  const { rerender } = render(card({ area: same, areaId: "a" }));
+  fireEvent.click(screen.getByLabelText("Collapse area details", { selector: ".answer-tab" }));
+  rerender(card({ area: { ...same, bzr_name: "Zehlendorf" }, areaId: "b" }));
+  expect(dialog().hasAttribute("data-collapsed")).toBe(false);
+});
+
 it("a held finger carries no velocity: releasing after a pause settles where it is", () => {
   asPhone();
   vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(800);

@@ -35,6 +35,9 @@
   .answer-card[data-open][data-stop="higher"] { transform: translateY(calc(100% - var(--answer-higher))); } /* opens here; the map stays usable above it */
   .answer-card[data-open][data-stop="full"] { transform: none; border-radius: 0; z-index: calc(var(--z-search) + 1); } /* covers the search pill */
   .answer-drag { touch-action: none; }
+  /* the card is 100dvh tall and slid down, so pad the scroll area by the hidden part or the last block stays off screen */
+  .answer-card[data-open][data-stop="lowered"] .answer-body { padding-bottom: calc(var(--space-4) + 100dvh - var(--answer-lowered)); }
+  .answer-card[data-open][data-stop="higher"] .answer-body { padding-bottom: calc(var(--space-4) + 100dvh - var(--answer-higher)); }
   .answer-card[data-stop="full"] .answer-handle, .answer-card[data-stop="full"] .answer-close { display: none; }
   .answer-card[data-stop="full"] .answer-appbar { display: flex; }
 }
