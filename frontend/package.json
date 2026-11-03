@@ -12,10 +12,10 @@
     "preview": "vite preview",
     "tokens": "node --experimental-strip-types scripts/gen-tokens.mts",
     "test": "node --experimental-strip-types --test scripts/gen-tokens.test.mts && vitest run",
-    "format": "prettier --write \"src/**/*.css\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "lint:css": "stylelint \"src/**/*.css\"",
     "lint:css:fix": "stylelint \"src/**/*.css\" --fix",
-    "format:check": "prettier --check \"src/**/*.css\""
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
     "leaflet": "^1.9.4",

@@ -1,5 +1,13 @@
 import { ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  type KeyboardEvent,
+  type PointerEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import "./AnswerCard.css";
 import { RiskChip, type Tier } from "./RiskChip.tsx";
 
@@ -20,7 +28,11 @@ type Stop = (typeof STOPS)[number];
 const LOWERED_PX = 280;
 // at least 40px above lowered, so a short landscape phone never inverts the stops
 const loweredPx = () => Math.min(LOWERED_PX, window.innerHeight);
-export const higherPx = () => Math.min(window.innerHeight, Math.max(LOWERED_PX + 40, Math.min(520, Math.round(window.innerHeight * 0.64))));
+export const higherPx = () =>
+  Math.min(
+    window.innerHeight,
+    Math.max(LOWERED_PX + 40, Math.min(520, Math.round(window.innerHeight * 0.64))),
+  );
 const CLOSED = STOPS.length; // index after the last stop in the drag stops
 const SLOP_PX = 6; // movement below this is a tap, not a drag
 const FLICK_MS = 150; // how far ahead the release velocity projects the sheet
@@ -28,12 +40,24 @@ const phone = () => !window.matchMedia?.("(min-width: 600px)").matches;
 
 const NOTE: Record<Exclude<CardState, "ready">, [title: string, text: string]> = {
   empty: ["Nothing to show yet", "There is no advice for this area yet."],
-  "no-data": ["Not enough data", "Too few reports for this area to give advice. Treat the area like any other and lock up."],
+  "no-data": [
+    "Not enough data",
+    "Too few reports for this area to give advice. Treat the area like any other and lock up.",
+  ],
   error: ["Could not load this area", "Something went wrong. Pick the area again to retry."],
 };
 
 // Phone: bottom sheet with three stops; from 600px a left panel. The layout switch is CSS; the drag settles on the stop nearest where the sheet would coast to.
-export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, lowerSignal }: Props) {
+export function AnswerCard({
+  open,
+  area,
+  areaId,
+  state,
+  tier,
+  blocks,
+  onClose,
+  lowerSignal,
+}: Props) {
   const card = useRef<HTMLElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
   const [stop, setStop] = useState<Stop>("higher");
@@ -69,12 +93,26 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
     signal.current = lowerSignal;
   }, [lowerSignal]);
 
-  const drag = useRef<{ y: number; from: number; stops: number[]; moved: boolean; last: [y: number, t: number] | null; v: number } | null>(null);
+  const drag = useRef<{
+    y: number;
+    from: number;
+    stops: number[];
+    moved: boolean;
+    last: [y: number, t: number] | null;
+    v: number;
+  } | null>(null);
   const down = (e: PointerEvent) => {
     if (!phone()) return;
     const h = card.current!.offsetHeight;
     const stops = [h - loweredPx(), h - higherPx(), 0, h]; // translateY of lowered, higher, full, then CLOSED
-    drag.current = { y: e.clientY, from: stops[STOPS.indexOf(stop)], stops, moved: false, last: null, v: 0 };
+    drag.current = {
+      y: e.clientY,
+      from: stops[STOPS.indexOf(stop)],
+      stops,
+      moved: false,
+      last: null,
+      v: 0,
+    };
   };
   const move = (e: PointerEvent) => {
     const d = drag.current;
@@ -101,7 +139,10 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
     const at = Math.max(0, d.from + e.clientY - d.y) + (idle ? 0 : d.v) * FLICK_MS;
     card.current.style.removeProperty("transition"); // the CSS transition settles it from here
     card.current.style.removeProperty("transform");
-    const i = d.stops.reduce((best, s, k) => (Math.abs(s - at) < Math.abs(d.stops[best] - at) ? k : best), 0);
+    const i = d.stops.reduce(
+      (best, s, k) => (Math.abs(s - at) < Math.abs(d.stops[best] - at) ? k : best),
+      0,
+    );
     if (i === CLOSED) onClose();
     else go(STOPS[i]);
   };
@@ -127,28 +168,62 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
         data-open={open || undefined}
         data-stop={stop}
         data-collapsed={collapsed || undefined}
-        style={{ "--answer-lowered": `${loweredPx()}px`, "--answer-higher": `${higherPx()}px` } as CSSProperties}
+        style={
+          {
+            "--answer-lowered": `${loweredPx()}px`,
+            "--answer-higher": `${higherPx()}px`,
+          } as CSSProperties
+        }
         onKeyDown={keys}
       >
-        <div className="answer-drag flex-none" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={cancel}>
-          <button type="button" className="answer-handle grid h-control-sm w-full cursor-pointer place-items-center border-0 bg-transparent" aria-label="Change height of area details" aria-expanded={stop !== "lowered"} onClick={step}>
+        <div
+          className="answer-drag flex-none"
+          onPointerDown={down}
+          onPointerMove={move}
+          onPointerUp={up}
+          onPointerCancel={cancel}
+        >
+          <button
+            type="button"
+            className="answer-handle grid h-control-sm w-full cursor-pointer place-items-center border-0 bg-transparent"
+            aria-label="Change height of area details"
+            aria-expanded={stop !== "lowered"}
+            onClick={step}
+          >
             <span className="h-sheet-handle-h w-sheet-handle-w rounded-full bg-outline" />
           </button>
           <div className="answer-appbar h-14 items-center justify-between px-2">
-            <button type="button" className={ICON_BUTTON} aria-label="Collapse area details" onClick={() => go(before.current)}>
+            <button
+              type="button"
+              className={ICON_BUTTON}
+              aria-label="Collapse area details"
+              onClick={() => go(before.current)}
+            >
               <ChevronDown aria-hidden="true" />
             </button>
-            <button type="button" className={ICON_BUTTON} aria-label="Close area details" onClick={onClose}>
+            <button
+              type="button"
+              className={ICON_BUTTON}
+              aria-label="Close area details"
+              onClick={onClose}
+            >
               <X aria-hidden="true" />
             </button>
           </div>
           <header className="answer-header flex items-start gap-2 px-4 pb-2">
             <div className="min-w-0 flex-1">
-              <h2 ref={title} tabIndex={-1} className="headline-sm m-0 [overflow-wrap:anywhere]">{shown?.name}</h2>
-              <p className="data-md mt-0 mb-2 text-on-surface-variant">{shown?.bzr_name}</p>
+              <h2 ref={title} tabIndex={-1} className="m-0 headline-sm [overflow-wrap:anywhere]">
+                {shown?.name}
+              </h2>
+              <p className="mt-0 mb-2 data-md text-on-surface-variant">{shown?.bzr_name}</p>
               {state === "ready" && <RiskChip tier={tier} />}
             </div>
-            <button type="button" className={`answer-close ${ICON_BUTTON} -mt-1.5 -mr-2`} aria-label="Close area details" onClick={onClose}>
+            <button
+              type="button"
+              className={`answer-close ${ICON_BUTTON} -mt-1.5 -mr-2`}
+              aria-label="Close area details"
+              onClick={onClose}
+            >
               <X aria-hidden="true" />
             </button>
           </header>
@@ -162,26 +237,39 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
             </>
           ) : (
             // error colour is a border only, never text
-            <div className="rounded-lg bg-tertiary-container p-4 text-on-tertiary-container data-[state=error]:border-2 data-[state=error]:border-error data-[state=error]:bg-transparent data-[state=error]:text-on-surface" data-state={state} role={state === "error" ? "alert" : undefined}>
-              <p className="title-md m-0">{NOTE[state][0]}</p>
-              <p className="body-lg m-0 mt-1">{NOTE[state][1]}</p>
+            <div
+              className="rounded-lg bg-tertiary-container p-4 text-on-tertiary-container data-[state=error]:border-2 data-[state=error]:border-error data-[state=error]:bg-transparent data-[state=error]:text-on-surface"
+              data-state={state}
+              role={state === "error" ? "alert" : undefined}
+            >
+              <p className="m-0 title-md">{NOTE[state][0]}</p>
+              <p className="m-0 mt-1 body-lg">{NOTE[state][1]}</p>
             </div>
           )}
         </div>
       </section>
-      <button type="button" className="answer-tab" data-open={open || undefined} data-collapsed={collapsed || undefined} aria-label={collapsed ? "Show area details" : "Collapse area details"} aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}>
+      <button
+        type="button"
+        className="answer-tab"
+        data-open={open || undefined}
+        data-collapsed={collapsed || undefined}
+        aria-label={collapsed ? "Show area details" : "Collapse area details"}
+        aria-expanded={!collapsed}
+        onClick={() => setCollapsed(!collapsed)}
+      >
         {collapsed ? <ChevronRight aria-hidden="true" /> : <ChevronLeft aria-hidden="true" />}
       </button>
     </>
   );
 }
 
-const ICON_BUTTON = "answer-icon-button grid size-tap-target flex-none cursor-pointer place-items-center rounded-full border-0 bg-transparent text-on-surface";
+const ICON_BUTTON =
+  "answer-icon-button grid size-tap-target flex-none cursor-pointer place-items-center rounded-full border-0 bg-transparent text-on-surface";
 
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="answer-block">
-      <h3 className="title-md m-0 mb-2">{title}</h3>
+      <h3 className="m-0 mb-2 title-md">{title}</h3>
       <div className="body-lg">{children}</div>
     </section>
   );

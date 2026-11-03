@@ -9,15 +9,48 @@ const areas = {
   a2: { name: "Invalidenstraße", bzr_name: "Mitte" },
   a3: { name: "Nordbahnhof", bzr_name: "Mitte" },
 };
-const gazetteer = { plz: { "10115": [["a1", 39], ["a2", 32], ["a3", 16]] as [string, number][] }, stations: [["Nordbahnhof", "S", "a3", 52.53, 13.38] as [string, string, string, number, number]] };
+const gazetteer = {
+  plz: {
+    "10115": [
+      ["a1", 39],
+      ["a2", 32],
+      ["a3", 16],
+    ] as [string, number][],
+  },
+  stations: [["Nordbahnhof", "S", "a3", 52.53, 13.38] as [string, string, string, number, number]],
+};
 const index = buildIndex(gazetteer, areas);
 
-function Harness({ onSelect = vi.fn(), onClear = vi.fn(), ...rest }: { onSelect?: (...a: unknown[]) => void; onClear?: () => void } & Partial<Parameters<typeof AreaSearch>[0]>) {
+function Harness({
+  onSelect = vi.fn(),
+  onClear = vi.fn(),
+  ...rest
+}: { onSelect?: (...a: unknown[]) => void; onClear?: () => void } & Partial<
+  Parameters<typeof AreaSearch>[0]
+>) {
   const [selected, setSelected] = useState<string | null>(null);
-  return <AreaSearch index={index} areas={areas} selected={selected} onSelect={(id, c) => { setSelected(id); onSelect(id, c); }} onClear={() => { setSelected(null); onClear(); }} {...rest} />;
+  return (
+    <AreaSearch
+      index={index}
+      areas={areas}
+      selected={selected}
+      onSelect={(id, c) => {
+        setSelected(id);
+        onSelect(id, c);
+      }}
+      onClear={() => {
+        setSelected(null);
+        onClear();
+      }}
+      {...rest}
+    />
+  );
 }
 const field = () => screen.getByRole("combobox") as HTMLInputElement;
-const type = (v: string) => { fireEvent.focus(field()); fireEvent.change(field(), { target: { value: v } }); };
+const type = (v: string) => {
+  fireEvent.focus(field());
+  fireEvent.change(field(), { target: { value: v } });
+};
 
 it("lists one row per area of a postcode, largest share first, and selects with context", () => {
   const onSelect = vi.fn();
@@ -27,11 +60,20 @@ it("lists one row per area of a postcode, largest share first, and selects with 
   const label = document.querySelector(".area-search-parent")!;
   expect(label.textContent).toBe("10115Postcode · in 3 areas");
   expect(label.getAttribute("role")).toBe("presentation");
-  expect(rows.map((r) => r.textContent)).toEqual(["CharitéviertelArea · Mitte39%", "InvalidenstraßeArea · Mitte32%", "NordbahnhofArea · Mitte16%"]);
+  expect(rows.map((r) => r.textContent)).toEqual([
+    "CharitéviertelArea · Mitte39%",
+    "InvalidenstraßeArea · Mitte32%",
+    "NordbahnhofArea · Mitte16%",
+  ]);
   expect(screen.getByRole("status").textContent).toBe("3 results");
   fireEvent.keyDown(field(), { key: "ArrowDown" });
   fireEvent.keyDown(field(), { key: "Enter" });
-  expect(onSelect).toHaveBeenCalledWith("a2", { kind: "postcode", label: "10115", pct: 32, ll: undefined });
+  expect(onSelect).toHaveBeenCalledWith("a2", {
+    kind: "postcode",
+    label: "10115",
+    pct: 32,
+    ll: undefined,
+  });
   expect(field().value).toBe("Invalidenstraße");
   expect(screen.queryByRole("option")).toBeNull();
 });
@@ -144,9 +186,21 @@ it("closes when told to from outside", () => {
 
 it("searches again once the street data has loaded", async () => {
   const withStreets = buildIndex(gazetteer, areas);
-  const file = { ids: ["a2"], streets: { Mitte: { Street: { Zimmerstraße: [[0, 100]] as [number, number][] } } } };
+  const file = {
+    ids: ["a2"],
+    streets: { Mitte: { Street: { Zimmerstraße: [[0, 100]] as [number, number][] } } },
+  };
   const loadStreets = () => Promise.resolve().then(() => addStreets(withStreets, file, areas));
-  render(<AreaSearch index={withStreets} areas={areas} selected={null} onSelect={vi.fn()} onClear={vi.fn()} loadStreets={loadStreets} />);
+  render(
+    <AreaSearch
+      index={withStreets}
+      areas={areas}
+      selected={null}
+      onSelect={vi.fn()}
+      onClear={vi.fn()}
+      loadStreets={loadStreets}
+    />,
+  );
   fireEvent.focus(field());
   fireEvent.change(field(), { target: { value: "zimmer" } });
   expect(screen.queryByRole("option")).toBeNull();
@@ -160,11 +214,32 @@ it("says so when a house number is typed", () => {
 });
 
 const longName = "100 AS Kaiserdamm Einf v Knobelsdorffstr West";
-const wide = { ...areas, ...Object.fromEntries(["w1", "w2", "w3", "w4", "w5"].map((id) => [id, { name: id, bzr_name: "Tiergarten Süd" }])) };
-const wideIndex = buildIndex({ plz: { "10999": ["w1", "w2", "w3", "w4", "w5"].map((id, i) => [id, 50 - i * 10] as [string, number]) }, stations: [[longName, "S", "a3", 52.5, 13.4]] }, wide);
+const wide = {
+  ...areas,
+  ...Object.fromEntries(
+    ["w1", "w2", "w3", "w4", "w5"].map((id) => [id, { name: id, bzr_name: "Tiergarten Süd" }]),
+  ),
+};
+const wideIndex = buildIndex(
+  {
+    plz: {
+      "10999": ["w1", "w2", "w3", "w4", "w5"].map((id, i) => [id, 50 - i * 10] as [string, number]),
+    },
+    stations: [[longName, "S", "a3", 52.5, 13.4]],
+  },
+  wide,
+);
 
 it("keeps a long name whole for screen readers and in the tooltip, and the Bezirk without its number", () => {
-  render(<AreaSearch index={wideIndex} areas={wide} selected={null} onSelect={vi.fn()} onClear={vi.fn()} />);
+  render(
+    <AreaSearch
+      index={wideIndex}
+      areas={wide}
+      selected={null}
+      onSelect={vi.fn()}
+      onClear={vi.fn()}
+    />,
+  );
   type("Kaiserdamm");
   const option = screen.getByRole("option");
   expect(option.getAttribute("title")).toBe(longName);
@@ -172,7 +247,15 @@ it("keeps a long name whole for screen readers and in the tooltip, and the Bezir
 });
 
 it("shows the region on each area row, and names the place on each area row", () => {
-  render(<AreaSearch index={wideIndex} areas={wide} selected={null} onSelect={vi.fn()} onClear={vi.fn()} />);
+  render(
+    <AreaSearch
+      index={wideIndex}
+      areas={wide}
+      selected={null}
+      onSelect={vi.fn()}
+      onClear={vi.fn()}
+    />,
+  );
   type("10999");
   const first = screen.getAllByRole("option")[0];
   expect(first.textContent).toContain("Area · Tiergarten Süd");
@@ -180,7 +263,15 @@ it("shows the region on each area row, and names the place on each area row", ()
 });
 
 it("expands the areas past the cap with Enter on the +N more row", () => {
-  render(<AreaSearch index={wideIndex} areas={wide} selected={null} onSelect={vi.fn()} onClear={vi.fn()} />);
+  render(
+    <AreaSearch
+      index={wideIndex}
+      areas={wide}
+      selected={null}
+      onSelect={vi.fn()}
+      onClear={vi.fn()}
+    />,
+  );
   type("10999");
   expect(screen.getAllByRole("option")).toHaveLength(4);
   for (let i = 0; i < 3; i++) fireEvent.keyDown(field(), { key: "ArrowDown" });
@@ -196,7 +287,9 @@ it("an empty focused field offers the examples; one fills the field and searches
   fireEvent.focus(field());
   expect(field().placeholder).toBe("Street, postcode, area or station");
   expect(screen.getByText("Try searching for")).toBeTruthy();
-  expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(EXAMPLES.map((e) => e.label + e.word));
+  expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(
+    EXAMPLES.map((e) => e.label + e.word),
+  );
   fireEvent.click(screen.getAllByRole("option")[1]);
   expect(field().value).toBe(EXAMPLES[1].label);
   expect(screen.queryByText("Try searching for")).toBeNull();
@@ -244,7 +337,10 @@ it("a fast reply never flashes the placeholder rows", async () => {
 });
 
 it("a failed load says so, keeps the text, and Try again recovers", async () => {
-  const loadStreets = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValue(undefined);
+  const loadStreets = vi
+    .fn()
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockResolvedValue(undefined);
   render(<Harness loadStreets={loadStreets} />);
   type("zimmer");
   const alert = await screen.findByRole("alert");
@@ -289,7 +385,10 @@ it("ArrowDown reopens the examples after Esc on an empty field", () => {
 });
 
 it("Try again hands focus back to the field without selecting the text", async () => {
-  const loadStreets = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValue(undefined);
+  const loadStreets = vi
+    .fn()
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockResolvedValue(undefined);
   render(<Harness loadStreets={loadStreets} />);
   type("zimmer");
   fireEvent.click(await screen.findByRole("button", { name: "Try again" }));
