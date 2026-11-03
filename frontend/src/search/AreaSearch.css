@@ -347,6 +347,10 @@
 
 /* phone: focusing the pill opens a full-screen search */
 @media (width <= 599px) {
+  .area-search {
+    width: calc(100% - 2 * var(--space-4));
+  }
+
   .area-search[data-open] {
     position: fixed;
     inset: auto 0 0;
