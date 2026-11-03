@@ -30,7 +30,7 @@ def confidence(n):
 
 def stolen_value(df):
     """SCHADENSHOEHE in euros. A blank, unreadable or 0 value is NaN and left out of every median: a stolen bike
-    worth EUR 0 is not a real value, and the police data does not document what 0 means, so it counts as unknown."""
+    worth EUR 0 is not a real value, and we have no field description that defines 0, so we treat it as unknown."""
     value = pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce")
     return value.where(value > 0)
 
