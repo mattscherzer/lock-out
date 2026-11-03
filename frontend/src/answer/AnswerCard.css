@@ -220,11 +220,16 @@
 
 /* The search pill (400px, 16px inset) floats over the panel's top: hence 432px wide and the 80px header offset. */
 @media (width >= 600px) {
+  .answer-card,
+  .answer-tab {
+    --answer-panel-w: 432px;
+  }
+
   .answer-card {
     top: 0;
     bottom: 0;
     left: 0;
-    width: 432px;
+    width: var(--answer-panel-w);
     border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
     box-shadow: var(--elevation-3);
     transform: translateX(-100%);
@@ -256,7 +261,7 @@
     position: fixed;
     z-index: calc(var(--z-search) - 1);
     top: 276px;
-    left: 432px;
+    left: 0;
     width: var(--space-5);
     height: var(--control-lg);
     padding: 0;
@@ -265,9 +270,13 @@
     background: var(--surface-container-lowest);
     color: var(--on-surface);
     box-shadow: var(--elevation-2);
+    display: grid;
     place-items: center;
     cursor: pointer;
-    transition: left var(--duration-slow) var(--ease-standard);
+    visibility: hidden;
+    transition:
+      transform var(--duration-slow) var(--ease-standard),
+      visibility 0s linear var(--duration-slow);
   }
 
   .answer-tab::after {
@@ -277,11 +286,13 @@
   }
 
   .answer-tab[data-open] {
-    display: grid;
+    transform: translateX(var(--answer-panel-w));
+    visibility: visible;
+    transition-delay: 0s;
   }
 
-  .answer-tab[data-collapsed] {
-    left: 0;
+  .answer-tab[data-open][data-collapsed] {
+    transform: none;
   }
 
   .answer-tab svg {
@@ -291,11 +302,8 @@
 }
 
 @media (width >= 600px) and (width <= 899px) {
-  .answer-card {
-    width: 392px;
-  }
-
+  .answer-card,
   .answer-tab {
-    left: 392px;
+    --answer-panel-w: 392px;
   }
 } /* the pill is 360px here */
