@@ -1,5 +1,5 @@
-import { X } from "lucide-react";
-import { type KeyboardEvent, type PointerEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import "./AnswerCard.css";
 import { RiskChip, type Tier } from "./RiskChip.tsx";
 
@@ -11,9 +11,13 @@ type Props = {
   tier: Tier;
   blocks: { risk: ReactNode; advice: ReactNode; source: ReactNode };
   onClose: () => void;
+  lowerSignal?: number; // changing it lowers the phone sheet, e.g. when the search is focused
 };
 
-const PEEK_PX = 200; // visible height when peeking; the same 200px as in AnswerCard.css
+const STOPS = ["lowered", "higher", "full"] as const;
+type Stop = (typeof STOPS)[number];
+const LOWERED_PX = 280;
+const higherPx = () => Math.min(520, Math.round(window.innerHeight * 0.64));
 const SLOP_PX = 6; // movement below this is a tap, not a drag
 const FLICK_MS = 150; // how far ahead the release velocity projects the sheet
 const phone = () => !window.matchMedia?.("(min-width: 600px)").matches;
@@ -25,21 +29,39 @@ const NOTE: Record<Exclude<CardState, "ready">, [title: string, text: string]> =
 };
 
 // Bottom sheet on phones (peek or expanded), side panel from 600px; the layout switch is pure CSS.
-export function AnswerCard({ open, area, state, tier, blocks, onClose }: Props) {
+// Phone: Material 3 standard bottom sheet with three heights (lowered, higher, full screen); from 600px a full-height left panel.
+// The layout switch is CSS; the sheet follows the finger and settles on the stop nearest to where it would coast to.
+export function AnswerCard({ open, area, state, tier, blocks, onClose, lowerSignal }: Props) {
   const card = useRef<HTMLElement>(null);
-  const [expanded, setExpanded] = useState(false);
+  const title = useRef<HTMLHeadingElement>(null);
+  const [stop, setStop] = useState<Stop>("higher");
+  const [collapsed, setCollapsed] = useState(false); // desktop: panel hidden, edge tab left
+  const before = useRef<Stop>("higher"); // where Collapse returns to from full screen
+
+  const go = (next: Stop) => {
+    if (next === "full" && stop !== "full") before.current = stop;
+    setStop(next);
+  };
 
   useEffect(() => {
-    if (open) card.current?.focus();
-    else setExpanded(false);
+    if (!open) return;
+    setStop("higher"); // opens at the middle height every time
+    setCollapsed(false);
+    title.current?.focus();
   }, [open]);
 
-  // Material 3 style: the sheet follows the finger, then settles on the detent nearest to where it would coast to.
-  const drag = useRef<{ y: number; from: number; h: number; moved: boolean; last: [y: number, t: number] | null; v: number } | null>(null);
+  const signal = useRef(lowerSignal);
+  useEffect(() => {
+    if (lowerSignal !== signal.current && phone()) setStop("lowered");
+    signal.current = lowerSignal;
+  }, [lowerSignal]);
+
+  const drag = useRef<{ y: number; from: number; stops: number[]; moved: boolean; last: [y: number, t: number] | null; v: number } | null>(null);
   const down = (e: PointerEvent) => {
     if (!phone()) return;
     const h = card.current!.offsetHeight;
-    drag.current = { y: e.clientY, from: expanded ? 0 : h - PEEK_PX, h, moved: false, last: null, v: 0 };
+    const stops = [h - LOWERED_PX, h - higherPx(), 0, h]; // translateY of lowered, higher, full, closed
+    drag.current = { y: e.clientY, from: stops[STOPS.indexOf(stop)], stops, moved: false, last: null, v: 0 };
   };
   const move = (e: PointerEvent) => {
     const d = drag.current;
@@ -51,9 +73,11 @@ export function AnswerCard({ open, area, state, tier, blocks, onClose }: Props) 
       card.current.style.transition = "none";
     }
     const now = performance.now();
-    if (d.last && now - d.last[1] >= 8) d.v = (e.clientY - d.last[0]) / (now - d.last[1]);
-    if (!d.last || now - d.last[1] >= 8) d.last = [e.clientY, now];
-    const raw = d.from + e.clientY - d.y; // above 0 (fully expanded) the sheet resists, at a third of the pull
+    if (!d.last || now - d.last[1] >= 8) {
+      if (d.last) d.v = (e.clientY - d.last[0]) / (now - d.last[1]);
+      d.last = [e.clientY, now];
+    }
+    const raw = d.from + e.clientY - d.y; // above full screen the sheet resists, at a third of the pull
     card.current.style.transform = `translateY(${raw < 0 ? raw / 3 : raw}px)`;
   };
   const up = (e: PointerEvent) => {
@@ -61,55 +85,80 @@ export function AnswerCard({ open, area, state, tier, blocks, onClose }: Props) 
     drag.current = null;
     if (!d?.moved || !card.current) return;
     const at = Math.max(0, d.from + e.clientY - d.y) + d.v * FLICK_MS;
-    card.current.style.transition = ""; // from here the CSS transition (token duration and easing) settles it
-    card.current.style.transform = "";
-    const stops = [0, d.h - PEEK_PX, d.h];
-    const stop = stops.reduce((best, s) => (Math.abs(s - at) < Math.abs(best - at) ? s : best));
-    if (stop === d.h) onClose();
-    else setExpanded(stop === 0);
+    card.current.style.removeProperty("transition"); // from here the CSS transition (token duration and easing) settles it
+    card.current.style.removeProperty("transform");
+    const i = d.stops.reduce((best, s, k) => (Math.abs(s - at) < Math.abs(d.stops[best] - at) ? k : best), 0);
+    if (i === 3) onClose();
+    else go(STOPS[i]);
   };
   const cancel = () => {
     drag.current = null;
-    if (card.current) card.current.style.cssText = "";
+    card.current?.style.removeProperty("transition");
+    card.current?.style.removeProperty("transform");
   };
   const keys = (e: KeyboardEvent) => {
     if (e.key !== "Escape") return;
     e.stopPropagation();
     onClose();
   };
+  // the handle steps lowered, higher, full, lowered: the single-pointer alternative to dragging
+  const step = () => go(STOPS[(STOPS.indexOf(stop) + 1) % STOPS.length]);
 
   return (
-    <section ref={card} tabIndex={-1} role="dialog" aria-label={area?.name ?? "Area details"} className="answer-card" data-open={open || undefined} data-expanded={expanded || undefined} onKeyDown={keys}>
-      <div className="answer-drag" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={cancel}>
-        <button type="button" className="answer-handle" aria-label={expanded ? "Shrink details" : "Expand details"} aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
-          <span />
-        </button>
-        <header className="answer-header">
-          <div className="answer-title">
-            <h2 className="headline-sm">{area?.name}</h2>
-            <p className="body-md">{area?.bzr_name}</p>
-            {state === "ready" && <RiskChip tier={tier} />}
-          </div>
-          <button type="button" className="answer-close" aria-label="Close" onClick={onClose}>
-            <X aria-hidden="true" />
+    <>
+      <section
+        ref={card}
+        role="dialog"
+        aria-label={area?.name ?? "Area details"}
+        className="answer-card"
+        data-open={open || undefined}
+        data-stop={stop}
+        data-collapsed={collapsed || undefined}
+        style={{ "--answer-lowered": `${LOWERED_PX}px`, "--answer-higher": `${higherPx()}px` } as CSSProperties}
+        onKeyDown={keys}
+      >
+        <div className="answer-drag" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={cancel}>
+          <button type="button" className="answer-handle" aria-label="Change height of area details" aria-expanded={stop !== "lowered"} onClick={step}>
+            <span />
           </button>
-        </header>
-      </div>
-      <div className="answer-body">
-        {state === "ready" ? (
-          <>
-            <Block title="Risk assessment">{blocks.risk}</Block>
-            <Block title="Lock advice">{blocks.advice}</Block>
-            <Block title="Where the information comes from">{blocks.source}</Block>
-          </>
-        ) : (
-          <div className="answer-note" data-state={state} role={state === "error" ? "alert" : undefined}>
-            <p className="title-md">{NOTE[state][0]}</p>
-            <p className="body-lg">{NOTE[state][1]}</p>
+          <div className="answer-appbar">
+            <button type="button" aria-label="Collapse area details" onClick={() => go(before.current)}>
+              <ChevronDown aria-hidden="true" />
+            </button>
+            <button type="button" aria-label="Close area details" onClick={onClose}>
+              <X aria-hidden="true" />
+            </button>
           </div>
-        )}
-      </div>
-    </section>
+          <header className="answer-header">
+            <div className="answer-title">
+              <h2 ref={title} tabIndex={-1} className="headline-sm">{area?.name}</h2>
+              <p className="data-md">{area?.bzr_name}</p>
+              {state === "ready" && <RiskChip tier={tier} />}
+            </div>
+            <button type="button" className="answer-close" aria-label="Close area details" onClick={onClose}>
+              <X aria-hidden="true" />
+            </button>
+          </header>
+        </div>
+        <div className="answer-body">
+          {state === "ready" ? (
+            <>
+              <Block title="Risk assessment">{blocks.risk}</Block>
+              <Block title="Lock advice">{blocks.advice}</Block>
+              <Block title="Where the information comes from">{blocks.source}</Block>
+            </>
+          ) : (
+            <div className="answer-note" data-state={state} role={state === "error" ? "alert" : undefined}>
+              <p className="title-md">{NOTE[state][0]}</p>
+              <p className="body-lg">{NOTE[state][1]}</p>
+            </div>
+          )}
+        </div>
+      </section>
+      <button type="button" className="answer-tab" data-open={open || undefined} data-collapsed={collapsed || undefined} aria-label={collapsed ? "Show area details" : "Collapse area details"} aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}>
+        {collapsed ? <ChevronRight aria-hidden="true" /> : <ChevronLeft aria-hidden="true" />}
+      </button>
+    </>
   );
 }
 

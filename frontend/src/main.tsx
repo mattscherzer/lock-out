@@ -68,6 +68,7 @@ try {
   let selected: string | null = null;
   let closeSignal = 0;
   let cardOpen = false;
+  let lowerSignal = 0; // focusing the search lowers the phone sheet out of the way
   let lastArea: { name: string; bzr_name: string } | null = null; // keeps the content while the card slides out
   const notes = new Set(gazetteer ? [] : ["station and postcode search unavailable"]);
   const showStatus = () => (status.textContent = [...notes].join(" · "));
@@ -83,6 +84,11 @@ try {
         throw err; // the search box retries on the next focus
       })
       .finally(showStatus);
+  // keep the area clear of the side panel (desktop) or the sheet and the search above it (phone, sheet at its opening height)
+  const flyPadding = () =>
+    innerWidth >= 600
+      ? { paddingTopLeft: L.point(408, 0) }
+      : { paddingTopLeft: L.point(0, 110), paddingBottomRight: L.point(0, Math.min(520, Math.round(innerHeight * 0.64))) };
   const searchRoot = createRoot(document.getElementById("search")!);
   const cardRoot = createRoot(document.getElementById("answer")!);
   // Stub until #64 supplies real answers: spreads areas over the tiers so every card state can be seen.
@@ -96,6 +102,7 @@ try {
         area={selected ? fixture.areas[selected] : lastArea}
         state={tier === "no-data" ? "no-data" : "ready"}
         tier={tier}
+        lowerSignal={lowerSignal}
         blocks={{ risk: "Placeholder: the risk assessment arrives with #64.", advice: "Placeholder: lock advice arrives with #64.", source: "Police reports and OpenStreetMap." }}
         onClose={() => {
           cardOpen = false;
@@ -115,7 +122,7 @@ try {
           select(id, context);
           // a fly (zoom out, pan, zoom in) reads smoother than a straight jump; the motion token is 0 under reduced motion
           const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--duration-slow"));
-          map.flyToBounds(polygons[id].getBounds(), { paddingTopLeft: [innerWidth >= 600 ? 432 : 0, 0], /* keep the area clear of the side panel */ duration: ms / 1000, animate: ms > 0 });
+          map.flyToBounds(polygons[id].getBounds(), { ...flyPadding(), duration: ms / 1000, animate: ms > 0 });
         }}
         onClear={() => select(null, null)}
         closeSignal={closeSignal}
@@ -149,6 +156,11 @@ try {
     renderSearch();
   });
   Object.entries(polygons).forEach(([id, polygon]) => polygon.on("click", () => select(id, null)));
+  document.getElementById("search")!.addEventListener("focusin", () => {
+    if (!cardOpen) return;
+    lowerSignal++;
+    renderCard();
+  });
   renderSearch();
   renderCard();
   showStatus();
