@@ -4,6 +4,7 @@ const px = (list) => new RegExp(`(^|[\\s(*+-])(${list})px\\b`);
 export default {
   extends: ['stylelint-config-standard'],
   rules: {
+    'import-notation': 'string', // url() stops Tailwind from processing the imports
     'no-descending-specificity': null, // component overrides are deliberate; reordering rules risks changing the cascade
     'color-no-hex': true,
     'function-disallowed-list': ['rgb', 'rgba', 'hsl', 'hsla'],
