@@ -2,7 +2,7 @@
 
 Run from the repo root: uv run python src/models/eb.py [path to the police CSV]
 Scores the model on both backtest folds against the targets, writes docs/eb-model-results.md,
-and writes the generator v0 output data/processed/lookup_v0.json for all 542 areas.
+and writes data/processed/lookup_schema_v1.json for all 542 areas, checked against schemas/lookup_v1.schema.json.
 """
 import json
 import sys
@@ -13,15 +13,23 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import config
-from audit_checks import check_csv, polygon_ids
+from audit_checks import area_names, check_csv, polygon_ids
 from fetch_police_csv import find_raw_csv
+from lookup_schema import problems
 from models.backtest import FOLDS, HISTORY_MONTHS, baselines, counts, days, fold_periods, score
 from models.selector_checks import BIKE_VALUE_SPLIT_EUR, SELECTORS, flag, holdout, levels
 from pipeline.clean import clean
 
 ROOT = Path(__file__).resolve().parents[2]
 RESULTS = ROOT / "docs" / "eb-model-results.md"
-LOOKUP = ROOT / "data" / "processed" / "lookup_v0.json"
+LOOKUP = ROOT / "data" / "processed" / "lookup_schema_v1.json"
+SCHEMA_VERSION = "1.0.0"  # schemas/lookup_v1.schema.json; additive changes are a minor bump (issue #40)
+MODEL_TYPE = "eb_gamma_poisson"
+ATTRIBUTION = {
+    "police": "Datenquelle: Polizei Berlin (CC-BY 4.0)",
+    "osm": "© OpenStreetMap contributors (ODbL)",
+    "lor": "Datenquelle: Amt für Statistik Berlin-Brandenburg / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen – ODIS Berlin (dl-de/by-2-0)",
+}
 TIERS = [("LOW", 0.60), ("MEDIUM", 0.85), ("HIGH", 1.00)]  # upper percentile of each tier: 60 / 25 / 15 of areas
 LIMITED_DATA_BELOW = 5  # street thefts in the window (M6)
 TOP_QUARTILE = 0.75
@@ -153,22 +161,26 @@ def generate(df, areas, reports_up_to, cutoff, source, selectors):
     tier = tiers(rate)
     check_tier_shares(tier)
     street_record = set(df["LOR"])  # no_record: no street theft at all in the cleaned data
+    shares = citywide_multipliers(window)
+    names = area_names()
+    bounds = [0.0] + [top for _, top in TIERS]
     out = {
         "metadata": {
-            "model_type": "eb_gamma_poisson",
-            "version": "v0",
-            "source_file": source,
-            "data_window": f"{start:%Y-%m-%d} to {cutoff:%Y-%m-%d}",
+            "schema_version": SCHEMA_VERSION,
             "reports_up_to": f"{reports_up_to:%Y-%m-%d}",
+            "data_window": {"start": f"{start:%Y-%m-%d}", "end": f"{cutoff:%Y-%m-%d}"},
             "truncation_lag_days": config.LAG_CUTOFF_DAYS,
+            "source_file": source,
+            "model_type": MODEL_TYPE,
             "shrinkage_strength": {k: (None if np.isinf(v) else round(v, 3)) for k, v in a.items()},
-            "tiers": "relative percentile bands of areas: LOW 60%, MEDIUM 25%, HIGH 15%",
-            "citywide_multipliers": citywide_multipliers(window),
-            "selectors": {s: {**f, "area_values": False} for s, f in selectors.items()},  # v0 carries no area values
-            "attribution": {"police": "Datenquelle: Polizei Berlin (CC-BY 4.0)", "osm": "© OpenStreetMap contributors (ODbL)"},
+            "attribution": ATTRIBUTION,
         },
+        "risk_bands": {name: {"min_percentile": low, "max_percentile": top} for (name, top), low in zip(TIERS, bounds)},
+        # citywide shares and the hold-out flag per selector; 1.0.0 carries no area values for any selector
+        "selectors": {s: {"shares": shares[s], **selectors[s], "area_values": False} for s in SELECTORS},
         "areas": {
             lor: {
+                **names[lor],
                 "tier": tier[lor],
                 "expected_per_year": round(float(rate[lor]), 2),
                 "reports_12m": int(y[lor]),
@@ -182,6 +194,14 @@ def generate(df, areas, reports_up_to, cutoff, source, selectors):
     return out
 
 
+def write_lookup(lookup, path=LOOKUP):
+    """Write the lookup file only if it matches the schema. allow_nan=False also refuses NaN and infinity: the schema
+    lets them through as numbers, but one of them would break JSON.parse for the whole page."""
+    if found := problems(lookup):
+        sys.exit("The output does not match schemas/lookup_v1.schema.json:\n" + "\n".join(found[:20]))
+    path.write_text(json.dumps(lookup, ensure_ascii=False, separators=(",", ":"), allow_nan=False), encoding="utf-8")
+
+
 def markdown(rows, checks, lookup, reports_up_to, cutoff, source):
     lines = [f"| {f} | {t} | {v} | {'pass' if ok else 'MISS'} |" for f, t, v, ok in checks]
     folds = [f"| {r['fold']} | {r['deviance']:.3f} | {r['citywide']:.3f} | {r['raw']:.3f} | {r['spearman']:.3f} | {r['high_in_top_quartile']:.0%} | {r['raw_high_in_top_quartile']:.0%} |" for r in rows]
@@ -189,13 +209,13 @@ def markdown(rows, checks, lookup, reports_up_to, cutoff, source):
     limited = sum(a["limited_data"] for a in lookup["areas"].values())
     return f"""# EB Model v0 Results
 
-Generated by `uv run python src/models/eb.py data/raw/{source}` from `{source}` (not in Git), with reports up to {reports_up_to:%d %b %Y} and thefts counted up to the 14-day cutoff, {cutoff:%d %b %Y}. The committed `data/processed/lookup_v0.json` comes from the same run. The baselines and folds are the ones in `docs/backtest-results.md`; compare models on the same file.
+Generated by `uv run python src/models/eb.py data/raw/{source}` from `{source}` (not in Git), with reports up to {reports_up_to:%d %b %Y} and thefts counted up to the 14-day cutoff, {cutoff:%d %b %Y}. The committed `data/processed/lookup_schema_v1.json` comes from the same run. The baselines and folds are the ones in `docs/backtest-results.md`; compare models on the same file.
 
 ## Model
 
 - Gamma-Poisson Empirical Bayes: each area's count is pulled toward its Bezirksregion, and each Bezirksregion toward the city. The prior strengths are estimated from the data (method of moments). An area with few thefts is pulled more strongly.
 - Tiers are relative percentile bands of areas: Low 60%, Medium 25%, High 15%. Areas with the same rate get the same tier, the higher one.
-- v0 scope: time band, day group and bike value (one split at EUR {BIKE_VALUE_SPLIT_EUR}) are stored as citywide shares in the metadata (D-18). No area carries multiplied values, and as citywide multipliers they never change an area's tier. Each selector carries a flag from the hold-out validation (`selectors` in the metadata); the checks are in `docs/validation-report.md`.
+- v0 scope: time band, day group and bike value (one split at EUR {BIKE_VALUE_SPLIT_EUR}) are stored as citywide shares under `selectors` in the lookup file (D-18), each with its flag from the hold-out validation; the checks are in `docs/validation-report.md`. No area carries multiplied values, and as citywide multipliers they never change an area's tier.
 
 ## Targets (G1)
 
@@ -215,7 +235,7 @@ The Spearman target is checked on the last fold only, as the issue states.
 
 ## Generator v0 output
 
-`data/processed/lookup_v0.json`: {len(lookup['areas'])} areas, data window {lookup['metadata']['data_window']}. {flagged} areas have no street theft at all in the cleaned data (`no_record`), {limited} have fewer than {LIMITED_DATA_BELOW} street thefts in the window (`limited_data`). The file does not follow `lookup_schema_v1.json` yet; that is aligned at the schema lock (WP 1.5).
+`data/processed/lookup_schema_v1.json` (schema {lookup['metadata']['schema_version']}, checked against `schemas/lookup_v1.schema.json`): {len(lookup['areas'])} areas, data window {lookup['metadata']['data_window']['start']} to {lookup['metadata']['data_window']['end']}. {flagged} areas have no street theft at all in the cleaned data (`no_record`), {limited} have fewer than {LIMITED_DATA_BELOW} street thefts in the window (`limited_data`).
 """
 
 
@@ -232,7 +252,7 @@ if __name__ == "__main__":
     checks = targets(rows)
     flags = selector_flags(rows)
     lookup = generate(cleaned, areas, reports_up_to, cutoff, path.name, flags)
-    LOOKUP.write_text(json.dumps(lookup, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    write_lookup(lookup)
     RESULTS.write_text(markdown(rows, checks, lookup, reports_up_to, cutoff, path.name), encoding="utf-8")
     for f, t, v, ok in checks:
         print(f"{'pass' if ok else 'MISS'}  {f}  {t}: {v}")
