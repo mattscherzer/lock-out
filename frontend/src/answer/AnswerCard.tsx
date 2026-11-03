@@ -142,7 +142,7 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
               <X aria-hidden="true" />
             </button>
           </div>
-          <header className="flex items-start gap-2 px-4 pb-2">
+          <header className="answer-header flex items-start gap-2 px-4 pb-2">
             <div className="min-w-0 flex-1">
               <h2 ref={title} tabIndex={-1} className="headline-sm m-0 [overflow-wrap:anywhere]">{shown?.name}</h2>
               <p className="data-md mt-0 mb-2 text-on-surface-variant">{shown?.bzr_name}</p>
