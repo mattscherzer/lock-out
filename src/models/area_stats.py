@@ -16,36 +16,42 @@ from fetch_police_csv import find_raw_csv
 from models.eb import LIMITED_DATA_BELOW, generator_window
 from pipeline.clean import clean
 
-OWN_MEDIAN_FROM = 20  # street thefts in 12 months for an area's own median stolen value (S2, issue #57)
+OWN_MEDIAN_FROM = 20  # thefts with a usable value in 12 months for an area's own median stolen value (S2, issue #57)
 LOCK_DEFEATED = "schwerer"  # ERFASSUNGSGRUND marks a theft where a lock was defeated ("schwerer Diebstahl")
 
 
 def confidence(n):
     """Confidence from an area's street thefts in 12 months. Below 5 is LOW, the same line as "limited data" (M6),
-    so a thin or empty area never gets a reassuring label; HIGH starts where the area gets its own median."""
+    so a thin or empty area never gets a reassuring label; HIGH from 20, the same number the own median needs."""
     if n < LIMITED_DATA_BELOW:
         return "LOW"
     return "MEDIUM" if n < OWN_MEDIAN_FROM else "HIGH"
 
 
 def stolen_value(df):
-    """SCHADENSHOEHE in euros; a blank or unreadable value is NaN and left out of every median."""
-    return pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce")
+    """SCHADENSHOEHE in euros. A blank, unreadable or 0 value is NaN and left out of every median: a stolen bike
+    worth EUR 0 is not a real value, and the police data does not document what 0 means, so it counts as unknown."""
+    value = pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce")
+    return value.where(value > 0)
 
 
 def citywide_facts(window):
     """Facts for the whole city, not per area (issue #57): the lock-defeated share and the median stolen value."""
     defeated = window["ERFASSUNGSGRUND"].str.contains(LOCK_DEFEATED, na=False)
-    return {"lock_defeated_share": round(float(defeated.mean()), 4), "median_stolen_value_eur": round(float(stolen_value(window).median()))}
+    median = stolen_value(window).median()
+    if pd.isna(median):
+        raise ValueError("No theft in the window has a usable stolen value, so there is no citywide median to fall back on")
+    return {"lock_defeated_share": round(float(defeated.mean()), 4), "median_stolen_value_eur": round(float(median))}
 
 
 def area_stats(window, areas):
     """One row per area: street thefts in the window, the median stolen value, where that median comes from, the confidence.
-    An area with at least OWN_MEDIAN_FROM thefts gets its own median ("area"); every other area gets the citywide one ("citywide").
-    A theft with a blank value still counts toward the threshold, as in the EDA."""
+    An area with at least OWN_MEDIAN_FROM thefts that have a usable value gets its own median ("area"), so the median always
+    rests on at least that many values; every other area gets the citywide one ("citywide"). Every theft counts in reports_12m."""
     n = window.groupby("LOR").size().reindex(areas, fill_value=0)
-    own = stolen_value(window).groupby(window["LOR"]).median().reindex(areas)
-    has_own = (n >= OWN_MEDIAN_FROM) & own.notna()
+    value = stolen_value(window).groupby(window["LOR"])
+    own = value.median().reindex(areas)
+    has_own = value.count().reindex(areas, fill_value=0) >= OWN_MEDIAN_FROM
     city = citywide_facts(window)["median_stolen_value_eur"]
     return pd.DataFrame({
         "reports_12m": n,
@@ -63,7 +69,7 @@ if __name__ == "__main__":
     window, start = generator_window(cleaned, cutoff)
     table = area_stats(window, sorted(polygon_ids()))
     facts = citywide_facts(window)
-    print(f"Window: {start:%d %b %Y} to {cutoff:%d %b %Y}, {len(window):,} street thefts")
+    print(f"Window: {start:%d %b %Y} to {cutoff:%d %b %Y}, {len(window):,} street thefts, {stolen_value(window).isna().sum():,} without a usable value (blank or 0)")
     print(f"Areas with their own median stolen value: {(table['median_source'] == 'area').sum()} of {len(table)}")
     print(f"Citywide: median stolen value EUR {facts['median_stolen_value_eur']:,}, lock-defeated share {facts['lock_defeated_share']:.0%}")
     print("Confidence:", ", ".join(f"{k} {v}" for k, v in table["confidence"].value_counts().reindex(["LOW", "MEDIUM", "HIGH"], fill_value=0).items()))
