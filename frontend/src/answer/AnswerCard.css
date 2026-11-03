@@ -19,148 +19,28 @@
   outline: 0;
 }
 
-.answer-drag {
-  flex: none;
-}
-
-.answer-handle {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  height: var(--control-sm);
-  border: 0;
-  background: none;
-  cursor: pointer;
-}
-
-.answer-handle span {
-  width: var(--sheet-handle-w);
-  height: var(--sheet-handle-h);
-  border-radius: var(--radius-full);
-  background: var(--outline);
-}
-
 .answer-handle:focus-visible {
   border-radius: var(--radius-full);
 }
 
 .answer-appbar {
   display: none;
-  height: 56px;
-  padding: 0 var(--space-2);
-  align-items: center;
-  justify-content: space-between;
 }
 
-.answer-header {
-  display: flex;
-  gap: var(--space-2);
-  align-items: flex-start;
-  padding: 0 var(--space-4) var(--space-2);
-}
-
-.answer-title {
-  flex: 1;
-  min-width: 0;
-}
-
-.answer-title h2 {
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-
-.answer-title h2:focus-visible {
+.answer-card h2:focus-visible {
   box-shadow: none;
   outline: 0;
 } /* programmatic focus only: no ring on a non-interactive heading */
-.answer-title p {
-  margin: 0 0 var(--space-2);
-  color: var(--on-surface-variant);
-}
-
-.answer-close,
-.answer-appbar button {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: var(--tap-target);
-  height: var(--tap-target);
-  border: 0;
-  border-radius: var(--radius-full);
-  background: none;
-  color: var(--on-surface);
-  cursor: pointer;
-}
-
-.answer-close {
-  margin: -6px calc(var(--space-2) * -1) 0 0;
-}
-
-.answer-close:hover,
-.answer-appbar button:hover {
+.answer-icon-button:hover {
   background: color-mix(in srgb, var(--on-surface) calc(var(--state-hover) * 100%), transparent);
-}
-
-.answer-body {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-}
-
-.answer-block h3 {
-  margin: 0 0 var(--space-2);
 }
 
 .answer-block > div > p {
   margin: 0;
 }
 
-.answer-note {
-  padding: var(--space-4);
-  border-radius: var(--radius-lg);
-  background: var(--tertiary-container);
-  color: var(--on-tertiary-container);
-}
-
-.answer-note[data-state="error"] {
-  background: transparent;
-  border: var(--border-2) solid var(--error);
-  color: var(--on-surface);
-} /* error colour is a border only, never text */
-.answer-note p {
-  margin: 0;
-}
-
-.answer-note p + p {
-  margin-top: var(--space-1);
-}
-
 .answer-tab {
   display: none;
-}
-
-.risk-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 28px;
-  padding: 0 var(--space-3);
-  box-sizing: border-box;
-  border-radius: var(--radius-full);
-  background: var(--surface-container);
-  color: var(--on-surface);
-  font-size: var(--body-md-font-size);
-  font-weight: 600;
-}
-
-.risk-chip-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: var(--radius-full);
 }
 
 @media (width <= 599px) {

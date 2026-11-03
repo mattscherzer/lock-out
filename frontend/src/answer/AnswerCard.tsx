@@ -130,30 +130,30 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
         style={{ "--answer-lowered": `${loweredPx()}px`, "--answer-higher": `${higherPx()}px` } as CSSProperties}
         onKeyDown={keys}
       >
-        <div className="answer-drag" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={cancel}>
-          <button type="button" className="answer-handle" aria-label="Change height of area details" aria-expanded={stop !== "lowered"} onClick={step}>
-            <span />
+        <div className="answer-drag flex-none" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={cancel}>
+          <button type="button" className="answer-handle grid h-control-sm w-full cursor-pointer place-items-center border-0 bg-transparent" aria-label="Change height of area details" aria-expanded={stop !== "lowered"} onClick={step}>
+            <span className="h-sheet-handle-h w-sheet-handle-w rounded-full bg-outline" />
           </button>
-          <div className="answer-appbar">
-            <button type="button" aria-label="Collapse area details" onClick={() => go(before.current)}>
+          <div className="answer-appbar h-14 items-center justify-between px-2">
+            <button type="button" className={ICON_BUTTON} aria-label="Collapse area details" onClick={() => go(before.current)}>
               <ChevronDown aria-hidden="true" />
             </button>
-            <button type="button" aria-label="Close area details" onClick={onClose}>
+            <button type="button" className={ICON_BUTTON} aria-label="Close area details" onClick={onClose}>
               <X aria-hidden="true" />
             </button>
           </div>
-          <header className="answer-header">
-            <div className="answer-title">
-              <h2 ref={title} tabIndex={-1} className="headline-sm">{shown?.name}</h2>
-              <p className="data-md">{shown?.bzr_name}</p>
+          <header className="flex items-start gap-2 px-4 pb-2">
+            <div className="min-w-0 flex-1">
+              <h2 ref={title} tabIndex={-1} className="headline-sm m-0 [overflow-wrap:anywhere]">{shown?.name}</h2>
+              <p className="data-md mt-0 mb-2 text-on-surface-variant">{shown?.bzr_name}</p>
               {state === "ready" && <RiskChip tier={tier} />}
             </div>
-            <button type="button" className="answer-close" aria-label="Close area details" onClick={onClose}>
+            <button type="button" className={`answer-close ${ICON_BUTTON} -mt-1.5 -mr-2`} aria-label="Close area details" onClick={onClose}>
               <X aria-hidden="true" />
             </button>
           </header>
         </div>
-        <div className="answer-body">
+        <div className="answer-body flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4">
           {state === "ready" ? (
             <>
               <Block title="Risk assessment">{blocks.risk}</Block>
@@ -161,9 +161,10 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
               <Block title="Where the information comes from">{blocks.source}</Block>
             </>
           ) : (
-            <div className="answer-note" data-state={state} role={state === "error" ? "alert" : undefined}>
-              <p className="title-md">{NOTE[state][0]}</p>
-              <p className="body-lg">{NOTE[state][1]}</p>
+            // error colour is a border only, never text
+            <div className="rounded-lg bg-tertiary-container p-4 text-on-tertiary-container data-[state=error]:border-2 data-[state=error]:border-error data-[state=error]:bg-transparent data-[state=error]:text-on-surface" data-state={state} role={state === "error" ? "alert" : undefined}>
+              <p className="title-md m-0">{NOTE[state][0]}</p>
+              <p className="body-lg m-0 mt-1">{NOTE[state][1]}</p>
             </div>
           )}
         </div>
@@ -175,10 +176,12 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
   );
 }
 
+const ICON_BUTTON = "answer-icon-button grid size-tap-target flex-none cursor-pointer place-items-center rounded-full border-0 bg-transparent text-on-surface";
+
 function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="answer-block">
-      <h3 className="title-md">{title}</h3>
+      <h3 className="title-md m-0 mb-2">{title}</h3>
       <div className="body-lg">{children}</div>
     </section>
   );
