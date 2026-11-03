@@ -3,6 +3,8 @@ import "leaflet/dist/leaflet.css";
 import "./styles/index.css";
 import type { FeatureCollection } from "geojson";
 import { createRoot } from "react-dom/client";
+import { AnswerCard } from "./answer/AnswerCard.tsx";
+import type { Tier } from "./answer/RiskChip.tsx";
 import { AreaSearch, type Context } from "./search/AreaSearch.tsx";
 import { addStreets, buildIndex } from "./search/places.ts";
 import type { Fixture, Gazetteer, StreetsFile } from "./search/types.ts";
@@ -65,6 +67,8 @@ try {
   map.fitBounds(layer.getBounds());
   let selected: string | null = null;
   let closeSignal = 0;
+  let cardOpen = false;
+  let lastArea: { name: string; bzr_name: string } | null = null; // keeps the content while the card slides out
   const notes = new Set(gazetteer ? [] : ["station and postcode search unavailable"]);
   const showStatus = () => (status.textContent = [...notes].join(" · "));
   const index = buildIndex(gazetteer ?? EMPTY_GAZETTEER, fixture.areas);
@@ -80,6 +84,27 @@ try {
       })
       .finally(showStatus);
   const searchRoot = createRoot(document.getElementById("search")!);
+  const cardRoot = createRoot(document.getElementById("answer")!);
+  // Stub until #64 supplies real answers: spreads areas over the tiers so every card state can be seen.
+  const TIERS: Tier[] = ["low", "medium", "high", "no-data"];
+  const tierOf = (id: string) => TIERS[[...id].reduce((n, c) => n + c.charCodeAt(0), 0) % TIERS.length];
+  const renderCard = () => {
+    const tier = selected ? tierOf(selected) : "no-data";
+    cardRoot.render(
+      <AnswerCard
+        open={selected !== null && cardOpen}
+        area={selected ? fixture.areas[selected] : lastArea}
+        state={tier === "no-data" ? "no-data" : "ready"}
+        tier={tier}
+        blocks={{ risk: "Placeholder: the risk assessment arrives with #64.", advice: "Placeholder: lock advice arrives with #64.", source: "Police reports and OpenStreetMap." }}
+        onClose={() => {
+          cardOpen = false;
+          renderCard();
+          document.querySelector<HTMLInputElement>("#search input")?.focus(); // the field shows the still-selected area
+        }}
+      />,
+    );
+  };
   const renderSearch = () =>
     searchRoot.render(
       <AreaSearch
@@ -90,7 +115,7 @@ try {
           select(id, context);
           // a fly (zoom out, pan, zoom in) reads smoother than a straight jump; the motion token is 0 under reduced motion
           const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--duration-slow"));
-          map.flyToBounds(polygons[id].getBounds(), { duration: ms / 1000, animate: ms > 0 });
+          map.flyToBounds(polygons[id].getBounds(), { paddingTopLeft: [innerWidth >= 600 ? 432 : 0, 0], /* keep the area clear of the side panel */ duration: ms / 1000, animate: ms > 0 });
         }}
         onClear={() => select(null, null)}
         closeSignal={closeSignal}
@@ -110,8 +135,13 @@ try {
           .addTo(map)
       : undefined;
     selected = id;
-    if (id) polygons[id].setStyle(SELECTED_STYLE).bringToFront();
+    if (id) {
+      polygons[id].setStyle(SELECTED_STYLE).bringToFront();
+      lastArea = fixture.areas[id];
+    }
+    cardOpen = id !== null;
     renderSearch();
+    renderCard();
   };
   // a tap on the map closes the list; a tap on an area also selects it
   map.on("click", () => {
@@ -120,6 +150,7 @@ try {
   });
   Object.entries(polygons).forEach(([id, polygon]) => polygon.on("click", () => select(id, null)));
   renderSearch();
+  renderCard();
   showStatus();
 } catch (err) {
   status.textContent = "Could not load map data";
