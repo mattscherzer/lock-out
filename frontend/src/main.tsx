@@ -156,10 +156,12 @@ try {
     closeSignal++;
     renderSearch();
   });
-  Object.entries(polygons).forEach(([id, polygon]) => polygon.on("click", () => {
+  Object.entries(polygons).forEach(([id, polygon]) =>
+    polygon.on("click", () => {
       select(id, null);
       fly(id, { maxZoom: map.getZoom() }); // pan clear of the card, never zoom in on a tap
-    }));
+    }),
+  );
   document.getElementById("search")!.addEventListener("focusin", () => {
     if (!cardOpen) return;
     lowerSignal++;

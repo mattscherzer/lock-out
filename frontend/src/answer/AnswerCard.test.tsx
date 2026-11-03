@@ -1,17 +1,18 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
+import { AnswerCard, higherPx, type CardState } from "./AnswerCard.tsx";
 
 afterEach(() => {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
+
 // jsdom has no matchMedia, which the card reads as a phone; say so explicitly
 const asPhone = () => vi.stubGlobal("matchMedia", () => ({ matches: false }));
-import { AnswerCard, type CardState } from "./AnswerCard.tsx";
 
 const area = { name: "Tempelhof-Schöneberg", bzr_name: "Tempelhof" };
 const blocks = { risk: "r", advice: "a", source: "s" };
-const card = (over: Partial<Parameters<typeof AnswerCard>[0]> = {}) => <AnswerCard open area={area} state="ready" tier="high" blocks={blocks} onClose={() => {}} {...over} />;
+const card = (over: Partial<Parameters<typeof AnswerCard>[0]> = {}) => <AnswerCard open area={area} areaId="a" state="ready" tier="high" blocks={blocks} onClose={() => {}} {...over} />;
 const dialog = () => screen.getByRole("dialog", { hidden: true });
 
 it("shows the name, tier chip and the three titled blocks", () => {
@@ -36,7 +37,7 @@ it("announces the error state", () => {
 it("closes on the close button and on Escape", () => {
   const onClose = vi.fn();
   render(card({ onClose }));
-  fireEvent.click(screen.getAllByLabelText("Close area details")[1]);
+  fireEvent.click(screen.getByLabelText("Close area details", { selector: ".answer-close" }));
   fireEvent.keyDown(dialog(), { key: "Escape" });
   expect(onClose).toHaveBeenCalledTimes(2);
 });
@@ -91,7 +92,7 @@ it("drags like a sheet: follows the finger, settles on the nearest stop, closes 
 it("a new area uncollapses the desktop panel and takes focus", () => {
   const { rerender } = render(card());
   fireEvent.click(screen.getByLabelText("Collapse area details", { selector: ".answer-tab" }));
-  rerender(card({ area: { name: "Mitte", bzr_name: "Mitte" } }));
+  rerender(card({ area: { name: "Mitte", bzr_name: "Mitte" }, areaId: "b" }));
   expect(dialog().hasAttribute("data-collapsed")).toBe(false);
   expect(document.activeElement).toBe(screen.getByRole("heading", { level: 2, hidden: true }));
 });
@@ -148,7 +149,12 @@ it("desktop edge tab collapses the panel and brings it back", () => {
 
 it("replaces the content when the area changes without closing", () => {
   const { rerender } = render(card());
-  rerender(card({ area: { name: "Mitte", bzr_name: "Mitte" } }));
+  rerender(card({ area: { name: "Mitte", bzr_name: "Mitte" }, areaId: "b" }));
   expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Mitte");
   expect(dialog().hasAttribute("data-open")).toBe(true);
+});
+
+it("a viewport shorter than the sheet keeps the stops in order", () => {
+  vi.stubGlobal("innerHeight", 280);
+  expect(higherPx()).toBe(280);
 });

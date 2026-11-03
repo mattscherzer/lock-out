@@ -27,15 +27,15 @@
   display: grid;
   place-items: center;
   width: 100%;
-  height: var(--space-8);
+  height: var(--control-sm);
   border: 0;
   background: none;
   cursor: pointer;
 }
 
 .answer-handle span {
-  width: var(--space-8);
-  height: 4px;
+  width: var(--sheet-handle-w);
+  height: var(--sheet-handle-h);
   border-radius: var(--radius-full);
   background: var(--outline);
 }
@@ -258,7 +258,7 @@
     top: 276px;
     left: 432px;
     width: var(--space-5);
-    height: var(--space-12);
+    height: var(--control-lg);
     padding: 0;
     border: 0;
     border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
@@ -285,8 +285,8 @@
   }
 
   .answer-tab svg {
-    width: var(--space-4);
-    height: var(--space-4);
+    width: var(--icon-sm);
+    height: var(--icon-sm);
   }
 }
 

@@ -7,7 +7,7 @@ export type CardState = "ready" | "empty" | "no-data" | "error";
 type Props = {
   open: boolean;
   area: { name: string; bzr_name: string } | null;
-  areaId?: string | null; // names are not unique (two Schloßstraße), so the id decides when the area changed
+  areaId: string | null; // names are not unique (two Schloßstraße), so the id decides when the area changed
   state: CardState;
   tier: Tier;
   blocks: { risk: ReactNode; advice: ReactNode; source: ReactNode };
@@ -19,7 +19,8 @@ const STOPS = ["lowered", "higher", "full"] as const;
 type Stop = (typeof STOPS)[number];
 const LOWERED_PX = 280;
 // at least 40px above lowered, so a short landscape phone never inverts the stops
-export const higherPx = () => Math.max(LOWERED_PX + 40, Math.min(520, Math.round(window.innerHeight * 0.64)));
+const loweredPx = () => Math.min(LOWERED_PX, window.innerHeight);
+export const higherPx = () => Math.min(window.innerHeight, Math.max(LOWERED_PX + 40, Math.min(520, Math.round(window.innerHeight * 0.64))));
 const CLOSED = STOPS.length; // index after the last stop in the drag stops
 const SLOP_PX = 6; // movement below this is a tap, not a drag
 const FLICK_MS = 150; // how far ahead the release velocity projects the sheet
@@ -60,7 +61,7 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
     if (!open) return;
     setCollapsed(false); // a new area must not stay hidden behind a collapsed panel
     title.current?.focus();
-  }, [open, areaId ?? shown?.name]);
+  }, [open, areaId]);
 
   const signal = useRef(lowerSignal);
   useEffect(() => {
@@ -72,7 +73,7 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
   const down = (e: PointerEvent) => {
     if (!phone()) return;
     const h = card.current!.offsetHeight;
-    const stops = [h - LOWERED_PX, h - higherPx(), 0, h]; // translateY of lowered, higher, full, then CLOSED
+    const stops = [h - loweredPx(), h - higherPx(), 0, h]; // translateY of lowered, higher, full, then CLOSED
     drag.current = { y: e.clientY, from: stops[STOPS.indexOf(stop)], stops, moved: false, last: null, v: 0 };
   };
   const move = (e: PointerEvent) => {
@@ -126,7 +127,7 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
         data-open={open || undefined}
         data-stop={stop}
         data-collapsed={collapsed || undefined}
-        style={{ "--answer-lowered": `${LOWERED_PX}px`, "--answer-higher": `${higherPx()}px` } as CSSProperties}
+        style={{ "--answer-lowered": `${loweredPx()}px`, "--answer-higher": `${higherPx()}px` } as CSSProperties}
         onKeyDown={keys}
       >
         <div className="answer-drag" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={cancel}>
