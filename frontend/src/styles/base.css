@@ -22,12 +22,15 @@
   box-shadow: var(--focus-ring);
 }
 
-/* visually hidden, still read by screen readers (live regions, labels) */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+/* the browser draws a focus outline on a clicked area; areas are selected by pointer, the search is the keyboard route */
+path.leaflet-interactive:focus {
+  outline: none;
+}
+
+/* shortcut: raw white and system-ui, not tokens; the status line is a placeholder, so moving it to the tokens is a design change */
+#status {
+  background: white;
+  font:
+    14px system-ui,
+    sans-serif;
 }
