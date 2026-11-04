@@ -12,6 +12,11 @@ export function Button({
   return <button type="button" className={`btn btn-${variant} label-lg ${className}`} {...rest} />;
 }
 
+const LIST = {
+  chip: "gap-2",
+  segmented: "choice-list-segmented gap-1 rounded-md bg-secondary-container p-1",
+};
+
 // Single choice from a list. Native radios give grouping and arrow keys; the checked option shows a check mark and a 2px border, not colour alone.
 export function Choice({
   label,
@@ -30,12 +35,16 @@ export function Choice({
 }) {
   const id = useId();
   return (
-    <fieldset className="choices" aria-describedby={pattern ? `${id}-pattern` : undefined}>
+    <fieldset
+      className="m-0 min-w-0 border-0 p-0"
+      aria-describedby={pattern ? `${id}-pattern` : undefined}
+    >
       <legend className="sr-only">{label}</legend>
-      <div className={`choice-list choice-list-${variant}`}>
+      <div className={`flex flex-wrap ${LIST[variant]}`}>
         {options.map((o) => (
           <label key={o.value} className="choice label-lg">
             <input
+              className="absolute inset-0 m-0 cursor-[inherit] opacity-0"
               type="radio"
               name={id}
               value={o.value}
@@ -49,7 +58,7 @@ export function Choice({
         ))}
       </div>
       {pattern && (
-        <p id={`${id}-pattern`} className="choices-pattern body-sm">
+        <p id={`${id}-pattern`} className="mt-2 mb-0 body-sm text-on-surface-variant">
           {pattern}
         </p>
       )}
