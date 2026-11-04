@@ -100,52 +100,6 @@
   --font-display: "Piazzolla", Georgia, "Times New Roman", serif;
   --font-sans: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-attribution: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --display-sm-font-size: 36px;
-  --display-sm-line-height: 44px;
-  --display-sm-font-weight: 600;
-  --display-sm-letter-spacing: -0.5px;
-  --headline-md-font-size: 28px;
-  --headline-md-line-height: 36px;
-  --headline-md-font-weight: 600;
-  --headline-sm-font-size: 24px;
-  --headline-sm-line-height: 32px;
-  --headline-sm-font-weight: 600;
-  --title-lg-font-size: 20px;
-  --title-lg-line-height: 28px;
-  --title-lg-font-weight: 600;
-  --title-md-font-size: 16px;
-  --title-md-line-height: 24px;
-  --title-md-font-weight: 600;
-  --title-sm-font-size: 14px;
-  --title-sm-line-height: 20px;
-  --title-sm-font-weight: 600;
-  --body-lg-font-size: 16px;
-  --body-lg-line-height: 24px;
-  --body-lg-font-weight: 400;
-  --body-md-font-size: 14px;
-  --body-md-line-height: 20px;
-  --body-md-font-weight: 400;
-  --body-sm-font-size: 12px;
-  --body-sm-line-height: 16px;
-  --body-sm-font-weight: 400;
-  --label-lg-font-size: 14px;
-  --label-lg-line-height: 20px;
-  --label-lg-font-weight: 600;
-  --label-lg-letter-spacing: 0.1px;
-  --label-md-font-size: 12px;
-  --label-md-line-height: 16px;
-  --label-md-font-weight: 600;
-  --label-md-letter-spacing: 0.5px;
-  --label-sm-font-size: 11px;
-  --label-sm-line-height: 16px;
-  --label-sm-font-weight: 600;
-  --label-sm-letter-spacing: 0.5px;
-  --data-md-font-size: 13px;
-  --data-md-line-height: 20px;
-  --data-md-font-weight: 500;
-  --attribution-sm-font-size: 11px;
-  --attribution-sm-line-height: 16px;
-  --attribution-sm-font-weight: 400;
 }
 
 [data-theme="dark"] {
@@ -194,21 +148,23 @@
   :root { --duration-fast: 0ms; --duration-base: 0ms; --duration-slow: 0ms; }
 }
 
+@utility display-sm { font-family: var(--font-display); font-size: 36px; line-height: 44px; font-weight: 600; letter-spacing: -0.5px; }
+@utility headline-md { font-family: var(--font-display); font-size: 28px; line-height: 36px; font-weight: 600; }
+@utility headline-sm { font-family: var(--font-display); font-size: 24px; line-height: 32px; font-weight: 600; }
+@utility title-lg { font-family: var(--font-sans); font-size: 20px; line-height: 28px; font-weight: 600; }
+@utility title-md { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 600; }
+@utility title-sm { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 600; }
+@utility body-lg { font-family: var(--font-sans); font-size: 16px; line-height: 24px; font-weight: 400; }
+@utility body-md { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 400; }
+@utility body-sm { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 400; }
+@utility label-lg { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: 0.1px; }
+@utility label-md { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.5px; }
+@utility label-sm { font-family: var(--font-sans); font-size: 11px; line-height: 16px; font-weight: 600; letter-spacing: 0.5px; }
+@utility data-md { font-family: var(--font-sans); font-size: 13px; line-height: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
+@utility attribution-sm { font-family: var(--font-attribution); font-size: 11px; line-height: 16px; font-weight: 400; }
+
 @layer components {
-  .display-sm { font-family: var(--font-display); font-size: var(--display-sm-font-size); line-height: var(--display-sm-line-height); font-weight: var(--display-sm-font-weight); letter-spacing: var(--display-sm-letter-spacing); }
-  .headline-md { font-family: var(--font-display); font-size: var(--headline-md-font-size); line-height: var(--headline-md-line-height); font-weight: var(--headline-md-font-weight); }
-  .headline-sm { font-family: var(--font-display); font-size: var(--headline-sm-font-size); line-height: var(--headline-sm-line-height); font-weight: var(--headline-sm-font-weight); }
-  .title-lg { font-family: var(--font-sans); font-size: var(--title-lg-font-size); line-height: var(--title-lg-line-height); font-weight: var(--title-lg-font-weight); }
-  .title-md { font-family: var(--font-sans); font-size: var(--title-md-font-size); line-height: var(--title-md-line-height); font-weight: var(--title-md-font-weight); }
-  .title-sm { font-family: var(--font-sans); font-size: var(--title-sm-font-size); line-height: var(--title-sm-line-height); font-weight: var(--title-sm-font-weight); }
-  .body-lg { font-family: var(--font-sans); font-size: var(--body-lg-font-size); line-height: var(--body-lg-line-height); font-weight: var(--body-lg-font-weight); }
-  .body-md { font-family: var(--font-sans); font-size: var(--body-md-font-size); line-height: var(--body-md-line-height); font-weight: var(--body-md-font-weight); }
-  .body-sm { font-family: var(--font-sans); font-size: var(--body-sm-font-size); line-height: var(--body-sm-line-height); font-weight: var(--body-sm-font-weight); }
-  .label-lg { font-family: var(--font-sans); font-size: var(--label-lg-font-size); line-height: var(--label-lg-line-height); font-weight: var(--label-lg-font-weight); letter-spacing: var(--label-lg-letter-spacing); }
-  .label-md { font-family: var(--font-sans); font-size: var(--label-md-font-size); line-height: var(--label-md-line-height); font-weight: var(--label-md-font-weight); letter-spacing: var(--label-md-letter-spacing); }
-  .label-sm { font-family: var(--font-sans); font-size: var(--label-sm-font-size); line-height: var(--label-sm-line-height); font-weight: var(--label-sm-font-weight); letter-spacing: var(--label-sm-letter-spacing); }
-  .data-md { font-family: var(--font-sans); font-size: var(--data-md-font-size); line-height: var(--data-md-line-height); font-weight: var(--data-md-font-weight); font-variant-numeric: tabular-nums; }
-  .attribution-sm, .leaflet-control-attribution { font-family: var(--font-attribution); font-size: var(--attribution-sm-font-size); line-height: var(--attribution-sm-line-height); font-weight: var(--attribution-sm-font-weight); }
+  .leaflet-control-attribution { font-family: var(--font-attribution); font-size: 11px; line-height: 16px; font-weight: 400; }
 }
 
 /* Tailwind utilities (bg-primary, rounded-md, shadow-elevation-2, font-display) read the vars above, so themes switch without regenerating. */

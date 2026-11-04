@@ -12,17 +12,36 @@ const asPhone = () => vi.stubGlobal("matchMedia", () => ({ matches: false }));
 
 const area = { name: "Tempelhof-Schöneberg", bzr_name: "Tempelhof" };
 const blocks = { risk: "r", advice: "a", source: "s" };
-const card = (over: Partial<Parameters<typeof AnswerCard>[0]> = {}) => <AnswerCard open area={area} areaId="a" state="ready" tier="high" blocks={blocks} onClose={() => {}} {...over} />;
+const card = (over: Partial<Parameters<typeof AnswerCard>[0]> = {}) => (
+  <AnswerCard
+    open
+    area={area}
+    areaId="a"
+    state="ready"
+    tier="high"
+    blocks={blocks}
+    onClose={() => {}}
+    {...over}
+  />
+);
 const dialog = () => screen.getByRole("dialog", { hidden: true });
 
 it("shows the name, tier chip and the three titled blocks", () => {
   render(card());
   expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Tempelhof-Schöneberg");
   expect(screen.getByText("High risk")).toBeTruthy();
-  expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual(["Risk assessment", "Lock advice", "Where the information comes from"]);
+  expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
+    "Risk assessment",
+    "Lock advice",
+    "Where the information comes from",
+  ]);
 });
 
-it.each<[CardState, string]>([["empty", "Nothing to show yet"], ["no-data", "Not enough data"], ["error", "Could not load this area"]])("%s state replaces the blocks and hides the chip", (state, title) => {
+it.each<[CardState, string]>([
+  ["empty", "Nothing to show yet"],
+  ["no-data", "Not enough data"],
+  ["error", "Could not load this area"],
+])("%s state replaces the blocks and hides the chip", (state, title) => {
   render(card({ state }));
   expect(screen.getByText(title)).toBeTruthy();
   expect(screen.queryByText("High risk")).toBeNull();
@@ -56,7 +75,9 @@ it("opens at higher; the handle steps lowered, higher, full, lowered; collapse r
   const handle = screen.getByLabelText("Change height of area details");
   fireEvent.click(handle);
   expect(stop()).toBe("full");
-  fireEvent.click(screen.getByLabelText("Collapse area details", { selector: ".answer-appbar button" }));
+  fireEvent.click(
+    screen.getByLabelText("Collapse area details", { selector: ".answer-appbar button" }),
+  );
   expect(stop()).toBe("higher");
   fireEvent.click(handle);
   fireEvent.click(handle);
