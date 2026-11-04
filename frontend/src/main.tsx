@@ -4,7 +4,8 @@ import "./styles/index.css";
 import type { FeatureCollection } from "geojson";
 import { createRoot } from "react-dom/client";
 import { AnswerCard, higherPx } from "./answer/AnswerCard.tsx";
-import { RiskBlock, SourceBlock, tierOf } from "./answer/Blocks.tsx";
+import { Details, Explain, kindOf, topShare } from "./answer/Blocks.tsx";
+import { Verdict } from "./answer/Verdict.tsx";
 import { About } from "./About.tsx";
 import { AreaSearch, type Context } from "./search/AreaSearch.tsx";
 import { addStreets, buildIndex } from "./search/places.ts";
@@ -50,7 +51,7 @@ try {
   const { police, osm } = fixture.metadata.attribution;
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
-    attribution: `<a href="https://www.openstreetmap.org/copyright">${osm}</a> | ${police} | ${SEARCH_ATTRIBUTION}`,
+    attribution: `<a href="https://www.openstreetmap.org/copyright">${osm}</a> | ${police} | ${SEARCH_ATTRIBUTION} | <a href="#about" data-about>About the data</a>`,
   }).addTo(map);
 
   const polygons: Record<string, L.Polygon> = {};
@@ -91,27 +92,30 @@ try {
       : { paddingTopLeft: L.point(0, 110), paddingBottomRight: L.point(0, higherPx()) };
   const searchRoot = createRoot(document.getElementById("search")!);
   const cardRoot = createRoot(document.getElementById("answer")!);
-  createRoot(document.getElementById("about")!).render(<About attribution={fixture.metadata.attribution} />);
-  let found: Context | null = null;
-  // only a street or postcode can span areas; the station pin already shows where it is
-  const foundLines = () =>
-    found && (found.kind === "street" || found.kind === "postcode")
-      ? [`found via ${found.kind} ${found.label}`, ...(found.pct != null ? [`${found.pct}% of the ${found.kind} lies in this area`] : [])]
-      : [];
+  const aboutRoot = createRoot(document.getElementById("about")!);
+  let aboutOpen = false;
+  const renderAbout = (next: boolean) => {
+    aboutOpen = next;
+    aboutRoot.render(<About attribution={fixture.metadata.attribution} open={aboutOpen} onClose={() => renderAbout(false)} />);
+  };
+  renderAbout(false);
+  map.attributionControl.getContainer()!.addEventListener("click", (e) => {
+    if (!(e.target as Element).closest("[data-about]")) return;
+    e.preventDefault();
+    renderAbout(true);
+  });
   const renderCard = () => {
     const record = selected ? fixture.areas[selected] : null;
-    const tier = record ? tierOf(record) : "no-data";
     cardRoot.render(
       <AnswerCard
         open={selected !== null && cardOpen}
         area={record}
         areaId={selected}
-        state={tier === "no-data" ? "no-data" : "ready"}
-        tier={tier}
-        limited={record?.limited_data}
-        found={foundLines()}
+        state={record?.no_record ? "no-data" : "ready"}
         lowerSignal={lowerSignal}
-        blocks={{ risk: record && <RiskBlock area={record} selectors={fixture.selectors} />, source: <SourceBlock metadata={fixture.metadata} /> }}
+        verdict={(explain) => record && <Verdict kind={kindOf(record)} reports={record.reports_12m} topShare={topShare(fixture.risk_bands)} onExplain={explain} />}
+        details={record && <Details area={record} selectors={fixture.selectors} metadata={fixture.metadata} onAbout={() => renderAbout(true)} />}
+        explain={record && <Explain area={record} kind={kindOf(record)} bands={fixture.risk_bands} metadata={fixture.metadata} />}
         onClose={() => {
           cardOpen = false;
           renderCard();
@@ -154,7 +158,6 @@ try {
           .addTo(map)
       : undefined;
     selected = id;
-    found = context;
     if (id) polygons[id].setStyle(SELECTED_STYLE).bringToFront();
     cardOpen = id !== null;
     renderSearch();

@@ -35,8 +35,163 @@
   background: color-mix(in srgb, var(--on-surface) calc(var(--state-hover) * 100%), transparent);
 }
 
-.answer-block > div > p {
-  margin: 0;
+.explain-trigger {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--space-2);
+  min-height: var(--tap-target);
+  margin: 0 0 calc(-1 * var(--space-2)) calc(-1 * var(--space-2));
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--tertiary);
+  font: inherit;
+  font-weight: var(--label-lg-font-weight);
+  cursor: pointer;
+}
+
+.explain-trigger:hover {
+  background: color-mix(in srgb, var(--on-surface) calc(var(--state-hover) * 100%), transparent);
+}
+
+.explain-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: var(--scrim);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base);
+}
+
+.explain-scrim[data-open] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.explain-sheet {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: calc(var(--z-modal) + 1);
+  display: flex;
+  flex-direction: column;
+  max-height: 92dvh;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--surface-container-lowest);
+  color: var(--on-surface);
+  box-shadow: var(--elevation-sheet);
+  visibility: hidden;
+  transform: translateY(102%);
+  transition:
+    transform var(--duration-slow) var(--easing-standard),
+    visibility 0s linear var(--duration-slow);
+}
+
+.explain-sheet[data-open] {
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+/* the panel is collapsed with the sheet open: it leaves with the panel and comes back with it */
+.explain-sheet[data-open][data-collapsed] {
+  visibility: hidden;
+  transform: translateY(102%);
+  transition-delay: 0s, var(--duration-slow);
+}
+
+.explain-scrim[data-open][data-collapsed] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (width >= 600px) {
+  .explain-scrim,
+  .explain-sheet {
+    right: auto;
+    width: var(--answer-panel-w);
+  }
+}
+
+.explain-frame {
+  display: none;
+}
+
+/* Desktop: the explanation is a second card in one frame with the first, as in Google Maps. A tinted surface continues from the panel's edge and the card sits on it with a margin. Frame, card, sheet and tab all travel the same distance, so they stay together. The map stays usable, so no scrim. */
+@media (width >= 900px) {
+  .explain-scrim {
+    display: none;
+  }
+
+  .answer-card,
+  .answer-tab,
+  .explain-sheet,
+  .explain-frame {
+    --explain-w: 380px;
+    --explain-shift: calc(var(--explain-w) + 2 * var(--space-2));
+    --pair-shift: calc(var(--answer-panel-w) + var(--explain-shift));
+  }
+
+  .explain-frame {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: calc(var(--z-search) - 3);
+    display: block;
+    width: calc(var(--answer-panel-w) + var(--explain-shift));
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    background: var(--surface-container);
+    box-shadow: var(--elevation-3);
+    visibility: hidden;
+    transform: translateX(calc(-1 * var(--explain-shift)));
+    transition:
+      transform var(--duration-slow) var(--ease-standard),
+      visibility 0s linear var(--duration-slow);
+  }
+
+  .explain-frame[data-open] {
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+
+  .explain-frame[data-open][data-collapsed] {
+    transform: translateX(calc(-1 * var(--pair-shift)));
+    transition-delay: 0s, var(--duration-slow);
+  }
+
+  .explain-sheet {
+    top: var(--space-2);
+    bottom: var(--space-2);
+    left: calc(var(--answer-panel-w) + var(--space-2));
+    z-index: calc(var(--z-search) - 2);
+    width: var(--explain-w);
+    max-height: none;
+    border-radius: var(--radius-lg);
+    box-shadow: none;
+    transform: translateX(calc(-1 * var(--explain-shift)));
+  }
+
+  .explain-sheet[data-open] {
+    transform: none;
+  }
+
+  .explain-sheet[data-open][data-collapsed] {
+    transform: translateX(calc(-1 * var(--pair-shift)));
+  }
+
+  .answer-card[data-open][data-collapsed][data-explain] {
+    transform: translateX(calc(-1 * var(--pair-shift)));
+  }
+
+  .answer-tab[data-open][data-explain]:not([data-collapsed]) {
+    transform: translateX(var(--pair-shift));
+  }
 }
 
 .answer-tab {
@@ -75,8 +230,30 @@
     border-radius: 0;
     z-index: calc(var(--z-search) + 1);
   } /* covers the search pill */
-  .answer-drag {
+
+  /* The whole card is the drag surface until full screen, where it scrolls as one piece, header included. */
+  .answer-card:not([data-stop="full"]) {
+    overflow: hidden;
     touch-action: none;
+  }
+
+  .answer-card[data-stop="full"] {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .answer-drag {
+    display: contents;
+  }
+
+  /* without the wrapper's flex-none these would shrink when the content is taller than the sheet */
+  .answer-drag > * {
+    flex: none;
+  }
+
+  .answer-body {
+    flex: none;
+    overflow: visible;
   }
 
   /* the card is 100dvh tall and slid down: pad by the hidden part so the last block can scroll into view */
@@ -94,14 +271,21 @@
   }
 
   .answer-card[data-stop="full"] .answer-appbar {
+    position: sticky;
+    top: 0;
     display: flex;
+    background: var(--surface-container-lowest);
+    touch-action: none;
   }
 }
 
 /* The search pill (400px, 16px inset) floats over the panel's top: hence 432px wide and the 80px header offset. */
 @media (width >= 600px) {
   .answer-card,
-  .answer-tab {
+  .answer-tab,
+  .explain-scrim,
+  .explain-frame,
+  .explain-sheet {
     --answer-panel-w: 432px;
   }
 
@@ -183,7 +367,10 @@
 
 @media (width >= 600px) and (width <= 899px) {
   .answer-card,
-  .answer-tab {
+  .answer-tab,
+  .explain-scrim,
+  .explain-frame,
+  .explain-sheet {
     --answer-panel-w: 392px;
   }
 } /* the pill is 360px here */
