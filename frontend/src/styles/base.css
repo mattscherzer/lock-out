@@ -22,12 +22,12 @@
   box-shadow: var(--focus-ring);
 }
 
-/* the browser draws a focus outline on a clicked area; areas are selected by pointer, the search is the keyboard route */
+/* no outline on a clicked area; the search is the keyboard route */
 path.leaflet-interactive:focus {
   outline: none;
 }
 
-/* shortcut: raw white and system-ui, not tokens; the status line is a placeholder, so moving it to the tokens is a design change */
+/* shortcut: raw white and system-ui; the status line is a placeholder, move to tokens later */
 #status {
   background: white;
   font:

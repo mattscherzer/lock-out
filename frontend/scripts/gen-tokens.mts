@@ -11,7 +11,10 @@ type Group = { tokens: Token[] };
 type TypeStyle = Record<string, string>;
 export type Tokens = {
   color: { tokens: { name: string; value: { light: string; dark?: string } }[] };
-  type: { families: Record<string, string>; groups: { name: string; family: string; styles: TypeStyle[] }[] };
+  type: {
+    families: Record<string, string>;
+    groups: { name: string; family: string; styles: TypeStyle[] }[];
+  };
   [group: string]: unknown;
 };
 
@@ -24,7 +27,8 @@ export function generate(t: Tokens) {
 
   // value is a string, or {light, dark}; dark is only emitted when it differs.
   const add = (name: string, value: Value) => {
-    const v: { light: string; dark?: string } = typeof value === "object" ? value : { light: value };
+    const v: { light: string; dark?: string } =
+      typeof value === "object" ? value : { light: value };
     light.push(`  --${name}: ${v.light};`);
     if (v.dark && v.dark !== v.light) dark.push(`  --${name}: ${v.dark};`);
   };
@@ -38,21 +42,27 @@ export function generate(t: Tokens) {
     if (g === "color" || !Array.isArray(tokens)) continue;
     for (const k of tokens) {
       add(k.name, k.value);
-      if (g === "shadow" && k.name !== "focus-ring") theme.push(`  --shadow-${k.name}: var(--${k.name});`);
-      // same name as Tailwind's radius namespace: literal, a var() would point at itself (Tailwind emits it into its theme layer as a circular --radius-md: var(--radius-md))
+      if (g === "shadow" && k.name !== "focus-ring")
+        theme.push(`  --shadow-${k.name}: var(--${k.name});`);
+      // literal: var(--radius-md) here would point at itself
       if (g === "radius") theme.push(`  --${k.name}: ${k.value};`);
       // sizes become h-/w-/size-/min-h-... utilities (control-md, tap-target); the 4px spacing grid already matches Tailwind's p-*/gap-*
-      if (g === "size") theme.push(`  --${k.name === "content-max" ? "container" : "spacing"}-${k.name}: var(--${k.name});`);
+      if (g === "size")
+        theme.push(
+          `  --${k.name === "content-max" ? "container" : "spacing"}-${k.name}: var(--${k.name});`,
+        );
       if (g === "zIndex") theme.push(`  --z-index-${k.name.replace(/^z-/, "")}: var(--${k.name});`);
       if (g === "timing") {
-        const [ns, rest] = k.name.startsWith("easing-") ? ["ease", k.name.slice(7)] : ["transition-duration", k.name.replace(/^duration-/, "")];
+        const [ns, rest] = k.name.startsWith("easing-")
+          ? ["ease", k.name.slice(7)]
+          : ["transition-duration", k.name.replace(/^duration-/, "")];
         theme.push(`  --${ns}-${rest}: var(--${k.name});`);
       }
     }
   }
   for (const [name, stack] of Object.entries(t.type.families)) {
     add(`font-${name}`, stack);
-    theme.push(`  --font-${name}: ${stack};`); // literal for the same reason as radius
+    theme.push(`  --font-${name}: ${stack};`); // literal, as for radius
   }
   for (const group of t.type.groups) {
     for (const { name, usage, ...s } of group.styles) {
@@ -62,7 +72,7 @@ export function generate(t: Tokens) {
       if (name === "data-md") decls.push("font-variant-numeric: tabular-nums;");
       const body = `font-family: var(--font-${group.family}); ${decls.join(" ")}`;
       types.push(`@utility ${name} { ${body} }`);
-      // Leaflet's attribution control is the credit line, so it shares the attribution-sm rule; kept in a layer, since Leaflet's own unlayered line-height must keep winning over it
+      // layered so Leaflet's own unlayered line-height keeps winning
       if (name === "attribution-sm") leaflet = body;
     }
   }

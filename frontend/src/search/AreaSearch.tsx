@@ -59,12 +59,12 @@ const exampleGlyph = {
   Water: MapPin,
 }; // keyed by EXAMPLES' word
 
-// Class strings are written out whole so Tailwind sees them; a variant is a separate string, never a class built from state.
-// shortcut: py-[10px], gap-[10px], pb-[6px], text-[13px]/[18px], min-w-[34px], rounded-[3px] are off the token scale; they match the old CSS pixel for pixel, a follow-up snaps them.
+// Write class strings out whole so Tailwind sees them; never build one from state.
+// shortcut: py-[10px], gap-[10px], pb-[6px], text-[13px]/[18px], min-w-[34px], rounded-[3px] are off the token scale, snap them later.
 const OPTION =
   "box-border flex min-h-16 cursor-pointer items-center gap-3 px-4 py-[10px] aria-selected:bg-surface-container";
 const PARENT =
-  "area-search-parent box-border flex min-h-14 cursor-default items-center gap-3 px-4 pt-[10px] pb-[6px]"; // a group label, not an option
+  "area-search-parent box-border flex min-h-14 cursor-default items-center gap-3 px-4 pt-[10px] pb-[6px]";
 const CHILD =
   "box-border flex min-h-tap-target cursor-pointer items-center gap-[10px] bg-surface py-2 pr-4 pl-16 aria-selected:bg-surface-container";
 const MORE =
@@ -72,7 +72,7 @@ const MORE =
 const GLYPH =
   "grid size-9 flex-none place-items-center rounded-full bg-secondary-container text-on-secondary-container";
 const TEXT = "flex min-w-0 flex-1 flex-col";
-const NAME = "area-search-name body-lg line-clamp-2 [overflow-wrap:anywhere] [&_b]:font-semibold"; // area-search-name (here and on NAME_CHILD) is only a hook for the tests; no CSS selects it
+const NAME = "area-search-name body-lg line-clamp-2 [overflow-wrap:anywhere] [&_b]:font-semibold"; // area-search-name is a test hook, no CSS selects it
 const NAME_CHILD =
   "area-search-name body-md line-clamp-2 font-medium [overflow-wrap:anywhere] [&_b]:font-semibold";
 const SUB = "mt-0.5 truncate text-[13px]/[18px] text-on-surface-variant";
@@ -81,7 +81,7 @@ const BAR = "h-1.5 w-11 flex-none overflow-hidden rounded-[3px] bg-outline-varia
 const PCT = "body-sm min-w-[34px] flex-none text-right font-semibold text-on-primary-container";
 const NOTE = "body-sm m-0 px-4 py-3 text-on-surface-variant";
 const LABEL = "body-sm m-0 px-4 pt-3 pb-1 font-semibold text-on-surface-variant";
-const MESSAGE = "body-sm p-6 text-on-surface-variant"; // the empty and error blocks
+const MESSAGE = "body-sm p-6 text-on-surface-variant";
 const MESSAGE_TITLE = "body-lg m-0 mb-1 font-semibold";
 const ICON_BOX = "grid size-tap-target flex-none place-items-center text-on-surface-variant";
 const SKELETON_ROW = "box-border flex min-h-16 items-center gap-3 px-4 py-[10px]";

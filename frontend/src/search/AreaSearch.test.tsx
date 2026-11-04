@@ -243,7 +243,7 @@ it("keeps a long name whole for screen readers and in the tooltip, and the Bezir
   type("Kaiserdamm");
   const option = screen.getByRole("option");
   expect(option.getAttribute("title")).toBe(longName);
-  expect(option.querySelector(".area-search-name")?.textContent).toBe(longName); // the two-line clamp is a Tailwind utility on that element, which jsdom cannot measure
+  expect(option.querySelector(".area-search-name")?.textContent).toBe(longName); // jsdom cannot measure the line-clamp
 });
 
 it("shows the region on each area row, and names the place on each area row", () => {
