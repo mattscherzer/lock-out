@@ -24,6 +24,7 @@ it("maps the fixture; no record is no-data, thin data is limited, never low", ()
 
 it("thin and missing data never read as calm and say so", () => {
   expect(verdictLine("limited", 1, 15)).toBe("Only 1 report in 12 months, too few to rate this area. This does not mean low risk.");
+  expect(verdictLine("limited", 0, 15)).toBe("No reports in 12 months, too few to rate this area. This does not mean low risk.");
   expect(verdictLine("no-data", 0, 15)).toContain("does not mean low risk");
   for (const kind of ["limited", "no-data"] as const) expect(verdictLine(kind, 2, 15)).not.toMatch(/fewer/i);
 });
