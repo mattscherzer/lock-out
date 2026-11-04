@@ -11,10 +11,7 @@ type Group = { tokens: Token[] };
 type TypeStyle = Record<string, string>;
 export type Tokens = {
   color: { tokens: { name: string; value: { light: string; dark?: string } }[] };
-  type: {
-    families: Record<string, string>;
-    groups: { name: string; family: string; styles: TypeStyle[] }[];
-  };
+  type: { families: Record<string, string>; groups: { name: string; family: string; styles: TypeStyle[] }[] };
   [group: string]: unknown;
 };
 
@@ -27,8 +24,7 @@ export function generate(t: Tokens) {
 
   // value is a string, or {light, dark}; dark is only emitted when it differs.
   const add = (name: string, value: Value) => {
-    const v: { light: string; dark?: string } =
-      typeof value === "object" ? value : { light: value };
+    const v: { light: string; dark?: string } = typeof value === "object" ? value : { light: value };
     light.push(`  --${name}: ${v.light};`);
     if (v.dark && v.dark !== v.light) dark.push(`  --${name}: ${v.dark};`);
   };
@@ -42,20 +38,14 @@ export function generate(t: Tokens) {
     if (g === "color" || !Array.isArray(tokens)) continue;
     for (const k of tokens) {
       add(k.name, k.value);
-      if (g === "shadow" && k.name !== "focus-ring")
-        theme.push(`  --shadow-${k.name}: var(--${k.name});`);
+      if (g === "shadow" && k.name !== "focus-ring") theme.push(`  --shadow-${k.name}: var(--${k.name});`);
       // literal: var(--radius-md) here would point at itself
       if (g === "radius") theme.push(`  --${k.name}: ${k.value};`);
       // sizes become h-/w-/size-/min-h-... utilities (control-md, tap-target); the 4px spacing grid already matches Tailwind's p-*/gap-*
-      if (g === "size")
-        theme.push(
-          `  --${k.name === "content-max" ? "container" : "spacing"}-${k.name}: var(--${k.name});`,
-        );
+      if (g === "size") theme.push(`  --${k.name === "content-max" ? "container" : "spacing"}-${k.name}: var(--${k.name});`);
       if (g === "zIndex") theme.push(`  --z-index-${k.name.replace(/^z-/, "")}: var(--${k.name});`);
       if (g === "timing") {
-        const [ns, rest] = k.name.startsWith("easing-")
-          ? ["ease", k.name.slice(7)]
-          : ["transition-duration", k.name.replace(/^duration-/, "")];
+        const [ns, rest] = k.name.startsWith("easing-") ? ["ease", k.name.slice(7)] : ["transition-duration", k.name.replace(/^duration-/, "")];
         theme.push(`  --${ns}-${rest}: var(--${k.name});`);
       }
     }
