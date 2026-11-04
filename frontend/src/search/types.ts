@@ -6,7 +6,18 @@ export type Gazetteer = { plz: Record<string, Share[]>; stations: Station[] };
 // gazetteer_streets.json: shares are [index into ids, pct]; streets nest as bezirk -> street type -> name.
 export type StreetsFile = { ids: string[]; streets: Record<string, Record<string, Record<string, [number, number][]>>> };
 
-export type Fixture = { metadata: { attribution: { police: string; osm: string } }; areas: Areas };
+export type AreaRecord = Area & { tier: "LOW" | "MEDIUM" | "HIGH"; reports_12m: number; limited_data: boolean; no_record: boolean };
+export type Selector = { shares: Record<string, number>; pattern: string };
+export type Fixture = {
+  metadata: {
+    attribution: { police: string; osm: string; lor: string };
+    data_window: { start: string; end: string };
+    reports_up_to: string;
+    truncation_lag_days: number;
+  };
+  selectors: { time_band: Selector; day_group: Selector };
+  areas: Record<string, AreaRecord>;
+};
 
 export type Kind = "postcode" | "station" | "street" | "area";
 export type Place = {

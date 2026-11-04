@@ -11,15 +11,28 @@ afterEach(() => {
 const asPhone = () => vi.stubGlobal("matchMedia", () => ({ matches: false }));
 
 const area = { name: "Tempelhof-Schöneberg", bzr_name: "Tempelhof" };
-const blocks = { risk: "r", advice: "a", source: "s" };
+const blocks = { risk: "r", source: "s" };
 const card = (over: Partial<Parameters<typeof AnswerCard>[0]> = {}) => <AnswerCard open area={area} areaId="a" state="ready" tier="high" blocks={blocks} onClose={() => {}} {...over} />;
 const dialog = () => screen.getByRole("dialog", { hidden: true });
 
-it("shows the name, tier chip and the three titled blocks", () => {
+it("shows the name, tier chip and the titled blocks; lock advice only when given", () => {
   render(card());
   expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Tempelhof-Schöneberg");
   expect(screen.getByText("High risk")).toBeTruthy();
+  expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual(["Risk assessment", "Where the information comes from"]);
+});
+
+it("puts lock advice between risk and source when given", () => {
+  render(card({ blocks: { ...blocks, advice: "a" } }));
   expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual(["Risk assessment", "Lock advice", "Where the information comes from"]);
+});
+
+it("shows limited data instead of the tier, and the found-via lines", () => {
+  render(card({ limited: true, tier: "low", found: ["found via street Müllerstraße", "40% of the street lies in this area"] }));
+  expect(screen.getByText("Limited data")).toBeTruthy();
+  expect(screen.queryByText("Low risk")).toBeNull();
+  expect(screen.getByText("found via street Müllerstraße")).toBeTruthy();
+  expect(screen.getByText("40% of the street lies in this area")).toBeTruthy();
 });
 
 it.each<[CardState, string]>([["empty", "Nothing to show yet"], ["no-data", "Not enough data"], ["error", "Could not load this area"]])("%s state replaces the blocks and hides the chip", (state, title) => {

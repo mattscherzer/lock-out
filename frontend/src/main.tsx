@@ -4,7 +4,8 @@ import "./styles/index.css";
 import type { FeatureCollection } from "geojson";
 import { createRoot } from "react-dom/client";
 import { AnswerCard, higherPx } from "./answer/AnswerCard.tsx";
-import type { Tier } from "./answer/RiskChip.tsx";
+import { RiskBlock, SourceBlock, tierOf } from "./answer/Blocks.tsx";
+import { About } from "./About.tsx";
 import { AreaSearch, type Context } from "./search/AreaSearch.tsx";
 import { addStreets, buildIndex } from "./search/places.ts";
 import type { Fixture, Gazetteer, StreetsFile } from "./search/types.ts";
@@ -90,20 +91,27 @@ try {
       : { paddingTopLeft: L.point(0, 110), paddingBottomRight: L.point(0, higherPx()) };
   const searchRoot = createRoot(document.getElementById("search")!);
   const cardRoot = createRoot(document.getElementById("answer")!);
-  // TODO(#64): stub until real answers arrive: spreads areas over the tiers so every card state can be seen.
-  const TIERS: Tier[] = ["low", "medium", "high", "no-data"];
-  const tierOf = (id: string) => TIERS[[...id].reduce((n, c) => n + c.charCodeAt(0), 0) % TIERS.length];
+  createRoot(document.getElementById("about")!).render(<About attribution={fixture.metadata.attribution} />);
+  let found: Context | null = null;
+  // only a street or postcode can span areas; the station pin already shows where it is
+  const foundLines = () =>
+    found && (found.kind === "street" || found.kind === "postcode")
+      ? [`found via ${found.kind} ${found.label}`, ...(found.pct != null ? [`${found.pct}% of the ${found.kind} lies in this area`] : [])]
+      : [];
   const renderCard = () => {
-    const tier = selected ? tierOf(selected) : "no-data";
+    const record = selected ? fixture.areas[selected] : null;
+    const tier = record ? tierOf(record) : "no-data";
     cardRoot.render(
       <AnswerCard
         open={selected !== null && cardOpen}
-        area={selected ? fixture.areas[selected] : null}
+        area={record}
         areaId={selected}
         state={tier === "no-data" ? "no-data" : "ready"}
         tier={tier}
+        limited={record?.limited_data}
+        found={foundLines()}
         lowerSignal={lowerSignal}
-        blocks={{ risk: "Placeholder: the risk assessment arrives with #64.", advice: "Placeholder: lock advice arrives with #64.", source: "Police reports and OpenStreetMap." }}
+        blocks={{ risk: record && <RiskBlock area={record} selectors={fixture.selectors} />, source: <SourceBlock metadata={fixture.metadata} /> }}
         onClose={() => {
           cardOpen = false;
           renderCard();
@@ -146,6 +154,7 @@ try {
           .addTo(map)
       : undefined;
     selected = id;
+    found = context;
     if (id) polygons[id].setStyle(SELECTED_STYLE).bringToFront();
     cardOpen = id !== null;
     renderSearch();

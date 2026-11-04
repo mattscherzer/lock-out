@@ -10,7 +10,9 @@ type Props = {
   areaId: string | null; // names are not unique (two Schloßstraße), so the id decides when the area changed
   state: CardState;
   tier: Tier;
-  blocks: { risk: ReactNode; advice: ReactNode; source: ReactNode };
+  limited?: boolean; // few reports: the chip says so instead of showing the tier
+  found?: string[]; // how the area was found in the place search
+  blocks: { risk: ReactNode; advice?: ReactNode; source: ReactNode }; // advice arrives with #107
   onClose: () => void;
   lowerSignal?: number; // changing it lowers the phone sheet, e.g. when the search is focused
 };
@@ -27,13 +29,13 @@ const FLICK_MS = 150; // how far ahead the release velocity projects the sheet
 const phone = () => !window.matchMedia?.("(min-width: 600px)").matches;
 
 const NOTE: Record<Exclude<CardState, "ready">, [title: string, text: string]> = {
-  empty: ["Nothing to show yet", "There is no advice for this area yet."],
-  "no-data": ["Not enough data", "Too few reports for this area to give advice. Treat the area like any other and lock up."],
+  empty: ["Nothing to show yet", "There is nothing to show for this area yet."],
+  "no-data": ["Not enough data", "There are no reports for this area, so it cannot be assessed. Treat it like any other area and lock up."],
   error: ["Could not load this area", "Something went wrong. Pick the area again to retry."],
 };
 
 // Phone: bottom sheet with three stops; from 600px a left panel. The layout switch is CSS; the drag settles on the stop nearest where the sheet would coast to.
-export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, lowerSignal }: Props) {
+export function AnswerCard({ open, area, areaId, state, tier, limited, found, blocks, onClose, lowerSignal }: Props) {
   const card = useRef<HTMLElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
   const [stop, setStop] = useState<Stop>("higher");
@@ -146,7 +148,8 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
             <div className="min-w-0 flex-1">
               <h2 ref={title} tabIndex={-1} className="headline-sm m-0 [overflow-wrap:anywhere]">{shown?.name}</h2>
               <p className="data-md mt-0 mb-2 text-on-surface-variant">{shown?.bzr_name}</p>
-              {state === "ready" && <RiskChip tier={tier} />}
+              {found?.map((line) => <p key={line} className="body-md mt-0 mb-2 text-on-surface-variant">{line}</p>)}
+              {state === "ready" && <RiskChip tier={tier} limited={limited} />}
             </div>
             <button type="button" className={`answer-close ${ICON_BUTTON} -mt-1.5 -mr-2`} aria-label="Close area details" onClick={onClose}>
               <X aria-hidden="true" />
@@ -157,7 +160,7 @@ export function AnswerCard({ open, area, areaId, state, tier, blocks, onClose, l
           {state === "ready" ? (
             <>
               <Block title="Risk assessment">{blocks.risk}</Block>
-              <Block title="Lock advice">{blocks.advice}</Block>
+              {blocks.advice && <Block title="Lock advice">{blocks.advice}</Block>}
               <Block title="Where the information comes from">{blocks.source}</Block>
             </>
           ) : (
