@@ -39,61 +39,8 @@
   background: color-mix(in srgb, var(--on-surface) calc(var(--state-hover) * 100%), transparent);
 }
 
-.explain-scrim {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--duration-base);
-}
-
-.explain-scrim[data-open] {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.explain-sheet {
-  visibility: hidden;
-  transform: translateY(102%);
-  transition:
-    transform var(--duration-slow) var(--easing-standard),
-    visibility 0s linear var(--duration-slow);
-}
-
-.explain-sheet[data-open] {
-  visibility: visible;
-  transform: none;
-  transition-delay: 0s;
-}
-
-/* the panel is collapsed with the sheet open: it leaves with the panel and comes back with it */
-.explain-sheet[data-open][data-collapsed] {
-  visibility: hidden;
-  transform: translateY(102%);
-  transition-delay: 0s, var(--duration-slow);
-}
-
-.explain-scrim[data-open][data-collapsed] {
-  opacity: 0;
-  pointer-events: none;
-}
-
-@media (width >= 600px) {
-  .explain-scrim,
-  .explain-sheet {
-    right: auto;
-    width: var(--answer-panel-w);
-  }
-}
-
-.explain-frame {
-  display: none;
-}
-
-/* Desktop: the explanation is a second card in one frame with the first, as in Google Maps. A tinted surface continues from the panel's edge and the card sits on it with a margin. Frame, card, sheet and tab all travel the same distance, so they stay together. The map stays usable, so no scrim. */
+/* Desktop: the explanation is a second card in one frame with the first, as in Google Maps. Frame, card, sheet and tab all travel the same distance, so they stay together. The map stays usable, so no scrim. The sheet, scrim and frame carry their own state as data-* utilities in AnswerCard.tsx. */
 @media (width >= 900px) {
-  .explain-scrim {
-    display: none;
-  }
-
   .answer-card,
   .answer-tab,
   .explain-sheet,
@@ -101,55 +48,6 @@
     --explain-w: 380px;
     --explain-shift: calc(var(--explain-w) + 2 * var(--space-2));
     --pair-shift: calc(var(--answer-panel-w) + var(--explain-shift));
-  }
-
-  .explain-frame {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: calc(var(--z-search) - 3);
-    display: block;
-    width: calc(var(--answer-panel-w) + var(--explain-shift));
-    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-    background: var(--surface-container);
-    box-shadow: var(--elevation-3);
-    visibility: hidden;
-    transform: translateX(calc(-1 * var(--explain-shift)));
-    transition:
-      transform var(--duration-slow) var(--ease-standard),
-      visibility 0s linear var(--duration-slow);
-  }
-
-  .explain-frame[data-open] {
-    visibility: visible;
-    transform: none;
-    transition-delay: 0s;
-  }
-
-  .explain-frame[data-open][data-collapsed] {
-    transform: translateX(calc(-1 * var(--pair-shift)));
-    transition-delay: 0s, var(--duration-slow);
-  }
-
-  .explain-sheet {
-    top: var(--space-2);
-    bottom: var(--space-2);
-    left: calc(var(--answer-panel-w) + var(--space-2));
-    z-index: calc(var(--z-search) - 2);
-    width: var(--explain-w);
-    max-height: none;
-    border-radius: var(--radius-lg);
-    box-shadow: none;
-    transform: translateX(calc(-1 * var(--explain-shift)));
-  }
-
-  .explain-sheet[data-open] {
-    transform: none;
-  }
-
-  .explain-sheet[data-open][data-collapsed] {
-    transform: translateX(calc(-1 * var(--pair-shift)));
   }
 
   .answer-card[data-open][data-collapsed][data-explain] {

@@ -359,12 +359,12 @@ function ExplainSheet({
   return (
     <>
       <div
-        className="explain-frame"
+        className="explain-frame invisible fixed top-0 bottom-0 left-0 z-[calc(var(--z-search)-3)] hidden w-[calc(var(--answer-panel-w)+var(--explain-shift))] -translate-x-(--explain-shift) rounded-r-lg bg-surface-container shadow-elevation-3 transition-[translate,visibility] duration-slow ease-standard data-open:visible data-open:translate-x-0 data-open:data-collapsed:-translate-x-(--pair-shift) min-[900px]:block"
         data-open={open || undefined}
         data-collapsed={collapsed || undefined}
       />
       <div
-        className="explain-scrim fixed inset-0 z-modal bg-scrim"
+        className="explain-scrim pointer-events-none fixed inset-0 z-modal bg-scrim opacity-0 transition-opacity duration-base data-open:pointer-events-auto data-open:opacity-100 data-open:data-collapsed:pointer-events-none data-open:data-collapsed:opacity-0 min-[600px]:right-auto min-[600px]:w-(--answer-panel-w) min-[900px]:hidden"
         data-open={open || undefined}
         data-collapsed={collapsed || undefined}
         onClick={onClose}
@@ -372,7 +372,7 @@ function ExplainSheet({
       <section
         role="dialog"
         aria-label="What this rating means"
-        className="explain-sheet fixed right-0 bottom-0 left-0 z-[calc(var(--z-modal)+1)] flex max-h-[92dvh] flex-col rounded-t-xl bg-surface-container-lowest text-on-surface shadow-elevation-sheet"
+        className="explain-sheet invisible fixed right-0 bottom-0 left-0 z-[calc(var(--z-modal)+1)] flex max-h-[92dvh] translate-y-[102%] flex-col rounded-t-xl bg-surface-container-lowest text-on-surface shadow-elevation-sheet transition-[translate,visibility] duration-slow ease-standard data-open:visible data-open:translate-y-0 data-open:data-collapsed:invisible data-open:data-collapsed:translate-y-[102%] min-[600px]:right-auto min-[600px]:w-(--answer-panel-w) min-[900px]:top-2 min-[900px]:bottom-2 min-[900px]:left-[calc(var(--answer-panel-w)+var(--space-2))] min-[900px]:z-[calc(var(--z-search)-2)] min-[900px]:max-h-none min-[900px]:w-(--explain-w) min-[900px]:-translate-x-(--explain-shift) min-[900px]:translate-y-0 min-[900px]:rounded-lg min-[900px]:shadow-none min-[900px]:data-open:translate-x-0 min-[900px]:data-open:data-collapsed:-translate-x-(--pair-shift) min-[900px]:data-open:data-collapsed:translate-y-0"
         data-open={open || undefined}
         data-collapsed={collapsed || undefined}
         onKeyDown={(e) => {
