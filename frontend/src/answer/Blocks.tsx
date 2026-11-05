@@ -126,15 +126,18 @@ export function Details({
           Average share of a week's thefts per day.
         </p>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <Tile
-          big={String(area.reports_12m)}
-          text={`${area.reports_12m === 1 ? "report" : "reports"} in 12 months`}
-        />
-        <Tile
-          big={longDate(metadata.reports_up_to).replace(/ \d{4}$/, "")}
-          text={`Police data up to ${metadata.reports_up_to.slice(0, 4)}`}
-        />
+      <div className="flex flex-col gap-2 border-t border-outline-variant pt-3.5">
+        <h3 className="m-0 label-md text-on-surface-variant uppercase">This area's data</h3>
+        <div className="grid grid-cols-2 gap-2">
+          <Tile
+            big={String(area.reports_12m)}
+            text={`${area.reports_12m === 1 ? "report" : "reports"} in 12 months`}
+          />
+          <Tile
+            big={longDate(metadata.reports_up_to).replace(/ \d{4}$/, "")}
+            text={`Police data up to ${metadata.reports_up_to.slice(0, 4)}`}
+          />
+        </div>
       </div>
       <a
         href="#about"

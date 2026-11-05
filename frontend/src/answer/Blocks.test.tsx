@@ -163,6 +163,24 @@ it("the sheet places a tiered area and names the window", () => {
   expect(screen.getByText(/11 Oct 2025 to 10 Oct 2026/)).toBeTruthy();
 });
 
+it("the area's own numbers sit under their own heading, apart from the citywide charts", () => {
+  render(
+    <Details
+      area={rec({ reports_12m: 41 })}
+      selectors={selectors}
+      metadata={metadata}
+      onAbout={() => {}}
+    />,
+  );
+  const own = screen.getByRole("heading", { name: "This area's data" });
+  expect(own.parentElement?.textContent).toContain("41");
+  expect(
+    screen
+      .getByRole("heading", { name: "When bikes were last seen" })
+      .parentElement?.parentElement?.contains(own),
+  ).toBe(false);
+});
+
 it("About credits OpenStreetMap, Polizei Berlin and the LOR source", () => {
   render(<About attribution={attribution} open={false} onClose={() => {}} />);
   for (const text of Object.values(attribution))
