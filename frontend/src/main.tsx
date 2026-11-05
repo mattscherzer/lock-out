@@ -60,7 +60,9 @@ try {
     onEachFeature: (feature, polygon) => {
       const area = fixture.areas[feature.properties.id as string];
       // element, not a string: Leaflet would parse a string as HTML
-      const label = Object.assign(document.createElement("span"), { textContent: `${area.name} (${area.bzr_name})` });
+      const label = Object.assign(document.createElement("span"), {
+        textContent: `${area.name} (${area.bzr_name})`,
+      });
       polygon.bindTooltip(label);
       polygons[feature.properties.id as string] = polygon as L.Polygon;
     },
@@ -88,7 +90,12 @@ try {
   // keep the area clear of the side panel (desktop) or the sheet and the search above it (phone, sheet at its opening height)
   const flyPadding = () =>
     innerWidth >= 600
-      ? { paddingTopLeft: L.point(document.querySelector<HTMLElement>(".answer-card")!.offsetWidth, 0) }
+      ? {
+          paddingTopLeft: L.point(
+            document.querySelector<HTMLElement>(".answer-card")!.offsetWidth,
+            0,
+          ),
+        }
       : { paddingTopLeft: L.point(0, 110), paddingBottomRight: L.point(0, higherPx()) };
   const searchRoot = createRoot(document.getElementById("search")!);
   const cardRoot = createRoot(document.getElementById("answer")!);
@@ -96,7 +103,13 @@ try {
   let aboutOpen = false;
   const renderAbout = (next: boolean) => {
     aboutOpen = next;
-    aboutRoot.render(<About attribution={fixture.metadata.attribution} open={aboutOpen} onClose={() => renderAbout(false)} />);
+    aboutRoot.render(
+      <About
+        attribution={fixture.metadata.attribution}
+        open={aboutOpen}
+        onClose={() => renderAbout(false)}
+      />,
+    );
   };
   renderAbout(false);
   map.attributionControl.getContainer()!.addEventListener("click", (e) => {
@@ -113,9 +126,36 @@ try {
         areaId={selected}
         state={record?.no_record ? "no-data" : "ready"}
         lowerSignal={lowerSignal}
-        verdict={(explain) => record && <Verdict kind={kindOf(record)} reports={record.reports_12m} topShare={topShare(fixture.risk_bands)} onExplain={explain} />}
-        details={record && <Details area={record} selectors={fixture.selectors} metadata={fixture.metadata} onAbout={() => renderAbout(true)} />}
-        explain={record && <Explain area={record} kind={kindOf(record)} bands={fixture.risk_bands} metadata={fixture.metadata} />}
+        verdict={(explain) =>
+          record && (
+            <Verdict
+              kind={kindOf(record)}
+              reports={record.reports_12m}
+              topShare={topShare(fixture.risk_bands)}
+              onExplain={explain}
+            />
+          )
+        }
+        details={
+          record && (
+            <Details
+              area={record}
+              selectors={fixture.selectors}
+              metadata={fixture.metadata}
+              onAbout={() => renderAbout(true)}
+            />
+          )
+        }
+        explain={
+          record && (
+            <Explain
+              area={record}
+              kind={kindOf(record)}
+              bands={fixture.risk_bands}
+              metadata={fixture.metadata}
+            />
+          )
+        }
         onClose={() => {
           cardOpen = false;
           renderCard();
@@ -127,8 +167,15 @@ try {
   };
   // a fly (zoom out, pan, zoom in) reads smoother than a straight jump; the motion token is 0 under reduced motion
   const fly = (id: string, options: L.FitBoundsOptions = {}) => {
-    const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--duration-slow"));
-    map.flyToBounds(polygons[id].getBounds(), { ...flyPadding(), ...options, duration: ms / 1000, animate: ms > 0 });
+    const ms = parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue("--duration-slow"),
+    );
+    map.flyToBounds(polygons[id].getBounds(), {
+      ...flyPadding(),
+      ...options,
+      duration: ms / 1000,
+      animate: ms > 0,
+    });
   };
   const renderSearch = () =>
     searchRoot.render(
@@ -153,7 +200,14 @@ try {
     Object.values(polygons).forEach((polygon) => polygon.closeTooltip()); // a hover tooltip would stay open after the map moves
     pin?.remove();
     pin = context?.ll
-      ? L.circleMarker(context.ll, { radius: 7, color: "#fff", weight: 3, fillColor: BRAND, fillOpacity: 1, interactive: false })
+      ? L.circleMarker(context.ll, {
+          radius: 7,
+          color: "#fff",
+          weight: 3,
+          fillColor: BRAND,
+          fillOpacity: 1,
+          interactive: false,
+        })
           .bindTooltip(context.label, { permanent: true, direction: "top" })
           .addTo(map)
       : undefined;

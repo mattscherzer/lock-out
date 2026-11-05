@@ -20,6 +20,7 @@ export function generate(t: Tokens) {
   const dark: string[] = ["  color-scheme: dark;"];
   const theme: string[] = [];
   const types: string[] = [];
+  let leaflet = "";
 
   // value is a string, or {light, dark}; dark is only emitted when it differs.
   const add = (name: string, value: Value) => {
@@ -38,7 +39,7 @@ export function generate(t: Tokens) {
     for (const k of tokens) {
       add(k.name, k.value);
       if (g === "shadow" && k.name !== "focus-ring") theme.push(`  --shadow-${k.name}: var(--${k.name});`);
-      // same name as Tailwind's radius namespace: literal, a var() would point at itself
+      // literal: var(--radius-md) here would point at itself
       if (g === "radius") theme.push(`  --${k.name}: ${k.value};`);
       // sizes become h-/w-/size-/min-h-... utilities (control-md, tap-target); the 4px spacing grid already matches Tailwind's p-*/gap-*
       if (g === "size") theme.push(`  --${k.name === "content-max" ? "container" : "spacing"}-${k.name}: var(--${k.name});`);
@@ -51,18 +52,18 @@ export function generate(t: Tokens) {
   }
   for (const [name, stack] of Object.entries(t.type.families)) {
     add(`font-${name}`, stack);
-    theme.push(`  --font-${name}: ${stack};`);
+    theme.push(`  --font-${name}: ${stack};`); // literal, as for radius
   }
   for (const group of t.type.groups) {
     for (const { name, usage, ...s } of group.styles) {
       const props = Object.keys(s).map(kebab);
-      for (const [prop, v] of Object.entries(s)) add(`${name}-${kebab(prop)}`, String(v));
-      const decls = props.map((p) => `${p}: var(--${name}-${p});`);
+      const decls = Object.entries(s).map(([p, v]) => `${kebab(p)}: ${v};`);
       // shortcut: tokens.json only mentions tabular-nums in prose, so it is keyed on the name; add a field there if a second numeric style appears
       if (name === "data-md") decls.push("font-variant-numeric: tabular-nums;");
-      // Leaflet's attribution control is the credit line, so it shares the attribution-sm rule
-      const sel = name === "attribution-sm" ? ".attribution-sm, .leaflet-control-attribution" : `.${name}`;
-      types.push(`  ${sel} { font-family: var(--font-${group.family}); ${decls.join(" ")} }`);
+      const body = `font-family: var(--font-${group.family}); ${decls.join(" ")}`;
+      types.push(`@utility ${name} { ${body} }`);
+      // layered so Leaflet's own unlayered line-height keeps winning
+      if (name === "attribution-sm") leaflet = body;
     }
   }
 
@@ -80,8 +81,10 @@ ${dark.join("\n")}
   :root { --duration-fast: 0ms; --duration-base: 0ms; --duration-slow: 0ms; }
 }
 
-@layer components {
 ${types.join("\n")}
+
+@layer components {
+  .leaflet-control-attribution { ${leaflet} }
 }
 
 /* Tailwind utilities (bg-primary, rounded-md, shadow-elevation-2, font-display) read the vars above, so themes switch without regenerating. */

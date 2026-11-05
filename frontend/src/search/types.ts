@@ -4,9 +4,17 @@ export type Areas = Record<string, Area>;
 export type Station = [name: string, kind: string, id: string, lat: number, lon: number];
 export type Gazetteer = { plz: Record<string, Share[]>; stations: Station[] };
 // gazetteer_streets.json: shares are [index into ids, pct]; streets nest as bezirk -> street type -> name.
-export type StreetsFile = { ids: string[]; streets: Record<string, Record<string, Record<string, [number, number][]>>> };
+export type StreetsFile = {
+  ids: string[];
+  streets: Record<string, Record<string, Record<string, [number, number][]>>>;
+};
 
-export type AreaRecord = Area & { tier: "LOW" | "MEDIUM" | "HIGH"; reports_12m: number; limited_data: boolean; no_record: boolean };
+export type AreaRecord = Area & {
+  tier: "LOW" | "MEDIUM" | "HIGH";
+  reports_12m: number;
+  limited_data: boolean;
+  no_record: boolean;
+};
 export type Selector = { shares: Record<string, number>; pattern: string };
 export type Band = { min_percentile: number; max_percentile: number };
 export type Fixture = {

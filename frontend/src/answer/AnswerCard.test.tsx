@@ -11,20 +11,41 @@ afterEach(() => {
 const asPhone = () => vi.stubGlobal("matchMedia", () => ({ matches: false }));
 
 const area = { name: "Tempelhof-Schöneberg", bzr_name: "Tempelhof" };
-const verdict = (explain: () => void) => <button type="button" onClick={explain}>What does this mean?</button>;
-const card = (over: Partial<Parameters<typeof AnswerCard>[0]> = {}) => <AnswerCard open area={area} areaId="a" state="ready" verdict={verdict} details={<p>details</p>} explain={<p>explained</p>} onClose={() => {}} {...over} />;
+const verdict = (explain: () => void) => (
+  <button type="button" onClick={explain}>
+    What does this mean?
+  </button>
+);
+const card = (over: Partial<Parameters<typeof AnswerCard>[0]> = {}) => (
+  <AnswerCard
+    open
+    area={area}
+    areaId="a"
+    state="ready"
+    verdict={verdict}
+    details={<p>details</p>}
+    explain={<p>explained</p>}
+    onClose={() => {}}
+    {...over}
+  />
+);
 const dialog = () => document.querySelector(".answer-card") as HTMLElement;
 
 it("shows the name, the verdict slot and the level 2 details", () => {
   render(card());
-  expect((document.querySelector(".answer-card h2") as HTMLElement).textContent).toBe("Tempelhof-Schöneberg");
+  expect((document.querySelector(".answer-card h2") as HTMLElement).textContent).toBe(
+    "Tempelhof-Schöneberg",
+  );
   expect(screen.getByText("What does this mean?")).toBeTruthy();
   expect(screen.getByText("details")).toBeTruthy();
 });
 
 it("puts the advice above the details when given", () => {
   render(card({ advice: <p>advice</p> }));
-  expect(screen.getByText("advice").compareDocumentPosition(screen.getByText("details")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(
+    screen.getByText("advice").compareDocumentPosition(screen.getByText("details")) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
 });
 
 it("no-data keeps the verdict; empty and error replace it", () => {
@@ -46,7 +67,9 @@ it("opens the explain sheet, focuses its Close, and Esc closes it and returns fo
   fireEvent.click(trigger);
   const sheet = screen.getByRole("dialog", { name: "What this rating means" });
   expect(sheet.hasAttribute("data-open")).toBe(true);
-  expect(document.activeElement).toBe(screen.getByLabelText("Close", { selector: ".explain-sheet button" }));
+  expect(document.activeElement).toBe(
+    screen.getByLabelText("Close", { selector: ".explain-sheet button" }),
+  );
   fireEvent.keyDown(sheet, { key: "Escape" });
   expect(sheet.hasAttribute("data-open")).toBe(false);
   expect(document.activeElement).toBe(trigger);
@@ -69,12 +92,13 @@ it("closes on the close button and on Escape", () => {
 it("takes focus when it opens", () => {
   const { rerender } = render(card({ open: false }));
   rerender(card());
-  expect(document.activeElement).toBe((document.querySelector(".answer-card h2") as HTMLElement));
+  expect(document.activeElement).toBe(document.querySelector(".answer-card h2") as HTMLElement);
 });
 
 const stop = () => dialog().getAttribute("data-stop");
 // the sheet drags by its whole body until full screen, where only the app bar drags
-const dragSurface = () => dialog().querySelector(stop() === "full" ? ".answer-appbar" : ".answer-body")!;
+const dragSurface = () =>
+  dialog().querySelector(stop() === "full" ? ".answer-appbar" : ".answer-body")!;
 
 it("opens at higher; the handle steps lowered, higher, full, lowered; collapse returns to where it came from", () => {
   render(card());
@@ -82,7 +106,9 @@ it("opens at higher; the handle steps lowered, higher, full, lowered; collapse r
   const handle = screen.getByLabelText("Change height of area details");
   fireEvent.click(handle);
   expect(stop()).toBe("full");
-  fireEvent.click(screen.getByLabelText("Collapse area details", { selector: ".answer-appbar button" }));
+  fireEvent.click(
+    screen.getByLabelText("Collapse area details", { selector: ".answer-appbar button" }),
+  );
   expect(stop()).toBe("higher");
   fireEvent.click(handle);
   fireEvent.click(handle);
@@ -120,7 +146,7 @@ it("a new area uncollapses the desktop panel and takes focus", () => {
   fireEvent.click(screen.getByLabelText("Collapse area details", { selector: ".answer-tab" }));
   rerender(card({ area: { name: "Mitte", bzr_name: "Mitte" }, areaId: "b" }));
   expect(dialog().hasAttribute("data-collapsed")).toBe(false);
-  expect(document.activeElement).toBe((document.querySelector(".answer-card h2") as HTMLElement));
+  expect(document.activeElement).toBe(document.querySelector(".answer-card h2") as HTMLElement);
 });
 
 it("two areas with the same name still uncollapse the panel, told apart by id", () => {
@@ -206,7 +232,11 @@ it("pulling down on the content at full screen brings the sheet back down; scrol
   render(card());
   fireEvent.wheel(dialog(), { deltaY: 40 });
   expect(stop()).toBe("full");
-  const touch = (type: "touchStart" | "touchMove" | "touchEnd", y: number) => fireEvent[type](dialog().querySelector(".answer-body")!, { touches: type === "touchEnd" ? [] : [{ clientY: y }], changedTouches: [{ clientY: y }] });
+  const touch = (type: "touchStart" | "touchMove" | "touchEnd", y: number) =>
+    fireEvent[type](dialog().querySelector(".answer-body")!, {
+      touches: type === "touchEnd" ? [] : [{ clientY: y }],
+      changedTouches: [{ clientY: y }],
+    });
   touch("touchStart", 300);
   touch("touchMove", 280); // up: left to the browser
   touch("touchEnd", 280);

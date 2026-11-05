@@ -48,7 +48,7 @@
   background: transparent;
   color: var(--tertiary);
   font: inherit;
-  font-weight: var(--label-lg-font-weight);
+  font-weight: 600;
   cursor: pointer;
 }
 

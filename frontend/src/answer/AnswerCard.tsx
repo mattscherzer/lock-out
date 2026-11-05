@@ -1,5 +1,13 @@
 import { ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { type CSSProperties, type KeyboardEvent, type PointerEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  type KeyboardEvent,
+  type PointerEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import "./AnswerCard.css";
 
 export type CardState = "ready" | "empty" | "no-data" | "error";
@@ -21,7 +29,11 @@ type Stop = (typeof STOPS)[number];
 const LOWERED_PX = 280;
 // at least 40px above lowered, so a short landscape phone never inverts the stops
 const loweredPx = () => Math.min(LOWERED_PX, window.innerHeight);
-export const higherPx = () => Math.min(window.innerHeight, Math.max(LOWERED_PX + 40, Math.min(520, Math.round(window.innerHeight * 0.64))));
+export const higherPx = () =>
+  Math.min(
+    window.innerHeight,
+    Math.max(LOWERED_PX + 40, Math.min(520, Math.round(window.innerHeight * 0.64))),
+  );
 const CLOSED = STOPS.length; // index after the last stop in the drag stops
 const SLOP_PX = 6; // movement below this is a tap, not a drag
 const PULL_PX = 2; // a pull down from the top of the content claims the gesture this early, before the browser decides to scroll
@@ -34,7 +46,18 @@ const NOTE: Record<Exclude<CardState, "ready" | "no-data">, [title: string, text
 };
 
 // Phone: bottom sheet with three stops; from 600px a left panel. The layout switch is CSS; the drag settles on the stop nearest where the sheet would coast to.
-export function AnswerCard({ open, area, areaId, state, verdict, advice, details, explain, onClose, lowerSignal }: Props) {
+export function AnswerCard({
+  open,
+  area,
+  areaId,
+  state,
+  verdict,
+  advice,
+  details,
+  explain,
+  onClose,
+  lowerSignal,
+}: Props) {
   const card = useRef<HTMLElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
   const [stop, setStop] = useState<Stop>("higher");
@@ -80,7 +103,14 @@ export function AnswerCard({ open, area, areaId, state, verdict, advice, details
     signal.current = lowerSignal;
   }, [lowerSignal]);
 
-  const drag = useRef<{ y: number; from: number; stops: number[]; moved: boolean; last: [y: number, t: number] | null; v: number } | null>(null);
+  const drag = useRef<{
+    y: number;
+    from: number;
+    stops: number[];
+    moved: boolean;
+    last: [y: number, t: number] | null;
+    v: number;
+  } | null>(null);
   const begin = (y: number) => {
     const h = card.current!.offsetHeight;
     const stops = [h - loweredPx(), h - higherPx(), 0, h]; // translateY of lowered, higher, full, then CLOSED
@@ -111,7 +141,10 @@ export function AnswerCard({ open, area, areaId, state, verdict, advice, details
     const at = Math.max(0, d.from + y - d.y) + (idle ? 0 : d.v) * FLICK_MS;
     card.current.style.removeProperty("transition"); // the CSS transition settles it from here
     card.current.style.removeProperty("transform");
-    const i = d.stops.reduce((best, s, k) => (Math.abs(s - at) < Math.abs(d.stops[best] - at) ? k : best), 0);
+    const i = d.stops.reduce(
+      (best, s, k) => (Math.abs(s - at) < Math.abs(d.stops[best] - at) ? k : best),
+      0,
+    );
     if (i === CLOSED) onClose();
     else go(STOPS[i]);
   };
@@ -126,7 +159,8 @@ export function AnswerCard({ open, area, areaId, state, verdict, advice, details
     if (stop === "full" && !(e.target as Element).closest(".answer-appbar")) return;
     begin(e.clientY);
   };
-  const move = (e: PointerEvent) => track(e.clientY, () => (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId));
+  const move = (e: PointerEvent) =>
+    track(e.clientY, () => (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId));
   const up = (e: PointerEvent) => end(e.clientY);
 
   // Pulling down on the content at full screen, with the content scrolled to the top, brings the sheet down. The browser would scroll or
@@ -138,14 +172,20 @@ export function AnswerCard({ open, area, areaId, state, verdict, advice, details
     if (!el) return;
     let pull: { y0: number; on: boolean } | null = null;
     const start = (e: TouchEvent) => {
-      const free = latest.current.stop === "full" && phone() && el.scrollTop <= 0 && e.touches.length === 1 && !(e.target as Element).closest(".answer-appbar");
+      const free =
+        latest.current.stop === "full" &&
+        phone() &&
+        el.scrollTop <= 0 &&
+        e.touches.length === 1 &&
+        !(e.target as Element).closest(".answer-appbar");
       pull = free ? { y0: e.touches[0].clientY, on: false } : null;
     };
     const move = (e: TouchEvent) => {
       if (!pull) return;
       const y = e.touches[0].clientY;
       if (!pull.on) {
-        if (y < pull.y0 || el.scrollTop > 0) pull = null; // scrolling up: the browser scrolls the content
+        if (y < pull.y0 || el.scrollTop > 0)
+          pull = null; // scrolling up: the browser scrolls the content
         else if (y - pull.y0 >= PULL_PX) {
           pull.on = true;
           latest.current.begin(pull.y0);
@@ -192,7 +232,12 @@ export function AnswerCard({ open, area, areaId, state, verdict, advice, details
         data-stop={stop}
         data-collapsed={collapsed || undefined}
         data-explain={(open && explainOpen) || undefined}
-        style={{ "--answer-lowered": `${loweredPx()}px`, "--answer-higher": `${higherPx()}px` } as CSSProperties}
+        style={
+          {
+            "--answer-lowered": `${loweredPx()}px`,
+            "--answer-higher": `${higherPx()}px`,
+          } as CSSProperties
+        }
         onKeyDown={keys}
         onPointerDown={down}
         onPointerMove={move}
@@ -203,24 +248,47 @@ export function AnswerCard({ open, area, areaId, state, verdict, advice, details
         }}
       >
         <div className="answer-drag flex-none">
-          <button type="button" className="answer-handle grid h-control-sm w-full cursor-pointer place-items-center border-0 bg-transparent" aria-label="Change height of area details" aria-expanded={stop !== "lowered"} onClick={step}>
+          <button
+            type="button"
+            className="answer-handle grid h-control-sm w-full cursor-pointer place-items-center border-0 bg-transparent"
+            aria-label="Change height of area details"
+            aria-expanded={stop !== "lowered"}
+            onClick={step}
+          >
             <span className="h-sheet-handle-h w-sheet-handle-w rounded-full bg-outline" />
           </button>
           <div className="answer-appbar h-14 items-center justify-between px-2">
-            <button type="button" className={ICON_BUTTON} aria-label="Collapse area details" onClick={() => go(before.current)}>
+            <button
+              type="button"
+              className={ICON_BUTTON}
+              aria-label="Collapse area details"
+              onClick={() => go(before.current)}
+            >
               <ChevronDown aria-hidden="true" />
             </button>
-            <button type="button" className={ICON_BUTTON} aria-label="Close area details" onClick={onClose}>
+            <button
+              type="button"
+              className={ICON_BUTTON}
+              aria-label="Close area details"
+              onClick={onClose}
+            >
               <X aria-hidden="true" />
             </button>
           </div>
           <header className="answer-header flex flex-col gap-2 px-4 pb-2">
             <div className="flex items-start gap-2">
               <div className="min-w-0 flex-1">
-              <h2 ref={title} tabIndex={-1} className="headline-sm m-0 [overflow-wrap:anywhere]">{shown?.name}</h2>
-              <p className="data-md mt-0 mb-2 text-on-surface-variant">{shown?.bzr_name}</p>
+                <h2 ref={title} tabIndex={-1} className="m-0 headline-sm [overflow-wrap:anywhere]">
+                  {shown?.name}
+                </h2>
+                <p className="mt-0 mb-2 data-md text-on-surface-variant">{shown?.bzr_name}</p>
               </div>
-              <button type="button" className={`answer-close ${ICON_BUTTON} -mt-1.5 -mr-2`} aria-label="Close area details" onClick={onClose}>
+              <button
+                type="button"
+                className={`answer-close ${ICON_BUTTON} -mt-1.5 -mr-2`}
+                aria-label="Close area details"
+                onClick={onClose}
+              >
                 <X aria-hidden="true" />
               </button>
             </div>
@@ -239,33 +307,68 @@ export function AnswerCard({ open, area, areaId, state, verdict, advice, details
             </>
           ) : (
             // error colour is a border only, never text
-            <div className="rounded-lg bg-tertiary-container p-4 text-on-tertiary-container data-[state=error]:border-2 data-[state=error]:border-error data-[state=error]:bg-transparent data-[state=error]:text-on-surface" data-state={state} role={state === "error" ? "alert" : undefined}>
-              <p className="title-md m-0">{NOTE[state as keyof typeof NOTE][0]}</p>
-              <p className="body-lg m-0 mt-1">{NOTE[state as keyof typeof NOTE][1]}</p>
+            <div
+              className="rounded-lg bg-tertiary-container p-4 text-on-tertiary-container data-[state=error]:border-2 data-[state=error]:border-error data-[state=error]:bg-transparent data-[state=error]:text-on-surface"
+              data-state={state}
+              role={state === "error" ? "alert" : undefined}
+            >
+              <p className="m-0 title-md">{NOTE[state as keyof typeof NOTE][0]}</p>
+              <p className="m-0 mt-1 body-lg">{NOTE[state as keyof typeof NOTE][1]}</p>
             </div>
           )}
         </div>
       </section>
-      <ExplainSheet open={open && explainOpen} collapsed={collapsed} onClose={closeExplain}>{explain}</ExplainSheet>
-      <button type="button" className="answer-tab" data-open={open || undefined} data-explain={(open && explainOpen) || undefined} data-collapsed={collapsed || undefined} aria-label={collapsed ? "Show area details" : "Collapse area details"} aria-expanded={!collapsed} onClick={() => setCollapsed(!collapsed)}>
+      <ExplainSheet open={open && explainOpen} collapsed={collapsed} onClose={closeExplain}>
+        {explain}
+      </ExplainSheet>
+      <button
+        type="button"
+        className="answer-tab"
+        data-open={open || undefined}
+        data-explain={(open && explainOpen) || undefined}
+        data-collapsed={collapsed || undefined}
+        aria-label={collapsed ? "Show area details" : "Collapse area details"}
+        aria-expanded={!collapsed}
+        onClick={() => setCollapsed(!collapsed)}
+      >
         {collapsed ? <ChevronRight aria-hidden="true" /> : <ChevronLeft aria-hidden="true" />}
       </button>
     </>
   );
 }
 
-const ICON_BUTTON = "answer-icon-button grid size-tap-target flex-none cursor-pointer place-items-center rounded-full border-0 bg-transparent text-on-surface";
+const ICON_BUTTON =
+  "answer-icon-button grid size-tap-target flex-none cursor-pointer place-items-center rounded-full border-0 bg-transparent text-on-surface";
 
 // Level 3. Not a modal: the map stays reachable behind the scrim and the page keeps its tab order, so only focus entry, return and Esc are handled.
-function ExplainSheet({ open, collapsed, onClose, children }: { open: boolean; collapsed: boolean; onClose: () => void; children: ReactNode }) {
+function ExplainSheet({
+  open,
+  collapsed,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  collapsed: boolean;
+  onClose: () => void;
+  children: ReactNode;
+}) {
   const close = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     if (open) close.current?.focus();
   }, [open]);
   return (
     <>
-      <div className="explain-frame" data-open={open || undefined} data-collapsed={collapsed || undefined} />
-      <div className="explain-scrim" data-open={open || undefined} data-collapsed={collapsed || undefined} onClick={onClose} />
+      <div
+        className="explain-frame"
+        data-open={open || undefined}
+        data-collapsed={collapsed || undefined}
+      />
+      <div
+        className="explain-scrim"
+        data-open={open || undefined}
+        data-collapsed={collapsed || undefined}
+        onClick={onClose}
+      />
       <section
         role="dialog"
         aria-label="What this rating means"
@@ -279,14 +382,18 @@ function ExplainSheet({ open, collapsed, onClose, children }: { open: boolean; c
         }}
       >
         <header className="flex flex-none items-center justify-between pt-3 pr-2 pb-1 pl-4">
-          <h2 className="title-lg m-0">What this rating means</h2>
-          <button ref={close} type="button" className={ICON_BUTTON} aria-label="Close" onClick={onClose}>
+          <h2 className="m-0 title-lg">What this rating means</h2>
+          <button
+            ref={close}
+            type="button"
+            className={ICON_BUTTON}
+            aria-label="Close"
+            onClick={onClose}
+          >
             <X aria-hidden="true" />
           </button>
         </header>
-        <div className="flex min-h-0 flex-col gap-5 overflow-y-auto px-4 pt-2 pb-5">
-          {children}
-        </div>
+        <div className="flex min-h-0 flex-col gap-5 overflow-y-auto px-4 pt-2 pb-5">{children}</div>
       </section>
     </>
   );
