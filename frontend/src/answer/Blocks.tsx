@@ -2,7 +2,7 @@ import { Ban, BarChart3, Database } from "lucide-react";
 import { Info } from "lucide-react";
 import { type ReactNode, useId, useState } from "react";
 import type { AreaRecord, Fixture, Selector } from "../search/types.ts";
-import type { Kind, Tier } from "./Verdict.tsx";
+import { plural, type Kind, type Tier } from "./Verdict.tsx";
 
 export const tierOf = (a: AreaRecord): Tier =>
   a.no_record ? "no-data" : (a.tier.toLowerCase() as Tier);
@@ -101,7 +101,7 @@ export function Details({
             aria-expanded={why}
             aria-controls={whyId}
             onClick={() => setWhy(!why)}
-            className="relative inline-flex min-h-5.5 cursor-pointer items-center gap-1 rounded-full border-0 bg-surface-container px-2 label-sm text-on-surface-variant after:absolute after:-inset-2 after:content-['']"
+            className="relative inline-flex min-h-5.5 cursor-pointer items-center gap-1 rounded-full border-0 bg-surface-container px-2 label-sm text-on-surface-variant after:absolute after:-inset-x-2 after:-inset-y-3 after:content-['']"
           >
             {`${pattern[0].toUpperCase()}${pattern.slice(1)}`}
             <Info aria-hidden="true" size={12} />
@@ -215,8 +215,8 @@ export function Explain({
         ) : null}
         <p className="m-0 body-md text-on-surface-variant">
           {pin
-            ? `All 542 areas, ranked by reported bike thefts over 12 months. The pin marks the group ${area.name} is in.`
-            : `This area is not placed on the scale. With ${area.reports_12m === 0 ? "no reports" : "one report"}, any rank would be a guess.`}
+            ? `All 542 areas, ranked by expected bike thefts per year, with small areas drawn toward their neighbourhood. The pin marks the group ${area.name} is in.`
+            : `This area is not placed on the scale. With ${area.reports_12m === 0 ? "no reports" : plural(area.reports_12m)}, any rank would be a guess.`}
         </p>
       </Part>
       <Part icon={<Ban aria-hidden="true" />} title="What it doesn't tell you">

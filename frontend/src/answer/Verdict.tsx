@@ -13,7 +13,7 @@ const WORD: Record<Kind, string> = {
 };
 const GAUGE: Record<Kind, number> = { low: 0, medium: 1, high: 2, "no-data": -1, limited: -1 };
 const colour = (kind: Kind) => `var(--risk-${kind === "limited" ? "no-data" : kind})`;
-const plural = (n: number) => `${n} ${n === 1 ? "report" : "reports"}`;
+export const plural = (n: number) => `${n} ${n === 1 ? "report" : "reports"}`;
 
 // Each tier has its own shape, so the tier never rests on colour alone. Glyphs sit on the tier fill, so they stay fixed across themes.
 export function TierMark({ kind, className = "size-14" }: { kind: Kind; className?: string }) {
@@ -92,7 +92,7 @@ export function verdictLine(kind: Kind, reports: number, topShare: number): stri
     return `Among the ${topShare}% of Berlin areas with the most reported bike thefts.`;
   if (kind === "medium")
     return "More reported thefts than most Berlin areas, but not among the highest.";
-  if (kind === "low") return "Fewer reported thefts than most Berlin areas.";
+  if (kind === "low") return "Among the 60% of Berlin areas with the fewest reported bike thefts.";
   if (kind === "limited")
     return `${reports === 0 ? "No reports" : `Only ${plural(reports)}`} in 12 months, too few to rate this area. This does not mean low risk.`;
   return "No reports found, so we can't rate this area. This does not mean low risk.";

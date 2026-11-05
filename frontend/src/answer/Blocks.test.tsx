@@ -56,6 +56,9 @@ it("thin and missing data never read as calm and say so", () => {
   expect(verdictLine("limited", 0, 15)).toBe(
     "No reports in 12 months, too few to rate this area. This does not mean low risk.",
   );
+  expect(verdictLine("low", 40, 15)).toBe(
+    "Among the 60% of Berlin areas with the fewest reported bike thefts.",
+  );
   expect(verdictLine("no-data", 0, 15)).toContain("does not mean low risk");
   for (const kind of ["limited", "no-data"] as const)
     expect(verdictLine(kind, 2, 15)).not.toMatch(/fewer/i);
@@ -138,6 +141,18 @@ it("the sheet leaves thin data off the scale and never says safe", () => {
   );
   expect(screen.getByText(/not placed on the scale/)).toBeTruthy();
   expect(container.textContent).not.toMatch(/\bsafe/i);
+});
+
+it("the sheet counts the area's own reports, not always one", () => {
+  render(
+    <Explain
+      area={rec({ reports_12m: 3, limited_data: true })}
+      kind="limited"
+      bands={bands}
+      metadata={metadata}
+    />,
+  );
+  expect(screen.getByText(/With 3 reports, any rank would be a guess/)).toBeTruthy();
 });
 
 it("the sheet places a tiered area and names the window", () => {
