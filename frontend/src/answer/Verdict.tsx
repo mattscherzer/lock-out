@@ -98,6 +98,24 @@ export function verdictLine(kind: Kind, reports: number, topShare: number): stri
   return "No reports found, so we can't rate this area. This does not mean low risk.";
 }
 
+// Mirrors confidence() in src/models/area_stats.py (5 and 20 reports) until the lookup carries it (#63). Words describe the data, never "low/high", so they cannot read as risk.
+export const PLENTY_FROM = 20;
+
+function DataLine({ reports }: { reports: number }) {
+  return (
+    <p className="m-0 body-md text-on-surface-variant">
+      Based on {plural(reports)} in 12 months ·{" "}
+      {reports >= PLENTY_FROM ? (
+        <b className="font-semibold text-on-surface">Plenty of data</b>
+      ) : (
+        <>
+          <b className="font-semibold text-on-surface">Some data</b>, so this rating could shift
+        </>
+      )}
+    </p>
+  );
+}
+
 export function Verdict({
   kind,
   reports,
@@ -125,6 +143,7 @@ export function Verdict({
         <div className="display-sm">{WORD[kind]}</div>
       </div>
       <p className="m-0 body-lg">{verdictLine(kind, reports, topShare)}</p>
+      {kind !== "limited" && kind !== "no-data" && <DataLine reports={reports} />}
       <div className="mt-0.5 flex gap-1.5" aria-hidden="true">
         {["Low", "Medium", "High"].map((name, i) => (
           <div key={name} className="flex-1">

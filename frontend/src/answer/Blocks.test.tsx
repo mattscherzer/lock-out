@@ -64,6 +64,19 @@ it("thin and missing data never read as calm and say so", () => {
     expect(verdictLine(kind, 2, 15)).not.toMatch(/fewer/i);
 });
 
+it("the verdict adds a data line for tiers, with the wording shifting under 20 reports, and none for thin data", () => {
+  const { rerender } = render(
+    <Verdict kind="low" reports={14} topShare={15} onExplain={() => {}} />,
+  );
+  expect(screen.getByText(/Based on 14 reports in 12 months/).textContent).toMatch(
+    /Some data, so this rating could shift/,
+  );
+  rerender(<Verdict kind="high" reports={101} topShare={15} onExplain={() => {}} />);
+  expect(screen.getByText(/Plenty of data/)).toBeTruthy();
+  rerender(<Verdict kind="limited" reports={3} topShare={15} onExplain={() => {}} />);
+  expect(screen.queryByText(/Based on/)).toBeNull();
+});
+
 it("the verdict shows the word and offers the explanation", () => {
   let asked = 0;
   render(<Verdict kind="high" reports={101} topShare={15} onExplain={() => asked++} />);
@@ -179,6 +192,14 @@ it("the area's own numbers sit under their own heading, apart from the citywide 
       .getByRole("heading", { name: "When bikes were last seen" })
       .parentElement?.parentElement?.contains(own),
   ).toBe(false);
+});
+
+it("the sheet explains the data levels without calling anything safe", () => {
+  const { container } = render(
+    <Explain area={rec()} kind="high" bands={bands} metadata={metadata} />,
+  );
+  expect(screen.getByRole("heading", { name: "How much data is behind this?" })).toBeTruthy();
+  expect(container.textContent).toMatch(/Plenty of data.*Some data.*Limited data/s);
 });
 
 it("About credits OpenStreetMap, Polizei Berlin and the LOR source", () => {

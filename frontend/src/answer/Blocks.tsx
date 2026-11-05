@@ -1,8 +1,8 @@
-import { Ban, BarChart3, Database } from "lucide-react";
+import { Ban, BarChart3, Database, ListOrdered } from "lucide-react";
 import { Info } from "lucide-react";
 import { type ReactNode, useId, useState } from "react";
 import type { AreaRecord, Fixture, Selector } from "../search/types.ts";
-import { plural, type Kind, type Tier } from "./Verdict.tsx";
+import { PLENTY_FROM, plural, type Kind, type Tier } from "./Verdict.tsx";
 
 export const tierOf = (a: AreaRecord): Tier =>
   a.no_record ? "no-data" : (a.tier.toLowerCase() as Tier);
@@ -138,6 +138,10 @@ export function Details({
             text={`Police data up to ${metadata.reports_up_to.slice(0, 4)}`}
           />
         </div>
+        <p className="m-0 body-sm text-on-surface-variant">
+          Plenty of data means {PLENTY_FROM} or more reports in 12 months, some data 5 to{" "}
+          {PLENTY_FROM - 1}, limited data fewer than 5.
+        </p>
       </div>
       <a
         href="#about"
@@ -220,6 +224,27 @@ export function Explain({
           {pin
             ? `All 542 areas, ranked by expected bike thefts per year, with small areas drawn toward their neighbourhood. The pin marks the group ${area.name} is in.`
             : `This area is not placed on the scale. With ${area.reports_12m === 0 ? "no reports" : plural(area.reports_12m)}, any rank would be a guess.`}
+        </p>
+      </Part>
+      <Part icon={<ListOrdered aria-hidden="true" />} title="How much data is behind this?">
+        <p className="m-0 body-md">
+          Risk and data are two different things. The rating compares reported thefts with other
+          Berlin areas. The data line says how many reports that comparison rests on.
+        </p>
+        <p className="m-0 body-md">
+          <b>Plenty of data</b> ({PLENTY_FROM} or more reports in 12 months): one or two more thefts
+          would not change the rating.
+        </p>
+        <p className="m-0 body-md">
+          <b>Some data</b> (5 to {PLENTY_FROM - 1}): our best read, but a few more or fewer reports
+          could move it to a neighbouring level.
+        </p>
+        <p className="m-0 body-md">
+          <b>Limited data</b> (fewer than 5): too few to rate, so no rating is shown. This does not
+          mean low risk.
+        </p>
+        <p className="m-0 body-md">
+          A lot of data does not mean high risk, and little data does not mean low risk.
         </p>
       </Part>
       <Part icon={<Ban aria-hidden="true" />} title="What it doesn't tell you">
