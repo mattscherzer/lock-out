@@ -41,6 +41,7 @@ test("theme mapping: colour vars, literal radius, no focus-ring utility", () => 
   const css = generate(fixture);
   assert.match(css, /--color-primary: var\(--primary\);/);
   assert.match(css, /--radius-md: 12px;/);
+  assert.doesNotMatch(generate(tokens), /--([\w-]+): var\(--\1\)/); // circular var
   assert.doesNotMatch(css, /--shadow-focus-ring/);
   assert.match(css, /--color-\*: initial;/);
 });
@@ -54,10 +55,10 @@ test("sizes, z-index, easing and duration map to Tailwind namespaces", () => {
   assert.match(css, /--transition-duration-fast: var\(--duration-fast\);/);
 });
 
-test("type styles become kebab-cased vars and a class with only the props the style has", () => {
+test("type styles become @utility with literal values and only the props the style has", () => {
   const css = generate(fixture);
-  assert.match(css, /--data-md-font-size: 13px;/);
-  assert.match(css, /\.data-md \{ font-family: var\(--font-sans\); font-size: var\(--data-md-font-size\); letter-spacing: var\(--data-md-letter-spacing\); font-variant-numeric: tabular-nums; \}/);
+  assert.match(css, /@utility data-md \{ font-family: var\(--font-sans\); font-size: 13px; letter-spacing: 1px; font-variant-numeric: tabular-nums; \}/);
+  assert.doesNotMatch(css, /--data-md-font-size/);
 });
 
 test("reduced motion override is outside any @layer", () => {
@@ -70,7 +71,11 @@ test("a colour without a dark value is rejected", () => {
   assert.throws(() => generate({ ...fixture, color: { tokens: [{ name: "x", value: { light: "#fff" } }] } }), /no dark value/);
 });
 
-test("every real type style gets a class", () => {
+test("the Leaflet attribution control shares the attribution-sm declarations, in a layer", () => {
+  assert.match(generate(tokens), /@layer components \{\s*\.leaflet-control-attribution \{ font-family: [^}]*font-size: \d+px;/);
+});
+
+test("every real type style gets a utility", () => {
   const css = generate(tokens);
-  for (const g of tokens.type.groups) for (const s of g.styles) assert.match(css, new RegExp(`^  (\\S+, )?\\.${s.name}( \\{|,)`, "m"), s.name);
+  for (const g of tokens.type.groups) for (const s of g.styles) assert.match(css, new RegExp(`^@utility ${s.name} \\{`, "m"), s.name);
 });

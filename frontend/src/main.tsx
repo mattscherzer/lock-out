@@ -3,8 +3,9 @@ import "leaflet/dist/leaflet.css";
 import "./styles/index.css";
 import type { FeatureCollection } from "geojson";
 import { createRoot } from "react-dom/client";
-import { AnswerCard, higherPx } from "./answer/AnswerCard.tsx";
-import type { Tier } from "./answer/RiskChip.tsx";
+import { higherPx } from "./answer/AnswerCard.tsx";
+import { AreaAnswer } from "./answer/AreaAnswer.tsx";
+import { mountAbout } from "./mountAbout.tsx";
 import { AreaSearch, type Context } from "./search/AreaSearch.tsx";
 import { addStreets, buildIndex } from "./search/places.ts";
 import type { Fixture, Gazetteer, StreetsFile } from "./search/types.ts";
@@ -49,7 +50,7 @@ try {
   const { police, osm } = fixture.metadata.attribution;
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
-    attribution: `<a href="https://www.openstreetmap.org/copyright">${osm}</a> | ${police} | ${SEARCH_ATTRIBUTION}`,
+    attribution: `<a href="https://www.openstreetmap.org/copyright">${osm}</a> | ${police} | ${SEARCH_ATTRIBUTION} | <a href="#about" data-about>About the data</a>`,
   }).addTo(map);
 
   const polygons: Record<string, L.Polygon> = {};
@@ -58,7 +59,9 @@ try {
     onEachFeature: (feature, polygon) => {
       const area = fixture.areas[feature.properties.id as string];
       // element, not a string: Leaflet would parse a string as HTML
-      const label = Object.assign(document.createElement("span"), { textContent: `${area.name} (${area.bzr_name})` });
+      const label = Object.assign(document.createElement("span"), {
+        textContent: `${area.name} (${area.bzr_name})`,
+      });
       polygon.bindTooltip(label);
       polygons[feature.properties.id as string] = polygon as L.Polygon;
     },
@@ -86,24 +89,30 @@ try {
   // keep the area clear of the side panel (desktop) or the sheet and the search above it (phone, sheet at its opening height)
   const flyPadding = () =>
     innerWidth >= 600
-      ? { paddingTopLeft: L.point(document.querySelector<HTMLElement>(".answer-card")!.offsetWidth, 0) }
+      ? {
+          paddingTopLeft: L.point(
+            document.querySelector<HTMLElement>(".answer-card")!.offsetWidth,
+            0,
+          ),
+        }
       : { paddingTopLeft: L.point(0, 110), paddingBottomRight: L.point(0, higherPx()) };
   const searchRoot = createRoot(document.getElementById("search")!);
   const cardRoot = createRoot(document.getElementById("answer")!);
-  // TODO(#64): stub until real answers arrive: spreads areas over the tiers so every card state can be seen.
-  const TIERS: Tier[] = ["low", "medium", "high", "no-data"];
-  const tierOf = (id: string) => TIERS[[...id].reduce((n, c) => n + c.charCodeAt(0), 0) % TIERS.length];
+  const openAbout = mountAbout(
+    document.getElementById("about")!,
+    map,
+    fixture.metadata.attribution,
+  );
   const renderCard = () => {
-    const tier = selected ? tierOf(selected) : "no-data";
+    const record = selected ? fixture.areas[selected] : null;
     cardRoot.render(
-      <AnswerCard
-        open={selected !== null && cardOpen}
-        area={selected ? fixture.areas[selected] : null}
+      <AreaAnswer
+        record={record}
         areaId={selected}
-        state={tier === "no-data" ? "no-data" : "ready"}
-        tier={tier}
+        fixture={fixture}
+        open={selected !== null && cardOpen}
         lowerSignal={lowerSignal}
-        blocks={{ risk: "Placeholder: the risk assessment arrives with #64.", advice: "Placeholder: lock advice arrives with #64.", source: "Police reports and OpenStreetMap." }}
+        onAbout={openAbout}
         onClose={() => {
           cardOpen = false;
           renderCard();
@@ -115,8 +124,15 @@ try {
   };
   // a fly (zoom out, pan, zoom in) reads smoother than a straight jump; the motion token is 0 under reduced motion
   const fly = (id: string, options: L.FitBoundsOptions = {}) => {
-    const ms = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--duration-slow"));
-    map.flyToBounds(polygons[id].getBounds(), { ...flyPadding(), ...options, duration: ms / 1000, animate: ms > 0 });
+    const ms = parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue("--duration-slow"),
+    );
+    map.flyToBounds(polygons[id].getBounds(), {
+      ...flyPadding(),
+      ...options,
+      duration: ms / 1000,
+      animate: ms > 0,
+    });
   };
   const renderSearch = () =>
     searchRoot.render(
@@ -141,7 +157,14 @@ try {
     Object.values(polygons).forEach((polygon) => polygon.closeTooltip()); // a hover tooltip would stay open after the map moves
     pin?.remove();
     pin = context?.ll
-      ? L.circleMarker(context.ll, { radius: 7, color: "#fff", weight: 3, fillColor: BRAND, fillOpacity: 1, interactive: false })
+      ? L.circleMarker(context.ll, {
+          radius: 7,
+          color: "#fff",
+          weight: 3,
+          fillColor: BRAND,
+          fillOpacity: 1,
+          interactive: false,
+        })
           .bindTooltip(context.label, { permanent: true, direction: "top" })
           .addTo(map)
       : undefined;
