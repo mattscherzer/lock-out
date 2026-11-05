@@ -6,7 +6,7 @@ import pytest
 
 from audit_checks import polygon_ids
 from models.eb import evaluate
-from models.glm import CANDIDATES, LABELS, compare, design, eb_toward, glm_rate, verdict
+from models.glm import CANDIDATES, LABELS, compare, design, eb_toward, glm_rate, markdown, verdict
 from models.osm_features import KINDS
 from pipeline.clean import clean
 
@@ -106,3 +106,15 @@ def test_compare_refuses_a_table_that_misses_areas():
     areas = sorted(polygon_ids())
     with pytest.raises(ValueError, match="no counts for some planning areas"):
         compare(cleaned_fixture(), areas, synthetic_features(areas).iloc[1:])
+
+
+def test_results_file_names_the_snapshot_date_and_leaves_adoption_to_the_log():
+    areas = sorted(polygon_ids())
+    features = synthetic_features(areas)
+    folds = compare(cleaned_fixture(), areas, features)
+    dates = pd.Timestamp("2026-10-26"), pd.Timestamp("2026-10-12")
+    text = markdown(folds, verdict(folds), features, *dates, "sample.csv", pd.Timestamp("2026-11-05"))
+    assert "The counts table was written on 05 Nov 2026" in text
+    assert "may be adopted" not in text
+    last = text.strip().splitlines()[-1]
+    assert "adoption is a separate decision (D-22" in last or "S1 is cut" in last
