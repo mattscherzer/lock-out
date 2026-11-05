@@ -104,14 +104,11 @@ export const PLENTY_FROM = 20;
 function DataLine({ reports }: { reports: number }) {
   return (
     <p className="m-0 body-md text-on-surface-variant">
-      Based on {plural(reports)} in 12 months ·{" "}
-      {reports >= PLENTY_FROM ? (
-        <b className="font-semibold text-on-surface">Plenty of data</b>
-      ) : (
-        <>
-          <b className="font-semibold text-on-surface">Some data</b>, so this rating could shift
-        </>
-      )}
+      <b className="font-semibold text-on-surface">
+        {reports >= PLENTY_FROM ? "Plenty of data" : "Some data"}
+      </b>{" "}
+      behind this: {plural(reports)} in 12 months.
+      {reports < PLENTY_FROM && " A few more or fewer could shift the rating."}
     </p>
   );
 }
