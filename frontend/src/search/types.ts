@@ -9,7 +9,25 @@ export type StreetsFile = {
   streets: Record<string, Record<string, Record<string, [number, number][]>>>;
 };
 
-export type Fixture = { metadata: { attribution: { police: string; osm: string } }; areas: Areas };
+export type AreaRecord = Area & {
+  tier: "LOW" | "MEDIUM" | "HIGH";
+  reports_12m: number;
+  limited_data: boolean;
+  no_record: boolean;
+};
+export type Selector = { shares: Record<string, number>; pattern: string };
+export type Band = { min_percentile: number; max_percentile: number };
+export type Fixture = {
+  risk_bands: { LOW: Band; MEDIUM: Band; HIGH: Band };
+  metadata: {
+    attribution: { police: string; osm: string; lor: string };
+    data_window: { start: string; end: string };
+    reports_up_to: string;
+    truncation_lag_days: number;
+  };
+  selectors: { time_band: Selector; day_group: Selector };
+  areas: Record<string, AreaRecord>;
+};
 
 export type Kind = "postcode" | "station" | "street" | "area";
 export type Place = {

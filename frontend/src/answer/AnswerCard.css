@@ -35,8 +35,31 @@
   background: color-mix(in srgb, var(--on-surface) calc(var(--state-hover) * 100%), transparent);
 }
 
-.answer-block > div > p {
-  margin: 0;
+.explain-trigger:hover {
+  background: color-mix(in srgb, var(--on-surface) calc(var(--state-hover) * 100%), transparent);
+}
+
+@media (width >= 900px) {
+  .answer-card,
+  .answer-tab,
+  .explain-sheet,
+  .explain-frame {
+    --explain-w: 380px;
+    --explain-shift: calc(var(--explain-w) + 2 * var(--space-2));
+    --pair-shift: calc(var(--answer-panel-w) + var(--explain-shift));
+  }
+
+  .answer-card[data-open][data-collapsed][data-explain] {
+    transform: translateX(calc(-1 * var(--pair-shift)));
+  }
+
+  .answer-card:not([data-open])[data-explain] {
+    transform: translateX(calc(-1 * var(--pair-shift)));
+  }
+
+  .answer-tab[data-open][data-explain]:not([data-collapsed]) {
+    transform: translateX(var(--pair-shift));
+  }
 }
 
 .answer-tab {
@@ -75,8 +98,28 @@
     border-radius: 0;
     z-index: calc(var(--z-search) + 1);
   } /* covers the search pill */
-  .answer-drag {
+
+  .answer-card:not([data-stop="full"]) {
+    overflow: hidden;
     touch-action: none;
+  }
+
+  .answer-card[data-stop="full"] {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .answer-drag {
+    display: contents;
+  }
+
+  .answer-drag > * {
+    flex: none;
+  }
+
+  .answer-body {
+    flex: none;
+    overflow: visible;
   }
 
   /* the card is 100dvh tall and slid down: pad by the hidden part so the last block can scroll into view */
@@ -94,14 +137,21 @@
   }
 
   .answer-card[data-stop="full"] .answer-appbar {
+    position: sticky;
+    top: 0;
     display: flex;
+    background: var(--surface-container-lowest);
+    touch-action: none;
   }
 }
 
 /* The search pill (400px, 16px inset) floats over the panel's top: hence 432px wide and the 80px header offset. */
 @media (width >= 600px) {
   .answer-card,
-  .answer-tab {
+  .answer-tab,
+  .explain-scrim,
+  .explain-frame,
+  .explain-sheet {
     --answer-panel-w: 432px;
   }
 
@@ -183,7 +233,10 @@
 
 @media (width >= 600px) and (width <= 899px) {
   .answer-card,
-  .answer-tab {
+  .answer-tab,
+  .explain-scrim,
+  .explain-frame,
+  .explain-sheet {
     --answer-panel-w: 392px;
   }
 } /* the pill is 360px here */
