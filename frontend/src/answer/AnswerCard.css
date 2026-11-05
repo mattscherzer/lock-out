@@ -35,32 +35,11 @@
   background: color-mix(in srgb, var(--on-surface) calc(var(--state-hover) * 100%), transparent);
 }
 
-.explain-trigger {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  gap: var(--space-2);
-  min-height: var(--tap-target);
-  margin: 0 0 calc(-1 * var(--space-2)) calc(-1 * var(--space-2));
-  padding: 0 var(--space-3);
-  border: 0;
-  border-radius: var(--radius-full);
-  background: transparent;
-  color: var(--tertiary);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .explain-trigger:hover {
   background: color-mix(in srgb, var(--on-surface) calc(var(--state-hover) * 100%), transparent);
 }
 
 .explain-scrim {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modal);
-  background: var(--scrim);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--duration-base);
@@ -72,18 +51,6 @@
 }
 
 .explain-sheet {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: calc(var(--z-modal) + 1);
-  display: flex;
-  flex-direction: column;
-  max-height: 92dvh;
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  background: var(--surface-container-lowest);
-  color: var(--on-surface);
-  box-shadow: var(--elevation-sheet);
   visibility: hidden;
   transform: translateY(102%);
   transition:

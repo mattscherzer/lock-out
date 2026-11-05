@@ -364,7 +364,7 @@ function ExplainSheet({
         data-collapsed={collapsed || undefined}
       />
       <div
-        className="explain-scrim"
+        className="explain-scrim fixed inset-0 z-modal bg-scrim"
         data-open={open || undefined}
         data-collapsed={collapsed || undefined}
         onClick={onClose}
@@ -372,7 +372,7 @@ function ExplainSheet({
       <section
         role="dialog"
         aria-label="What this rating means"
-        className="explain-sheet"
+        className="explain-sheet fixed right-0 bottom-0 left-0 z-[calc(var(--z-modal)+1)] flex max-h-[92dvh] flex-col rounded-t-xl bg-surface-container-lowest text-on-surface shadow-elevation-sheet"
         data-open={open || undefined}
         data-collapsed={collapsed || undefined}
         onKeyDown={(e) => {

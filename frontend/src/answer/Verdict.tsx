@@ -146,7 +146,12 @@ export function Verdict({
           </div>
         ))}
       </div>
-      <button type="button" className="explain-trigger" onClick={onExplain} aria-haspopup="dialog">
+      <button
+        type="button"
+        className="explain-trigger -mb-2 -ml-2 inline-flex min-h-tap-target cursor-pointer items-center gap-2 self-start rounded-full border-0 bg-transparent px-3 font-[inherit] font-semibold text-tertiary"
+        onClick={onExplain}
+        aria-haspopup="dialog"
+      >
         <Info aria-hidden="true" size={18} />
         What does this mean?
       </button>
