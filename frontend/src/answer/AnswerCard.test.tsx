@@ -11,41 +11,69 @@ afterEach(() => {
 const asPhone = () => vi.stubGlobal("matchMedia", () => ({ matches: false }));
 
 const area = { name: "Tempelhof-Schöneberg", bzr_name: "Tempelhof" };
-const blocks = { risk: "r", advice: "a", source: "s" };
+const verdict = (explain: () => void) => (
+  <button type="button" onClick={explain}>
+    What does this mean?
+  </button>
+);
 const card = (over: Partial<Parameters<typeof AnswerCard>[0]> = {}) => (
   <AnswerCard
     open
     area={area}
     areaId="a"
     state="ready"
-    tier="high"
-    blocks={blocks}
+    verdict={verdict}
+    details={<p>details</p>}
+    explain={<p>explained</p>}
     onClose={() => {}}
     {...over}
   />
 );
-const dialog = () => screen.getByRole("dialog", { hidden: true });
+const dialog = () => document.querySelector(".answer-card") as HTMLElement;
 
-it("shows the name, tier chip and the three titled blocks", () => {
+it("shows the name, the verdict slot and the level 2 details", () => {
   render(card());
-  expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Tempelhof-Schöneberg");
-  expect(screen.getByText("High risk")).toBeTruthy();
-  expect(screen.getAllByRole("heading", { level: 3 }).map((h) => h.textContent)).toEqual([
-    "Risk assessment",
-    "Lock advice",
-    "Where the information comes from",
-  ]);
+  expect((document.querySelector(".answer-card h2") as HTMLElement).textContent).toBe(
+    "Tempelhof-Schöneberg",
+  );
+  expect(screen.getByText("What does this mean?")).toBeTruthy();
+  expect(screen.getByText("details")).toBeTruthy();
 });
 
-it.each<[CardState, string]>([
-  ["empty", "Nothing to show yet"],
-  ["no-data", "Not enough data"],
-  ["error", "Could not load this area"],
-])("%s state replaces the blocks and hides the chip", (state, title) => {
-  render(card({ state }));
-  expect(screen.getByText(title)).toBeTruthy();
-  expect(screen.queryByText("High risk")).toBeNull();
-  expect(screen.queryByText("Lock advice")).toBeNull();
+it("puts the advice above the details when given", () => {
+  render(card({ advice: <p>advice</p> }));
+  expect(
+    screen.getByText("advice").compareDocumentPosition(screen.getByText("details")) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+});
+
+it("no-data keeps the verdict; empty and error replace it", () => {
+  const { rerender } = render(card({ state: "no-data" }));
+  expect(screen.getByText("What does this mean?")).toBeTruthy();
+  rerender(card({ state: "empty" }));
+  expect(screen.getByText("Nothing to show yet")).toBeTruthy();
+  expect(screen.queryByText("What does this mean?")).toBeNull();
+  rerender(card({ state: "error" }));
+  expect(screen.getByText("Could not load this area")).toBeTruthy();
+  expect(screen.queryByText("details")).toBeNull();
+});
+
+it("opens the explain sheet, focuses its Close, and Esc closes it and returns focus without closing the card", () => {
+  const onClose = vi.fn();
+  render(card({ onClose }));
+  const trigger = screen.getByText("What does this mean?");
+  trigger.focus();
+  fireEvent.click(trigger);
+  const sheet = screen.getByRole("dialog", { name: "What this rating means" });
+  expect(sheet.hasAttribute("data-open")).toBe(true);
+  expect(document.activeElement).toBe(
+    screen.getByLabelText("Close", { selector: ".explain-sheet button" }),
+  );
+  fireEvent.keyDown(sheet, { key: "Escape" });
+  expect(sheet.hasAttribute("data-open")).toBe(false);
+  expect(document.activeElement).toBe(trigger);
+  expect(onClose).not.toHaveBeenCalled();
 });
 
 it("announces the error state", () => {
@@ -64,10 +92,12 @@ it("closes on the close button and on Escape", () => {
 it("takes focus when it opens", () => {
   const { rerender } = render(card({ open: false }));
   rerender(card());
-  expect(document.activeElement).toBe(screen.getByRole("heading", { level: 2, hidden: true }));
+  expect(document.activeElement).toBe(document.querySelector(".answer-card h2") as HTMLElement);
 });
 
 const stop = () => dialog().getAttribute("data-stop");
+const dragSurface = () =>
+  dialog().querySelector(stop() === "full" ? ".answer-appbar" : ".answer-body")!;
 
 it("opens at higher; the handle steps lowered, higher, full, lowered; collapse returns to where it came from", () => {
   render(card());
@@ -91,7 +121,7 @@ it("drags like a sheet: follows the finger, settles on the nearest stop, closes 
   const onClose = vi.fn();
   render(card({ onClose }));
   const drag = (from: number, to: number) => {
-    const el = dialog().querySelector(".answer-drag")!;
+    const el = dragSurface();
     fireEvent.pointerDown(el, { clientY: from });
     fireEvent.pointerMove(el, { clientY: to });
     const live = (dialog() as HTMLElement).style.transform;
@@ -115,7 +145,7 @@ it("a new area uncollapses the desktop panel and takes focus", () => {
   fireEvent.click(screen.getByLabelText("Collapse area details", { selector: ".answer-tab" }));
   rerender(card({ area: { name: "Mitte", bzr_name: "Mitte" }, areaId: "b" }));
   expect(dialog().hasAttribute("data-collapsed")).toBe(false);
-  expect(document.activeElement).toBe(screen.getByRole("heading", { level: 2, hidden: true }));
+  expect(document.activeElement).toBe(document.querySelector(".answer-card h2") as HTMLElement);
 });
 
 it("two areas with the same name still uncollapse the panel, told apart by id", () => {
@@ -132,7 +162,7 @@ it("a held finger carries no velocity: releasing after a pause settles where it 
   vi.stubGlobal("innerHeight", 800);
   vi.spyOn(performance, "now").mockReturnValueOnce(0).mockReturnValueOnce(20).mockReturnValue(1000); // fast move, then a long hold
   render(card());
-  const el = dialog().querySelector(".answer-drag")!;
+  const el = dragSurface();
   fireEvent.pointerDown(el, { clientY: 100 });
   fireEvent.pointerMove(el, { clientY: 110 });
   fireEvent.pointerMove(el, { clientY: 200 });
@@ -145,7 +175,7 @@ it("does not drag from 600px up", () => {
   vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(800);
   const onClose = vi.fn();
   render(card({ onClose }));
-  const el = dialog().querySelector(".answer-drag")!;
+  const el = dragSurface();
   fireEvent.pointerDown(el, { clientY: 100 });
   fireEvent.pointerMove(el, { clientY: 700 });
   fireEvent.pointerUp(el, { clientY: 700 });
@@ -171,11 +201,48 @@ it("desktop edge tab collapses the panel and brings it back", () => {
 it("replaces the content when the area changes without closing", () => {
   const { rerender } = render(card());
   rerender(card({ area: { name: "Mitte", bzr_name: "Mitte" }, areaId: "b" }));
-  expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("Mitte");
+  expect((document.querySelector(".answer-card h2") as HTMLElement).textContent).toBe("Mitte");
   expect(dialog().hasAttribute("data-open")).toBe(true);
 });
 
 it("a viewport shorter than the sheet keeps the stops in order", () => {
   vi.stubGlobal("innerHeight", 280);
   expect(higherPx()).toBe(280);
+});
+
+it("scrolling the content on a phone opens the sheet to full screen first", () => {
+  asPhone();
+  render(card());
+  fireEvent.wheel(dialog(), { deltaY: 40 });
+  expect(stop()).toBe("full");
+});
+
+it("scrolling does not move the side panel", () => {
+  vi.stubGlobal("matchMedia", () => ({ matches: true }));
+  render(card());
+  fireEvent.wheel(dialog(), { deltaY: 40 });
+  expect(stop()).toBe("higher");
+});
+
+it("pulling down on the content at full screen brings the sheet back down; scrolling up does not", () => {
+  asPhone();
+  vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(800);
+  vi.stubGlobal("innerHeight", 800);
+  render(card());
+  fireEvent.wheel(dialog(), { deltaY: 40 });
+  expect(stop()).toBe("full");
+  const touch = (type: "touchStart" | "touchMove" | "touchEnd", y: number) =>
+    fireEvent[type](dialog().querySelector(".answer-body")!, {
+      touches: type === "touchEnd" ? [] : [{ clientY: y }],
+      changedTouches: [{ clientY: y }],
+    });
+  touch("touchStart", 300);
+  touch("touchMove", 280); // up: left to the browser
+  touch("touchEnd", 280);
+  expect(stop()).toBe("full");
+  touch("touchStart", 300);
+  touch("touchMove", 310);
+  touch("touchMove", 600);
+  touch("touchEnd", 600); // down 300 from full: nearest higher
+  expect(stop()).toBe("higher");
 });

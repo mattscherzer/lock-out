@@ -3,8 +3,9 @@ import "leaflet/dist/leaflet.css";
 import "./styles/index.css";
 import type { FeatureCollection } from "geojson";
 import { createRoot } from "react-dom/client";
-import { AnswerCard, higherPx } from "./answer/AnswerCard.tsx";
-import type { Tier } from "./answer/RiskChip.tsx";
+import { higherPx } from "./answer/AnswerCard.tsx";
+import { AreaAnswer } from "./answer/AreaAnswer.tsx";
+import { mountAbout } from "./mountAbout.tsx";
 import { AreaSearch, type Context } from "./search/AreaSearch.tsx";
 import { addStreets, buildIndex } from "./search/places.ts";
 import type { Fixture, Gazetteer, StreetsFile } from "./search/types.ts";
@@ -49,7 +50,7 @@ try {
   const { police, osm } = fixture.metadata.attribution;
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
-    attribution: `<a href="https://www.openstreetmap.org/copyright">${osm}</a> | ${police} | ${SEARCH_ATTRIBUTION}`,
+    attribution: `<a href="https://www.openstreetmap.org/copyright">${osm}</a> | ${police} | ${SEARCH_ATTRIBUTION} | <a href="#about" data-about>About the data</a>`,
   }).addTo(map);
 
   const polygons: Record<string, L.Polygon> = {};
@@ -97,25 +98,21 @@ try {
       : { paddingTopLeft: L.point(0, 110), paddingBottomRight: L.point(0, higherPx()) };
   const searchRoot = createRoot(document.getElementById("search")!);
   const cardRoot = createRoot(document.getElementById("answer")!);
-  // TODO(#64): stub until real answers arrive: spreads areas over the tiers so every card state can be seen.
-  const TIERS: Tier[] = ["low", "medium", "high", "no-data"];
-  const tierOf = (id: string) =>
-    TIERS[[...id].reduce((n, c) => n + c.charCodeAt(0), 0) % TIERS.length];
+  const openAbout = mountAbout(
+    document.getElementById("about")!,
+    map,
+    fixture.metadata.attribution,
+  );
   const renderCard = () => {
-    const tier = selected ? tierOf(selected) : "no-data";
+    const record = selected ? fixture.areas[selected] : null;
     cardRoot.render(
-      <AnswerCard
-        open={selected !== null && cardOpen}
-        area={selected ? fixture.areas[selected] : null}
+      <AreaAnswer
+        record={record}
         areaId={selected}
-        state={tier === "no-data" ? "no-data" : "ready"}
-        tier={tier}
+        fixture={fixture}
+        open={selected !== null && cardOpen}
         lowerSignal={lowerSignal}
-        blocks={{
-          risk: "Placeholder: the risk assessment arrives with #64.",
-          advice: "Placeholder: lock advice arrives with #64.",
-          source: "Police reports and OpenStreetMap.",
-        }}
+        onAbout={openAbout}
         onClose={() => {
           cardOpen = false;
           renderCard();
