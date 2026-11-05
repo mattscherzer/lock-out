@@ -39,7 +39,6 @@
   background: color-mix(in srgb, var(--on-surface) calc(var(--state-hover) * 100%), transparent);
 }
 
-/* Desktop: the explanation is a second card in one frame with the first, as in Google Maps. Frame, card, sheet and tab all travel the same distance, so they stay together. The map stays usable, so no scrim. The sheet, scrim and frame carry their own state as data-* utilities in AnswerCard.tsx. */
 @media (width >= 900px) {
   .answer-card,
   .answer-tab,
@@ -51,6 +50,10 @@
   }
 
   .answer-card[data-open][data-collapsed][data-explain] {
+    transform: translateX(calc(-1 * var(--pair-shift)));
+  }
+
+  .answer-card:not([data-open])[data-explain] {
     transform: translateX(calc(-1 * var(--pair-shift)));
   }
 
@@ -96,7 +99,6 @@
     z-index: calc(var(--z-search) + 1);
   } /* covers the search pill */
 
-  /* The whole card is the drag surface until full screen, where it scrolls as one piece, header included. */
   .answer-card:not([data-stop="full"]) {
     overflow: hidden;
     touch-action: none;
@@ -111,7 +113,6 @@
     display: contents;
   }
 
-  /* without the wrapper's flex-none these would shrink when the content is taller than the sheet */
   .answer-drag > * {
     flex: none;
   }

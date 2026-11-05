@@ -8,6 +8,8 @@ import {
   useRef,
   useState,
 } from "react";
+import { ExplainSheet } from "./ExplainSheet.tsx";
+import { ICON_BUTTON } from "./iconButton.ts";
 import "./AnswerCard.css";
 
 export type CardState = "ready" | "empty" | "no-data" | "error";
@@ -16,10 +18,10 @@ type Props = {
   area: { name: string; bzr_name: string } | null;
   areaId: string | null; // names are not unique (two Schloßstraße), so the id decides when the area changed
   state: CardState;
-  verdict: (explain: () => void) => ReactNode; // level 1, in the header so the lowest sheet height still shows it
-  advice?: ReactNode; // level 1 action: arrives with #107
-  details: ReactNode; // level 2
-  explain: ReactNode; // level 3: the "What does this mean?" sheet
+  verdict: (explain: () => void) => ReactNode;
+  advice?: ReactNode;
+  details: ReactNode;
+  explain: ReactNode;
   onClose: () => void;
   lowerSignal?: number; // changing it lowers the phone sheet, e.g. when the search is focused
 };
@@ -63,6 +65,11 @@ export function AnswerCard({
   const [stop, setStop] = useState<Stop>("higher");
   const [collapsed, setCollapsed] = useState(false);
   const [explainOpen, setExplainOpen] = useState(false);
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) setExplainOpen(false);
+  }
   const trigger = useRef<HTMLElement | null>(null);
   const closeExplain = () => {
     setExplainOpen(false);
@@ -85,7 +92,7 @@ export function AnswerCard({
   };
 
   useEffect(() => {
-    if (stop !== "full") card.current?.scrollTo?.(0, 0); // the verdict must be back in view when the sheet drops from full screen
+    if (stop !== "full") card.current?.scrollTo?.(0, 0);
   }, [stop]);
   useEffect(() => {
     if (open) setStop("higher"); // picking another area keeps the height
@@ -130,7 +137,7 @@ export function AnswerCard({
       if (d.last) d.v = (y - d.last[0]) / (now - d.last[1]);
       d.last = [y, now];
     }
-    const raw = d.from + y - d.y; // above full screen the sheet resists, at a third of the pull
+    const raw = d.from + y - d.y;
     card.current.style.transform = `translateY(${raw < 0 ? raw / 3 : raw}px)`;
   };
   const end = (y: number) => {
@@ -155,7 +162,6 @@ export function AnswerCard({
   };
   const down = (e: PointerEvent) => {
     if (!phone()) return;
-    // full screen scrolls the content; there the app bar and a pull down from the top (touch, below) drag the sheet
     if (stop === "full" && !(e.target as Element).closest(".answer-appbar")) return;
     begin(e.clientY);
   };
@@ -163,8 +169,6 @@ export function AnswerCard({
     track(e.clientY, () => (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId));
   const up = (e: PointerEvent) => end(e.clientY);
 
-  // Pulling down on the content at full screen, with the content scrolled to the top, brings the sheet down. The browser would scroll or
-  // refresh instead, so this needs a non-passive touchmove, which React does not offer.
   const latest = useRef({ stop, begin, track, end, cancel });
   latest.current = { stop, begin, track, end, cancel };
   useEffect(() => {
@@ -231,7 +235,7 @@ export function AnswerCard({
         data-open={open || undefined}
         data-stop={stop}
         data-collapsed={collapsed || undefined}
-        data-explain={(open && explainOpen) || undefined}
+        data-explain={explainOpen || undefined}
         style={
           {
             "--answer-lowered": `${loweredPx()}px`,
@@ -244,7 +248,7 @@ export function AnswerCard({
         onPointerUp={up}
         onPointerCancel={cancel}
         onWheel={(e) => {
-          if (phone() && stop !== "full" && e.deltaY > 0) go("full"); // scrolling the content opens the sheet first, as in Google Maps
+          if (phone() && stop !== "full" && e.deltaY > 0) go("full");
         }}
       >
         <div className="answer-drag flex-none">
@@ -318,14 +322,18 @@ export function AnswerCard({
           )}
         </div>
       </section>
-      <ExplainSheet open={open && explainOpen} collapsed={collapsed} onClose={closeExplain}>
+      <ExplainSheet
+        open={open && explainOpen}
+        collapsed={collapsed || !open}
+        onClose={closeExplain}
+      >
         {explain}
       </ExplainSheet>
       <button
         type="button"
         className="answer-tab"
         data-open={open || undefined}
-        data-explain={(open && explainOpen) || undefined}
+        data-explain={explainOpen || undefined}
         data-collapsed={collapsed || undefined}
         aria-label={collapsed ? "Show area details" : "Collapse area details"}
         aria-expanded={!collapsed}
@@ -333,68 +341,6 @@ export function AnswerCard({
       >
         {collapsed ? <ChevronRight aria-hidden="true" /> : <ChevronLeft aria-hidden="true" />}
       </button>
-    </>
-  );
-}
-
-const ICON_BUTTON =
-  "answer-icon-button grid size-tap-target flex-none cursor-pointer place-items-center rounded-full border-0 bg-transparent text-on-surface";
-
-// Level 3. Not a modal: the map stays reachable behind the scrim and the page keeps its tab order, so only focus entry, return and Esc are handled.
-function ExplainSheet({
-  open,
-  collapsed,
-  onClose,
-  children,
-}: {
-  open: boolean;
-  collapsed: boolean;
-  onClose: () => void;
-  children: ReactNode;
-}) {
-  const close = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    if (open) close.current?.focus();
-  }, [open]);
-  return (
-    <>
-      <div
-        className="explain-frame invisible fixed top-0 bottom-0 left-0 z-[calc(var(--z-search)-3)] hidden w-[calc(var(--answer-panel-w)+var(--explain-shift))] -translate-x-(--explain-shift) rounded-r-lg bg-surface-container shadow-elevation-3 transition-[translate,visibility] duration-slow ease-standard data-open:visible data-open:translate-x-0 data-open:data-collapsed:-translate-x-(--pair-shift) min-[900px]:block"
-        data-open={open || undefined}
-        data-collapsed={collapsed || undefined}
-      />
-      <div
-        className="explain-scrim pointer-events-none fixed inset-0 z-modal bg-scrim opacity-0 transition-opacity duration-base data-open:pointer-events-auto data-open:opacity-100 data-open:data-collapsed:pointer-events-none data-open:data-collapsed:opacity-0 min-[600px]:right-auto min-[600px]:w-(--answer-panel-w) min-[900px]:hidden"
-        data-open={open || undefined}
-        data-collapsed={collapsed || undefined}
-        onClick={onClose}
-      />
-      <section
-        role="dialog"
-        aria-label="What this rating means"
-        className="explain-sheet invisible fixed right-0 bottom-0 left-0 z-[calc(var(--z-modal)+1)] flex max-h-[92dvh] translate-y-[102%] flex-col rounded-t-xl bg-surface-container-lowest text-on-surface shadow-elevation-sheet transition-[translate,visibility] duration-slow ease-standard data-open:visible data-open:translate-y-0 data-open:data-collapsed:invisible data-open:data-collapsed:translate-y-[102%] min-[600px]:right-auto min-[600px]:w-(--answer-panel-w) min-[900px]:top-2 min-[900px]:bottom-2 min-[900px]:left-[calc(var(--answer-panel-w)+var(--space-2))] min-[900px]:z-[calc(var(--z-search)-2)] min-[900px]:max-h-none min-[900px]:w-(--explain-w) min-[900px]:-translate-x-(--explain-shift) min-[900px]:translate-y-0 min-[900px]:rounded-lg min-[900px]:shadow-none min-[900px]:data-open:translate-x-0 min-[900px]:data-open:data-collapsed:-translate-x-(--pair-shift) min-[900px]:data-open:data-collapsed:translate-y-0"
-        data-open={open || undefined}
-        data-collapsed={collapsed || undefined}
-        onKeyDown={(e) => {
-          if (e.key !== "Escape") return;
-          e.stopPropagation();
-          onClose();
-        }}
-      >
-        <header className="flex flex-none items-center justify-between pt-3 pr-2 pb-1 pl-4">
-          <h2 className="m-0 title-lg">What this rating means</h2>
-          <button
-            ref={close}
-            type="button"
-            className={ICON_BUTTON}
-            aria-label="Close"
-            onClick={onClose}
-          >
-            <X aria-hidden="true" />
-          </button>
-        </header>
-        <div className="flex min-h-0 flex-col gap-5 overflow-y-auto px-4 pt-2 pb-5">{children}</div>
-      </section>
     </>
   );
 }

@@ -1,8 +1,8 @@
 import { Info } from "lucide-react";
-
-export type Tier = "low" | "medium" | "high" | "no-data";
-// thin data is its own kind, never a tier: it must not look like Low
-export type Kind = Tier | "limited";
+import { DataLine } from "./DataLine.tsx";
+import { colour, type Kind } from "./kind.ts";
+import { TierMark } from "./TierMark.tsx";
+import { verdictLine } from "./text.ts";
 
 const WORD: Record<Kind, string> = {
   low: "Low",
@@ -12,106 +12,6 @@ const WORD: Record<Kind, string> = {
   limited: "Limited data",
 };
 const GAUGE: Record<Kind, number> = { low: 0, medium: 1, high: 2, "no-data": -1, limited: -1 };
-const colour = (kind: Kind) => `var(--risk-${kind === "limited" ? "no-data" : kind})`;
-export const plural = (n: number) => `${n} ${n === 1 ? "report" : "reports"}`;
-
-// Each tier has its own shape, so the tier never rests on colour alone. Glyphs sit on the tier fill, so they stay fixed across themes.
-export function TierMark({ kind, className = "size-14" }: { kind: Kind; className?: string }) {
-  const c = colour(kind);
-  return (
-    <svg viewBox="0 0 56 56" className={`flex-none ${className}`} aria-hidden="true">
-      {kind === "high" && (
-        <>
-          <path d="M28 5 53 49H3Z" fill={c} stroke={c} strokeWidth="4" strokeLinejoin="round" />
-          <path
-            d="M28 20v14M28 41h.01"
-            stroke="#fff"
-            strokeWidth="5"
-            strokeLinecap="round"
-            fill="none"
-          />
-        </>
-      )}
-      {kind === "medium" && (
-        <>
-          <path
-            d="M28 4 52 28 28 52 4 28Z"
-            fill={c}
-            stroke={c}
-            strokeWidth="3"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M19 24h18M19 32h18"
-            stroke="#1D1B1C"
-            strokeWidth="4"
-            strokeLinecap="round"
-            fill="none"
-          />
-        </>
-      )}
-      {kind === "low" && (
-        <>
-          <circle cx="28" cy="28" r="24" fill={c} />
-          <path
-            d="m18 24 10 10 10-10"
-            stroke="#fff"
-            strokeWidth="5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="none"
-          />
-        </>
-      )}
-      {(kind === "limited" || kind === "no-data") && (
-        <>
-          <circle
-            cx="28"
-            cy="28"
-            r="23"
-            fill="var(--surface-container-lowest)"
-            stroke={c}
-            strokeWidth="3"
-            strokeDasharray="5 4"
-          />
-          <path
-            d="M22 22a6 6 0 1 1 8 5.6c-1.5.7-2 1.6-2 3.4M28 38h.01"
-            stroke={c}
-            strokeWidth="4"
-            strokeLinecap="round"
-            fill="none"
-          />
-        </>
-      )}
-    </svg>
-  );
-}
-
-export function verdictLine(kind: Kind, reports: number, topShare: number): string {
-  if (kind === "high")
-    return `Among the ${topShare}% of Berlin areas with the most reported bike thefts.`;
-  if (kind === "medium")
-    return "More reported thefts than most Berlin areas, but not among the highest.";
-  if (kind === "low") return "Among the 60% of Berlin areas with the fewest reported bike thefts.";
-  if (kind === "limited")
-    return `${reports === 0 ? "No reports" : `Only ${plural(reports)}`} in 12 months, too few to rate this area. This does not mean low risk.`;
-  return "No reports found, so we can't rate this area. This does not mean low risk.";
-}
-
-// Mirrors confidence() in src/models/area_stats.py (5 and 20 reports) until the lookup carries it (#63). Words describe the data, never "low/high", so they cannot read as risk.
-export const PLENTY_FROM = 20;
-
-function DataLine({ reports }: { reports: number }) {
-  return (
-    <p className="m-0 body-md text-on-surface-variant">
-      <b className="font-semibold text-on-surface">
-        {reports >= PLENTY_FROM ? "Plenty of data" : "Some data"}
-      </b>{" "}
-      behind this: {plural(reports)} in 12 months.
-      {reports < PLENTY_FROM && " A few more or fewer could shift the rating."}
-    </p>
-  );
-}
 
 export function Verdict({
   kind,

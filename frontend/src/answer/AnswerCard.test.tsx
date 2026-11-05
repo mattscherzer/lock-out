@@ -96,7 +96,6 @@ it("takes focus when it opens", () => {
 });
 
 const stop = () => dialog().getAttribute("data-stop");
-// the sheet drags by its whole body until full screen, where only the app bar drags
 const dragSurface = () =>
   dialog().querySelector(stop() === "full" ? ".answer-appbar" : ".answer-body")!;
 
