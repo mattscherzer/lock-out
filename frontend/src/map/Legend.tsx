@@ -1,4 +1,4 @@
-import { Layers } from "lucide-react";
+import { Palette } from "lucide-react";
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 
 const SWATCH = "box-border size-legend-swatch rounded-xs border border-(--c)";
@@ -40,7 +40,7 @@ export function Legend() {
   );
 }
 
-// Phone: the bottom legend would sit under the sheet, so it folds into a button that opens on tap and closes when focus or a press leaves it.
+// Phone: the bottom legend would sit under the sheet, so it slides out of a button on tap and back in when focus or a press leaves it.
 export function LegendMenu() {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
@@ -71,18 +71,20 @@ export function LegendMenu() {
         aria-controls="legend-list"
         onClick={() => setOpen(!open)}
       >
-        <Layers aria-hidden="true" size={20} />
+        <Palette aria-hidden="true" size={20} />
       </button>
-      {open && (
+      {/* the clip lets the bar slide out from behind the button; its padding keeps the shadow */}
+      <div className="absolute top-1/2 right-full -translate-y-1/2 overflow-hidden p-2">
         <ul
           id="legend-list"
-          className="absolute top-full right-0 m-0 mt-2 flex list-none flex-col gap-2 rounded-sm bg-surface-container-lowest p-3 body-sm whitespace-nowrap text-on-surface shadow-elevation-2"
+          aria-hidden={!open}
+          className={`m-0 flex list-none gap-2 rounded-sm bg-surface-container-lowest px-3 py-2 body-sm whitespace-nowrap text-on-surface shadow-elevation-2 transition-[transform,visibility] duration-base ease-standard ${open ? "visible translate-x-0" : "invisible translate-x-[calc(100%+var(--space-2))]"}`}
         >
           {ITEMS.map((item) => (
             <Item key={item.label} {...item} />
           ))}
         </ul>
-      )}
+      </div>
     </div>
   );
 }
