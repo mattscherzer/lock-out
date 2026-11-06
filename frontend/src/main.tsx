@@ -123,6 +123,7 @@ try {
         onAbout={openAbout}
         onClose={() => {
           cardOpen = false;
+          if (selected) emphasise(selected, "rest");
           renderCard();
           // desktop: back to the field, which shows the still-selected area. Not on a phone: focusing opens the full-screen search and hides the map.
           if (innerWidth >= 600) document.querySelector<HTMLInputElement>("#search input")?.focus();
@@ -195,8 +196,8 @@ try {
       select(id, null);
       fly(id);
     });
-    polygon.on("mouseover", () => id !== selected && emphasise(id, "hover"));
-    polygon.on("mouseout", () => id !== selected && emphasise(id, "rest"));
+    polygon.on("mouseover", () => (id !== selected || !cardOpen) && emphasise(id, "hover"));
+    polygon.on("mouseout", () => (id !== selected || !cardOpen) && emphasise(id, "rest"));
   });
   createRoot(document.getElementById("legend")!).render(<Legend />);
   document.getElementById("search")!.addEventListener("focusin", () => {
