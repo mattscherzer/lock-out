@@ -88,3 +88,20 @@ export function LegendMenu() {
     </div>
   );
 }
+
+// Large text or a narrow phone can push the bottom legend into the zoom buttons; the body flag swaps it for the palette button (see index.html).
+export function watchLegendFit() {
+  const bar = document.getElementById("legend")!;
+  const check = () => {
+    const zoom = document.querySelector(".leaflet-control-zoom");
+    const tight =
+      !!zoom &&
+      innerWidth < 600 &&
+      bar.getBoundingClientRect().right + 8 > zoom.getBoundingClientRect().left;
+    document.body.toggleAttribute("data-legend-tight", tight);
+  };
+  new ResizeObserver(check).observe(bar);
+  addEventListener("resize", check);
+  document.fonts?.ready.then(check);
+  check();
+}
