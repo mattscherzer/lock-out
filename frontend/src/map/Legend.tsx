@@ -78,7 +78,7 @@ export function LegendMenu() {
         <ul
           id="legend-list"
           aria-hidden={!open}
-          className={`m-0 flex list-none gap-2 rounded-sm bg-surface-container-lowest px-3 py-2 body-sm whitespace-nowrap text-on-surface shadow-elevation-2 transition-[transform,visibility] duration-base ease-standard ${open ? "visible translate-x-0" : "invisible translate-x-[calc(100%+var(--space-2))]"}`}
+          className={`m-0 flex list-none gap-2 rounded-sm bg-surface-container-lowest px-3 py-2 body-sm whitespace-nowrap text-on-surface shadow-elevation-2 transition-[translate,visibility] duration-base ease-standard ${open ? "visible translate-x-0" : "invisible translate-x-[calc(100%+var(--space-2))]"}`}
         >
           {ITEMS.map((item) => (
             <Item key={item.label} {...item} />
