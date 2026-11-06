@@ -117,7 +117,7 @@ it("opens at higher; the handle steps lowered, higher, full, lowered; collapse r
 it("drags like a sheet: follows the finger, settles on the nearest stop, closes below lowered", () => {
   asPhone();
   vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(800);
-  vi.stubGlobal("innerHeight", 800); // higher = 512, so stops are 520 / 288 / 64 / 800
+  vi.stubGlobal("innerHeight", 800); // higher = 512, so stops are 648 / 288 / 0 / 800
   const onClose = vi.fn();
   render(card({ onClose }));
   const drag = (from: number, to: number) => {
@@ -129,11 +129,11 @@ it("drags like a sheet: follows the finger, settles on the nearest stop, closes 
     return live;
   };
   expect(drag(500, 300)).toBe("translateY(88px)"); // from higher (288) up 200
-  expect(stop()).toBe("full"); // 88 is nearest 64
+  expect(stop()).toBe("full"); // 88 is nearest 0
   expect((dialog() as HTMLElement).style.transform).toBe("");
-  expect(drag(100, 380)).toBe("translateY(344px)"); // from full (64) down 280: nearest higher (288)
+  expect(drag(100, 450)).toBe("translateY(350px)"); // from full down 350: nearest higher (288)
   expect(stop()).toBe("higher");
-  drag(100, 330); // from higher down 230: 518, nearest lowered (520)
+  drag(100, 460); // from higher down 360: 648, lowered
   expect(stop()).toBe("lowered");
   expect(onClose).not.toHaveBeenCalled();
   drag(100, 400); // from lowered down 300: past it, closed
@@ -206,8 +206,8 @@ it("replaces the content when the area changes without closing", () => {
 });
 
 it("a viewport shorter than the sheet keeps the stops in order", () => {
-  vi.stubGlobal("innerHeight", 280);
-  expect(higherPx()).toBe(280);
+  vi.stubGlobal("innerHeight", 152);
+  expect(higherPx()).toBe(152);
 });
 
 it("scrolling the content on a phone opens the sheet to full screen first", () => {

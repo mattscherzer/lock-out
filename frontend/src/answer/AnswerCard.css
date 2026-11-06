@@ -1,6 +1,8 @@
 /* One element, two layouts. It stays mounted so it can slide; visibility: hidden keeps it out of the tab order while closed. */
 .answer-card {
   --pin-top: 0px;
+  --pin-bar-h: calc(var(--space-12) + var(--space-2));
+  --pin-strip-h: calc(var(--space-12) + var(--space-4));
 
   position: fixed;
   z-index: calc(var(--z-search) - 1);
@@ -39,8 +41,6 @@
 }
 
 .answer-pin {
-  --pin-h: calc(var(--space-12) + var(--space-2));
-
   position: sticky;
   z-index: calc(var(--z-base) + 1);
   box-sizing: border-box;
@@ -70,18 +70,19 @@
 /* zero-height in flow, so pinning never pushes the content */
 .answer-pin-bar {
   top: var(--pin-top);
-  height: var(--pin-h);
-  margin-bottom: calc(var(--pin-h) * -1);
+  height: var(--pin-bar-h);
+  margin-bottom: calc(var(--pin-bar-h) * -1);
 }
 
 .answer-pin-strip {
-  top: calc(var(--pin-top) + var(--pin-h));
-  height: var(--space-10);
-  margin-bottom: calc(var(--space-10) * -1);
+  top: calc(var(--pin-top) + var(--pin-bar-h));
+  height: var(--pin-strip-h);
+  margin-bottom: calc(var(--pin-strip-h) * -1);
+  padding-block: var(--space-2);
 }
 
-/* on desktop the search pill floats over the panel top: the bar pins below it and covers what scrolls behind the pill */
-.answer-pin-bar::before {
+/* on desktop the search pill floats over the panel top: the strip pins below it and covers what scrolls behind the pill */
+.answer-pin-strip::before {
   content: "";
   position: absolute;
   right: 0;
@@ -89,6 +90,10 @@
   left: 0;
   height: var(--pin-top);
   background: inherit;
+}
+
+.answer-peek {
+  display: none;
 }
 
 .answer-card h2:focus-visible {
@@ -158,7 +163,19 @@
   }
 
   .answer-card[data-open][data-stop="full"] {
-    transform: translateY(var(--answer-full-gap));
+    transform: none;
+    border-radius: 0;
+    z-index: calc(var(--z-search) + 1);
+  } /* covers the search pill */
+
+  /* minimized: the name and the risk assessment, nothing else */
+  .answer-card[data-stop="lowered"] .answer-verdict,
+  .answer-card[data-stop="lowered"] .answer-collapse {
+    display: none;
+  }
+
+  .answer-card[data-stop="lowered"] .answer-peek {
+    display: block;
   }
 
   .answer-card:not([data-stop="full"]) {
@@ -180,11 +197,6 @@
     padding-bottom: calc(var(--space-4) + 100dvh - var(--answer-higher));
   }
 
-  /* the sheet is translated down by the map strip: pad by it so the last block can scroll into view */
-  .answer-card[data-open][data-stop="full"] .answer-body {
-    padding-bottom: calc(var(--space-4) + var(--answer-full-gap));
-  }
-
   .answer-card[data-stop="full"] .answer-pin {
     touch-action: none;
   }
@@ -202,6 +214,7 @@
 
   .answer-card {
     --pin-top: calc(var(--space-16) + var(--space-2));
+    --pin-bar-h: 0px;
 
     top: 0;
     bottom: 0;
@@ -229,7 +242,8 @@
   }
 
   .answer-handle,
-  .answer-collapse {
+  .answer-collapse,
+  .answer-pin-bar {
     display: none;
   }
 

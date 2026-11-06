@@ -77,9 +77,14 @@ export function Verdict({
 
 export function VerdictStrip({ kind }: { kind: Kind }) {
   return (
-    <>
-      <TierMark kind={kind} className="size-5" />
-      <span className="title-sm">{WORD[kind]}</span>
-    </>
+    <div
+      className="flex items-center gap-2 rounded-lg px-3 py-1.5"
+      style={{
+        background: `color-mix(in srgb, ${colour(kind)} 14%, var(--surface-container-lowest))`,
+      }}
+    >
+      <TierMark kind={kind} className="size-6" />
+      <span className="title-md">{WORD[kind]}</span>
+    </div>
   );
 }
