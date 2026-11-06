@@ -143,6 +143,14 @@ try {
       animate: ms > 0,
     });
   };
+  // the same lift as a map hover, except on the area whose card is open
+  let lit: string | null = null;
+  const highlight = (id: string | null) => {
+    const settled = (a: string) => a === selected && cardOpen;
+    if (lit && !settled(lit)) emphasise(lit, "rest");
+    lit = id;
+    if (id && !settled(id)) emphasise(id, "hover");
+  };
   const renderSearch = () =>
     searchRoot.render(
       <AreaSearch
@@ -154,6 +162,7 @@ try {
           fly(id);
         }}
         onClear={() => select(null, null)}
+        onHighlight={highlight}
         closeSignal={closeSignal}
         loadStreets={loadStreets}
       />,
