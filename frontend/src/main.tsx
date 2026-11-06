@@ -7,9 +7,12 @@ import { createRoot } from "react-dom/client";
 import { higherPx } from "./answer/AnswerCard.tsx";
 import { AreaAnswer } from "./answer/AreaAnswer.tsx";
 import { kindOf } from "./answer/kind.ts";
-import { Legend, LegendMenu, watchLegendFit } from "./map/Legend.tsx";
+import { Legend } from "./map/Legend.tsx";
+import { LegendMenu } from "./map/LegendMenu.tsx";
 import { addHatch, areaStyle, type Emphasis } from "./map/mapStyle.ts";
+import { phone } from "./viewport.ts";
 import { tintBasemap } from "./map/tint.ts";
+import { watchLegendFit } from "./map/watchLegendFit.ts";
 import { mountAbout } from "./mountAbout.tsx";
 import { AreaSearch, type Context } from "./search/AreaSearch.tsx";
 import { addStreets, buildIndex } from "./search/places.ts";
@@ -96,7 +99,7 @@ try {
       .finally(showStatus);
   // keep the area clear of the side panel (desktop) or the sheet and the search above it (phone, sheet at its opening height)
   const flyPadding = () =>
-    innerWidth >= 600
+    !phone()
       ? {
           paddingTopLeft: L.point(
             document.querySelector<HTMLElement>(".answer-card")!.offsetWidth,
@@ -126,7 +129,7 @@ try {
           if (selected) emphasise(selected, "rest");
           renderCard();
           // desktop: back to the field, which shows the still-selected area. Not on a phone: focusing opens the full-screen search and hides the map.
-          if (innerWidth >= 600) document.querySelector<HTMLInputElement>("#search input")?.focus();
+          if (!phone()) document.querySelector<HTMLInputElement>("#search input")?.focus();
         }}
       />,
     );
@@ -206,7 +209,10 @@ try {
       fly(id);
     });
     polygon.on("mouseover", () => (id !== selected || !cardOpen) && emphasise(id, "hover"));
-    polygon.on("mouseout", () => (id !== selected || !cardOpen) && emphasise(id, "rest"));
+    polygon.on(
+      "mouseout",
+      () => (id !== selected || !cardOpen) && id !== lit && emphasise(id, "rest"),
+    );
   });
   createRoot(document.getElementById("legend")!).render(<Legend />);
   createRoot(document.getElementById("legend-menu")!).render(<LegendMenu />);

@@ -9,7 +9,9 @@ import {
   useState,
 } from "react";
 import { ExplainSheet } from "./ExplainSheet.tsx";
+import { phone } from "../viewport.ts";
 import { ICON_BUTTON } from "./iconButton.ts";
+import { PIN_NAME, PIN_VERDICT, usePinned } from "./usePinned.ts";
 import "./AnswerCard.css";
 
 export type CardState = "ready" | "empty" | "no-data" | "error";
@@ -38,12 +40,10 @@ export const higherPx = () =>
     Math.max(LOWERED_PX + 40, Math.min(520, Math.round(window.innerHeight * 0.64))),
   );
 const FULL_GAP_PX = 16; // the map margin above a full sheet, the same as the search pill keeps
-const SCROLLED = 0.75; // how much of the verdict card must scroll away before its compact copy pins
 const CLOSED = STOPS.length; // index after the last stop in the drag stops
 const SLOP_PX = 6; // movement below this is a tap, not a drag
 const PULL_PX = 2; // a pull down from the top of the content claims the gesture this early, before the browser decides to scroll
 const FLICK_MS = 150; // how far ahead the release velocity projects the sheet
-const phone = () => !window.matchMedia?.("(min-width: 600px)").matches;
 
 const NOTE: Record<Exclude<CardState, "ready" | "no-data">, [title: string, text: string]> = {
   empty: ["Nothing to show yet", "There is nothing to show for this area yet."],
@@ -68,7 +68,7 @@ export function AnswerCard({
   const title = useRef<HTMLHeadingElement>(null);
   const strip = useRef<HTMLDivElement>(null);
   const verdictBox = useRef<HTMLDivElement>(null);
-  const [pinned, setPinned] = useState(0); // 1: the name has scrolled away (phone), 2: the verdict card has too
+  const { pinned, sync: syncPinned } = usePinned({ card, strip, verdict: verdictBox, title });
   const [stop, setStop] = useState<Stop>("higher");
   const [collapsed, setCollapsed] = useState(false);
   const [explainOpen, setExplainOpen] = useState(false);
@@ -92,28 +92,9 @@ export function AnswerCard({
     return () => window.removeEventListener("resize", bump);
   }, []);
 
-  const go = (next: Stop) => {
-    setStop(next);
-  };
-
-  const onScroll = () => {
-    if (!card.current?.scrollTop) return setPinned(0);
-    const under = strip.current?.getBoundingClientRect().top; // where the pinned strip sits
-    if (under === undefined) return;
-    const rect = (el: HTMLElement | null) => el?.getBoundingClientRect();
-    const card75 = rect(verdictBox.current);
-    // the strip takes over once 75% of the verdict card has scrolled under it, so the two never show the same thing; the name once it has scrolled away
-    setPinned(
-      card75 && card75.top + card75.height * SCROLLED <= under
-        ? 2
-        : (rect(title.current)?.bottom ?? Infinity) <= under
-          ? 1
-          : 0,
-    );
-  };
   useEffect(() => {
     if (stop !== "full") card.current?.scrollTo?.(0, 0);
-    onScroll(); // no scroll event fires when the position did not change, but the layout did
+    syncPinned(); // no scroll event fires when the position did not change, but the layout did
   }, [stop, areaId, open]);
   useEffect(() => {
     card.current?.scrollTo?.(0, 0); // another area starts at its top
@@ -177,7 +158,7 @@ export function AnswerCard({
       0,
     );
     if (i === CLOSED) onClose();
-    else go(STOPS[i]);
+    else setStop(STOPS[i]);
   };
   const cancel = () => {
     drag.current = null;
@@ -247,7 +228,7 @@ export function AnswerCard({
     e.stopPropagation();
     onClose();
   };
-  const step = () => go(STOPS[(STOPS.indexOf(stop) + 1) % STOPS.length]);
+  const step = () => setStop(STOPS[(STOPS.indexOf(stop) + 1) % STOPS.length]);
 
   return (
     <>
@@ -267,19 +248,19 @@ export function AnswerCard({
             "--answer-full-gap": `${FULL_GAP_PX}px`,
           } as CSSProperties
         }
-        onScroll={onScroll}
+        onScroll={syncPinned}
         onKeyDown={keys}
         onPointerDown={down}
         onPointerMove={move}
         onPointerUp={up}
         onPointerCancel={cancel}
         onWheel={(e) => {
-          if (phone() && stop !== "full" && e.deltaY > 0) go("full");
+          if (phone() && stop !== "full" && e.deltaY > 0) setStop("full");
         }}
       >
         <div
           className="answer-pin answer-pin-bar gap-2 pr-2 pl-4"
-          data-on={pinned > 0 || undefined}
+          data-on={pinned >= PIN_NAME || undefined}
         >
           <span className="min-w-0 flex-1 truncate title-md" aria-hidden="true">
             {shown?.name}
@@ -296,7 +277,7 @@ export function AnswerCard({
         <div
           ref={strip}
           className="answer-pin answer-pin-strip px-4"
-          data-on={pinned > 1 || undefined}
+          data-on={pinned >= PIN_VERDICT || undefined}
           aria-hidden="true"
         >
           {tier}
