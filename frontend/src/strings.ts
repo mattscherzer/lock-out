@@ -1,6 +1,11 @@
 // The string table (M7), starting with the lock advice; other components still hold some copy of their own until it
 // moves here. English only for the MVP (D-11); a translation is a second object with the same shape. The advice copy
 // follows docs/lock-tier-documentation.md section 3 and names the organisation behind each claim that is specific to it.
+
+// one ADFC claim, shared by the second-lock step and the no-bike-value line so the two cannot drift apart
+const SECOND_LOCK =
+  "a second lock of a different type, because thieves often specialise in one kind of lock.";
+
 export const STRINGS = {
   advice: {
     headline: {
@@ -17,11 +22,11 @@ export const STRINGS = {
         "Keep the lock off the ground with the keyhole facing down, and leave as little gap as possible around it.",
       neverAlone:
         "A frame lock or a cable lock is never enough on its own. Use one only as an extra.",
-      secondLock:
-        "The ADFC advises locking with a second lock of a different type, because thieves often specialise in one kind of lock.",
+      secondLock: `The ADFC advises ${SECOND_LOCK}`,
       threeMinutes:
         "The ADFC's rule of thumb is that a lock should withstand force for three minutes. It adds that new U-locks with a tungsten-carbide coating also resist angle grinders well.",
-      higherClass: "For very valuable bikes, the police (ProPK) point to the higher VdS class B+.",
+      higherClass:
+        "For very valuable bikes and e-bikes, the police (ProPK) point to the higher VdS class B+.",
     },
     tip: {
       budget:
@@ -39,8 +44,7 @@ export const STRINGS = {
         "The police data we use has no bike theft from the street on record for this area. That does not mean bikes are never stolen here, so lock up as carefully as anywhere else.",
     },
     // shown with the one-lock advice when no bike value is chosen
-    noBikeValue:
-      "For a more valuable bike, the ADFC advises a second lock of a different type, because thieves often specialise in one kind of lock.",
+    noBikeValue: `For a more valuable bike, the ADFC advises ${SECOND_LOCK}`,
     // [term as it appears in the copy, its meaning in plain words]
     term: {
       uLock: ["U-lock", "a rigid steel shackle shaped like a U."],

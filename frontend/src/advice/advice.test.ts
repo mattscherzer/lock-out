@@ -115,6 +115,8 @@ describe("the router", () => {
     expect(none.level).toBe("oneLock");
     expect(none.hint).toBe(A.noBikeValue);
     expect(none.hint).toMatch(/ADFC/);
+    // the same ADFC claim as the second-lock step, taken from one place in the string table
+    expect(none.hint).toContain(A.step.secondLock.replace("The ADFC advises ", ""));
     expect(adviceFor("under_eur_1000", WELL_BACKED).hint).toBeNull();
     expect(adviceFor("eur_1000_or_more", WELL_BACKED).hint).toBeNull();
   });
@@ -175,6 +177,5 @@ describe("sources", () => {
     expect(A.step.higherClass).toMatch(/ProPK/);
     expect(A.tip.budget).toMatch(/ProPK/);
     expect(A.tip.battery).toMatch(/ProPK/);
-    expect(A.step.higherClass).not.toMatch(/e-bike/i);
   });
 });

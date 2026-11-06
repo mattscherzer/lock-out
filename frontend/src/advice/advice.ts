@@ -5,7 +5,6 @@ import { STRINGS } from "../strings.ts";
 
 const A = STRINGS.advice;
 
-export type BikeValue = "under_eur_1000" | "eur_1000_or_more"; // the bike_value levels in the lookup (D-07)
 export type DataFlags = { limited_data: boolean; no_record: boolean }; // required on every area in the lookup (M6)
 export type Level = "oneLock" | "twoLocks";
 
