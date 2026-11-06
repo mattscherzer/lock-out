@@ -4,7 +4,7 @@ import { colour, type Kind } from "./kind.ts";
 import { TierMark } from "./TierMark.tsx";
 import { verdictLine } from "./text.ts";
 
-const WORD: Record<Kind, string> = {
+export const WORD: Record<Kind, string> = {
   low: "Low",
   medium: "Medium",
   high: "High",
@@ -72,5 +72,14 @@ export function Verdict({
         What does this mean?
       </button>
     </div>
+  );
+}
+
+export function VerdictStrip({ kind }: { kind: Kind }) {
+  return (
+    <>
+      <TierMark kind={kind} className="size-5" />
+      <span className="title-sm">{WORD[kind]}</span>
+    </>
   );
 }

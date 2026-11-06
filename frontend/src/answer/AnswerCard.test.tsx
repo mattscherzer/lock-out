@@ -97,7 +97,7 @@ it("takes focus when it opens", () => {
 
 const stop = () => dialog().getAttribute("data-stop");
 const dragSurface = () =>
-  dialog().querySelector(stop() === "full" ? ".answer-appbar" : ".answer-body")!;
+  dialog().querySelector(stop() === "full" ? ".answer-pin-bar" : ".answer-body")!;
 
 it("opens at higher; the handle steps lowered, higher, full, lowered; collapse returns to where it came from", () => {
   render(card());
@@ -106,7 +106,7 @@ it("opens at higher; the handle steps lowered, higher, full, lowered; collapse r
   fireEvent.click(handle);
   expect(stop()).toBe("full");
   fireEvent.click(
-    screen.getByLabelText("Collapse area details", { selector: ".answer-appbar button" }),
+    screen.getByLabelText("Collapse area details", { selector: ".answer-pin-bar button" }),
   );
   expect(stop()).toBe("higher");
   fireEvent.click(handle);
@@ -117,7 +117,7 @@ it("opens at higher; the handle steps lowered, higher, full, lowered; collapse r
 it("drags like a sheet: follows the finger, settles on the nearest stop, closes below lowered", () => {
   asPhone();
   vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockReturnValue(800);
-  vi.stubGlobal("innerHeight", 800); // higher = 512, so stops are 520 / 288 / 0 / 800
+  vi.stubGlobal("innerHeight", 800); // higher = 512, so stops are 520 / 288 / 64 / 800
   const onClose = vi.fn();
   render(card({ onClose }));
   const drag = (from: number, to: number) => {
@@ -129,9 +129,9 @@ it("drags like a sheet: follows the finger, settles on the nearest stop, closes 
     return live;
   };
   expect(drag(500, 300)).toBe("translateY(88px)"); // from higher (288) up 200
-  expect(stop()).toBe("full"); // 88 is nearest 0
+  expect(stop()).toBe("full"); // 88 is nearest 64
   expect((dialog() as HTMLElement).style.transform).toBe("");
-  expect(drag(100, 450)).toBe("translateY(350px)"); // from full down 350: nearest higher (288)
+  expect(drag(100, 380)).toBe("translateY(344px)"); // from full (64) down 280: nearest higher (288)
   expect(stop()).toBe("higher");
   drag(100, 330); // from higher down 230: 518, nearest lowered (520)
   expect(stop()).toBe("lowered");
