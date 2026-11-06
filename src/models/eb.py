@@ -207,11 +207,16 @@ def generate(df, areas, reports_up_to, cutoff, source, selectors):
 
 
 def write_lookup(lookup, path=LOOKUP):
-    """Write the lookup file only if it matches the schema. allow_nan=False also refuses NaN and infinity: the schema
-    lets them through as numbers, but one of them would break JSON.parse for the whole page."""
+    """Write the lookup file only if it matches the schema and holds no NaN or infinity; otherwise raise ValueError and
+    write nothing. The schema lets NaN and infinity through as numbers, but one of them would break JSON.parse for the
+    whole page, so allow_nan=False refuses them."""
     if found := problems(lookup):
-        sys.exit("The output does not match schemas/lookup_v1.schema.json:\n" + "\n".join(found[:20]))
-    path.write_text(json.dumps(lookup, ensure_ascii=False, separators=(",", ":"), allow_nan=False), encoding="utf-8")
+        raise ValueError("The output does not match schemas/lookup_v1.schema.json:\n" + "\n".join(found[:20]))
+    try:
+        text = json.dumps(lookup, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+    except ValueError as e:
+        raise ValueError(f"The output holds NaN or infinity, which JSON cannot hold ({e})") from e
+    path.write_text(text, encoding="utf-8")
 
 
 def markdown(rows, checks, lookup, reports_up_to, cutoff, source):

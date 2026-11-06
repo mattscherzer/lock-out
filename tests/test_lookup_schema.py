@@ -54,12 +54,12 @@ def test_the_generator_refuses_to_write_invalid_output_or_nan(output, tmp_path):
     path = tmp_path / "lookup.json"
     broken = copy.deepcopy(output)
     del broken["metadata"]["attribution"]
-    with pytest.raises(SystemExit, match="does not match schemas/lookup_v1.schema.json"):
+    with pytest.raises(ValueError, match="does not match schemas/lookup_v1.schema.json"):
         write_lookup(broken, path)
     nan = copy.deepcopy(output)
     nan["areas"][next(iter(nan["areas"]))]["expected_per_year"] = float("nan")
     assert problems(nan) == []  # the schema lets NaN through as a number
-    with pytest.raises(ValueError, match="Out of range float values are not JSON compliant"):
+    with pytest.raises(ValueError, match="holds NaN or infinity"):
         write_lookup(nan, path)
     assert not path.exists()
     write_lookup(output, path)
