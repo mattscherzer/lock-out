@@ -71,7 +71,7 @@ try {
       const label = Object.assign(document.createElement("span"), {
         textContent: `${area.name} (${area.bzr_name})`,
       });
-      polygon.bindTooltip(label);
+      polygon.bindTooltip(label, { className: "body-md" });
       polygons[feature.properties.id as string] = polygon as L.Polygon;
     },
   }).addTo(map);
@@ -173,7 +173,7 @@ try {
           fillOpacity: 1,
           interactive: false,
         })
-          .bindTooltip(context.label, { permanent: true, direction: "top" })
+          .bindTooltip(context.label, { permanent: true, direction: "top", className: "body-md" })
           .addTo(map)
       : undefined;
     selected = id;
@@ -193,7 +193,7 @@ try {
   Object.entries(polygons).forEach(([id, polygon]) => {
     polygon.on("click", () => {
       select(id, null);
-      fly(id, { maxZoom: map.getZoom() }); // pan clear of the card, never zoom in on a tap
+      fly(id);
     });
     polygon.on("mouseover", () => id !== selected && emphasise(id, "hover"));
     polygon.on("mouseout", () => id !== selected && emphasise(id, "rest"));

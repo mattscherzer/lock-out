@@ -128,3 +128,30 @@
   bottom: var(--map-controls-bottom);
   margin: 0;
 }
+
+/* Tooltips (area hover, search pin): radius-xs and elevation-3 per the design system. Unlayered, like the rest of the Leaflet overrides. */
+.leaflet-tooltip {
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: var(--surface-container-lowest);
+  box-shadow: var(--elevation-3);
+  color: var(--on-surface);
+}
+
+/* the arrow is a border triangle, so it takes the surface colour on the side that points at the target */
+.leaflet-tooltip-top::before {
+  border-top-color: var(--surface-container-lowest);
+}
+
+.leaflet-tooltip-bottom::before {
+  border-bottom-color: var(--surface-container-lowest);
+}
+
+.leaflet-tooltip-left::before {
+  border-left-color: var(--surface-container-lowest);
+}
+
+.leaflet-tooltip-right::before {
+  border-right-color: var(--surface-container-lowest);
+}
