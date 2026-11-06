@@ -17,6 +17,10 @@
    "police": "Datenquelle: Polizei Berlin (CC-BY 4.0)",
    "osm": "© OpenStreetMap contributors (ODbL)",
    "lor": "Datenquelle: Amt für Statistik Berlin-Brandenburg / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen – ODIS Berlin (dl-de/by-2-0)"
+  },
+  "citywide_facts": {
+   "lock_defeated_share": 0.9434,
+   "median_stolen_value_eur": 900
   }
  },
  "risk_bands": {
@@ -75,7 +79,12 @@
    "expected_per_year": 23.97,
    "reports_12m": 20,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1130,
+    "median_source": "area"
+   }
   },
   "01100102": {
    "name": "Großer Tiergarten",
@@ -86,7 +95,12 @@
    "expected_per_year": 102.86,
    "reports_12m": 107,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1469,
+    "median_source": "area"
+   }
   },
   "01100103": {
    "name": "Lützowstraße",
@@ -97,7 +111,12 @@
    "expected_per_year": 75.66,
    "reports_12m": 77,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 733,
+    "median_source": "area"
+   }
   },
   "01100104": {
    "name": "Körnerstraße",
@@ -108,7 +127,12 @@
    "expected_per_year": 49.36,
    "reports_12m": 48,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1233,
+    "median_source": "area"
+   }
   },
   "01100205": {
    "name": "Wilhelmstraße",
@@ -119,7 +143,12 @@
    "expected_per_year": 35.54,
    "reports_12m": 32,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1912,
+    "median_source": "area"
+   }
   },
   "01100206": {
    "name": "Unter den Linden",
@@ -130,7 +159,12 @@
    "expected_per_year": 115.98,
    "reports_12m": 119,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1378,
+    "median_source": "area"
+   }
   },
   "01100207": {
    "name": "Leipziger Straße",
@@ -141,7 +175,12 @@
    "expected_per_year": 87.31,
    "reports_12m": 88,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1303,
+    "median_source": "area"
+   }
   },
   "01100308": {
    "name": "Charitéviertel",
@@ -152,7 +191,12 @@
    "expected_per_year": 106.05,
    "reports_12m": 107,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1250,
+    "median_source": "area"
+   }
   },
   "01100309": {
    "name": "Oranienburger Straße",
@@ -163,7 +207,12 @@
    "expected_per_year": 136.9,
    "reports_12m": 140,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "area"
+   }
   },
   "01100310": {
    "name": "Alexanderplatzviertel",
@@ -174,7 +223,12 @@
    "expected_per_year": 110.72,
    "reports_12m": 112,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1225,
+    "median_source": "area"
+   }
   },
   "01100311": {
    "name": "Karl-Marx-Allee",
@@ -185,7 +239,12 @@
    "expected_per_year": 64.91,
    "reports_12m": 63,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1125,
+    "median_source": "area"
+   }
   },
   "01100312": {
    "name": "Heine-Viertel West",
@@ -196,7 +255,12 @@
    "expected_per_year": 73.33,
    "reports_12m": 72,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 731,
+    "median_source": "area"
+   }
   },
   "01100313": {
    "name": "Heine-Viertel Ost",
@@ -207,7 +271,12 @@
    "expected_per_year": 64.91,
    "reports_12m": 63,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "area"
+   }
   },
   "01100414": {
    "name": "Nordbahnhof",
@@ -218,7 +287,12 @@
    "expected_per_year": 70.8,
    "reports_12m": 70,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1200,
+    "median_source": "area"
+   }
   },
   "01100415": {
    "name": "Invalidenstraße",
@@ -229,7 +303,12 @@
    "expected_per_year": 103.22,
    "reports_12m": 105,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 820,
+    "median_source": "area"
+   }
   },
   "01100416": {
    "name": "Arkonaplatz",
@@ -240,7 +319,12 @@
    "expected_per_year": 70.8,
    "reports_12m": 70,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 800,
+    "median_source": "area"
+   }
   },
   "01200517": {
    "name": "Huttenkiez",
@@ -251,7 +335,12 @@
    "expected_per_year": 26.53,
    "reports_12m": 24,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 599,
+    "median_source": "area"
+   }
   },
   "01200518": {
    "name": "Beusselkiez",
@@ -262,7 +351,12 @@
    "expected_per_year": 20.43,
    "reports_12m": 17,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "01200519": {
    "name": "Emdener Straße",
@@ -273,7 +367,12 @@
    "expected_per_year": 37.86,
    "reports_12m": 37,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "area"
+   }
   },
   "01200520": {
    "name": "Bremer Straße",
@@ -284,7 +383,12 @@
    "expected_per_year": 72.73,
    "reports_12m": 77,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "01200521": {
    "name": "Zwinglistraße",
@@ -295,7 +399,12 @@
    "expected_per_year": 30.89,
    "reports_12m": 29,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1020,
+    "median_source": "area"
+   }
   },
   "01200522": {
    "name": "Elberfelder Straße",
@@ -306,7 +415,12 @@
    "expected_per_year": 74.47,
    "reports_12m": 79,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "01200623": {
    "name": "Stephankiez",
@@ -317,7 +431,12 @@
    "expected_per_year": 68.67,
    "reports_12m": 71,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1183,
+    "median_source": "area"
+   }
   },
   "01200624": {
    "name": "Heidestraße",
@@ -328,7 +447,12 @@
    "expected_per_year": 94.39,
    "reports_12m": 100,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1024,
+    "median_source": "area"
+   }
   },
   "01200625": {
    "name": "Lübecker Straße",
@@ -339,7 +463,12 @@
    "expected_per_year": 34.97,
    "reports_12m": 33,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 999,
+    "median_source": "area"
+   }
   },
   "01200626": {
    "name": "Thomasiusstraße",
@@ -350,7 +479,12 @@
    "expected_per_year": 55.37,
    "reports_12m": 56,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1499,
+    "median_source": "area"
+   }
   },
   "01200627": {
    "name": "Zillesiedlung",
@@ -361,7 +495,12 @@
    "expected_per_year": 14.58,
    "reports_12m": 10,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "01200628": {
    "name": "Lüneburger Straße",
@@ -372,7 +511,12 @@
    "expected_per_year": 35.86,
    "reports_12m": 34,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 725,
+    "median_source": "area"
+   }
   },
   "01200629": {
    "name": "Hansaviertel",
@@ -383,7 +527,12 @@
    "expected_per_year": 50.05,
    "reports_12m": 50,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 769,
+    "median_source": "area"
+   }
   },
   "01300730": {
    "name": "Drontheimer Straße",
@@ -394,7 +543,12 @@
    "expected_per_year": 45.66,
    "reports_12m": 46,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 750,
+    "median_source": "area"
+   }
   },
   "01300731": {
    "name": "Koloniestraße",
@@ -405,7 +559,12 @@
    "expected_per_year": 27.37,
    "reports_12m": 25,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 800,
+    "median_source": "area"
+   }
   },
   "01300732": {
    "name": "Soldiner Straße",
@@ -416,7 +575,12 @@
    "expected_per_year": 19.54,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "01300733": {
    "name": "Gesundbrunnen",
@@ -427,7 +591,12 @@
    "expected_per_year": 81.35,
    "reports_12m": 87,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 916,
+    "median_source": "area"
+   }
   },
   "01300834": {
    "name": "Brunnenstraße",
@@ -438,7 +607,12 @@
    "expected_per_year": 79.1,
    "reports_12m": 80,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "01300835": {
    "name": "Humboldthain Süd",
@@ -449,7 +623,12 @@
    "expected_per_year": 32.43,
    "reports_12m": 29,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 750,
+    "median_source": "area"
+   }
   },
   "01300836": {
    "name": "Humboldthain Nordwest",
@@ -460,7 +639,12 @@
    "expected_per_year": 98.32,
    "reports_12m": 101,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "01400937": {
    "name": "Afrikanische Straße",
@@ -471,7 +655,12 @@
    "expected_per_year": 35.1,
    "reports_12m": 33,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 999,
+    "median_source": "area"
+   }
   },
   "01400938": {
    "name": "Kameruner Straße",
@@ -482,7 +671,12 @@
    "expected_per_year": 115.22,
    "reports_12m": 123,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1500,
+    "median_source": "area"
+   }
   },
   "01400939": {
    "name": "Glasgower Straße",
@@ -493,7 +687,12 @@
    "expected_per_year": 43.12,
    "reports_12m": 42,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 885,
+    "median_source": "area"
+   }
   },
   "01400940": {
    "name": "Schillerpark",
@@ -504,7 +703,12 @@
    "expected_per_year": 40.45,
    "reports_12m": 39,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1100,
+    "median_source": "area"
+   }
   },
   "01400941": {
    "name": "Londoner Straße",
@@ -515,7 +719,12 @@
    "expected_per_year": 16.41,
    "reports_12m": 12,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "01400942": {
    "name": "Westliche Müllerstraße",
@@ -526,7 +735,12 @@
    "expected_per_year": 63.59,
    "reports_12m": 65,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 654,
+    "median_source": "area"
+   }
   },
   "01401043": {
    "name": "Antonstraße",
@@ -537,7 +751,12 @@
    "expected_per_year": 40.51,
    "reports_12m": 41,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 880,
+    "median_source": "area"
+   }
   },
   "01401044": {
    "name": "Uferstraße",
@@ -548,7 +767,12 @@
    "expected_per_year": 36.24,
    "reports_12m": 36,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 742,
+    "median_source": "area"
+   }
   },
   "01401045": {
    "name": "Schwedenstraße",
@@ -559,7 +783,12 @@
    "expected_per_year": 24.29,
    "reports_12m": 22,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 785,
+    "median_source": "area"
+   }
   },
   "01401046": {
    "name": "Nordufer",
@@ -570,7 +799,12 @@
    "expected_per_year": 34.53,
    "reports_12m": 34,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "01401047": {
    "name": "Sparrplatz",
@@ -581,7 +815,12 @@
    "expected_per_year": 49.91,
    "reports_12m": 52,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 774,
+    "median_source": "area"
+   }
   },
   "01401048": {
    "name": "Leopoldplatz",
@@ -592,7 +831,12 @@
    "expected_per_year": 49.05,
    "reports_12m": 51,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 800,
+    "median_source": "area"
+   }
   },
   "01401049": {
    "name": "Schulstraße",
@@ -603,7 +847,12 @@
    "expected_per_year": 29.41,
    "reports_12m": 28,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 426,
+    "median_source": "area"
+   }
   },
   "02100101": {
    "name": "Askanischer Platz",
@@ -614,7 +863,12 @@
    "expected_per_year": 99.34,
    "reports_12m": 104,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 800,
+    "median_source": "area"
+   }
   },
   "02100102": {
    "name": "Mehringplatz",
@@ -625,7 +879,12 @@
    "expected_per_year": 48.97,
    "reports_12m": 48,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 899,
+    "median_source": "area"
+   }
   },
   "02100103": {
    "name": "Am Berlin Museum",
@@ -636,7 +895,12 @@
    "expected_per_year": 42.67,
    "reports_12m": 41,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1140,
+    "median_source": "area"
+   }
   },
   "02100104": {
    "name": "Moritzplatz",
@@ -647,7 +911,12 @@
    "expected_per_year": 57.96,
    "reports_12m": 58,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1199,
+    "median_source": "area"
+   }
   },
   "02100105": {
    "name": "Prinzenstraße",
@@ -658,7 +927,12 @@
    "expected_per_year": 41.77,
    "reports_12m": 40,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 627,
+    "median_source": "area"
+   }
   },
   "02100106": {
    "name": "Wassertorplatz",
@@ -669,7 +943,12 @@
    "expected_per_year": 56.16,
    "reports_12m": 56,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 999,
+    "median_source": "area"
+   }
   },
   "02200207": {
    "name": "Gleisdreieck",
@@ -680,7 +959,12 @@
    "expected_per_year": 100.84,
    "reports_12m": 101,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1100,
+    "median_source": "area"
+   }
   },
   "02200208": {
    "name": "Rathaus Yorckstraße",
@@ -691,7 +975,12 @@
    "expected_per_year": 51.09,
    "reports_12m": 48,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 719,
+    "median_source": "area"
+   }
   },
   "02200209": {
    "name": "Viktoriapark",
@@ -702,7 +991,12 @@
    "expected_per_year": 66.11,
    "reports_12m": 64,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "02200210": {
    "name": "Urbanstraße",
@@ -713,7 +1007,12 @@
    "expected_per_year": 157.16,
    "reports_12m": 161,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 750,
+    "median_source": "area"
+   }
   },
   "02200211": {
    "name": "Chamissokiez",
@@ -724,7 +1023,12 @@
    "expected_per_year": 107.41,
    "reports_12m": 108,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 830,
+    "median_source": "area"
+   }
   },
   "02200212": {
    "name": "Graefekiez Süd",
@@ -735,7 +1039,12 @@
    "expected_per_year": 81.13,
    "reports_12m": 80,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 940,
+    "median_source": "area"
+   }
   },
   "02200213": {
    "name": "Graefekiez Nord",
@@ -746,7 +1055,12 @@
    "expected_per_year": 128.06,
    "reports_12m": 130,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "area"
+   }
   },
   "02300314": {
    "name": "Oranienplatz",
@@ -757,7 +1071,12 @@
    "expected_per_year": 98.68,
    "reports_12m": 100,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "02300315": {
    "name": "Lausitzer Platz",
@@ -768,7 +1087,12 @@
    "expected_per_year": 84.77,
    "reports_12m": 85,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 698,
+    "median_source": "area"
+   }
   },
   "02300316": {
    "name": "Köpenicker Straße",
@@ -779,7 +1103,12 @@
    "expected_per_year": 64.37,
    "reports_12m": 63,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "02300417": {
    "name": "Reichenberger Straße West",
@@ -790,7 +1119,12 @@
    "expected_per_year": 108.12,
    "reports_12m": 107,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 627,
+    "median_source": "area"
+   }
   },
   "02300418": {
    "name": "Reichenberger Straße Ost",
@@ -801,7 +1135,12 @@
    "expected_per_year": 113.83,
    "reports_12m": 113,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 605,
+    "median_source": "area"
+   }
   },
   "02300419": {
    "name": "Wrangelkiez",
@@ -812,7 +1151,12 @@
    "expected_per_year": 174.83,
    "reports_12m": 177,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 800,
+    "median_source": "area"
+   }
   },
   "02400520": {
    "name": "Barnimkiez",
@@ -823,7 +1167,12 @@
    "expected_per_year": 50.18,
    "reports_12m": 50,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 925,
+    "median_source": "area"
+   }
   },
   "02400521": {
    "name": "Friedenstraße",
@@ -834,7 +1183,12 @@
    "expected_per_year": 48.4,
    "reports_12m": 48,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "02400522": {
    "name": "Richard-Sorge-Viertel",
@@ -845,7 +1199,12 @@
    "expected_per_year": 57.3,
    "reports_12m": 58,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 800,
+    "median_source": "area"
+   }
   },
   "02400623": {
    "name": "Andreasviertel",
@@ -856,7 +1215,12 @@
    "expected_per_year": 95.94,
    "reports_12m": 96,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1199,
+    "median_source": "area"
+   }
   },
   "02400624": {
    "name": "Weberwiese",
@@ -867,7 +1231,12 @@
    "expected_per_year": 70.65,
    "reports_12m": 69,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "area"
+   }
   },
   "02400625": {
    "name": "Wriezener Bahnhof",
@@ -878,7 +1247,12 @@
    "expected_per_year": 121.22,
    "reports_12m": 123,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1300,
+    "median_source": "area"
+   }
   },
   "02500726": {
    "name": "Hausburgviertel",
@@ -889,7 +1263,12 @@
    "expected_per_year": 27.95,
    "reports_12m": 26,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "02500727": {
    "name": "Forckenbeckplatz",
@@ -900,7 +1279,12 @@
    "expected_per_year": 26.23,
    "reports_12m": 24,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 824,
+    "median_source": "area"
+   }
   },
   "02500728": {
    "name": "Samariterviertel",
@@ -911,7 +1295,12 @@
    "expected_per_year": 55.53,
    "reports_12m": 58,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1425,
+    "median_source": "area"
+   }
   },
   "02500729": {
    "name": "Pettenkofer Straße",
@@ -922,7 +1311,12 @@
    "expected_per_year": 51.22,
    "reports_12m": 53,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1100,
+    "median_source": "area"
+   }
   },
   "02500830": {
    "name": "Niederbarnimstraße",
@@ -933,7 +1327,12 @@
    "expected_per_year": 27.78,
    "reports_12m": 24,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 737,
+    "median_source": "area"
+   }
   },
   "02500831": {
    "name": "Wismarplatz",
@@ -944,7 +1343,12 @@
    "expected_per_year": 35.99,
    "reports_12m": 33,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "02500832": {
    "name": "Traveplatz",
@@ -955,7 +1359,12 @@
    "expected_per_year": 42.38,
    "reports_12m": 40,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1020,
+    "median_source": "area"
+   }
   },
   "02500833": {
    "name": "Boxhagener Platz",
@@ -966,7 +1375,12 @@
    "expected_per_year": 101.71,
    "reports_12m": 105,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1500,
+    "median_source": "area"
+   }
   },
   "02500834": {
    "name": "Revaler Straße",
@@ -977,7 +1391,12 @@
    "expected_per_year": 136.4,
    "reports_12m": 143,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1400,
+    "median_source": "area"
+   }
   },
   "02500835": {
    "name": "Stralauer Kiez",
@@ -988,7 +1407,12 @@
    "expected_per_year": 97.15,
    "reports_12m": 100,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 822,
+    "median_source": "area"
+   }
   },
   "02500836": {
    "name": "Stralauer Halbinsel",
@@ -999,7 +1423,12 @@
    "expected_per_year": 31.43,
    "reports_12m": 28,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1369,
+    "median_source": "area"
+   }
   },
   "03100101": {
    "name": "Bucher Forst",
@@ -1010,7 +1439,12 @@
    "expected_per_year": 9.55,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03100102": {
    "name": "Klinikum Buch",
@@ -1021,7 +1455,12 @@
    "expected_per_year": 6.24,
    "reports_12m": 3,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03100103": {
    "name": "Karower Chaussee",
@@ -1032,7 +1471,12 @@
    "expected_per_year": 21.46,
    "reports_12m": 26,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 574,
+    "median_source": "area"
+   }
   },
   "03200204": {
    "name": "Blankenfelde",
@@ -1043,7 +1487,12 @@
    "expected_per_year": 4.65,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03200205": {
    "name": "Uhlandstraße",
@@ -1054,7 +1503,12 @@
    "expected_per_year": 11.52,
    "reports_12m": 12,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03200206": {
    "name": "Pastor-Niemöller-Platz",
@@ -1065,7 +1519,12 @@
    "expected_per_year": 15.26,
    "reports_12m": 18,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03200207": {
    "name": "Herthaplatz",
@@ -1076,7 +1535,12 @@
    "expected_per_year": 10.89,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03200308": {
    "name": "Nisbléstraße",
@@ -1087,7 +1551,12 @@
    "expected_per_year": 6.01,
    "reports_12m": 3,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03200309": {
    "name": "Eddastraße",
@@ -1098,7 +1567,12 @@
    "expected_per_year": 18.74,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 640,
+    "median_source": "area"
+   }
   },
   "03200310": {
    "name": "Krugpfuhl",
@@ -1109,7 +1583,12 @@
    "expected_per_year": 8.55,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03300411": {
    "name": "Karow Nord",
@@ -1120,7 +1599,12 @@
    "expected_per_year": 9.38,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03300412": {
    "name": "Karow Bahnhof",
@@ -1131,7 +1615,12 @@
    "expected_per_year": 19.77,
    "reports_12m": 24,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 699,
+    "median_source": "area"
+   }
   },
   "03300413": {
    "name": "Karow Ost",
@@ -1142,7 +1631,12 @@
    "expected_per_year": 6.13,
    "reports_12m": 3,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03300514": {
    "name": "Blankenburg",
@@ -1153,7 +1647,12 @@
    "expected_per_year": 26.29,
    "reports_12m": 32,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "03300515": {
    "name": "Blankenburger Süden",
@@ -1164,7 +1663,12 @@
    "expected_per_year": 4.4,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": true
+   "no_record": true,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03300516": {
    "name": "Heinersdorf",
@@ -1175,7 +1679,12 @@
    "expected_per_year": 18.76,
    "reports_12m": 21,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03300517": {
    "name": "Märchenland",
@@ -1186,7 +1695,12 @@
    "expected_per_year": 5.77,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03400618": {
    "name": "Rosenthal",
@@ -1197,7 +1711,12 @@
    "expected_per_year": 7.13,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03400619": {
    "name": "Wilhelmsruh",
@@ -1208,7 +1727,12 @@
    "expected_per_year": 17.39,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03400620": {
    "name": "Schönholz",
@@ -1219,7 +1743,12 @@
    "expected_per_year": 16.7,
    "reports_12m": 18,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03400721": {
    "name": "Florakiez",
@@ -1230,7 +1759,12 @@
    "expected_per_year": 70.28,
    "reports_12m": 73,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 809,
+    "median_source": "area"
+   }
   },
   "03400722": {
    "name": "Parkstraße",
@@ -1241,7 +1775,12 @@
    "expected_per_year": 35.78,
    "reports_12m": 34,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 811,
+    "median_source": "area"
+   }
   },
   "03400723": {
    "name": "Garbátyplatz",
@@ -1252,7 +1791,12 @@
    "expected_per_year": 99.48,
    "reports_12m": 106,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 750,
+    "median_source": "area"
+   }
   },
   "03400724": {
    "name": "Wolfshagener Straße",
@@ -1263,7 +1807,12 @@
    "expected_per_year": 24.27,
    "reports_12m": 21,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 889,
+    "median_source": "area"
+   }
   },
   "03400725": {
    "name": "Schlosspark",
@@ -1274,7 +1823,12 @@
    "expected_per_year": 18.08,
    "reports_12m": 14,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03400826": {
    "name": "Tiroler Viertel",
@@ -1285,7 +1839,12 @@
    "expected_per_year": 38.95,
    "reports_12m": 45,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 624,
+    "median_source": "area"
+   }
   },
   "03400827": {
    "name": "Trelleborger Viertel",
@@ -1296,7 +1855,12 @@
    "expected_per_year": 20.02,
    "reports_12m": 20,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1056,
+    "median_source": "area"
+   }
   },
   "03400828": {
    "name": "Spiekermann Straße",
@@ -1307,7 +1871,12 @@
    "expected_per_year": 12.45,
    "reports_12m": 10,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03400829": {
    "name": "Arnold-Zweig-Straße",
@@ -1318,7 +1887,12 @@
    "expected_per_year": 13.96,
    "reports_12m": 12,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03400830": {
    "name": "Kissingenviertel",
@@ -1329,7 +1903,12 @@
    "expected_per_year": 24.56,
    "reports_12m": 26,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 600,
+    "median_source": "area"
+   }
   },
   "03400831": {
    "name": "Pankower Tor",
@@ -1340,7 +1919,12 @@
    "expected_per_year": 10.17,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03500932": {
    "name": "Bühringstraße",
@@ -1351,7 +1935,12 @@
    "expected_per_year": 17.44,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03500933": {
    "name": "Weißer See",
@@ -1362,7 +1951,12 @@
    "expected_per_year": 22.88,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "03500934": {
    "name": "Weißenseer Spitze",
@@ -1373,7 +1967,12 @@
    "expected_per_year": 21.33,
    "reports_12m": 21,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "03500935": {
    "name": "Behaimstraße",
@@ -1384,7 +1983,12 @@
    "expected_per_year": 25.99,
    "reports_12m": 27,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "03500936": {
    "name": "Komponistenviertel Weißensee",
@@ -1395,7 +1999,12 @@
    "expected_per_year": 24.43,
    "reports_12m": 25,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 560,
+    "median_source": "area"
+   }
   },
   "03501037": {
    "name": "Rathaus Weißensee",
@@ -1406,7 +2015,12 @@
    "expected_per_year": 20.56,
    "reports_12m": 21,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 899,
+    "median_source": "area"
+   }
   },
   "03501038": {
    "name": "Hansastraße",
@@ -1417,7 +2031,12 @@
    "expected_per_year": 17.56,
    "reports_12m": 17,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03601139": {
    "name": "Norweger Viertel",
@@ -1428,7 +2047,12 @@
    "expected_per_year": 36.87,
    "reports_12m": 35,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 725,
+    "median_source": "area"
+   }
   },
   "03601140": {
    "name": "Malmöer Straße",
@@ -1439,7 +2063,12 @@
    "expected_per_year": 43.1,
    "reports_12m": 42,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 862,
+    "median_source": "area"
+   }
   },
   "03601141": {
    "name": "Arnimplatz",
@@ -1450,7 +2079,12 @@
    "expected_per_year": 56.45,
    "reports_12m": 57,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 654,
+    "median_source": "area"
+   }
   },
   "03601142": {
    "name": "Falkplatz",
@@ -1461,7 +2095,12 @@
    "expected_per_year": 72.46,
    "reports_12m": 75,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 721,
+    "median_source": "area"
+   }
   },
   "03601243": {
    "name": "Rodenbergstraße",
@@ -1472,7 +2111,12 @@
    "expected_per_year": 90.73,
    "reports_12m": 94,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 749,
+    "median_source": "area"
+   }
   },
   "03601244": {
    "name": "Humannplatz",
@@ -1483,7 +2127,12 @@
    "expected_per_year": 49.18,
    "reports_12m": 48,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 720,
+    "median_source": "area"
+   }
   },
   "03601245": {
    "name": "Ostseestraße",
@@ -1494,7 +2143,12 @@
    "expected_per_year": 41.95,
    "reports_12m": 40,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 684,
+    "median_source": "area"
+   }
   },
   "03601346": {
    "name": "Gethsemanekirche",
@@ -1505,7 +2159,12 @@
    "expected_per_year": 45.67,
    "reports_12m": 46,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 800,
+    "median_source": "area"
+   }
   },
   "03601347": {
    "name": "Helmholtzplatz",
@@ -1516,7 +2175,12 @@
    "expected_per_year": 50.03,
    "reports_12m": 51,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "03601348": {
    "name": "Senefelderstraße",
@@ -1527,7 +2191,12 @@
    "expected_per_year": 35.22,
    "reports_12m": 34,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 779,
+    "median_source": "area"
+   }
   },
   "03601449": {
    "name": "Michelangelostraße",
@@ -1538,7 +2207,12 @@
    "expected_per_year": 36.95,
    "reports_12m": 38,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 950,
+    "median_source": "area"
+   }
   },
   "03601450": {
    "name": "Volkspark Prenzlauer Berg",
@@ -1549,7 +2223,12 @@
    "expected_per_year": 30.3,
    "reports_12m": 30,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "03601451": {
    "name": "Anton-Saefkow-Park",
@@ -1560,7 +2239,12 @@
    "expected_per_year": 29.47,
    "reports_12m": 29,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1050,
+    "median_source": "area"
+   }
   },
   "03601452": {
    "name": "Velodrom",
@@ -1571,7 +2255,12 @@
    "expected_per_year": 24.48,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 701,
+    "median_source": "area"
+   }
   },
   "03601453": {
    "name": "Alter Schlachthof",
@@ -1582,7 +2271,12 @@
    "expected_per_year": 37.78,
    "reports_12m": 39,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1014,
+    "median_source": "area"
+   }
   },
   "03701554": {
    "name": "Teutoburger Platz",
@@ -1593,7 +2287,12 @@
    "expected_per_year": 65.57,
    "reports_12m": 66,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "area"
+   }
   },
   "03701555": {
    "name": "Sredzkistraße",
@@ -1604,7 +2303,12 @@
    "expected_per_year": 48.37,
    "reports_12m": 47,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 974,
+    "median_source": "area"
+   }
   },
   "03701556": {
    "name": "Kollwitzplatz",
@@ -1615,7 +2319,12 @@
    "expected_per_year": 71.91,
    "reports_12m": 73,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1354,
+    "median_source": "area"
+   }
   },
   "03701657": {
    "name": "Thälmannpark",
@@ -1626,7 +2335,12 @@
    "expected_per_year": 13.06,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "03701658": {
    "name": "Christburger Straße",
@@ -1637,7 +2351,12 @@
    "expected_per_year": 37.6,
    "reports_12m": 38,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 834,
+    "median_source": "area"
+   }
   },
   "03701659": {
    "name": "Immanuelkirchstraße",
@@ -1648,7 +2367,12 @@
    "expected_per_year": 32.53,
    "reports_12m": 32,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 695,
+    "median_source": "area"
+   }
   },
   "03701660": {
    "name": "Bötzowstraße",
@@ -1659,7 +2383,12 @@
    "expected_per_year": 58.76,
    "reports_12m": 63,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 799,
+    "median_source": "area"
+   }
   },
   "04100101": {
    "name": "Jungfernheide/Plötzensee",
@@ -1670,7 +2399,12 @@
    "expected_per_year": 21.82,
    "reports_12m": 24,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 377,
+    "median_source": "area"
+   }
   },
   "04100102": {
    "name": "Paul-Hertz-Siedlung",
@@ -1681,7 +2415,12 @@
    "expected_per_year": 10.35,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04200203": {
    "name": "Olympiagelände",
@@ -1692,7 +2431,12 @@
    "expected_per_year": 5.23,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04200204": {
    "name": "Angerburger Allee",
@@ -1703,7 +2447,12 @@
    "expected_per_year": 3.4,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04200205": {
    "name": "Flatowallee",
@@ -1714,7 +2463,12 @@
    "expected_per_year": 3.86,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04200206": {
    "name": "Kranzallee",
@@ -1725,7 +2479,12 @@
    "expected_per_year": 3.86,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04200207": {
    "name": "Eichkamp",
@@ -1736,7 +2495,12 @@
    "expected_per_year": 10.25,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04200308": {
    "name": "Branitzer Platz",
@@ -1747,7 +2511,12 @@
    "expected_per_year": 14.29,
    "reports_12m": 13,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04200309": {
    "name": "Neu Westend",
@@ -1758,7 +2527,12 @@
    "expected_per_year": 15.76,
    "reports_12m": 15,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04200310": {
    "name": "Fürstenplatz",
@@ -1769,7 +2543,12 @@
    "expected_per_year": 15.03,
    "reports_12m": 14,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04200311": {
    "name": "Königin-Elisabeth-Straße",
@@ -1780,7 +2559,12 @@
    "expected_per_year": 26.06,
    "reports_12m": 29,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1060,
+    "median_source": "area"
+   }
   },
   "04300412": {
    "name": "Schlossgarten",
@@ -1791,7 +2575,12 @@
    "expected_per_year": 21.68,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04300413": {
    "name": "Klausenerplatz",
@@ -1802,7 +2591,12 @@
    "expected_per_year": 28.5,
    "reports_12m": 27,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 800,
+    "median_source": "area"
+   }
   },
   "04300414": {
    "name": "Schloßstraße",
@@ -1813,7 +2607,12 @@
    "expected_per_year": 40.43,
    "reports_12m": 41,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "area"
+   }
   },
   "04300415": {
    "name": "Lietzensee",
@@ -1824,7 +2623,12 @@
    "expected_per_year": 25.09,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1299,
+    "median_source": "area"
+   }
   },
   "04300416": {
    "name": "Amtsgerichtsplatz",
@@ -1835,7 +2639,12 @@
    "expected_per_year": 70.26,
    "reports_12m": 76,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 999,
+    "median_source": "area"
+   }
   },
   "04300517": {
    "name": "Tegeler Weg",
@@ -1846,7 +2655,12 @@
    "expected_per_year": 21.04,
    "reports_12m": 20,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1235,
+    "median_source": "area"
+   }
   },
   "04300518": {
    "name": "Kaiserin-Augusta-Allee",
@@ -1857,7 +2671,12 @@
    "expected_per_year": 29.0,
    "reports_12m": 30,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 927,
+    "median_source": "area"
+   }
   },
   "04300619": {
    "name": "Alt-Lietzow",
@@ -1868,7 +2687,12 @@
    "expected_per_year": 31.26,
    "reports_12m": 29,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 982,
+    "median_source": "area"
+   }
   },
   "04300620": {
    "name": "Spreestadt",
@@ -1879,7 +2703,12 @@
    "expected_per_year": 28.61,
    "reports_12m": 26,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 617,
+    "median_source": "area"
+   }
   },
   "04300621": {
    "name": "Richard-Wagner-Straße",
@@ -1890,7 +2719,12 @@
    "expected_per_year": 36.55,
    "reports_12m": 35,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 800,
+    "median_source": "area"
+   }
   },
   "04300622": {
    "name": "Ernst-Reuter-Platz",
@@ -1901,7 +2735,12 @@
    "expected_per_year": 84.19,
    "reports_12m": 89,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1048,
+    "median_source": "area"
+   }
   },
   "04300623": {
    "name": "Karl-August-Platz",
@@ -1912,7 +2751,12 @@
    "expected_per_year": 71.84,
    "reports_12m": 75,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1013,
+    "median_source": "area"
+   }
   },
   "04300624": {
    "name": "Savignyplatz",
@@ -1923,7 +2767,12 @@
    "expected_per_year": 37.44,
    "reports_12m": 36,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1350,
+    "median_source": "area"
+   }
   },
   "04400725": {
    "name": "Güterbahnhof Grunewald",
@@ -1934,7 +2783,12 @@
    "expected_per_year": 3.31,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": true
+   "no_record": true,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04400726": {
    "name": "Bismarckallee",
@@ -1945,7 +2799,12 @@
    "expected_per_year": 7.93,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04400727": {
    "name": "Flinsberger Platz",
@@ -1956,7 +2815,12 @@
    "expected_per_year": 13.59,
    "reports_12m": 20,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04400728": {
    "name": "Hagenplatz",
@@ -1967,7 +2831,12 @@
    "expected_per_year": 3.31,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04400729": {
    "name": "Hundekehle",
@@ -1978,7 +2847,12 @@
    "expected_per_year": 5.36,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04400830": {
    "name": "Forckenbeckstraße",
@@ -1989,7 +2863,12 @@
    "expected_per_year": 13.88,
    "reports_12m": 14,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04400831": {
    "name": "Messelpark",
@@ -2000,7 +2879,12 @@
    "expected_per_year": 5.73,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04400832": {
    "name": "Breite Straße",
@@ -2011,7 +2895,12 @@
    "expected_per_year": 7.77,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04400833": {
    "name": "Schlangenbader Straße",
@@ -2022,7 +2911,12 @@
    "expected_per_year": 6.41,
    "reports_12m": 3,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04400834": {
    "name": "Binger Straße",
@@ -2033,7 +2927,12 @@
    "expected_per_year": 15.91,
    "reports_12m": 17,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04400835": {
    "name": "Rüdesheimer Platz",
@@ -2044,7 +2943,12 @@
    "expected_per_year": 31.53,
    "reports_12m": 40,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 990,
+    "median_source": "area"
+   }
   },
   "04500936": {
    "name": "Droysenstraße",
@@ -2055,7 +2959,12 @@
    "expected_per_year": 30.76,
    "reports_12m": 32,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1100,
+    "median_source": "area"
+   }
   },
   "04500937": {
    "name": "Halensee",
@@ -2066,7 +2975,12 @@
    "expected_per_year": 25.96,
    "reports_12m": 26,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 995,
+    "median_source": "area"
+   }
   },
   "04500938": {
    "name": "Hochmeisterplatz",
@@ -2077,7 +2991,12 @@
    "expected_per_year": 26.76,
    "reports_12m": 27,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1200,
+    "median_source": "area"
+   }
   },
   "04500939": {
    "name": "Eisenzahnstraße",
@@ -2088,7 +3007,12 @@
    "expected_per_year": 19.56,
    "reports_12m": 18,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04501040": {
    "name": "Hindemithplatz",
@@ -2099,7 +3023,12 @@
    "expected_per_year": 25.78,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1119,
+    "median_source": "area"
+   }
   },
   "04501041": {
    "name": "George-Grosz-Platz",
@@ -2110,7 +3039,12 @@
    "expected_per_year": 36.29,
    "reports_12m": 35,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1248,
+    "median_source": "area"
+   }
   },
   "04501042": {
    "name": "Breitscheidplatz",
@@ -2121,7 +3055,12 @@
    "expected_per_year": 108.98,
    "reports_12m": 118,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 774,
+    "median_source": "area"
+   }
   },
   "04501043": {
    "name": "Preußenpark",
@@ -2132,7 +3071,12 @@
    "expected_per_year": 33.66,
    "reports_12m": 32,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1362,
+    "median_source": "area"
+   }
   },
   "04501044": {
    "name": "Ludwigkirchplatz",
@@ -2143,7 +3087,12 @@
    "expected_per_year": 21.4,
    "reports_12m": 18,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04501045": {
    "name": "Schaperstraße",
@@ -2154,7 +3103,12 @@
    "expected_per_year": 46.8,
    "reports_12m": 47,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1182,
+    "median_source": "area"
+   }
   },
   "04501146": {
    "name": "Barstraße",
@@ -2165,7 +3119,12 @@
    "expected_per_year": 14.29,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04501147": {
    "name": "Leon-Jessel-Platz",
@@ -2176,7 +3135,12 @@
    "expected_per_year": 22.49,
    "reports_12m": 21,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 989,
+    "median_source": "area"
+   }
   },
   "04501148": {
    "name": "Brabanter Platz",
@@ -2187,7 +3151,12 @@
    "expected_per_year": 26.59,
    "reports_12m": 26,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 924,
+    "median_source": "area"
+   }
   },
   "04501149": {
    "name": "Nikolsburger Platz",
@@ -2198,7 +3167,12 @@
    "expected_per_year": 35.6,
    "reports_12m": 37,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 969,
+    "median_source": "area"
+   }
   },
   "04501150": {
    "name": "Wilhelmsaue",
@@ -2209,7 +3183,12 @@
    "expected_per_year": 19.21,
    "reports_12m": 17,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04501151": {
    "name": "Hildegardstraße",
@@ -2220,7 +3199,12 @@
    "expected_per_year": 19.21,
    "reports_12m": 17,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "04501152": {
    "name": "Prager Platz",
@@ -2231,7 +3215,12 @@
    "expected_per_year": 47.9,
    "reports_12m": 52,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 770,
+    "median_source": "area"
+   }
   },
   "04501153": {
    "name": "Babelsberger Straße",
@@ -2242,7 +3231,12 @@
    "expected_per_year": 48.72,
    "reports_12m": 53,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 650,
+    "median_source": "area"
+   }
   },
   "05100101": {
    "name": "Hakenfelde Nord",
@@ -2253,7 +3247,12 @@
    "expected_per_year": 5.44,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100102": {
    "name": "Am Forstacker",
@@ -2264,7 +3263,12 @@
    "expected_per_year": 4.4,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100103": {
    "name": "Mertensstraße",
@@ -2275,7 +3279,12 @@
    "expected_per_year": 9.09,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100104": {
    "name": "Maselake",
@@ -2286,7 +3295,12 @@
    "expected_per_year": 8.04,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100105": {
    "name": "Amorbacher Weg",
@@ -2297,7 +3311,12 @@
    "expected_per_year": 7.52,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100206": {
    "name": "Griesingerstraße",
@@ -2308,7 +3327,12 @@
    "expected_per_year": 7.0,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100207": {
    "name": "An der Tränke",
@@ -2319,7 +3343,12 @@
    "expected_per_year": 3.87,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100208": {
    "name": "Im Spektefeld",
@@ -2330,7 +3359,12 @@
    "expected_per_year": 7.0,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100209": {
    "name": "Westerwaldstraße",
@@ -2341,7 +3375,12 @@
    "expected_per_year": 8.56,
    "reports_12m": 10,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100210": {
    "name": "Germersheimer Platz",
@@ -2352,7 +3391,12 @@
    "expected_per_year": 8.56,
    "reports_12m": 10,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100211": {
    "name": "An der Kappe",
@@ -2363,7 +3407,12 @@
    "expected_per_year": 6.48,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100312": {
    "name": "Eckschanze",
@@ -2374,7 +3423,12 @@
    "expected_per_year": 7.17,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100313": {
    "name": "Eiswerder",
@@ -2385,7 +3439,12 @@
    "expected_per_year": 7.85,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100314": {
    "name": "Kurstraße",
@@ -2396,7 +3455,12 @@
    "expected_per_year": 11.98,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100315": {
    "name": "Ackerstraße",
@@ -2407,7 +3471,12 @@
    "expected_per_year": 9.92,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05100316": {
    "name": "Carl-Schurz-Straße",
@@ -2418,7 +3487,12 @@
    "expected_per_year": 38.07,
    "reports_12m": 49,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 668,
+    "median_source": "area"
+   }
   },
   "05100317": {
    "name": "Freiheit",
@@ -2429,7 +3503,12 @@
    "expected_per_year": 9.23,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200418": {
    "name": "Isenburger Weg",
@@ -2440,7 +3519,12 @@
    "expected_per_year": 2.86,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200419": {
    "name": "Am Heideberg",
@@ -2451,7 +3535,12 @@
    "expected_per_year": 3.25,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200420": {
    "name": "Staakener Straße",
@@ -2462,7 +3551,12 @@
    "expected_per_year": 5.17,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200421": {
    "name": "Spandauer Straße",
@@ -2473,7 +3567,12 @@
    "expected_per_year": 5.55,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200422": {
    "name": "Werkstraße",
@@ -2484,7 +3583,12 @@
    "expected_per_year": 2.48,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200423": {
    "name": "Magistratsweg",
@@ -2495,7 +3599,12 @@
    "expected_per_year": 4.4,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200524": {
    "name": "Döberitzer Weg",
@@ -2506,7 +3615,12 @@
    "expected_per_year": 1.87,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200525": {
    "name": "Pillnitzer Weg",
@@ -2517,7 +3631,12 @@
    "expected_per_year": 2.46,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200526": {
    "name": "Rudolf-Wissell-Großsiedlung",
@@ -2528,7 +3647,12 @@
    "expected_per_year": 2.75,
    "reports_12m": 3,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200527": {
    "name": "Maulbeerallee",
@@ -2539,7 +3663,12 @@
    "expected_per_year": 2.46,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200528": {
    "name": "Weinmeisterhornweg",
@@ -2550,7 +3679,12 @@
    "expected_per_year": 3.33,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200629": {
    "name": "Borkumer Straße",
@@ -2561,7 +3695,12 @@
    "expected_per_year": 39.58,
    "reports_12m": 50,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 823,
+    "median_source": "area"
+   }
   },
   "05200630": {
    "name": "Wilhelmstadt West",
@@ -2572,7 +3711,12 @@
    "expected_per_year": 15.73,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200631": {
    "name": "Wilhelmstadt Ost",
@@ -2583,7 +3727,12 @@
    "expected_per_year": 15.73,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200632": {
    "name": "Tiefwerder",
@@ -2594,7 +3743,12 @@
    "expected_per_year": 5.92,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200633": {
    "name": "Graetschelsteig",
@@ -2605,7 +3759,12 @@
    "expected_per_year": 5.92,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05200634": {
    "name": "Börnicker Straße",
@@ -2616,7 +3775,12 @@
    "expected_per_year": 7.32,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05300735": {
    "name": "Haveleck",
@@ -2627,7 +3791,12 @@
    "expected_per_year": 6.01,
    "reports_12m": 3,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05300736": {
    "name": "Zitadellenweg",
@@ -2638,7 +3807,12 @@
    "expected_per_year": 11.1,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05300737": {
    "name": "Gartenfelder Straße",
@@ -2649,7 +3823,12 @@
    "expected_per_year": 16.19,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05300838": {
    "name": "Gartenfeld",
@@ -2660,7 +3839,12 @@
    "expected_per_year": 3.46,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": true
+   "no_record": true,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05300839": {
    "name": "Rohrdamm",
@@ -2671,7 +3855,12 @@
    "expected_per_year": 8.31,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05300840": {
    "name": "Nonnendammallee",
@@ -2682,7 +3871,12 @@
    "expected_per_year": 8.31,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05300841": {
    "name": "Siemensdamm",
@@ -2693,7 +3887,12 @@
    "expected_per_year": 9.38,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05400942": {
    "name": "Alt-Gatow",
@@ -2704,7 +3903,12 @@
    "expected_per_year": 3.17,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05400943": {
    "name": "Jägerallee",
@@ -2715,7 +3919,12 @@
    "expected_per_year": 6.15,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05400944": {
    "name": "Kladower Damm",
@@ -2726,7 +3935,12 @@
    "expected_per_year": 4.87,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "05400945": {
    "name": "Kafkastraße",
@@ -2737,7 +3951,12 @@
    "expected_per_year": 4.45,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06100101": {
    "name": "Fichtenberg",
@@ -2748,7 +3967,12 @@
    "expected_per_year": 16.86,
    "reports_12m": 12,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06100102": {
    "name": "Schloßstraße",
@@ -2759,7 +3983,12 @@
    "expected_per_year": 66.26,
    "reports_12m": 66,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1200,
+    "median_source": "area"
+   }
   },
   "06100103": {
    "name": "Markelstraße",
@@ -2770,7 +3999,12 @@
    "expected_per_year": 125.72,
    "reports_12m": 131,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1600,
+    "median_source": "area"
+   }
   },
   "06100204": {
    "name": "Munsterdamm",
@@ -2781,7 +4015,12 @@
    "expected_per_year": 18.39,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06100205": {
    "name": "Südende",
@@ -2792,7 +4031,12 @@
    "expected_per_year": 19.11,
    "reports_12m": 20,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 870,
+    "median_source": "area"
+   }
   },
   "06100206": {
    "name": "Stadtpark",
@@ -2803,7 +4047,12 @@
    "expected_per_year": 14.77,
    "reports_12m": 14,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06100207": {
    "name": "Mittelstraße",
@@ -2814,7 +4063,12 @@
    "expected_per_year": 16.94,
    "reports_12m": 17,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06100208": {
    "name": "Bergstraße",
@@ -2825,7 +4079,12 @@
    "expected_per_year": 10.44,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06100209": {
    "name": "Feuerbachstraße",
@@ -2836,7 +4095,12 @@
    "expected_per_year": 26.34,
    "reports_12m": 30,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 699,
+    "median_source": "area"
+   }
   },
   "06100210": {
    "name": "Bismarckstraße",
@@ -2847,7 +4111,12 @@
    "expected_per_year": 11.16,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06200311": {
    "name": "Alt-Lankwitz",
@@ -2858,7 +4127,12 @@
    "expected_per_year": 4.77,
    "reports_12m": 3,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06200312": {
    "name": "Komponistenviertel Lankwitz",
@@ -2869,7 +4143,12 @@
    "expected_per_year": 8.31,
    "reports_12m": 10,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06200313": {
    "name": "Lankwitz Kirche",
@@ -2880,7 +4159,12 @@
    "expected_per_year": 9.82,
    "reports_12m": 13,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06200314": {
    "name": "Kaiser-Wilhelm-Straße",
@@ -2891,7 +4175,12 @@
    "expected_per_year": 7.3,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06200315": {
    "name": "Gallwitzallee",
@@ -2902,7 +4191,12 @@
    "expected_per_year": 5.27,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06200316": {
    "name": "Belßstraße",
@@ -2913,7 +4207,12 @@
    "expected_per_year": 5.27,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06200317": {
    "name": "Lankwitz Süd",
@@ -2924,7 +4223,12 @@
    "expected_per_year": 4.77,
    "reports_12m": 3,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06200418": {
    "name": "Landweg",
@@ -2935,7 +4239,12 @@
    "expected_per_year": 4.01,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": true
+   "no_record": true,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06200419": {
    "name": "Thermometersiedlung",
@@ -2946,7 +4255,12 @@
    "expected_per_year": 4.01,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06200420": {
    "name": "Lichterfelde Süd",
@@ -2957,7 +4271,12 @@
    "expected_per_year": 9.0,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06200421": {
    "name": "Königsberger Straße",
@@ -2968,7 +4287,12 @@
    "expected_per_year": 23.95,
    "reports_12m": 32,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1120,
+    "median_source": "area"
+   }
   },
   "06200422": {
    "name": "Oberhofer Platz",
@@ -2979,7 +4303,12 @@
    "expected_per_year": 15.85,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06200423": {
    "name": "Schütte-Lanz-Straße",
@@ -2990,7 +4319,12 @@
    "expected_per_year": 6.5,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06300524": {
    "name": "Berlepschstraße",
@@ -3001,7 +4335,12 @@
    "expected_per_year": 10.15,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06300525": {
    "name": "Zehlendorf Süd",
@@ -3012,7 +4351,12 @@
    "expected_per_year": 10.15,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06300526": {
    "name": "Zehlendorf Mitte",
@@ -3023,7 +4367,12 @@
    "expected_per_year": 36.59,
    "reports_12m": 42,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 922,
+    "median_source": "area"
+   }
   },
   "06300527": {
    "name": "Sundgauer Straße",
@@ -3034,7 +4383,12 @@
    "expected_per_year": 29.04,
    "reports_12m": 32,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 694,
+    "median_source": "area"
+   }
   },
   "06300528": {
    "name": "Teltower Damm",
@@ -3045,7 +4399,12 @@
    "expected_per_year": 13.17,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06300629": {
    "name": "Botanischer Garten",
@@ -3056,7 +4415,12 @@
    "expected_per_year": 14.25,
    "reports_12m": 12,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06300630": {
    "name": "Hindenburgdamm",
@@ -3067,7 +4431,12 @@
    "expected_per_year": 35.88,
    "reports_12m": 40,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1789,
+    "median_source": "area"
+   }
   },
   "06300631": {
    "name": "Goerzwerke",
@@ -3078,7 +4447,12 @@
    "expected_per_year": 8.84,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06300632": {
    "name": "Schweizer Viertel",
@@ -3089,7 +4463,12 @@
    "expected_per_year": 21.97,
    "reports_12m": 22,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 870,
+    "median_source": "area"
+   }
   },
   "06300633": {
    "name": "Augustaplatz",
@@ -3100,7 +4479,12 @@
    "expected_per_year": 21.97,
    "reports_12m": 22,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 767,
+    "median_source": "area"
+   }
   },
   "06300634": {
    "name": "Lichterfelde West",
@@ -3111,7 +4495,12 @@
    "expected_per_year": 28.16,
    "reports_12m": 30,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 887,
+    "median_source": "area"
+   }
   },
   "06400735": {
    "name": "Wannsee",
@@ -3122,7 +4511,12 @@
    "expected_per_year": 26.6,
    "reports_12m": 27,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 832,
+    "median_source": "area"
+   }
   },
   "06400736": {
    "name": "Düppel",
@@ -3133,7 +4527,12 @@
    "expected_per_year": 9.9,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06400737": {
    "name": "Nikolassee",
@@ -3144,7 +4543,12 @@
    "expected_per_year": 38.54,
    "reports_12m": 42,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 720,
+    "median_source": "area"
+   }
   },
   "06400838": {
    "name": "Krumme Lanke",
@@ -3155,7 +4559,12 @@
    "expected_per_year": 18.87,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06400839": {
    "name": "Fischerhüttenstraße",
@@ -3166,7 +4575,12 @@
    "expected_per_year": 22.58,
    "reports_12m": 24,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 824,
+    "median_source": "area"
+   }
   },
   "06400840": {
    "name": "Fischtal",
@@ -3177,7 +4591,12 @@
    "expected_per_year": 18.13,
    "reports_12m": 18,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06400841": {
    "name": "Zehlendorf Eiche",
@@ -3188,7 +4607,12 @@
    "expected_per_year": 16.64,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06400842": {
    "name": "Hüttenweg",
@@ -3199,7 +4623,12 @@
    "expected_per_year": 18.87,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06400843": {
    "name": "Thielallee",
@@ -3210,7 +4639,12 @@
    "expected_per_year": 12.94,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "06400844": {
    "name": "Dahlem",
@@ -3221,7 +4655,12 @@
    "expected_per_year": 21.1,
    "reports_12m": 22,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 578,
+    "median_source": "area"
+   }
   },
   "07100101": {
    "name": "Wittenbergplatz",
@@ -3232,7 +4671,12 @@
    "expected_per_year": 95.35,
    "reports_12m": 95,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "07100102": {
    "name": "Kalckreuthstraße",
@@ -3243,7 +4687,12 @@
    "expected_per_year": 111.33,
    "reports_12m": 112,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 872,
+    "median_source": "area"
+   }
   },
   "07100103": {
    "name": "Frobenstraße",
@@ -3254,7 +4703,12 @@
    "expected_per_year": 99.11,
    "reports_12m": 99,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 822,
+    "median_source": "area"
+   }
   },
   "07100204": {
    "name": "Barbarossaplatz",
@@ -3265,7 +4719,12 @@
    "expected_per_year": 105.55,
    "reports_12m": 107,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 992,
+    "median_source": "area"
+   }
   },
   "07100205": {
    "name": "Alvenslebenstraße",
@@ -3276,7 +4735,12 @@
    "expected_per_year": 68.33,
    "reports_12m": 67,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "07100206": {
    "name": "Großgörschenstraße",
@@ -3287,7 +4751,12 @@
    "expected_per_year": 86.94,
    "reports_12m": 87,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 889,
+    "median_source": "area"
+   }
   },
   "07200307": {
    "name": "Bayerischer Platz",
@@ -3298,7 +4767,12 @@
    "expected_per_year": 80.17,
    "reports_12m": 81,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 899,
+    "median_source": "area"
+   }
   },
   "07200308": {
    "name": "Volkspark (Rudolph-Wilde-Park)",
@@ -3309,7 +4783,12 @@
    "expected_per_year": 63.67,
    "reports_12m": 63,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 800,
+    "median_source": "area"
+   }
   },
   "07200409": {
    "name": "Belziger Straße",
@@ -3320,7 +4799,12 @@
    "expected_per_year": 61.79,
    "reports_12m": 65,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "area"
+   }
   },
   "07200410": {
    "name": "Feurigstraße",
@@ -3331,7 +4815,12 @@
    "expected_per_year": 24.6,
    "reports_12m": 22,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 750,
+    "median_source": "area"
+   }
   },
   "07200411": {
    "name": "Julius-Leber-Brücke",
@@ -3342,7 +4831,12 @@
    "expected_per_year": 25.46,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 658,
+    "median_source": "area"
+   }
   },
   "07200412": {
    "name": "Schöneberger Linse",
@@ -3353,7 +4847,12 @@
    "expected_per_year": 29.79,
    "reports_12m": 28,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 849,
+    "median_source": "area"
+   }
   },
   "07200413": {
    "name": "Cheruskerstraße",
@@ -3364,7 +4863,12 @@
    "expected_per_year": 74.77,
    "reports_12m": 80,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1599,
+    "median_source": "area"
+   }
   },
   "07200414": {
    "name": "Hohenfriedbergstraße",
@@ -3375,7 +4879,12 @@
    "expected_per_year": 31.52,
    "reports_12m": 30,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 999,
+    "median_source": "area"
+   }
   },
   "07300515": {
    "name": "Taunusstraße",
@@ -3386,7 +4895,12 @@
    "expected_per_year": 34.89,
    "reports_12m": 33,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "07300516": {
    "name": "Odenwaldstraße",
@@ -3397,7 +4911,12 @@
    "expected_per_year": 55.23,
    "reports_12m": 56,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1318,
+    "median_source": "area"
+   }
   },
   "07300517": {
    "name": "Perelsplatz",
@@ -3408,7 +4927,12 @@
    "expected_per_year": 58.77,
    "reports_12m": 60,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 811,
+    "median_source": "area"
+   }
   },
   "07300618": {
    "name": "Ceciliengärten",
@@ -3419,7 +4943,12 @@
    "expected_per_year": 31.6,
    "reports_12m": 31,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1120,
+    "median_source": "area"
+   }
   },
   "07300619": {
    "name": "Grazer Platz",
@@ -3430,7 +4959,12 @@
    "expected_per_year": 38.36,
    "reports_12m": 39,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 899,
+    "median_source": "area"
+   }
   },
   "07400720": {
    "name": "Gontermannstraße",
@@ -3441,7 +4975,12 @@
    "expected_per_year": 62.93,
    "reports_12m": 64,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 756,
+    "median_source": "area"
+   }
   },
   "07400721": {
    "name": "Paradestraße",
@@ -3452,7 +4991,12 @@
    "expected_per_year": 45.95,
    "reports_12m": 45,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "07400822": {
    "name": "Lindenhofsiedlung",
@@ -3463,7 +5007,12 @@
    "expected_per_year": 19.45,
    "reports_12m": 22,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1200,
+    "median_source": "area"
+   }
   },
   "07400823": {
    "name": "Wittekindstraße",
@@ -3474,7 +5023,12 @@
    "expected_per_year": 11.24,
    "reports_12m": 10,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07400824": {
    "name": "Bosepark",
@@ -3485,7 +5039,12 @@
    "expected_per_year": 15.35,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07400825": {
    "name": "Friedrich-Karl-Straße",
@@ -3496,7 +5055,12 @@
    "expected_per_year": 13.98,
    "reports_12m": 14,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07400826": {
    "name": "Marienhöhe",
@@ -3507,7 +5071,12 @@
    "expected_per_year": 9.19,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07400927": {
    "name": "Rathaus Tempelhof",
@@ -3518,7 +5087,12 @@
    "expected_per_year": 16.08,
    "reports_12m": 18,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07400928": {
    "name": "Germaniagarten",
@@ -3529,7 +5103,12 @@
    "expected_per_year": 8.18,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07501029": {
    "name": "Ringstraße",
@@ -3540,7 +5119,12 @@
    "expected_per_year": 7.74,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07501030": {
    "name": "Machonstraße",
@@ -3551,7 +5135,12 @@
    "expected_per_year": 8.31,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07501031": {
    "name": "Eisenacher Straße",
@@ -3562,7 +5151,12 @@
    "expected_per_year": 9.46,
    "reports_12m": 10,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07501032": {
    "name": "Imbrosweg",
@@ -3573,7 +5167,12 @@
    "expected_per_year": 8.89,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07501133": {
    "name": "Fritz-Werner-Straße",
@@ -3584,7 +5183,12 @@
    "expected_per_year": 19.3,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 760,
+    "median_source": "area"
+   }
   },
   "07501134": {
    "name": "Hundsteinweg",
@@ -3595,7 +5199,12 @@
    "expected_per_year": 12.09,
    "reports_12m": 12,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07501135": {
    "name": "Birnhornweg",
@@ -3606,7 +5215,12 @@
    "expected_per_year": 4.88,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601236": {
    "name": "Marienfelder Allee Nordwest",
@@ -3617,7 +5231,12 @@
    "expected_per_year": 9.55,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601237": {
    "name": "Kirchstraße",
@@ -3628,7 +5247,12 @@
    "expected_per_year": 12.2,
    "reports_12m": 12,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601238": {
    "name": "Marienfelde Nordost",
@@ -3639,7 +5263,12 @@
    "expected_per_year": 15.51,
    "reports_12m": 17,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601339": {
    "name": "Tirschenreuther Ring West",
@@ -3650,7 +5279,12 @@
    "expected_per_year": 3.6,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601340": {
    "name": "Tirschenreuther Ring Ost",
@@ -3661,7 +5295,12 @@
    "expected_per_year": 3.6,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601341": {
    "name": "Diedersdorfer Weg",
@@ -3672,7 +5311,12 @@
    "expected_per_year": 2.57,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601442": {
    "name": "Kettinger Straße",
@@ -3683,7 +5327,12 @@
    "expected_per_year": 8.84,
    "reports_12m": 10,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601443": {
    "name": "Töpchiner Weg",
@@ -3694,7 +5343,12 @@
    "expected_per_year": 5.62,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601544": {
    "name": "John-Locke-Straße",
@@ -3705,7 +5359,12 @@
    "expected_per_year": 15.21,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601545": {
    "name": "Nahariyastraße",
@@ -3716,7 +5375,12 @@
    "expected_per_year": 8.04,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601546": {
    "name": "Franziusweg",
@@ -3727,7 +5391,12 @@
    "expected_per_year": 14.02,
    "reports_12m": 17,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601547": {
    "name": "Horstwalder Straße",
@@ -3738,7 +5407,12 @@
    "expected_per_year": 6.24,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "07601548": {
    "name": "Wittelsbacherstraße",
@@ -3749,7 +5423,12 @@
    "expected_per_year": 3.85,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": true
+   "no_record": true,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08100101": {
    "name": "Hasenheide",
@@ -3760,7 +5439,12 @@
    "expected_per_year": 72.5,
    "reports_12m": 77,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1499,
+    "median_source": "area"
+   }
   },
   "08100102": {
    "name": "Schillerpromenade Nord",
@@ -3771,7 +5455,12 @@
    "expected_per_year": 44.7,
    "reports_12m": 45,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 740,
+    "median_source": "area"
+   }
   },
   "08100103": {
    "name": "Schillerpromenade Süd",
@@ -3782,7 +5471,12 @@
    "expected_per_year": 40.35,
    "reports_12m": 40,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 732,
+    "median_source": "area"
+   }
   },
   "08100104": {
    "name": "Wartheplatz",
@@ -3793,7 +5487,12 @@
    "expected_per_year": 34.27,
    "reports_12m": 33,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 938,
+    "median_source": "area"
+   }
   },
   "08100105": {
    "name": "Silbersteinstraße",
@@ -3804,7 +5503,12 @@
    "expected_per_year": 22.1,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08100206": {
    "name": "Flughafenstraße",
@@ -3815,7 +5519,12 @@
    "expected_per_year": 80.82,
    "reports_12m": 85,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 999,
+    "median_source": "area"
+   }
   },
   "08100207": {
    "name": "Rollberg",
@@ -3826,7 +5535,12 @@
    "expected_per_year": 22.48,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08100208": {
    "name": "Körnerpark",
@@ -3837,7 +5551,12 @@
    "expected_per_year": 50.77,
    "reports_12m": 51,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 750,
+    "median_source": "area"
+   }
   },
   "08100209": {
    "name": "Glasower Straße",
@@ -3848,7 +5567,12 @@
    "expected_per_year": 42.81,
    "reports_12m": 42,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 854,
+    "median_source": "area"
+   }
   },
   "08100310": {
    "name": "Maybachufer",
@@ -3859,7 +5583,12 @@
    "expected_per_year": 71.14,
    "reports_12m": 73,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "08100311": {
    "name": "Reuterplatz",
@@ -3870,7 +5599,12 @@
    "expected_per_year": 48.75,
    "reports_12m": 48,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 734,
+    "median_source": "area"
+   }
   },
   "08100312": {
    "name": "Weichselplatz",
@@ -3881,7 +5615,12 @@
    "expected_per_year": 60.39,
    "reports_12m": 61,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 823,
+    "median_source": "area"
+   }
   },
   "08100313": {
    "name": "Bouchéstraße",
@@ -3892,7 +5631,12 @@
    "expected_per_year": 19.2,
    "reports_12m": 15,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08100314": {
    "name": "Donaustraße",
@@ -3903,7 +5647,12 @@
    "expected_per_year": 77.4,
    "reports_12m": 80,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1080,
+    "median_source": "area"
+   }
   },
   "08100415": {
    "name": "Ganghoferstraße",
@@ -3914,7 +5663,12 @@
    "expected_per_year": 47.83,
    "reports_12m": 48,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "area"
+   }
   },
   "08100416": {
    "name": "Alt-Rixdorf",
@@ -3925,7 +5679,12 @@
    "expected_per_year": 62.77,
    "reports_12m": 65,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1400,
+    "median_source": "area"
+   }
   },
   "08100417": {
    "name": "Braunschweiger Straße",
@@ -3936,7 +5695,12 @@
    "expected_per_year": 57.5,
    "reports_12m": 59,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 800,
+    "median_source": "area"
+   }
   },
   "08100418": {
    "name": "Hertzbergplatz",
@@ -3947,7 +5711,12 @@
    "expected_per_year": 46.08,
    "reports_12m": 46,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 850,
+    "median_source": "area"
+   }
   },
   "08100419": {
    "name": "Treptower Straße Nord",
@@ -3958,7 +5727,12 @@
    "expected_per_year": 19.72,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08100520": {
    "name": "Weiße Siedlung",
@@ -3969,7 +5743,12 @@
    "expected_per_year": 13.45,
    "reports_12m": 14,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08100521": {
    "name": "Schulenburgpark",
@@ -3980,7 +5759,12 @@
    "expected_per_year": 10.82,
    "reports_12m": 10,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08200622": {
    "name": "Jahnstraße",
@@ -3991,7 +5775,12 @@
    "expected_per_year": 17.28,
    "reports_12m": 18,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08200623": {
    "name": "Park am Buschkrug",
@@ -4002,7 +5791,12 @@
    "expected_per_year": 10.21,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08200624": {
    "name": "Tempelhofer Weg",
@@ -4013,7 +5807,12 @@
    "expected_per_year": 18.69,
    "reports_12m": 20,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08200725": {
    "name": "Mohriner Allee Nord",
@@ -4024,7 +5823,12 @@
    "expected_per_year": 4.68,
    "reports_12m": 3,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08200726": {
    "name": "Hufeisensiedlung",
@@ -4035,7 +5839,12 @@
    "expected_per_year": 7.66,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08200727": {
    "name": "Parchimer Allee Süd",
@@ -4046,7 +5855,12 @@
    "expected_per_year": 8.65,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08200728": {
    "name": "Ortolanweg",
@@ -4057,7 +5871,12 @@
    "expected_per_year": 3.69,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08200729": {
    "name": "Britzer Garten",
@@ -4068,7 +5887,12 @@
    "expected_per_year": 5.68,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08200730": {
    "name": "Handwerker-Siedlung",
@@ -4079,7 +5903,12 @@
    "expected_per_year": 7.16,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08200831": {
    "name": "Buckow West",
@@ -4090,7 +5919,12 @@
    "expected_per_year": 4.74,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08200832": {
    "name": "Buckow Mitte",
@@ -4101,7 +5935,12 @@
    "expected_per_year": 6.56,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08200833": {
    "name": "Buckow Ost",
@@ -4112,7 +5951,12 @@
    "expected_per_year": 4.29,
    "reports_12m": 3,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08300934": {
    "name": "Gropiusstadt Nord-West",
@@ -4123,7 +5967,12 @@
    "expected_per_year": 18.79,
    "reports_12m": 20,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 675,
+    "median_source": "area"
+   }
   },
   "08300935": {
    "name": "Gropiusstadt Süd-West",
@@ -4134,7 +5983,12 @@
    "expected_per_year": 12.39,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08301036": {
    "name": "Gropiusstadt Mitte",
@@ -4145,7 +5999,12 @@
    "expected_per_year": 8.72,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08301037": {
    "name": "Gropiusstadt Süd-Ost",
@@ -4156,7 +6015,12 @@
    "expected_per_year": 14.56,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08401138": {
    "name": "Goldhähnchenweg",
@@ -4167,7 +6031,12 @@
    "expected_per_year": 4.03,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08401139": {
    "name": "Vogelviertel Süd",
@@ -4178,7 +6047,12 @@
    "expected_per_year": 4.8,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08401140": {
    "name": "Vogelviertel Nord",
@@ -4189,7 +6063,12 @@
    "expected_per_year": 2.87,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08401241": {
    "name": "Blumenviertel",
@@ -4200,7 +6079,12 @@
    "expected_per_year": 3.37,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08401242": {
    "name": "Zittauer Straße",
@@ -4211,7 +6095,12 @@
    "expected_per_year": 5.64,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08401243": {
    "name": "Alt-Rudow",
@@ -4222,7 +6111,12 @@
    "expected_per_year": 5.64,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08401244": {
    "name": "Waßmannsdorfer Chaussee",
@@ -4233,7 +6127,12 @@
    "expected_per_year": 7.46,
    "reports_12m": 10,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08401245": {
    "name": "Frauenviertel",
@@ -4244,7 +6143,12 @@
    "expected_per_year": 3.37,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "08401246": {
    "name": "Waltersdorfer Chaussee Ost",
@@ -4255,7 +6159,12 @@
    "expected_per_year": 6.1,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09100101": {
    "name": "Alt-Treptow",
@@ -4266,7 +6175,12 @@
    "expected_per_year": 251.75,
    "reports_12m": 252,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 944,
+    "median_source": "area"
+   }
   },
   "09100202": {
    "name": "Plänterwald West",
@@ -4277,7 +6191,12 @@
    "expected_per_year": 19.81,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09100203": {
    "name": "Plänterwald Ost",
@@ -4288,7 +6207,12 @@
    "expected_per_year": 25.26,
    "reports_12m": 26,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 734,
+    "median_source": "area"
+   }
   },
   "09100304": {
    "name": "Baumschulenweg West",
@@ -4299,7 +6223,12 @@
    "expected_per_year": 14.84,
    "reports_12m": 18,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09100305": {
    "name": "Baumschulenweg Ost",
@@ -4310,7 +6239,12 @@
    "expected_per_year": 10.59,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09100306": {
    "name": "Späthsfelde",
@@ -4321,7 +6255,12 @@
    "expected_per_year": 3.91,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09100407": {
    "name": "Johannisthal West",
@@ -4332,7 +6271,12 @@
    "expected_per_year": 16.02,
    "reports_12m": 17,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09100408": {
    "name": "Johannisthal Ost",
@@ -4343,7 +6287,12 @@
    "expected_per_year": 15.34,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09100409": {
    "name": "Landschaftspark Adlershof",
@@ -4354,7 +6303,12 @@
    "expected_per_year": 9.87,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09200510": {
    "name": "Helmholtz-Kiez",
@@ -4365,7 +6319,12 @@
    "expected_per_year": 26.6,
    "reports_12m": 27,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1299,
+    "median_source": "area"
+   }
   },
   "09200511": {
    "name": "Griechischer Park",
@@ -4376,7 +6335,12 @@
    "expected_per_year": 26.6,
    "reports_12m": 27,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1509,
+    "median_source": "area"
+   }
   },
   "09200512": {
    "name": "Wuhlheide",
@@ -4387,7 +6351,12 @@
    "expected_per_year": 21.83,
    "reports_12m": 21,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 2100,
+    "median_source": "area"
+   }
   },
   "09200613": {
    "name": "Bahnhof Schöneweide",
@@ -4398,7 +6367,12 @@
    "expected_per_year": 66.17,
    "reports_12m": 71,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1399,
+    "median_source": "area"
+   }
   },
   "09200614": {
    "name": "Oberspree",
@@ -4409,7 +6383,12 @@
    "expected_per_year": 9.77,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09200715": {
    "name": "Wista",
@@ -4420,7 +6399,12 @@
    "expected_per_year": 31.62,
    "reports_12m": 36,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "area"
+   }
   },
   "09200716": {
    "name": "Dörpfeldstraße West",
@@ -4431,7 +6415,12 @@
    "expected_per_year": 12.99,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09200717": {
    "name": "Dörpfeldstraße Ost",
@@ -4442,7 +6431,12 @@
    "expected_per_year": 11.5,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09200818": {
    "name": "Spindlersfeld",
@@ -4453,7 +6447,12 @@
    "expected_per_year": 25.01,
    "reports_12m": 26,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1399,
+    "median_source": "area"
+   }
   },
   "09200819": {
    "name": "Köllnische Vorstadt",
@@ -4464,7 +6463,12 @@
    "expected_per_year": 18.07,
    "reports_12m": 17,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09300920": {
    "name": "Dorf Altglienicke",
@@ -4475,7 +6479,12 @@
    "expected_per_year": 9.09,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09300921": {
    "name": "Preußen Siedlung",
@@ -4486,7 +6495,12 @@
    "expected_per_year": 7.52,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09300922": {
    "name": "Kosmos Viertel",
@@ -4497,7 +6511,12 @@
    "expected_per_year": 3.88,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09300923": {
    "name": "Kölner Viertel",
@@ -4508,7 +6527,12 @@
    "expected_per_year": 7.0,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09301024": {
    "name": "Falkenberg",
@@ -4519,7 +6543,12 @@
    "expected_per_year": 12.96,
    "reports_12m": 13,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09301025": {
    "name": "Alt-Bohnsdorf",
@@ -4530,7 +6559,12 @@
    "expected_per_year": 12.29,
    "reports_12m": 12,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09301126": {
    "name": "Grünau",
@@ -4541,7 +6575,12 @@
    "expected_per_year": 31.98,
    "reports_12m": 32,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 798,
+    "median_source": "area"
+   }
   },
   "09301227": {
    "name": "Karolinenhof",
@@ -4552,7 +6591,12 @@
    "expected_per_year": 2.3,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": true
+   "no_record": true,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09301228": {
    "name": "Schmöckwitz/Rauchfangswerder",
@@ -4563,7 +6607,12 @@
    "expected_per_year": 4.45,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09401329": {
    "name": "Kietzer Feld/Nachtheide",
@@ -4574,7 +6623,12 @@
    "expected_per_year": 20.32,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1055,
+    "median_source": "area"
+   }
   },
   "09401330": {
    "name": "Wendenschloß",
@@ -4585,7 +6639,12 @@
    "expected_per_year": 7.89,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09401431": {
    "name": "Allende I",
@@ -4596,7 +6655,12 @@
    "expected_per_year": 10.56,
    "reports_12m": 13,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09401432": {
    "name": "Siedlung Kämmereiheide",
@@ -4607,7 +6671,12 @@
    "expected_per_year": 4.58,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09401433": {
    "name": "Allende II",
@@ -4618,7 +6687,12 @@
    "expected_per_year": 7.3,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09401534": {
    "name": "Altstadt Köpenick",
@@ -4629,7 +6703,12 @@
    "expected_per_year": 11.28,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09401635": {
    "name": "Müggelheim",
@@ -4640,7 +6719,12 @@
    "expected_per_year": 2.8,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09501736": {
    "name": "Hirschgarten",
@@ -4651,7 +6735,12 @@
    "expected_per_year": 34.28,
    "reports_12m": 34,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "09501737": {
    "name": "Alt-Friedrichshagen",
@@ -4662,7 +6751,12 @@
    "expected_per_year": 37.67,
    "reports_12m": 38,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 690,
+    "median_source": "area"
+   }
   },
   "09501838": {
    "name": "Rahnsdorf",
@@ -4673,7 +6767,12 @@
    "expected_per_year": 56.87,
    "reports_12m": 57,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "09501939": {
    "name": "Bahnhofstraße",
@@ -4684,7 +6783,12 @@
    "expected_per_year": 45.27,
    "reports_12m": 49,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1950,
+    "median_source": "area"
+   }
   },
   "09501940": {
    "name": "Güterbahnhof Köpenick",
@@ -4695,7 +6799,12 @@
    "expected_per_year": 29.76,
    "reports_12m": 30,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 899,
+    "median_source": "area"
+   }
   },
   "09501941": {
    "name": "Friedrichshagener Straße",
@@ -4706,7 +6815,12 @@
    "expected_per_year": 10.97,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09502042": {
    "name": "Mittelheide",
@@ -4717,7 +6831,12 @@
    "expected_per_year": 12.54,
    "reports_12m": 10,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "09502043": {
    "name": "Dammheide",
@@ -4728,7 +6847,12 @@
    "expected_per_year": 28.55,
    "reports_12m": 31,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1442,
+    "median_source": "area"
+   }
   },
   "10100101": {
    "name": "Marzahn West",
@@ -4739,7 +6863,12 @@
    "expected_per_year": 5.77,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100102": {
    "name": "Rosenbecker Straße",
@@ -4750,7 +6879,12 @@
    "expected_per_year": 3.77,
    "reports_12m": 3,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100103": {
    "name": "Wittenberger Straße",
@@ -4761,7 +6895,12 @@
    "expected_per_year": 4.17,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100104": {
    "name": "Golliner Straße",
@@ -4772,7 +6911,12 @@
    "expected_per_year": 2.97,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100205": {
    "name": "Gewerbegebiet Bitterfelder Straße",
@@ -4783,7 +6927,12 @@
    "expected_per_year": 5.62,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100206": {
    "name": "Wuhletalstraße",
@@ -4794,7 +6943,12 @@
    "expected_per_year": 7.23,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100207": {
    "name": "Ahrensfelder Berge",
@@ -4805,7 +6959,12 @@
    "expected_per_year": 6.69,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100208": {
    "name": "Bürgerpark",
@@ -4816,7 +6975,12 @@
    "expected_per_year": 6.15,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100209": {
    "name": "Lea-Grundig-Straße",
@@ -4827,7 +6991,12 @@
    "expected_per_year": 6.69,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100210": {
    "name": "Marzahner Promenade",
@@ -4838,7 +7007,12 @@
    "expected_per_year": 12.07,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100311": {
    "name": "Marzahner Chaussee",
@@ -4849,7 +7023,12 @@
    "expected_per_year": 13.46,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100312": {
    "name": "Springpfuhl",
@@ -4860,7 +7039,12 @@
    "expected_per_year": 15.26,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100313": {
    "name": "Alt-Marzahn",
@@ -4871,7 +7055,12 @@
    "expected_per_year": 6.86,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100314": {
    "name": "Auersbergstraße",
@@ -4882,7 +7071,12 @@
    "expected_per_year": 6.26,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100315": {
    "name": "Bärenstein",
@@ -4893,7 +7087,12 @@
    "expected_per_year": 5.06,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10100316": {
    "name": "Landsberger Tor",
@@ -4904,7 +7103,12 @@
    "expected_per_year": 10.46,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200417": {
    "name": "Zossener Straße",
@@ -4915,7 +7119,12 @@
    "expected_per_year": 2.92,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200418": {
    "name": "Kyritzer Straße",
@@ -4926,7 +7135,12 @@
    "expected_per_year": 4.49,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200419": {
    "name": "Havelländer Ring",
@@ -4937,7 +7151,12 @@
    "expected_per_year": 2.53,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200420": {
    "name": "Gut Hellersdorf",
@@ -4948,7 +7167,12 @@
    "expected_per_year": 3.31,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200421": {
    "name": "Helle Mitte",
@@ -4959,7 +7183,12 @@
    "expected_per_year": 4.88,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200422": {
    "name": "Hellersdorfer Promenade",
@@ -4970,7 +7199,12 @@
    "expected_per_year": 4.88,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200423": {
    "name": "Böhlener Straße",
@@ -4981,7 +7215,12 @@
    "expected_per_year": 5.67,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200524": {
    "name": "Adele-Sandrock-Straße",
@@ -4992,7 +7231,12 @@
    "expected_per_year": 12.43,
    "reports_12m": 16,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200525": {
    "name": "Schleipfuhl",
@@ -5003,7 +7247,12 @@
    "expected_per_year": 4.67,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200526": {
    "name": "Boulevard Kastanienallee",
@@ -5014,7 +7263,12 @@
    "expected_per_year": 6.33,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200627": {
    "name": "Am Kienberg",
@@ -5025,7 +7279,12 @@
    "expected_per_year": 2.4,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200628": {
    "name": "Neue Grottkauer Straße",
@@ -5036,7 +7295,12 @@
    "expected_per_year": 2.11,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200629": {
    "name": "Teterower Ring",
@@ -5047,7 +7311,12 @@
    "expected_per_year": 2.97,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10200630": {
    "name": "Cecilienplatz",
@@ -5058,7 +7327,12 @@
    "expected_per_year": 2.4,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10300731": {
    "name": "Oberfeldstraße",
@@ -5069,7 +7343,12 @@
    "expected_per_year": 24.41,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 625,
+    "median_source": "area"
+   }
   },
   "10300732": {
    "name": "Buckower Ring",
@@ -5080,7 +7359,12 @@
    "expected_per_year": 22.75,
    "reports_12m": 21,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1500,
+    "median_source": "area"
+   }
   },
   "10300733": {
    "name": "Alt-Biesdorf",
@@ -5091,7 +7375,12 @@
    "expected_per_year": 53.42,
    "reports_12m": 58,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 678,
+    "median_source": "area"
+   }
   },
   "10300734": {
    "name": "Biesdorf Süd",
@@ -5102,7 +7391,12 @@
    "expected_per_year": 24.41,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 454,
+    "median_source": "area"
+   }
   },
   "10400835": {
    "name": "Kaulsdorf Nord",
@@ -5113,7 +7407,12 @@
    "expected_per_year": 7.92,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10400836": {
    "name": "Alt-Kaulsdorf",
@@ -5124,7 +7423,12 @@
    "expected_per_year": 18.1,
    "reports_12m": 22,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 750,
+    "median_source": "area"
+   }
   },
   "10400837": {
    "name": "Kaulsdorf Süd",
@@ -5135,7 +7439,12 @@
    "expected_per_year": 7.28,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10400938": {
    "name": "Mahlsdorf Nord",
@@ -5146,7 +7455,12 @@
    "expected_per_year": 13.64,
    "reports_12m": 13,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10400939": {
    "name": "Alt-Mahlsdorf",
@@ -5157,7 +7471,12 @@
    "expected_per_year": 29.09,
    "reports_12m": 35,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 650,
+    "median_source": "area"
+   }
   },
   "10400940": {
    "name": "Elsensee",
@@ -5168,7 +7487,12 @@
    "expected_per_year": 8.73,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "10400941": {
    "name": "Pilgramer Straße",
@@ -5179,7 +7503,12 @@
    "expected_per_year": 8.73,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11100101": {
    "name": "Dörfer Malchow-Wartenberg",
@@ -5190,7 +7519,12 @@
    "expected_per_year": 3.73,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11100102": {
    "name": "Dorf Falkenberg",
@@ -5201,7 +7535,12 @@
    "expected_per_year": 3.02,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11100203": {
    "name": "Falkenberg Ost",
@@ -5212,7 +7551,12 @@
    "expected_per_year": 10.86,
    "reports_12m": 12,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11100204": {
    "name": "Falkenberg West",
@@ -5223,7 +7567,12 @@
    "expected_per_year": 7.92,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11100205": {
    "name": "Wartenberg Süd",
@@ -5234,7 +7583,12 @@
    "expected_per_year": 9.09,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11100206": {
    "name": "Wartenberg Nord",
@@ -5245,7 +7599,12 @@
    "expected_per_year": 8.5,
    "reports_12m": 8,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11100307": {
    "name": "Zingster Straße Ost",
@@ -5256,7 +7615,12 @@
    "expected_per_year": 17.0,
    "reports_12m": 20,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 810,
+    "median_source": "area"
+   }
   },
   "11100308": {
    "name": "Zingster Straße West",
@@ -5267,7 +7631,12 @@
    "expected_per_year": 9.93,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11100309": {
    "name": "Mühlengrund",
@@ -5278,7 +7647,12 @@
    "expected_per_year": 7.36,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11200410": {
    "name": "Malchower Weg",
@@ -5289,7 +7663,12 @@
    "expected_per_year": 13.1,
    "reports_12m": 12,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11200411": {
    "name": "Hauptstraße",
@@ -5300,7 +7679,12 @@
    "expected_per_year": 18.08,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11200512": {
    "name": "Orankesee",
@@ -5311,7 +7695,12 @@
    "expected_per_year": 30.95,
    "reports_12m": 31,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1058,
+    "median_source": "area"
+   }
   },
   "11200513": {
    "name": "Große-Leege-Straße",
@@ -5322,7 +7711,12 @@
    "expected_per_year": 40.05,
    "reports_12m": 42,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 771,
+    "median_source": "area"
+   }
   },
   "11200514": {
    "name": "Landsberger Allee",
@@ -5333,7 +7727,12 @@
    "expected_per_year": 28.47,
    "reports_12m": 28,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1127,
+    "median_source": "area"
+   }
   },
   "11200515": {
    "name": "Weiße Taube",
@@ -5344,7 +7743,12 @@
    "expected_per_year": 23.51,
    "reports_12m": 22,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1296,
+    "median_source": "area"
+   }
   },
   "11300616": {
    "name": "Hohenschönhauser Straße",
@@ -5355,7 +7759,12 @@
    "expected_per_year": 22.69,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 543,
+    "median_source": "area"
+   }
   },
   "11300617": {
    "name": "Fennpfuhlpark",
@@ -5366,7 +7775,12 @@
    "expected_per_year": 16.53,
    "reports_12m": 15,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11300618": {
    "name": "Storkower Bogen",
@@ -5377,7 +7791,12 @@
    "expected_per_year": 20.38,
    "reports_12m": 20,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 660,
+    "median_source": "area"
+   }
   },
   "11300619": {
    "name": "Rudolf-Seiffert-Park",
@@ -5388,7 +7807,12 @@
    "expected_per_year": 25.78,
    "reports_12m": 27,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 999,
+    "median_source": "area"
+   }
   },
   "11300620": {
    "name": "Fennpfuhl Ost",
@@ -5399,7 +7823,12 @@
    "expected_per_year": 22.69,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 712,
+    "median_source": "area"
+   }
   },
   "11300721": {
    "name": "Herzbergstraße",
@@ -5410,7 +7839,12 @@
    "expected_per_year": 45.8,
    "reports_12m": 48,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 925,
+    "median_source": "area"
+   }
   },
   "11300722": {
    "name": "Rathaus Lichtenberg",
@@ -5421,7 +7855,12 @@
    "expected_per_year": 51.69,
    "reports_12m": 55,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "11300723": {
    "name": "Bornitzstraße",
@@ -5432,7 +7871,12 @@
    "expected_per_year": 14.67,
    "reports_12m": 11,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11300724": {
    "name": "Roedeliusplatz",
@@ -5443,7 +7887,12 @@
    "expected_per_year": 17.2,
    "reports_12m": 14,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11300725": {
    "name": "Nibelungenviertel",
@@ -5454,7 +7903,12 @@
    "expected_per_year": 41.6,
    "reports_12m": 43,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1000,
+    "median_source": "area"
+   }
   },
   "11300826": {
    "name": "Frankfurter Allee Süd",
@@ -5465,7 +7919,12 @@
    "expected_per_year": 41.92,
    "reports_12m": 42,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 824,
+    "median_source": "area"
+   }
   },
   "11400927": {
    "name": "Victoriastadt",
@@ -5476,7 +7935,12 @@
    "expected_per_year": 93.41,
    "reports_12m": 101,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1785,
+    "median_source": "area"
+   }
   },
   "11400928": {
    "name": "Nöldnerplatz",
@@ -5487,7 +7951,12 @@
    "expected_per_year": 29.94,
    "reports_12m": 28,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 799,
+    "median_source": "area"
+   }
   },
   "11400929": {
    "name": "Weitlingkiez",
@@ -5498,7 +7967,12 @@
    "expected_per_year": 54.29,
    "reports_12m": 56,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 702,
+    "median_source": "area"
+   }
   },
   "11400930": {
    "name": "Zachertstraße",
@@ -5509,7 +7983,12 @@
    "expected_per_year": 20.38,
    "reports_12m": 17,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11400931": {
    "name": "Massower Straße",
@@ -5520,7 +7999,12 @@
    "expected_per_year": 16.9,
    "reports_12m": 13,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11401032": {
    "name": "Rosenfelder Ring",
@@ -5531,7 +8015,12 @@
    "expected_per_year": 12.3,
    "reports_12m": 12,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11401033": {
    "name": "Gensinger Straße",
@@ -5542,7 +8031,12 @@
    "expected_per_year": 8.97,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11401034": {
    "name": "Tierpark",
@@ -5553,7 +8047,12 @@
    "expected_per_year": 16.98,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11401135": {
    "name": "Dolgenseestraße",
@@ -5564,7 +8063,12 @@
    "expected_per_year": 21.79,
    "reports_12m": 22,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 950,
+    "median_source": "area"
+   }
   },
   "11401136": {
    "name": "Volkradstraße",
@@ -5575,7 +8079,12 @@
    "expected_per_year": 11.83,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "11401137": {
    "name": "Erieseering",
@@ -5586,7 +8095,12 @@
    "expected_per_year": 29.46,
    "reports_12m": 32,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 886,
+    "median_source": "area"
+   }
   },
   "11501238": {
    "name": "Rummelsburg",
@@ -5597,7 +8111,12 @@
    "expected_per_year": 73.84,
    "reports_12m": 74,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1500,
+    "median_source": "area"
+   }
   },
   "11501339": {
    "name": "Karlshorst West",
@@ -5608,7 +8127,12 @@
    "expected_per_year": 24.03,
    "reports_12m": 21,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 899,
+    "median_source": "area"
+   }
   },
   "11501340": {
    "name": "Karlshorst Nord",
@@ -5619,7 +8143,12 @@
    "expected_per_year": 45.05,
    "reports_12m": 45,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 774,
+    "median_source": "area"
+   }
   },
   "11501341": {
    "name": "Karlshorst Süd",
@@ -5630,7 +8159,12 @@
    "expected_per_year": 67.82,
    "reports_12m": 71,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 699,
+    "median_source": "area"
+   }
   },
   "12100101": {
    "name": "Letteplatz",
@@ -5641,7 +8175,12 @@
    "expected_per_year": 23.24,
    "reports_12m": 24,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 690,
+    "median_source": "area"
+   }
   },
   "12100102": {
    "name": "Hausotterplatz",
@@ -5652,7 +8191,12 @@
    "expected_per_year": 19.42,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12100103": {
    "name": "Breitkopfbecken",
@@ -5663,7 +8207,12 @@
    "expected_per_year": 19.42,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12100204": {
    "name": "Schäfersee",
@@ -5674,7 +8223,12 @@
    "expected_per_year": 20.68,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12100205": {
    "name": "Teichstraße",
@@ -5685,7 +8239,12 @@
    "expected_per_year": 50.77,
    "reports_12m": 56,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 600,
+    "median_source": "area"
+   }
   },
   "12100206": {
    "name": "Humboldtstraße",
@@ -5696,7 +8255,12 @@
    "expected_per_year": 12.55,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12200307": {
    "name": "Reinickes Hof",
@@ -5707,7 +8271,12 @@
    "expected_per_year": 6.13,
    "reports_12m": 3,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12200308": {
    "name": "Meller Bogen",
@@ -5718,7 +8287,12 @@
    "expected_per_year": 10.03,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12200309": {
    "name": "Scharnweberstraße",
@@ -5729,7 +8303,12 @@
    "expected_per_year": 19.13,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 979,
+    "median_source": "area"
+   }
   },
   "12200310": {
    "name": "Klixstraße",
@@ -5740,7 +8319,12 @@
    "expected_per_year": 11.98,
    "reports_12m": 12,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12200411": {
    "name": "Schumacher-Quartier",
@@ -5751,7 +8335,12 @@
    "expected_per_year": 1.41,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": true
+   "no_record": true,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12200412": {
    "name": "Waldidyll/Flughafensee",
@@ -5762,7 +8351,12 @@
    "expected_per_year": 2.29,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12200413": {
    "name": "Tegel Süd",
@@ -5773,7 +8367,12 @@
    "expected_per_year": 1.63,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12200414": {
    "name": "TXL",
@@ -5784,7 +8383,12 @@
    "expected_per_year": 1.63,
    "reports_12m": 1,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12200515": {
    "name": "Alt-Tegel",
@@ -5795,7 +8399,12 @@
    "expected_per_year": 27.02,
    "reports_12m": 27,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 1300,
+    "median_source": "area"
+   }
   },
   "12400616": {
    "name": "Konradshöhe/Tegelort",
@@ -5806,7 +8415,12 @@
    "expected_per_year": 6.33,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12400617": {
    "name": "Alt-Heiligensee",
@@ -5817,7 +8431,12 @@
    "expected_per_year": 4.67,
    "reports_12m": 2,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12400618": {
    "name": "Heiligensee Nord",
@@ -5828,7 +8447,12 @@
    "expected_per_year": 13.54,
    "reports_12m": 18,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12400619": {
    "name": "Heiligensee",
@@ -5839,7 +8463,12 @@
    "expected_per_year": 6.89,
    "reports_12m": 6,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12400720": {
    "name": "Frohnau West",
@@ -5850,7 +8479,12 @@
    "expected_per_year": 37.57,
    "reports_12m": 39,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 800,
+    "median_source": "area"
+   }
   },
   "12400721": {
    "name": "Frohnau Ost",
@@ -5861,7 +8495,12 @@
    "expected_per_year": 37.57,
    "reports_12m": 39,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 714,
+    "median_source": "area"
+   }
   },
   "12400722": {
    "name": "Hermsdorf West",
@@ -5872,7 +8511,12 @@
    "expected_per_year": 16.9,
    "reports_12m": 14,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12400723": {
    "name": "Hermsdorf Ost/Waldsee",
@@ -5883,7 +8527,12 @@
    "expected_per_year": 30.95,
    "reports_12m": 31,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 634,
+    "median_source": "area"
+   }
   },
   "12500824": {
    "name": "Ziekowstraße/Freie Scholle",
@@ -5894,7 +8543,12 @@
    "expected_per_year": 15.82,
    "reports_12m": 17,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12500825": {
    "name": "Borsigwalde",
@@ -5905,7 +8559,12 @@
    "expected_per_year": 10.42,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12500926": {
    "name": "Wittenau Mitte",
@@ -5916,7 +8575,12 @@
    "expected_per_year": 19.02,
    "reports_12m": 19,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12500927": {
    "name": "Wittenau Nord",
@@ -5927,7 +8591,12 @@
    "expected_per_year": 33.98,
    "reports_12m": 39,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "12500928": {
    "name": "Waidmannslust",
@@ -5938,7 +8607,12 @@
    "expected_per_year": 22.01,
    "reports_12m": 23,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "HIGH",
+   "area_stats": {
+    "median_stolen_value_eur": 700,
+    "median_source": "area"
+   }
   },
   "12500929": {
    "name": "Lübars",
@@ -5949,7 +8623,12 @@
    "expected_per_year": 8.55,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12500930": {
    "name": "Wittenau Süd",
@@ -5960,7 +8639,12 @@
    "expected_per_year": 11.54,
    "reports_12m": 9,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12601031": {
    "name": "Lübarser Straße",
@@ -5971,7 +8655,12 @@
    "expected_per_year": 5.29,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12601032": {
    "name": "Rollbergesiedlung",
@@ -5982,7 +8671,12 @@
    "expected_per_year": 5.29,
    "reports_12m": 5,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12601133": {
    "name": "Treuenbrietzener Straße",
@@ -5993,7 +8687,12 @@
    "expected_per_year": 8.31,
    "reports_12m": 7,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12601134": {
    "name": "Märkisches Zentrum",
@@ -6004,7 +8703,12 @@
    "expected_per_year": 12.02,
    "reports_12m": 13,
    "limited_data": false,
-   "no_record": false
+   "no_record": false,
+   "confidence": "MEDIUM",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12601235": {
    "name": "Dannenwalder Weg",
@@ -6015,7 +8719,12 @@
    "expected_per_year": 3.01,
    "reports_12m": 4,
    "limited_data": true,
-   "no_record": false
+   "no_record": false,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   },
   "12601236": {
    "name": "Schorfheidestraße",
@@ -6026,7 +8735,12 @@
    "expected_per_year": 1.86,
    "reports_12m": 0,
    "limited_data": true,
-   "no_record": true
+   "no_record": true,
+   "confidence": "LOW",
+   "area_stats": {
+    "median_stolen_value_eur": 900,
+    "median_source": "citywide"
+   }
   }
  }
 }

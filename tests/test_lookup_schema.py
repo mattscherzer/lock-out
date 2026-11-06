@@ -78,17 +78,20 @@ def test_attribution_carries_all_three_credits(output):
         assert any(f"'{key}' is a required property" in p for p in problems(broken))
 
 
-def test_fields_for_later_may_be_absent_but_must_be_right_when_present(output):
-    # 1.0.0 lets confidence, area_stats and citywide_facts be absent; filling them in later (#57) is additive
-    assert "confidence" not in next(iter(output["areas"].values()))
-    filled = copy.deepcopy(output)
-    filled["metadata"]["citywide_facts"] = {"lock_defeated_share": 0.94, "median_stolen_value_eur": 899}
-    for area in filled["areas"].values():
-        area.update(confidence="LOW", area_stats={"median_stolen_value_eur": 899, "median_source": "citywide"})
-    assert problems(filled) == []
-    first = next(iter(filled["areas"]))
-    filled["areas"][first]["confidence"] = "SAFE"
-    assert problems(filled) == [f"areas/{first}/confidence: 'SAFE' is not one of ['LOW', 'MEDIUM', 'HIGH']"]
+def test_the_generator_fills_the_fields_1_0_0_left_optional(output):
+    # 1.0.0 lets confidence, area_stats and citywide_facts be absent; the generator now fills them in (#57, #63)
+    assert set(output["metadata"]["citywide_facts"]) == {"lock_defeated_share", "median_stolen_value_eur"}
+    assert all("confidence" in a and "area_stats" in a for a in output["areas"].values())
+    # absent is still valid in 1.x, so a file without them keeps matching the schema
+    bare = copy.deepcopy(output)
+    del bare["metadata"]["citywide_facts"]
+    for area in bare["areas"].values():
+        del area["confidence"], area["area_stats"]
+    assert problems(bare) == []
+    first = next(iter(output["areas"]))
+    wrong = copy.deepcopy(output)
+    wrong["areas"][first]["confidence"] = "SAFE"
+    assert problems(wrong) == [f"areas/{first}/confidence: 'SAFE' is not one of ['LOW', 'MEDIUM', 'HIGH']"]
 
 
 def test_the_schema_rejects_an_unknown_field_and_a_missing_area(output):
