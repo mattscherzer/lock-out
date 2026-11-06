@@ -19,7 +19,7 @@ type Props = {
   areaId: string | null; // names are not unique (two Schloßstraße), so the id decides when the area changed
   state: CardState;
   verdict: (explain: () => void) => ReactNode;
-  strip?: ReactNode; // compact verdict, pinned under the name once the verdict card has scrolled away
+  tier?: ReactNode; // compact verdict: pinned once the verdict card has scrolled away, and the only verdict shown when lowered
   advice?: ReactNode;
   details: ReactNode;
   explain: ReactNode;
@@ -29,7 +29,7 @@ type Props = {
 
 const STOPS = ["lowered", "higher", "full"] as const;
 type Stop = (typeof STOPS)[number];
-const LOWERED_PX = 280;
+const LOWERED_PX = 152; // handle, name, district and the compact verdict
 // at least 40px above lowered, so a short landscape phone never inverts the stops
 const loweredPx = () => Math.min(LOWERED_PX, window.innerHeight);
 export const higherPx = () =>
@@ -37,7 +37,6 @@ export const higherPx = () =>
     window.innerHeight,
     Math.max(LOWERED_PX + 40, Math.min(520, Math.round(window.innerHeight * 0.64))),
   );
-const FULL_GAP_PX = 64; // full leaves this much map above the sheet, so the search pill stays visible
 const CLOSED = STOPS.length; // index after the last stop in the drag stops
 const SLOP_PX = 6; // movement below this is a tap, not a drag
 const PULL_PX = 2; // a pull down from the top of the content claims the gesture this early, before the browser decides to scroll
@@ -56,7 +55,7 @@ export function AnswerCard({
   areaId,
   state,
   verdict,
-  strip,
+  tier,
   advice,
   details,
   explain,
@@ -65,9 +64,9 @@ export function AnswerCard({
 }: Props) {
   const card = useRef<HTMLElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
-  const pin = useRef<HTMLDivElement>(null);
+  const strip = useRef<HTMLDivElement>(null);
   const verdictBox = useRef<HTMLDivElement>(null);
-  const [pinned, setPinned] = useState(0); // 1: the name has scrolled away, 2: the verdict card has too
+  const [pinned, setPinned] = useState(0); // 1: the name has scrolled away (phone), 2: the verdict card has too
   const [stop, setStop] = useState<Stop>("higher");
   const [collapsed, setCollapsed] = useState(false);
   const [explainOpen, setExplainOpen] = useState(false);
@@ -97,18 +96,28 @@ export function AnswerCard({
     setStop(next);
   };
 
+  const onScroll = () => {
+    if (!card.current?.scrollTop) return setPinned(0);
+    const under = strip.current?.getBoundingClientRect().top; // where the pinned strip sits
+    if (under === undefined) return;
+    const rect = (el: HTMLElement | null) => el?.getBoundingClientRect();
+    // the strip takes over as soon as the verdict card reaches it; the name once it has scrolled away
+    setPinned(
+      (rect(verdictBox.current)?.top ?? Infinity) <= under
+        ? 2
+        : (rect(title.current)?.bottom ?? Infinity) <= under
+          ? 1
+          : 0,
+    );
+  };
   useEffect(() => {
     if (stop !== "full") card.current?.scrollTo?.(0, 0);
-  }, [stop]);
+    onScroll(); // no scroll event fires when the position did not change, but the layout did
+  }, [stop, areaId, open]);
   useEffect(() => {
     card.current?.scrollTo?.(0, 0); // another area starts at its top
   }, [areaId]);
-  const onScroll = () => {
-    const under = pin.current?.getBoundingClientRect().bottom;
-    if (under === undefined) return;
-    const gone = (el: HTMLElement | null) => !!el && el.getBoundingClientRect().bottom <= under;
-    setPinned(gone(verdictBox.current) ? 2 : gone(title.current) ? 1 : 0);
-  };
+  const collapse = () => go(stop === "full" ? before.current : "lowered");
   useEffect(() => {
     if (open) setStop("higher"); // picking another area keeps the height
   }, [open]);
@@ -135,7 +144,7 @@ export function AnswerCard({
   } | null>(null);
   const begin = (y: number) => {
     const h = card.current!.offsetHeight;
-    const stops = [h - loweredPx(), h - higherPx(), FULL_GAP_PX, h]; // translateY of lowered, higher, full, then CLOSED
+    const stops = [h - loweredPx(), h - higherPx(), 0, h]; // translateY of lowered, higher, full, then CLOSED
     drag.current = { y, from: stops[STOPS.indexOf(stop)], stops, moved: false, last: null, v: 0 };
   };
   const track = (y: number, capture?: () => void) => {
@@ -255,7 +264,6 @@ export function AnswerCard({
           {
             "--answer-lowered": `${loweredPx()}px`,
             "--answer-higher": `${higherPx()}px`,
-            "--answer-full-gap": `${FULL_GAP_PX}px`,
           } as CSSProperties
         }
         onScroll={onScroll}
@@ -269,7 +277,6 @@ export function AnswerCard({
         }}
       >
         <div
-          ref={pin}
           className="answer-pin answer-pin-bar gap-2 pr-2 pl-4"
           data-on={pinned > 0 || undefined}
         >
@@ -278,9 +285,9 @@ export function AnswerCard({
           </span>
           <button
             type="button"
-            className={`answer-collapse ${ICON_BUTTON}`}
+            className={ICON_BUTTON}
             aria-label="Collapse area details"
-            onClick={() => go(before.current)}
+            onClick={collapse}
           >
             <ChevronDown aria-hidden="true" />
           </button>
@@ -294,11 +301,12 @@ export function AnswerCard({
           </button>
         </div>
         <div
-          className="answer-pin answer-pin-strip gap-2 px-4"
+          ref={strip}
+          className="answer-pin answer-pin-strip px-4"
           data-on={pinned > 1 || undefined}
           aria-hidden="true"
         >
-          {strip}
+          {tier}
         </div>
         <div className="answer-drag flex-none">
           <button
@@ -320,6 +328,14 @@ export function AnswerCard({
               </div>
               <button
                 type="button"
+                className={`answer-collapse ${ICON_BUTTON} -mt-1.5`}
+                aria-label="Collapse area details"
+                onClick={collapse}
+              >
+                <ChevronDown aria-hidden="true" />
+              </button>
+              <button
+                type="button"
                 className={`answer-close ${ICON_BUTTON} -mt-1.5 -mr-2`}
                 aria-label="Close area details"
                 onClick={onClose}
@@ -327,8 +343,9 @@ export function AnswerCard({
                 <X aria-hidden="true" />
               </button>
             </div>
+            <div className="answer-peek">{tier}</div>
             {(state === "ready" || state === "no-data") && (
-              <div ref={verdictBox}>
+              <div ref={verdictBox} className="answer-verdict">
                 {verdict(() => {
                   trigger.current = document.activeElement as HTMLElement;
                   setExplainOpen(true);
@@ -337,7 +354,7 @@ export function AnswerCard({
             )}
           </header>
         </div>
-        <div className="answer-body flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-4">
+        <div className="answer-body flex flex-col gap-6 p-4">
           {state === "ready" || state === "no-data" ? (
             <>
               {advice}

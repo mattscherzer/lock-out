@@ -39,7 +39,7 @@ export function AreaAnswer({
           />
         )
       }
-      strip={record && <VerdictStrip kind={kindOf(record)} />}
+      tier={record && <VerdictStrip kind={kindOf(record)} />}
       details={
         record && (
           <Details
