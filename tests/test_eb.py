@@ -6,7 +6,8 @@ import pandas as pd
 import pytest
 
 from audit_checks import polygon_ids
-from models.eb import LIMITED_DATA_BELOW, TIERS, check_tier_shares, fit, generate, posterior_rate, share_in_top_quartile, strength, tiers
+from models.backtest import counts
+from models.eb import LIMITED_DATA_BELOW, check_tier_shares, fit, generate, generator_window, posterior_rate, share_in_top_quartile, strength, tiers
 from pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
@@ -87,16 +88,36 @@ def test_generator_emits_all_542_areas_with_flags_from_cleaned_data():
     assert cellar_only, "the fixture should contain an area with only cellar rows"
     assert all(areas[lor]["no_record"] for lor in cellar_only)
     assert all(a["limited_data"] == (a["reports_12m"] < LIMITED_DATA_BELOW) for a in areas.values())
-    # values from the input, not fixed ones: dates from the data and the cutoff, bands from TIERS, shares that add up
-    start = cutoff - pd.DateOffset(months=12) + pd.Timedelta(days=1)
-    assert out["metadata"]["reports_up_to"] == f"{reports_up_to:%Y-%m-%d}"
-    assert out["metadata"]["data_window"] == {"start": f"{start:%Y-%m-%d}", "end": f"{cutoff:%Y-%m-%d}"}
-    assert sum(a["reports_12m"] for a in areas.values()) == cleaned["TATZEIT_ENDE_DATUM"].between(start, cutoff).sum()
-    bands = out["risk_bands"]
-    assert [(name, b["max_percentile"]) for name, b in bands.items()] == TIERS
-    assert [b["min_percentile"] for b in bands.values()] == [0.0] + [top for _, top in TIERS[:-1]]
+    # literal values for the fixture: its last report date, the 12-month window that ends 14 days earlier, the thefts
+    # in that window, and the 60/25/15 bands, so a wrong window rule or band bound fails here
+    assert out["metadata"]["reports_up_to"] == "2026-10-08"
+    assert out["metadata"]["data_window"] == {"start": "2025-09-25", "end": "2026-09-24"}
+    assert sum(a["reports_12m"] for a in areas.values()) == 1460
+    assert out["risk_bands"] == {
+        "LOW": {"min_percentile": 0.0, "max_percentile": 0.6},
+        "MEDIUM": {"min_percentile": 0.6, "max_percentile": 0.85},
+        "HIGH": {"min_percentile": 0.85, "max_percentile": 1.0},
+    }
     assert all(sum(s["shares"].values()) == pytest.approx(1, abs=0.001) for s in out["selectors"].values())
     assert areas["01100101"]["bez_name"] == "Mitte" and not any(a["bez_name"][0].isdigit() for a in areas.values())
+
+
+def test_every_areas_tier_and_rate_come_from_the_model():
+    # a fixed tier or expected_per_year for every area fails here (#104)
+    _, cleaned = cleaned_fixture()
+    reports_up_to = cleaned["ANGELEGT_AM"].max()
+    cutoff = reports_up_to - pd.Timedelta(days=14)
+    areas = sorted(polygon_ids())
+    flags = {s: {"pattern": "citywide pattern", "reason": "test"} for s in ["time_band", "day_group", "bike_value"]}
+    out = generate(cleaned, areas, reports_up_to, cutoff, "sample.csv", flags)["areas"]
+    window, start = generator_window(cleaned, cutoff)
+    rate, _ = fit(counts(window, areas, start, cutoff))
+    assert {lor: a["tier"] for lor, a in out.items()} == tiers(rate).to_dict()
+    assert {lor: a["expected_per_year"] for lor, a in out.items()} == {lor: round(float(r), 2) for lor, r in rate.items()}
+    # and literal values for three areas, one per tier: 22, 2 and 0 thefts in the window
+    assert (out["01100309"]["tier"], out["01100309"]["expected_per_year"]) == ("HIGH", 15.16)
+    assert (out["01100101"]["tier"], out["01100101"]["expected_per_year"]) == ("MEDIUM", 4.13)
+    assert (out["12601236"]["tier"], out["12601236"]["expected_per_year"]) == ("LOW", 1.16)
 
 
 def test_generator_raises_on_degenerate_rates():
