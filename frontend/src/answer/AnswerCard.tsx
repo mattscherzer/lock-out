@@ -38,6 +38,7 @@ export const higherPx = () =>
     Math.max(LOWERED_PX + 40, Math.min(520, Math.round(window.innerHeight * 0.64))),
   );
 const FULL_GAP_PX = 16; // the map margin above a full sheet, the same as the search pill keeps
+const SCROLLED = 0.75; // how much of the verdict card must scroll away before its compact copy pins
 const CLOSED = STOPS.length; // index after the last stop in the drag stops
 const SLOP_PX = 6; // movement below this is a tap, not a drag
 const PULL_PX = 2; // a pull down from the top of the content claims the gesture this early, before the browser decides to scroll
@@ -100,9 +101,10 @@ export function AnswerCard({
     const under = strip.current?.getBoundingClientRect().top; // where the pinned strip sits
     if (under === undefined) return;
     const rect = (el: HTMLElement | null) => el?.getBoundingClientRect();
-    // the strip takes over as soon as the verdict card reaches it; the name once it has scrolled away
+    const card75 = rect(verdictBox.current);
+    // the strip takes over once 75% of the verdict card has scrolled under it, so the two never show the same thing; the name once it has scrolled away
     setPinned(
-      (rect(verdictBox.current)?.top ?? Infinity) <= under
+      card75 && card75.top + card75.height * SCROLLED <= under
         ? 2
         : (rect(title.current)?.bottom ?? Infinity) <= under
           ? 1
