@@ -53,6 +53,14 @@ def clean(df):
     return allocate(truncate(street))
 
 
+def stolen_value(df):
+    """SCHADENSHOEHE in euros. A blank, unreadable or 0 value is NaN: it is left out of every median (#57) and counts in
+    neither bike value level (#103). A stolen bike worth EUR 0 is not a real value, and we have no field description
+    that defines 0, so we treat it as unknown."""
+    value = pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce")
+    return value.where(value > 0)
+
+
 if __name__ == "__main__":
     raw = check_csv(Path(sys.argv[1]) if len(sys.argv) > 1 else find_raw_csv())
     street = street_rows(raw)

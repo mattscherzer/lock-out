@@ -14,7 +14,7 @@ import config
 from audit_checks import check_csv, polygon_ids
 from fetch_police_csv import find_raw_csv
 from models.eb import LIMITED_DATA_BELOW, generator_window
-from pipeline.clean import clean
+from pipeline.clean import clean, stolen_value
 
 OWN_MEDIAN_FROM = 20  # thefts with a usable value in 12 months for an area's own median stolen value (S2, issue #57)
 LOCK_DEFEATED = "schwerer"  # ERFASSUNGSGRUND marks a theft where a lock was defeated ("schwerer Diebstahl")
@@ -26,13 +26,6 @@ def confidence(n):
     if n < LIMITED_DATA_BELOW:
         return "LOW"
     return "MEDIUM" if n < OWN_MEDIAN_FROM else "HIGH"
-
-
-def stolen_value(df):
-    """SCHADENSHOEHE in euros. A blank, unreadable or 0 value is NaN and left out of every median: a stolen bike
-    worth EUR 0 is not a real value, and we have no field description that defines 0, so we treat it as unknown."""
-    value = pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce")
-    return value.where(value > 0)
 
 
 def citywide_facts(window):

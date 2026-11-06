@@ -69,7 +69,7 @@ Each selector the card shows is checked on both folds. It gets an area pattern o
 - **Sparse:** the median count per area and selector level in the fold's 12-month history is below 5. This is a working rule from the EDA, not a tested threshold.
 - **Hold-out test:** both versions predict each area's fold count with the same EB rate and differ only in the shares they split it by, so the test measures only whether area-specific shares help. Area-specific shares are pulled toward the citywide shares, with the strength estimated from the data (method of moments, as for the area rates). The score is the mean Poisson deviance over all areas and levels; lower is better.
 - **Time band:** offence hours are spread across the reported window, and the cleaning splits each theft over the bands it covers. Even a passing time band would be weak evidence.
-- **Bike value** is the one split at EUR 1000 used in the model ("bike class" in the issue). A theft with no recorded value counts in neither level.
+- **Bike value** is the one split at EUR 1000 used in the model ("bike class" in the issue). A theft with no recorded value, or a value of 0, counts in neither level, as for the median stolen value (#57).
 - **Hold-out alone** shows the hold-out result whatever the sparsity rule says, so a flag that rests on the working rule alone is visible.
 - **"Area pattern" is a validation result only.** The lookup file (`lookup_schema_v1.json`) still carries only the citywide shares (`area_values` is false). Adding area values, and deciding how the card words them, would be an additive change to schema v1: the data shows which bikes are stolen in an area, not how many of each kind are parked there.
 
@@ -77,4 +77,4 @@ Each selector the card shows is checked on both folds. It gets an area pattern o
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Time band | 4.6 | 4.4 | 1.035 vs 1.035 | 1.135 vs 1.135 | not better in both folds | citywide pattern | too sparse: median 4.4 thefts per area and level, working rule at least 5 |
 | Day group | 5.0 | 5.0 | 1.505 vs 1.512 | 1.695 vs 1.695 | not better in both folds | citywide pattern | area-specific shares do not predict both folds better than the citywide shares |
-| Bike value (EUR 1000 split) | 9.0 | 9.0 | 2.079 vs 1.952 | 2.230 vs 2.128 | area better in both folds | area pattern | area-specific shares predict both folds better than the citywide shares |
+| Bike value (EUR 1000 split) | 9.0 | 9.0 | 2.062 vs 1.930 | 2.161 vs 2.053 | area better in both folds | area pattern | area-specific shares predict both folds better than the citywide shares |

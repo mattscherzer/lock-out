@@ -61,8 +61,8 @@
   },
   "bike_value": {
    "shares": {
-    "under_eur_1000": 0.5406,
-    "eur_1000_or_more": 0.4594
+    "under_eur_1000": 0.5348,
+    "eur_1000_or_more": 0.4652
    },
    "pattern": "area pattern",
    "reason": "area-specific shares predict both folds better than the citywide shares",

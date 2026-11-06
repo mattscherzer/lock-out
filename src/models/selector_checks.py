@@ -8,6 +8,7 @@ import pandas as pd
 from sklearn.metrics import mean_poisson_deviance
 
 import config
+from pipeline.clean import stolen_value
 
 SELECTORS = ("time_band", "day_group", "bike_value")
 BIKE_VALUE_SPLIT_EUR = 1000  # bike value band (D-07); "bike class" in issue #39
@@ -22,7 +23,7 @@ def levels(df, selector):
         group = df["TATZEIT_ANFANG_DATUM"].dt.weekday.apply(config.daytype_of)
         return pd.DataFrame({g: (group == g).astype(float) for g in config.DAYTYPES})
     if selector == "bike_value":
-        value = pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce")  # blank or unreadable: in neither level
+        value = stolen_value(df)  # blank, unreadable or 0 is unknown and counts in neither level
         return pd.DataFrame({
             f"under_eur_{BIKE_VALUE_SPLIT_EUR}": (value < BIKE_VALUE_SPLIT_EUR).astype(float),
             f"eur_{BIKE_VALUE_SPLIT_EUR}_or_more": (value >= BIKE_VALUE_SPLIT_EUR).astype(float),
