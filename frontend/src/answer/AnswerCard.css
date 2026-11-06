@@ -163,14 +163,17 @@
   }
 
   .answer-card[data-open][data-stop="full"] {
-    transform: none;
-    border-radius: 0;
+    transform: translateY(var(--answer-full-gap));
     z-index: calc(var(--z-search) + 1);
-  } /* covers the search pill */
+  } /* covers the search pill, leaving the map margin the pill has */
+
+  /* the sheet is translated down by that margin: pad by it so the last block can scroll into view */
+  .answer-card[data-open][data-stop="full"] .answer-body {
+    padding-bottom: calc(var(--space-4) + var(--answer-full-gap));
+  }
 
   /* minimized: the name and the risk assessment, nothing else */
-  .answer-card[data-stop="lowered"] .answer-verdict,
-  .answer-card[data-stop="lowered"] .answer-collapse {
+  .answer-card[data-stop="lowered"] .answer-verdict {
     display: none;
   }
 
@@ -242,7 +245,6 @@
   }
 
   .answer-handle,
-  .answer-collapse,
   .answer-pin-bar {
     display: none;
   }

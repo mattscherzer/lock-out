@@ -7,7 +7,7 @@ import { createRoot } from "react-dom/client";
 import { higherPx } from "./answer/AnswerCard.tsx";
 import { AreaAnswer } from "./answer/AreaAnswer.tsx";
 import { kindOf } from "./answer/kind.ts";
-import { Legend } from "./map/Legend.tsx";
+import { Legend, LegendMenu } from "./map/Legend.tsx";
 import { addHatch, areaStyle, type Emphasis } from "./map/mapStyle.ts";
 import { tintBasemap } from "./map/tint.ts";
 import { mountAbout } from "./mountAbout.tsx";
@@ -209,6 +209,7 @@ try {
     polygon.on("mouseout", () => (id !== selected || !cardOpen) && emphasise(id, "rest"));
   });
   createRoot(document.getElementById("legend")!).render(<Legend />);
+  createRoot(document.getElementById("legend-menu")!).render(<LegendMenu />);
   document.getElementById("search")!.addEventListener("focusin", () => {
     if (!cardOpen) return;
     lowerSignal++;
