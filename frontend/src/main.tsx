@@ -7,7 +7,7 @@ import { createRoot } from "react-dom/client";
 import { higherPx } from "./answer/AnswerCard.tsx";
 import { AreaAnswer } from "./answer/AreaAnswer.tsx";
 import { kindOf } from "./answer/kind.ts";
-import { Legend, LegendMenu } from "./map/Legend.tsx";
+import { Legend, LegendMenu, watchLegendFit } from "./map/Legend.tsx";
 import { addHatch, areaStyle, type Emphasis } from "./map/mapStyle.ts";
 import { tintBasemap } from "./map/tint.ts";
 import { mountAbout } from "./mountAbout.tsx";
@@ -210,6 +210,7 @@ try {
   });
   createRoot(document.getElementById("legend")!).render(<Legend />);
   createRoot(document.getElementById("legend-menu")!).render(<LegendMenu />);
+  watchLegendFit();
   document.getElementById("search")!.addEventListener("focusin", () => {
     if (!cardOpen) return;
     lowerSignal++;
