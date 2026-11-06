@@ -16,7 +16,7 @@ const ITEMS = [
 
 function Item({ label, colour, limited }: (typeof ITEMS)[number]) {
   return (
-    <li className="flex items-center gap-1">
+    <li className="flex items-center gap-1 whitespace-nowrap">
       <span
         aria-hidden="true"
         className={`${SWATCH} ${limited ? HATCH : FILL}`}
@@ -74,11 +74,11 @@ export function LegendMenu() {
         <Palette aria-hidden="true" size={20} />
       </button>
       {/* the clip lets the bar slide out from behind the button; its padding keeps the shadow */}
-      <div className="absolute top-1/2 right-full -translate-y-1/2 overflow-hidden p-2">
+      <div className="absolute top-1/2 right-full box-border w-max max-w-[calc(100vw-var(--space-4)-var(--control-md))] -translate-y-1/2 overflow-hidden p-2">
         <ul
           id="legend-list"
           aria-hidden={!open}
-          className={`m-0 flex list-none gap-2 rounded-sm bg-surface-container-lowest px-3 py-2 body-sm whitespace-nowrap text-on-surface shadow-elevation-2 transition-[translate,visibility] duration-base ease-standard ${open ? "visible translate-x-0" : "invisible translate-x-[calc(100%+var(--space-2))]"}`}
+          className={`m-0 box-border flex list-none flex-wrap gap-x-2 gap-y-1 rounded-sm bg-surface-container-lowest px-3 py-2 body-sm whitespace-nowrap text-on-surface shadow-elevation-2 transition-[translate,visibility] duration-base ease-standard ${open ? "visible translate-x-0" : "invisible translate-x-[calc(100%+var(--space-2))]"}`}
         >
           {ITEMS.map((item) => (
             <Item key={item.label} {...item} />
