@@ -7,7 +7,8 @@ import pytest
 
 from audit_checks import polygon_ids
 from models.eb import evaluate, selector_flags
-from models.selector_checks import MIN_MEDIAN_PER_LEVEL, area_shares, flag, holdout, level_counts, share_strength
+from models.area_stats import stolen_value
+from models.selector_checks import MIN_MEDIAN_PER_LEVEL, area_shares, flag, holdout, level_counts, levels, share_strength
 from pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
@@ -107,3 +108,12 @@ def test_sample_data_is_too_sparse_for_every_selector():
     flags = selector_flags(evaluate(cleaned, sorted(polygon_ids())))
     assert set(flags) == {"time_band", "day_group", "bike_value"}
     assert all(f["pattern"] == "citywide pattern" and f["reason"].startswith("too sparse") for f in flags.values())
+
+
+def test_a_zero_value_counts_in_neither_bike_value_level():
+    # issue #103: a stolen bike worth EUR 0 is not a real value, so 0 is unknown like a blank or unreadable value
+    df = thefts([("A", "2026-06-01", "2026-06-01", v, 0.0) for v in ["0", None, "abc", "500", "1000"]])
+    split = levels(df, "bike_value")
+    assert split.sum(axis=1).tolist() == [0, 0, 0, 1, 1]
+    # the same rule as the median stolen value (#57): unknown here exactly where stolen_value() is unknown
+    assert (split.sum(axis=1) == 0).tolist() == stolen_value(df).isna().tolist()

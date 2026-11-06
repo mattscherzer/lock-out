@@ -22,7 +22,10 @@ def levels(df, selector):
         group = df["TATZEIT_ANFANG_DATUM"].dt.weekday.apply(config.daytype_of)
         return pd.DataFrame({g: (group == g).astype(float) for g in config.DAYTYPES})
     if selector == "bike_value":
-        value = pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce")  # blank or unreadable: in neither level
+        # blank, unreadable or 0 is an unknown value and counts in neither level, the same rule as stolen_value() in
+        # area_stats.py (#57, #103); not imported from there because area_stats imports eb, which imports this module
+        value = pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce")
+        value = value.where(value > 0)
         return pd.DataFrame({
             f"under_eur_{BIKE_VALUE_SPLIT_EUR}": (value < BIKE_VALUE_SPLIT_EUR).astype(float),
             f"eur_{BIKE_VALUE_SPLIT_EUR}_or_more": (value >= BIKE_VALUE_SPLIT_EUR).astype(float),
