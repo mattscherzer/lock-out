@@ -31,6 +31,10 @@ The Spearman target is checked on the last fold only, as the issue states.
 | 2026-04-01 to 2026-06-30 | 2.474 | 9.824 | 2.576 | 0.871 | 94% | 93% |
 | 2026-07-01 to 2026-09-29 | 2.872 | 10.567 | 2.935 | 0.870 | 91% | 91% |
 
-## Generator v0 output
+## Generator output
 
 `data/processed/lookup_schema_v1.json` (schema 1.0.0, checked against `schemas/lookup_v1.schema.json`): 542 areas, data window 2025-10-11 to 2026-10-10. 8 areas have no street theft at all in the cleaned data (`no_record`), 84 have fewer than 5 street thefts in the window (`limited_data`).
+
+- **Confidence** (`src/models/area_stats.py`, issue #57): LOW 84, MEDIUM 200, HIGH 258 areas. LOW is the same line as `limited_data`.
+- **Median stolen value:** 255 areas have their own median; the other 287 show the citywide one.
+- **Citywide facts:** median stolen value EUR 900, lock-defeated share 94%.

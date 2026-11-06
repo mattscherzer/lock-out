@@ -24,6 +24,9 @@ jobs:
 
       - run: uv run pytest
 
+      # M5 (issue #63): the committed lookup file and the frontend fixture must match the locked schema
+      - run: uv run python src/lookup_schema.py
+
   frontend:
     runs-on: ubuntu-latest
     defaults:
