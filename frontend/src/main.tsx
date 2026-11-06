@@ -1,10 +1,15 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./styles/index.css";
+import "./map/map.css";
 import type { FeatureCollection } from "geojson";
 import { createRoot } from "react-dom/client";
 import { higherPx } from "./answer/AnswerCard.tsx";
 import { AreaAnswer } from "./answer/AreaAnswer.tsx";
+import { kindOf } from "./answer/kind.ts";
+import { Legend } from "./map/Legend.tsx";
+import { addHatch, areaStyle, type Emphasis } from "./map/mapStyle.ts";
+import { tintBasemap } from "./map/tint.ts";
 import { mountAbout } from "./mountAbout.tsx";
 import { AreaSearch, type Context } from "./search/AreaSearch.tsx";
 import { addStreets, buildIndex } from "./search/places.ts";
@@ -17,8 +22,6 @@ const getJson = <T,>(name: string): Promise<T> =>
   });
 
 const BRAND = "#2563EB";
-const AREA_STYLE = { color: BRAND, weight: 1, fillOpacity: 0.15 };
-const SELECTED_STYLE = { color: BRAND, weight: 3, fillOpacity: 0.4 };
 const EMPTY_GAZETTEER: Gazetteer = { plz: {}, stations: [] };
 
 // Search is optional: a missing or malformed gazetteer (null here) leaves area-name search, not a broken map.
@@ -37,7 +40,10 @@ const loadGazetteer = () =>
 const SEARCH_ATTRIBUTION = "Search: Amt für Statistik Berlin-Brandenburg (CC-BY 3.0), VBB";
 
 const status = document.getElementById("status")!;
-const map = L.map("map", { zoomControl: false }).setView([52.52, 13.405], 11);
+const renderer = L.svg();
+addHatch(renderer);
+const map = L.map("map", { zoomControl: false, renderer }).setView([52.52, 13.405], 11);
+tintBasemap(map);
 L.control.zoom({ position: "bottomright" }).addTo(map);
 
 try {
@@ -54,8 +60,11 @@ try {
   }).addTo(map);
 
   const polygons: Record<string, L.Polygon> = {};
+  let selected: string | null = null;
+  const emphasise = (id: string, emphasis: Emphasis) =>
+    polygons[id].setStyle(areaStyle(kindOf(fixture.areas[id]), emphasis));
   const layer = L.geoJSON(areas, {
-    style: AREA_STYLE,
+    style: (feature) => areaStyle(kindOf(fixture.areas[feature!.properties.id as string]), "rest"),
     onEachFeature: (feature, polygon) => {
       const area = fixture.areas[feature.properties.id as string];
       // element, not a string: Leaflet would parse a string as HTML
@@ -68,7 +77,6 @@ try {
   }).addTo(map);
 
   map.fitBounds(layer.getBounds());
-  let selected: string | null = null;
   let closeSignal = 0;
   let cardOpen = false;
   let lowerSignal = 0; // focusing the search lowers the phone sheet out of the way
@@ -153,7 +161,7 @@ try {
   // pin = "you searched here"; only stations have coordinates
   let pin: L.CircleMarker | undefined;
   const select = (id: string | null, context: Context | null) => {
-    if (selected) polygons[selected].setStyle(AREA_STYLE);
+    if (selected) emphasise(selected, "rest");
     Object.values(polygons).forEach((polygon) => polygon.closeTooltip()); // a hover tooltip would stay open after the map moves
     pin?.remove();
     pin = context?.ll
@@ -169,7 +177,10 @@ try {
           .addTo(map)
       : undefined;
     selected = id;
-    if (id) polygons[id].setStyle(SELECTED_STYLE).bringToFront();
+    if (id) {
+      emphasise(id, "selected");
+      polygons[id].bringToFront();
+    }
     cardOpen = id !== null;
     renderSearch();
     renderCard();
@@ -179,12 +190,15 @@ try {
     closeSignal++;
     renderSearch();
   });
-  Object.entries(polygons).forEach(([id, polygon]) =>
+  Object.entries(polygons).forEach(([id, polygon]) => {
     polygon.on("click", () => {
       select(id, null);
       fly(id, { maxZoom: map.getZoom() }); // pan clear of the card, never zoom in on a tap
-    }),
-  );
+    });
+    polygon.on("mouseover", () => id !== selected && emphasise(id, "hover"));
+    polygon.on("mouseout", () => id !== selected && emphasise(id, "rest"));
+  });
+  createRoot(document.getElementById("legend")!).render(<Legend />);
   document.getElementById("search")!.addEventListener("focusin", () => {
     if (!cardOpen) return;
     lowerSignal++;
