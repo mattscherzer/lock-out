@@ -1,0 +1,92 @@
+@layer components {
+  path.risk-low {
+    stroke: var(--risk-low);
+    fill: var(--risk-low);
+  }
+
+  path.risk-medium {
+    stroke: var(--risk-medium);
+    fill: var(--risk-medium);
+  }
+
+  path.risk-high {
+    stroke: var(--risk-high);
+    fill: var(--risk-high);
+  }
+
+  path.risk-no-data {
+    stroke: var(--risk-no-data);
+    fill: var(--risk-no-data);
+  }
+
+  path.risk-limited {
+    stroke: var(--risk-no-data);
+  }
+}
+
+@layer components {
+  .legend-swatch {
+    box-sizing: border-box;
+    border: var(--border-1) solid var(--c);
+    background: color-mix(in srgb, var(--c) calc(var(--map-fill-light) * 100%), transparent);
+  }
+
+  [data-theme="dark"] .legend-swatch {
+    background: color-mix(in srgb, var(--c) calc(var(--map-fill-dark) * 100%), transparent);
+  }
+
+  .legend-swatch-limited {
+    border-style: dashed;
+    background: repeating-linear-gradient(
+      45deg,
+      var(--c) 0 var(--hatch-line),
+      transparent var(--hatch-line) var(--hatch-pitch)
+    );
+  }
+}
+
+.leaflet-bar,
+.leaflet-touch .leaflet-bar {
+  border: 0;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--elevation-2);
+}
+
+.leaflet-bar a,
+.leaflet-touch .leaflet-bar a {
+  width: var(--control-sm);
+  height: var(--control-sm);
+  border-bottom: var(--border-1) solid var(--outline-variant);
+  background: var(--surface-container-lowest);
+  color: var(--on-surface);
+  font-family: var(--font-sans);
+  font-size: var(--icon-md);
+  font-weight: 400;
+  line-height: var(--control-sm);
+}
+
+.leaflet-bar a:first-child,
+.leaflet-touch .leaflet-bar a:first-child {
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.leaflet-bar a:last-child,
+.leaflet-touch .leaflet-bar a:last-child {
+  border-bottom: 0;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+  background: color-mix(
+    in srgb,
+    var(--on-surface) calc(var(--state-hover) * 100%),
+    var(--surface-container-lowest)
+  );
+}
+
+.leaflet-bar a.leaflet-disabled {
+  background: var(--surface-container-lowest);
+  color: var(--on-surface);
+  opacity: var(--opacity-disabled);
+}
