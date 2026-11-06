@@ -1,0 +1,64 @@
+"""OpenStreetMap counts per planning area for the S1 test (issue #61, roadmap WP 2.1, scope S1, risk R4).
+
+Run from the repo root: uv run python src/models/osm_features.py
+Downloads five kinds of OpenStreetMap features inside Berlin's bounding box with osmnx (one Overpass request per kind,
+cached in data/raw/osm/cache) and writes data/raw/osm/osm_features.csv: one row per planning area with aggregate counts
+only. The folder is not in Git until the ODbL question (R4) is answered. Data © OpenStreetMap contributors, ODbL.
+"""
+import sys
+import time
+from pathlib import Path
+
+import geopandas as gpd
+import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from audit_checks import POLYGONS
+
+OSM_DIR = Path(__file__).resolve().parents[2] / "data" / "raw" / "osm"
+OUT = OSM_DIR / "osm_features.csv"
+# Places where bikes are left or where many people come and go: candidates for an exposure proxy (S1)
+KINDS = {
+    "bike_parking": {"amenity": "bicycle_parking"},
+    "shops": {"shop": True},
+    "food_drink": {"amenity": ["restaurant", "cafe", "bar", "pub", "fast_food", "biergarten", "nightclub"]},
+    "transit_stops": {"railway": ["station", "halt", "tram_stop"], "highway": "bus_stop"},
+    "education": {"amenity": ["school", "college", "university"]},
+}
+
+
+def planning_areas():
+    """The 542 planning areas: polygons and their size in km2 (finhalt is the area in m2)."""
+    areas = gpd.read_file(POLYGONS)[["plr_id", "finhalt", "geometry"]].set_index("plr_id")
+    areas["area_km2"] = areas["finhalt"] / 1e6
+    return areas
+
+
+def count_features(features, areas):
+    """Features of one kind (points, lines or polygons) -> how many lie in each area; each counts once, at a point inside it."""
+    shapes = features.geometry.dropna()
+    points = gpd.GeoDataFrame(geometry=shapes.representative_point(), crs=features.crs).to_crs(areas.crs)
+    inside = gpd.sjoin(points, areas[["geometry"]], predicate="within", how="inner")
+    return inside.groupby("plr_id").size().reindex(areas.index, fill_value=0)
+
+
+def feature_table(areas, download):
+    """download(bbox, tags) -> GeoDataFrame; returns one row per area: size and a count per kind."""
+    table = pd.DataFrame({"area_km2": areas["area_km2"].round(4)}, index=areas.index)
+    bbox = tuple(areas.total_bounds)  # (west, south, east, north), the order osmnx 2 expects
+    for kind, tags in KINDS.items():
+        started = time.time()
+        features = download(bbox, tags)
+        table[kind] = count_features(features, areas)
+        print(f"{kind}: {len(features):,} features, {table[kind].sum():,} inside the 542 areas ({time.time() - started:.0f} s)")
+    return table
+
+
+if __name__ == "__main__":
+    import osmnx as ox
+
+    OSM_DIR.mkdir(parents=True, exist_ok=True)
+    ox.settings.cache_folder = OSM_DIR / "cache"
+    table = feature_table(planning_areas(), ox.features_from_bbox)
+    table.to_csv(OUT)
+    print(f"Wrote {OUT} ({len(table)} areas). Data © OpenStreetMap contributors, ODbL.")
