@@ -5,11 +5,10 @@ const hex = (name: string) => {
   return [1, 3, 5].map((i) => parseInt(v.slice(i, i + 2), 16) / 255);
 };
 
-// Safari applies url(#svg-filter) to HTML elements unreliably, and Leaflet moves the tile pane with 3D transforms.
+// Safari applies url(#svg-filter) to HTML elements unreliably.
 const isSafari = () => /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
 
-// Experiment: 50% keeps the streets and colours of the original in the mix; the token says 100%.
-// shortcut: tokens read once, re-run on a theme switch; strength is a constant here, not --map-tint-strength.
+// shortcut: tokens read once, not re-run on a theme switch; 50% blend keeps streets legible, not the token's 100%.
 const STRENGTH = 0.5;
 
 export function tintBasemap(map: L.Map) {

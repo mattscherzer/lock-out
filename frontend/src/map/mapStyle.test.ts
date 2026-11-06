@@ -36,7 +36,7 @@ it("draws limited-data areas hatched and dashed, never a flat fill", () => {
   expect(areaStyle("limited", "rest")).toMatchObject({
     fillColor: `url(#${HATCH_ID})`,
     dashArray: "4 2.5",
-    className: "risk-limited",
+    className: "stroke-risk-no-data",
   });
   expect(areaStyle("medium", "rest").dashArray).toBeUndefined();
   expect(areaStyle("limited", "selected").fillColor).toBe(`url(#${HATCH_LIFTED_ID})`);

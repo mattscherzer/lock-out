@@ -1,5 +1,11 @@
 import type { CSSProperties } from "react";
 
+const SWATCH = "box-border size-legend-swatch rounded-xs border border-(--c)";
+const FILL =
+  "bg-[color-mix(in_srgb,var(--c)_calc(var(--map-fill-light)*100%),transparent)] [[data-theme=dark]_&]:bg-[color-mix(in_srgb,var(--c)_calc(var(--map-fill-dark)*100%),transparent)]";
+const HATCH =
+  "border-dashed bg-[repeating-linear-gradient(45deg,var(--c)_0_var(--hatch-line),transparent_var(--hatch-line)_var(--hatch-pitch))]";
+
 const ITEMS = [
   { label: "Low", colour: "low" },
   { label: "Medium", colour: "medium" },
@@ -17,7 +23,7 @@ export function Legend() {
         <li key={label} className="flex items-center gap-1">
           <span
             aria-hidden="true"
-            className={`legend-swatch size-legend-swatch rounded-xs ${limited ? "legend-swatch-limited" : ""}`}
+            className={`${SWATCH} ${limited ? HATCH : FILL}`}
             style={{ "--c": `var(--risk-${colour})` } as CSSProperties}
           />
           {label}
