@@ -276,7 +276,10 @@ if __name__ == "__main__":
     checks = targets(rows)
     flags = selector_flags(rows)
     lookup = generate(cleaned, areas, reports_up_to, cutoff, path.name, flags)
-    write_lookup(lookup)
+    try:
+        write_lookup(lookup)
+    except ValueError as e:  # a short message on the command line instead of a traceback
+        sys.exit(str(e))
     RESULTS.write_text(markdown(rows, checks, lookup, reports_up_to, cutoff, path.name), encoding="utf-8")
     for f, t, v, ok in checks:
         print(f"{'pass' if ok else 'MISS'}  {f}  {t}: {v}")
