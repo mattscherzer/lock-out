@@ -40,7 +40,7 @@ export function Legend() {
   );
 }
 
-// Phone: the bottom legend would sit under the sheet, so it slides out of a button on tap and back in when focus or a press leaves it.
+// Phone, sheet open: the bottom legend would sit under the sheet, so it slides out of a button on tap and back in when focus or a press leaves it.
 export function LegendMenu() {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
