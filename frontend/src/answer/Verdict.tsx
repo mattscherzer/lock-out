@@ -4,7 +4,7 @@ import { colour, type Kind } from "./kind.ts";
 import { TierMark } from "./TierMark.tsx";
 import { verdictLine } from "./text.ts";
 
-const WORD: Record<Kind, string> = {
+export const WORD: Record<Kind, string> = {
   low: "Low",
   medium: "Medium",
   high: "High",
@@ -71,6 +71,30 @@ export function Verdict({
         <Info aria-hidden="true" size={18} />
         What does this mean?
       </button>
+    </div>
+  );
+}
+
+const PHRASE: Record<Kind, string> = {
+  low: "among the fewest reported bike thefts",
+  medium: "more reported thefts than most areas",
+  high: "among the most reported bike thefts",
+  limited: "too few reports to rate this area",
+  "no-data": "nothing reported, so no rating",
+};
+
+export function VerdictStrip({ kind }: { kind: Kind }) {
+  return (
+    <div
+      className="box-border flex w-full min-w-0 items-center gap-2 rounded-lg px-3 py-1.5"
+      style={{
+        background: `color-mix(in srgb, ${colour(kind)} 14%, var(--surface-container-lowest))`,
+      }}
+    >
+      <TierMark kind={kind} className="size-6" />
+      <span className="min-w-0 truncate body-md">
+        <b className="title-md">{WORD[kind]}</b> · {PHRASE[kind]}
+      </span>
     </div>
   );
 }
