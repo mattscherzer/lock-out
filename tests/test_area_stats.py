@@ -92,3 +92,14 @@ def test_the_generator_writes_each_areas_stats_and_the_citywide_facts():
     for lor, a in out["areas"].items():
         assert a["confidence"] == t.at[lor, "confidence"]
         assert a["area_stats"] == {"median_stolen_value_eur": int(t.at[lor, "median_stolen_value_eur"]), "median_source": t.at[lor, "median_source"]}
+    # literal values worked out from the fixture rows, so a wrong rule in area_stats() fails here too
+    assert out["metadata"]["citywide_facts"] == {"lock_defeated_share": 0.9425, "median_stolen_value_eur": 874}
+    expected = {
+        "12200309": ("LOW", 874, "citywide"),  # 4 thefts
+        "01100104": ("MEDIUM", 874, "citywide"),  # 5 thefts
+        "09100101": ("MEDIUM", 874, "citywide"),  # 19 thefts
+        "01100309": ("HIGH", 946, "area"),  # 22 thefts, all with a value, median 945.5
+    }
+    for lor, (label, median, source) in expected.items():
+        assert out["areas"][lor]["confidence"] == label
+        assert out["areas"][lor]["area_stats"] == {"median_stolen_value_eur": median, "median_source": source}
