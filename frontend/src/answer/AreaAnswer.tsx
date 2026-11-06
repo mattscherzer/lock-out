@@ -3,7 +3,7 @@ import { AnswerCard } from "./AnswerCard.tsx";
 import { Details } from "./Details.tsx";
 import { Explain } from "./Explain.tsx";
 import { kindOf, topShare } from "./kind.ts";
-import { Verdict } from "./Verdict.tsx";
+import { Verdict, VerdictStrip } from "./Verdict.tsx";
 
 export function AreaAnswer({
   record,
@@ -39,6 +39,7 @@ export function AreaAnswer({
           />
         )
       }
+      strip={record && <VerdictStrip kind={kindOf(record)} />}
       details={
         record && (
           <Details
