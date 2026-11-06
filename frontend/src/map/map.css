@@ -44,8 +44,9 @@
   opacity: var(--opacity-disabled);
 }
 
-/* above the attribution, which wraps to three lines on a phone */
+/* above the attribution, which wraps to three lines on a phone; the inset is Leaflet's own control margin */
 :root {
+  --map-controls-inset: 10px;
   --map-controls-bottom: calc(var(--space-12) + var(--space-2));
 }
 
@@ -57,7 +58,7 @@
 
 .leaflet-bottom .leaflet-control-zoom.leaflet-control {
   position: absolute;
-  right: 10px;
+  right: var(--map-controls-inset);
   bottom: var(--map-controls-bottom);
   margin: 0;
 }
