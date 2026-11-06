@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
   type CSSProperties,
   type KeyboardEvent,
@@ -37,6 +37,7 @@ export const higherPx = () =>
     window.innerHeight,
     Math.max(LOWERED_PX + 40, Math.min(520, Math.round(window.innerHeight * 0.64))),
   );
+const FULL_GAP_PX = 16; // the map margin above a full sheet, the same as the search pill keeps
 const CLOSED = STOPS.length; // index after the last stop in the drag stops
 const SLOP_PX = 6; // movement below this is a tap, not a drag
 const PULL_PX = 2; // a pull down from the top of the content claims the gesture this early, before the browser decides to scroll
@@ -80,7 +81,6 @@ export function AnswerCard({
     setExplainOpen(false);
     trigger.current?.focus();
   };
-  const before = useRef<Stop>("higher"); // where Collapse returns to from full screen
   const last = useRef(area); // keeps the content while the card slides out
   if (area) last.current = area;
   const shown = area ?? last.current;
@@ -92,7 +92,6 @@ export function AnswerCard({
   }, []);
 
   const go = (next: Stop) => {
-    if (next === "full" && stop !== "full") before.current = stop;
     setStop(next);
   };
 
@@ -117,7 +116,6 @@ export function AnswerCard({
   useEffect(() => {
     card.current?.scrollTo?.(0, 0); // another area starts at its top
   }, [areaId]);
-  const collapse = () => go(stop === "full" ? before.current : "lowered");
   useEffect(() => {
     if (open) setStop("higher"); // picking another area keeps the height
   }, [open]);
@@ -144,7 +142,7 @@ export function AnswerCard({
   } | null>(null);
   const begin = (y: number) => {
     const h = card.current!.offsetHeight;
-    const stops = [h - loweredPx(), h - higherPx(), 0, h]; // translateY of lowered, higher, full, then CLOSED
+    const stops = [h - loweredPx(), h - higherPx(), FULL_GAP_PX, h]; // translateY of lowered, higher, full, then CLOSED
     drag.current = { y, from: stops[STOPS.indexOf(stop)], stops, moved: false, last: null, v: 0 };
   };
   const track = (y: number, capture?: () => void) => {
@@ -264,6 +262,7 @@ export function AnswerCard({
           {
             "--answer-lowered": `${loweredPx()}px`,
             "--answer-higher": `${higherPx()}px`,
+            "--answer-full-gap": `${FULL_GAP_PX}px`,
           } as CSSProperties
         }
         onScroll={onScroll}
@@ -283,14 +282,6 @@ export function AnswerCard({
           <span className="min-w-0 flex-1 truncate title-md" aria-hidden="true">
             {shown?.name}
           </span>
-          <button
-            type="button"
-            className={ICON_BUTTON}
-            aria-label="Collapse area details"
-            onClick={collapse}
-          >
-            <ChevronDown aria-hidden="true" />
-          </button>
           <button
             type="button"
             className={ICON_BUTTON}
@@ -326,14 +317,6 @@ export function AnswerCard({
                 </h2>
                 <p className="mt-0 mb-2 data-md text-on-surface-variant">{shown?.bzr_name}</p>
               </div>
-              <button
-                type="button"
-                className={`answer-collapse ${ICON_BUTTON} -mt-1.5`}
-                aria-label="Collapse area details"
-                onClick={collapse}
-              >
-                <ChevronDown aria-hidden="true" />
-              </button>
               <button
                 type="button"
                 className={`answer-close ${ICON_BUTTON} -mt-1.5 -mr-2`}

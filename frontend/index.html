@@ -15,7 +15,11 @@
     ></div>
     <div
       id="legend"
-      class="absolute bottom-(--map-controls-bottom) left-2 z-map-controls transition-transform duration-base ease-standard min-[600px]:left-1/2 min-[600px]:-translate-x-1/2 min-[600px]:[body:has(.answer-card[data-open]:not([data-collapsed]))_&]:translate-x-[calc(50vw-100%-10px-var(--control-sm)-var(--space-2))]"
+      class="absolute bottom-(--map-controls-bottom) left-2 z-map-controls hidden transition-transform duration-base ease-standard min-[600px]:left-1/2 min-[600px]:block min-[600px]:-translate-x-1/2 min-[600px]:[body:has(.answer-card[data-open]:not([data-collapsed]))_&]:translate-x-[calc(50vw-100%-10px-var(--control-sm)-var(--space-2))]"
+    ></div>
+    <div
+      id="legend-menu"
+      class="absolute top-[calc(var(--space-16)+var(--space-4))] right-4 z-map-controls min-[600px]:hidden"
     ></div>
     <div id="search"></div>
     <div id="answer"></div>
