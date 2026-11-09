@@ -29,6 +29,15 @@ it("groups the options, marks the selected one and reports changes", () => {
   expect((screen.getByLabelText("Late") as HTMLInputElement).disabled).toBe(true);
 });
 
+it("the tag variant shows its label before the options and keeps one named group", () => {
+  render(
+    <Choice variant="tag" label="Bike value" options={options} value="b" onChange={() => {}} />,
+  );
+  const group = screen.getByRole("group", { name: "Bike value" });
+  expect(group.textContent?.startsWith("Bike value")).toBe(true);
+  expect((screen.getByLabelText("Night") as HTMLInputElement).checked).toBe(true);
+});
+
 it("disabled button does not fire", () => {
   const onClick = vi.fn();
   render(

@@ -4,7 +4,7 @@ import { type Advice, type DataFlags, CATALOG, adviceFor } from "./advice.ts";
 
 const A = STRINGS.advice;
 // the two levels in the lookup, no choice yet, and a value the lookup should never hold
-const BIKE_VALUES = ["under_eur_1000", "eur_1000_or_more", null, "not_a_level"];
+const BIKE_VALUES = ["under_eur_1000", "eur_1000_or_more", "not_a_level"];
 const FLAGS: DataFlags[] = [
   { limited_data: false, no_record: false },
   { limited_data: true, no_record: false },
@@ -19,9 +19,11 @@ const ALL = BIKE_VALUES.flatMap((b) =>
 // every piece of text a rider can see for one advice, one item per line of copy
 const texts = (a: Advice) => [
   a.headline,
+  a.banner,
+  a.why,
+  ...a.keys.map((k) => k.text),
   ...(a.note ? [a.note] : []),
   ...a.steps,
-  ...(a.hint ? [a.hint] : []),
   ...a.tips,
   ...a.terms.map((t) => `${t.term}: ${t.meaning}`),
   a.sourcesLabel,
@@ -82,6 +84,18 @@ describe("the four advice rules hold for every input", () => {
   });
 });
 
+describe("the glance and panel copy follows the same rules", () => {
+  const copy = [A.note.failed, A.sectionTitle, A.bikeCaption, ...Object.values(A.panel)];
+
+  it("has no relocation advice, no reassurance and no per-bike risk", () => {
+    const all = copy.join("\n");
+    expect(all).not.toMatch(RELOCATION);
+    expect(all).not.toMatch(REASSURANCE);
+    expect(all).not.toMatch(PER_BIKE_RISK);
+    expect(all).not.toMatch(BRANDS);
+  });
+});
+
 describe("thin data never reassures", () => {
   it.each(BIKE_VALUES)("limited data gets its note and the full advice (%s)", (b) => {
     const thin = adviceFor(b, { limited_data: true, no_record: false });
@@ -110,22 +124,10 @@ describe("the router", () => {
     expect(high.steps).toContain(A.step.secondLock);
   });
 
-  it("gives one lock and the sourced second-lock line when no bike value is chosen", () => {
-    const none = adviceFor(null, WELL_BACKED);
-    expect(none.level).toBe("oneLock");
-    expect(none.hint).toBe(A.noBikeValue);
-    expect(none.hint).toMatch(/ADFC/);
-    // the same ADFC claim as the second-lock step, taken from one place in the string table
-    expect(none.hint).toContain(A.step.secondLock.replace("The ADFC advises ", ""));
-    expect(adviceFor("under_eur_1000", WELL_BACKED).hint).toBeNull();
-    expect(adviceFor("eur_1000_or_more", WELL_BACKED).hint).toBeNull();
-  });
-
   it.each(["not_a_level", "", "EUR_1000_OR_MORE", "under_eur_1000 "])(
     "gives two locks for a value that is not a known level (%j), never the lighter advice",
     (b) => {
       expect(adviceFor(b, WELL_BACKED).level).toBe("twoLocks");
-      expect(adviceFor(b, WELL_BACKED).hint).toBeNull();
     },
   );
 
@@ -143,8 +145,10 @@ describe("the router", () => {
   it.each(ALL)("explains exactly the lock terms its copy uses ($input)", ({ advice }) => {
     const copy = [
       advice.headline,
+      advice.banner,
+      advice.why,
+      ...advice.keys.map((k) => k.text),
       ...advice.steps,
-      ...(advice.hint ? [advice.hint] : []),
       ...advice.tips,
     ]
       .join(" ")

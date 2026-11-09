@@ -22,13 +22,15 @@ type Props = {
   state: CardState;
   verdict: (explain: () => void) => ReactNode;
   tier?: ReactNode; // compact verdict: pinned once the verdict card has scrolled away, and the only verdict shown when lowered
-  advice?: ReactNode;
+  advice?: (more: () => void) => ReactNode;
+  advicePanel?: { heading: ReactNode; body: ReactNode };
   details: ReactNode;
   explain: ReactNode;
   onClose: () => void;
   lowerSignal?: number; // changing it lowers the phone sheet, e.g. when the search is focused
 };
 
+type PanelKey = "explain" | "advice";
 const STOPS = ["lowered", "higher", "full"] as const;
 type Stop = (typeof STOPS)[number];
 const LOWERED_PX = 152; // handle, name, district and the compact verdict
@@ -59,6 +61,7 @@ export function AnswerCard({
   verdict,
   tier,
   advice,
+  advicePanel,
   details,
   explain,
   onClose,
@@ -72,12 +75,27 @@ export function AnswerCard({
   const [stop, setStop] = useState<Stop>("higher");
   const [collapsed, setCollapsed] = useState(false);
   const [explainOpen, setExplainOpen] = useState(false);
+  const [panel, setPanel] = useState<PanelKey>("explain");
   const [wasOpen, setWasOpen] = useState(open);
   if (open !== wasOpen) {
     setWasOpen(open);
     if (open) setExplainOpen(false);
   }
   const trigger = useRef<HTMLElement | null>(null);
+  const openPanel = (which: PanelKey) => {
+    trigger.current = document.activeElement as HTMLElement;
+    setPanel(which);
+    setExplainOpen(true);
+  };
+  const shownPanel: { key: PanelKey; heading: ReactNode; body: ReactNode } =
+    panel === "advice" && advicePanel
+      ? { key: "advice", ...advicePanel }
+      : {
+          key: "explain",
+          heading: <h2 className="m-0 title-lg">What this rating means</h2>,
+          body: explain,
+        };
+  const adviceNode = advicePanel && advice?.(() => openPanel("advice"));
   const closeExplain = () => {
     setExplainOpen(false);
     trigger.current?.focus();
@@ -312,10 +330,7 @@ export function AnswerCard({
             <div className="answer-peek">{tier}</div>
             {(state === "ready" || state === "no-data") && (
               <div ref={verdictBox} className="answer-verdict">
-                {verdict(() => {
-                  trigger.current = document.activeElement as HTMLElement;
-                  setExplainOpen(true);
-                })}
+                {verdict(() => openPanel("explain"))}
               </div>
             )}
           </header>
@@ -323,28 +338,33 @@ export function AnswerCard({
         <div className="answer-body flex flex-col gap-6 p-4">
           {state === "ready" || state === "no-data" ? (
             <>
-              {advice}
+              {adviceNode}
               {details}
             </>
           ) : (
-            // error colour is a border only, never text
-            <div
-              className="rounded-lg bg-tertiary-container p-4 text-on-tertiary-container data-[state=error]:border-2 data-[state=error]:border-error data-[state=error]:bg-transparent data-[state=error]:text-on-surface"
-              data-state={state}
-              role={state === "error" ? "alert" : undefined}
-            >
-              <p className="m-0 title-md">{NOTE[state as keyof typeof NOTE][0]}</p>
-              <p className="m-0 mt-1 body-lg">{NOTE[state as keyof typeof NOTE][1]}</p>
-            </div>
+            <>
+              {/* error colour is a border only, never text */}
+              <div
+                className="rounded-lg bg-tertiary-container p-4 text-on-tertiary-container data-[state=error]:border-2 data-[state=error]:border-error data-[state=error]:bg-transparent data-[state=error]:text-on-surface"
+                data-state={state}
+                role={state === "error" ? "alert" : undefined}
+              >
+                <p className="m-0 title-md">{NOTE[state as keyof typeof NOTE][0]}</p>
+                <p className="m-0 mt-1 body-lg">{NOTE[state as keyof typeof NOTE][1]}</p>
+              </div>
+              {state === "error" && adviceNode}
+            </>
           )}
         </div>
       </section>
       <ExplainSheet
         open={open && explainOpen}
         collapsed={collapsed || !open}
+        panel={shownPanel.key}
+        heading={shownPanel.heading}
         onClose={closeExplain}
       >
-        {explain}
+        {shownPanel.body}
       </ExplainSheet>
       <button
         type="button"

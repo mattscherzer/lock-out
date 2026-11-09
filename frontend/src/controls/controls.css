@@ -12,7 +12,6 @@
   box-sizing: border-box;
   cursor: pointer;
   user-select: none;
-  font: inherit;
   border: var(--border-2) solid transparent;
   color: var(--fg);
   background: var(--bg);

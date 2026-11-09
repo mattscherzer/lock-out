@@ -41,7 +41,12 @@ it("shows the name, the verdict slot and the level 2 details", () => {
 });
 
 it("puts the advice above the details when given", () => {
-  render(card({ advice: <p>advice</p> }));
+  render(
+    card({
+      advice: () => <p>advice</p>,
+      advicePanel: { heading: <h2>Advice panel</h2>, body: <p>advice body</p> },
+    }),
+  );
   expect(
     screen.getByText("advice").compareDocumentPosition(screen.getByText("details")) &
       Node.DOCUMENT_POSITION_FOLLOWING,
