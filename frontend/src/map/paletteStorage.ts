@@ -1,4 +1,4 @@
-export const PALETTE_KEY = "palette";
+export const PALETTE_KEY = "lockout:palette";
 
 export function rememberPalette(on: boolean) {
   try {

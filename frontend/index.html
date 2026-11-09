@@ -6,7 +6,7 @@
     <!-- before first paint; the key must match PALETTE_KEY in src/map/paletteStorage.ts -->
     <script>
       try {
-        if (localStorage.getItem("palette") === "cb")
+        if (localStorage.getItem("lockout:palette") === "cb")
           document.documentElement.dataset.palette = "cb";
       } catch {}
     </script>
