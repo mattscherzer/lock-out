@@ -22,7 +22,7 @@ export function AreaAnswer({
   onClose: () => void;
   onAbout: () => void;
 }) {
-  // the schema leaves confidence and its thresholds optional in 1.0.0: an older file shows the error state, not a crash
+  // optional in schema 1.0.0: an older file gets the error state, not a crash
   const broken = record && !(record.confidence && lookup.metadata.confidence_thresholds);
   return (
     <AnswerCard

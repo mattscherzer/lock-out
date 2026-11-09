@@ -12,7 +12,7 @@ export type StreetsFile = {
 export type AreaRecord = Area & {
   tier: "LOW" | "MEDIUM" | "HIGH";
   reports_12m: number;
-  confidence: "LOW" | "MEDIUM" | "HIGH"; // the lookup's label; the card never recomputes it from reports_12m
+  confidence: "LOW" | "MEDIUM" | "HIGH"; // never recomputed from reports_12m
   limited_data: boolean;
   no_record: boolean;
 };
