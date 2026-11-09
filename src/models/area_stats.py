@@ -28,6 +28,11 @@ def confidence(n):
     return "MEDIUM" if n < OWN_MEDIAN_FROM else "HIGH"
 
 
+def confidence_thresholds():
+    """The two lines confidence() draws, for the card's explanation. plenty_from is OWN_MEDIAN_FROM: keep them one number."""
+    return {"limited_below": LIMITED_DATA_BELOW, "plenty_from": OWN_MEDIAN_FROM}
+
+
 def citywide_facts(window):
     """Facts for the whole city, not per area (issue #57): the lock-defeated share and the median stolen value."""
     defeated = window["ERFASSUNGSGRUND"].str.contains(LOCK_DEFEATED, na=False)

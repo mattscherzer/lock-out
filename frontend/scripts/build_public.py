@@ -1,8 +1,8 @@
-"""Build frontend/public fixtures from the LOR GeoJSON (stdlib only).
+"""Build frontend/public files from the LOR GeoJSON (stdlib only).
 
-Writes areas.geojson (simplified boundaries) and lookup_fixture.json, a copy of the generator output
-data/processed/lookup_schema_v1.json, so the fixture follows schemas/lookup_v1.schema.json (checked in pytest).
-Run from the repo root after src/models/eb.py: python3 frontend/scripts/build_fixture.py
+Writes areas.geojson (simplified boundaries) and lookup_schema_v1.json, a copy of the generator output
+data/processed/lookup_schema_v1.json, so the copy follows schemas/lookup_v1.schema.json (checked in pytest).
+Run from the repo root after src/models/eb.py: python3 frontend/scripts/build_public.py
 """
 import json
 from pathlib import Path
@@ -56,4 +56,4 @@ assert len(features) == 542 and len(lookup["areas"]) == 542
 assert {f["properties"]["id"] for f in features} == set(lookup["areas"])
 out = ROOT / "frontend/public"
 (out / "areas.geojson").write_text(json.dumps({"type": "FeatureCollection", "features": features}, separators=(",", ":")), encoding="utf-8")
-(out / "lookup_fixture.json").write_text(json.dumps(lookup, ensure_ascii=False, indent=1), encoding="utf-8")
+(out / "lookup_schema_v1.json").write_text(json.dumps(lookup, ensure_ascii=False, indent=1), encoding="utf-8")

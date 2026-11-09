@@ -1,10 +1,11 @@
-import type { AreaRecord, Fixture } from "../search/types.ts";
+import type { AreaRecord, Lookup } from "../search/types.ts";
 
 export const rec = (over: Partial<AreaRecord> = {}): AreaRecord => ({
   name: "A",
   bzr_name: "B",
   tier: "LOW",
   reports_12m: 20,
+  confidence: "HIGH",
   limited_data: false,
   no_record: false,
   ...over,
@@ -24,11 +25,12 @@ export const attribution = {
   osm: "© OpenStreetMap contributors (ODbL)",
   lor: "Datenquelle: Amt für Statistik",
 };
-export const metadata: Fixture["metadata"] = {
+export const metadata: Lookup["metadata"] = {
   attribution,
   data_window: { start: "2025-10-11", end: "2026-10-10" },
   reports_up_to: "2026-10-24",
   truncation_lag_days: 14,
+  confidence_thresholds: { limited_below: 5, plenty_from: 20 },
 };
 export const bands = {
   LOW: { min_percentile: 0, max_percentile: 0.6 },

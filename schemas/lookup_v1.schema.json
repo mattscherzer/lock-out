@@ -70,6 +70,16 @@
             "median_stolen_value_eur": {"type": "integer", "minimum": 0}
           },
           "description": "Facts for the whole city, not per area (issue #57). May be absent in 1.0.0."
+        },
+        "confidence_thresholds": {
+          "type": "object",
+          "required": ["limited_below", "plenty_from"],
+          "additionalProperties": false,
+          "properties": {
+            "limited_below": {"type": "integer", "minimum": 1, "description": "Fewer street thefts than this in the window is LOW confidence (limited data)."},
+            "plenty_from": {"type": "integer", "minimum": 1, "description": "This many street thefts or more is HIGH confidence; in between is MEDIUM."}
+          },
+          "description": "Where confidence changes, so the explanation can quote the numbers the label rests on (issue #64). Added in 1.1.0; absent in 1.0.0."
         }
       }
     },

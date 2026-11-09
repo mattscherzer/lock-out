@@ -1,13 +1,19 @@
-import { PLENTY_FROM, plural } from "./text.ts";
+import type { AreaRecord } from "../search/types.ts";
+import { plural } from "./text.ts";
 
-export function DataLine({ reports }: { reports: number }) {
+export function DataLine({
+  reports,
+  confidence,
+}: {
+  reports: number;
+  confidence: AreaRecord["confidence"];
+}) {
+  const plenty = confidence === "HIGH";
   return (
     <p className="m-0 body-md text-on-surface-variant">
-      <b className="font-semibold text-on-surface">
-        {reports >= PLENTY_FROM ? "Plenty of data" : "Some data"}
-      </b>{" "}
+      <b className="font-semibold text-on-surface">{plenty ? "Plenty of data" : "Some data"}</b>{" "}
       behind this: {plural(reports)} in 12 months.
-      {reports < PLENTY_FROM && " A few more or fewer could shift the rating."}
+      {!plenty && " A few more or fewer could shift the rating."}
     </p>
   );
 }

@@ -24,7 +24,7 @@ from pipeline.clean import clean
 ROOT = Path(__file__).resolve().parents[2]
 RESULTS = ROOT / "docs" / "eb-model-results.md"
 LOOKUP = ROOT / "data" / "processed" / "lookup_schema_v1.json"
-SCHEMA_VERSION = "1.0.0"  # schemas/lookup_v1.schema.json; additive changes are a minor bump (issue #40)
+SCHEMA_VERSION = "1.1.0"  # schemas/lookup_v1.schema.json; additive changes are a minor bump (issue #40); 1.1.0 adds metadata.confidence_thresholds
 MODEL_TYPE = "eb_gamma_poisson"
 ATTRIBUTION = {
     "police": "Datenquelle: Polizei Berlin (CC-BY 4.0)",
@@ -156,7 +156,7 @@ def generator_window(df, cutoff):
 
 def generate(df, areas, reports_up_to, cutoff, source, selectors):
     """The generator output. selectors: the per-selector flags from selector_flags()."""
-    from models.area_stats import area_stats, citywide_facts  # imported here because area_stats imports this module
+    from models.area_stats import area_stats, citywide_facts, confidence_thresholds  # imported here because area_stats imports this module
 
     window, start = generator_window(df, cutoff)
     y = counts(window, areas, start, cutoff)
@@ -181,6 +181,7 @@ def generate(df, areas, reports_up_to, cutoff, source, selectors):
             "shrinkage_strength": {k: (None if np.isinf(v) else round(v, 3)) for k, v in a.items()},
             "attribution": ATTRIBUTION,
             "citywide_facts": citywide_facts(window),
+            "confidence_thresholds": confidence_thresholds(),
         },
         "risk_bands": {name: {"min_percentile": low, "max_percentile": top} for (name, top), low in zip(TIERS, bounds)},
         # citywide shares and the hold-out flag per selector; 1.0.0 carries no area values for any selector

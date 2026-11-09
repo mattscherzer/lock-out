@@ -1,4 +1,4 @@
-import type { AreaRecord, Fixture } from "../search/types.ts";
+import type { AreaRecord, Lookup } from "../search/types.ts";
 import { AnswerCard } from "./AnswerCard.tsx";
 import { Details } from "./Details.tsx";
 import { Explain } from "./Explain.tsx";
@@ -8,7 +8,7 @@ import { Verdict, VerdictStrip } from "./Verdict.tsx";
 export function AreaAnswer({
   record,
   areaId,
-  fixture,
+  lookup,
   open,
   lowerSignal,
   onClose,
@@ -16,7 +16,7 @@ export function AreaAnswer({
 }: {
   record: AreaRecord | null;
   areaId: string | null;
-  fixture: Fixture;
+  lookup: Lookup;
   open: boolean;
   lowerSignal: number;
   onClose: () => void;
@@ -27,14 +27,15 @@ export function AreaAnswer({
       open={open}
       area={record}
       areaId={areaId}
-      state={record?.no_record ? "no-data" : "ready"}
+      state={record && !record.confidence ? "error" : record?.no_record ? "no-data" : "ready"}
       lowerSignal={lowerSignal}
       verdict={(explain) =>
         record && (
           <Verdict
             kind={kindOf(record)}
+            confidence={record.confidence}
             reports={record.reports_12m}
-            topShare={topShare(fixture.risk_bands)}
+            topShare={topShare(lookup.risk_bands)}
             onExplain={explain}
           />
         )
@@ -44,8 +45,8 @@ export function AreaAnswer({
         record && (
           <Details
             area={record}
-            selectors={fixture.selectors}
-            metadata={fixture.metadata}
+            selectors={lookup.selectors}
+            metadata={lookup.metadata}
             onAbout={onAbout}
           />
         )
@@ -55,8 +56,8 @@ export function AreaAnswer({
           <Explain
             area={record}
             kind={kindOf(record)}
-            bands={fixture.risk_bands}
-            metadata={fixture.metadata}
+            bands={lookup.risk_bands}
+            metadata={lookup.metadata}
           />
         )
       }

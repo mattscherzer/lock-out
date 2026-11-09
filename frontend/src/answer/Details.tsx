@@ -1,8 +1,8 @@
 import { Info } from "lucide-react";
 import { useId, useState } from "react";
-import type { AreaRecord, Fixture } from "../search/types.ts";
+import type { AreaRecord, Lookup } from "../search/types.ts";
 import { BarGroup } from "./BarGroup.tsx";
-import { longDate, PLENTY_FROM } from "./text.ts";
+import { longDate } from "./text.ts";
 import { Tile } from "./Tile.tsx";
 
 const TIME: Record<string, string> = {
@@ -22,11 +22,12 @@ export function Details({
   onAbout,
 }: {
   area: AreaRecord;
-  selectors: Fixture["selectors"];
-  metadata: Fixture["metadata"];
+  selectors: Lookup["selectors"];
+  metadata: Lookup["metadata"];
   onAbout: () => void;
 }) {
   const pattern = selectors.time_band.pattern;
+  const { limited_below, plenty_from } = metadata.confidence_thresholds;
   const [why, setWhy] = useState(false);
   const whyId = useId();
   return (
@@ -79,8 +80,8 @@ export function Details({
           />
         </div>
         <p className="m-0 body-sm text-on-surface-variant">
-          Plenty of data means {PLENTY_FROM} or more reports in 12 months, some data 5 to{" "}
-          {PLENTY_FROM - 1}, limited data fewer than 5.
+          Plenty of data means {plenty_from} or more reports in 12 months, some data {limited_below}{" "}
+          to {plenty_from - 1}, limited data fewer than {limited_below}.
         </p>
       </div>
       <a

@@ -1,5 +1,6 @@
 import { STRINGS } from "../strings.ts";
 import { Info } from "lucide-react";
+import type { AreaRecord } from "../search/types.ts";
 import { DataLine } from "./DataLine.tsx";
 import { colour, type Kind } from "./kind.ts";
 import { TierMark } from "./TierMark.tsx";
@@ -16,11 +17,13 @@ const GAUGE: Record<Kind, number> = { low: 0, medium: 1, high: 2, "no-data": -1,
 
 export function Verdict({
   kind,
+  confidence,
   reports,
   topShare,
   onExplain,
 }: {
   kind: Kind;
+  confidence: AreaRecord["confidence"];
   reports: number;
   topShare: number;
   onExplain: () => void;
@@ -41,7 +44,9 @@ export function Verdict({
         <div className="display-sm">{WORD[kind]}</div>
       </div>
       <p className="m-0 body-lg">{verdictLine(kind, reports, topShare)}</p>
-      {kind !== "limited" && kind !== "no-data" && <DataLine reports={reports} />}
+      {kind !== "limited" && kind !== "no-data" && (
+        <DataLine reports={reports} confidence={confidence} />
+      )}
       <div className="mt-0.5 flex gap-1.5" aria-hidden="true">
         {["Low", "Medium", "High"].map((name, i) => (
           <div key={name} className="flex-1">

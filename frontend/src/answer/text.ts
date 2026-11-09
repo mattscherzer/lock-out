@@ -1,6 +1,5 @@
 import type { Kind } from "./kind.ts";
 
-export const PLENTY_FROM = 20;
 export const plural = (n: number) => `${n} ${n === 1 ? "report" : "reports"}`;
 
 export const longDate = (iso: string) =>
