@@ -5,8 +5,8 @@ const hex = (name: string) => {
   return [1, 3, 5].map((i) => parseInt(v.slice(i, i + 2), 16) / 255);
 };
 
-// Safari applies url(#svg-filter) to HTML elements unreliably.
-const isSafari = () => /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
+// WebKit applies url(#svg-filter) to HTML elements unreliably; every iOS browser is WebKit, so Chrome and Firefox on iOS count.
+export const isSafari = (ua = navigator.userAgent) => /^((?!chrome|android).)*safari/i.test(ua);
 
 // shortcut: tokens read once, not re-run on a theme switch; 50% blend keeps streets legible, not the token's 100%.
 const STRENGTH = 0.5;

@@ -7,6 +7,14 @@ const SECOND_LOCK =
   "a second lock of a different type, because thieves often specialise in one kind of lock.";
 
 export const STRINGS = {
+  // the compact verdict strip; the low phrase must hold for the whole bottom 60% of areas
+  verdictPhrase: {
+    low: "not among the most reported bike thefts",
+    medium: "more reported thefts than most areas",
+    high: "among the most reported bike thefts",
+    limited: "too few reports to rate this area",
+    "no-data": "nothing reported, so no rating",
+  },
   advice: {
     headline: {
       oneLock: "Lock the frame and a wheel to something fixed, with one solid lock",

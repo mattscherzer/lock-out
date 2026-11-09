@@ -39,6 +39,7 @@ export function areaStyle(kind: Kind, emphasis: Emphasis): L.PathOptions {
 }
 
 // the renderer's <svg> only exists once it is on the map
+// shortcut: the lifted opacity is read once, so a runtime theme switch leaves the hatch stale; re-run if a theme toggle is added.
 export function addHatch(renderer: L.SVG) {
   renderer.on("add", () => {
     const pitch = num("--hatch-pitch");

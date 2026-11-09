@@ -1,3 +1,4 @@
+import { STRINGS } from "../strings.ts";
 import { Info } from "lucide-react";
 import { DataLine } from "./DataLine.tsx";
 import { colour, type Kind } from "./kind.ts";
@@ -75,14 +76,6 @@ export function Verdict({
   );
 }
 
-const PHRASE: Record<Kind, string> = {
-  low: "among the fewest reported bike thefts",
-  medium: "more reported thefts than most areas",
-  high: "among the most reported bike thefts",
-  limited: "too few reports to rate this area",
-  "no-data": "nothing reported, so no rating",
-};
-
 export function VerdictStrip({ kind }: { kind: Kind }) {
   return (
     <div
@@ -93,7 +86,7 @@ export function VerdictStrip({ kind }: { kind: Kind }) {
     >
       <TierMark kind={kind} className="size-6" />
       <span className="min-w-0 truncate body-md">
-        <b className="title-md">{WORD[kind]}</b> · {PHRASE[kind]}
+        <b className="title-md">{WORD[kind]}</b> · {STRINGS.verdictPhrase[kind]}
       </span>
     </div>
   );
