@@ -29,7 +29,7 @@ def confidence(n):
 
 
 def confidence_thresholds():
-    """The two lines confidence() draws, for the card's explanation. plenty_from is OWN_MEDIAN_FROM: keep them one number."""
+    """plenty_from is OWN_MEDIAN_FROM: keep them one number."""
     return {"limited_below": LIMITED_DATA_BELOW, "plenty_from": OWN_MEDIAN_FROM}
 
 

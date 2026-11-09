@@ -22,12 +22,14 @@ export function AreaAnswer({
   onClose: () => void;
   onAbout: () => void;
 }) {
+  // the schema leaves confidence and its thresholds optional in 1.0.0: an older file shows the error state, not a crash
+  const broken = record && !(record.confidence && lookup.metadata.confidence_thresholds);
   return (
     <AnswerCard
       open={open}
       area={record}
       areaId={areaId}
-      state={record && !record.confidence ? "error" : record?.no_record ? "no-data" : "ready"}
+      state={broken ? "error" : record?.no_record ? "no-data" : "ready"}
       lowerSignal={lowerSignal}
       verdict={(explain) =>
         record && (
@@ -42,7 +44,8 @@ export function AreaAnswer({
       }
       tier={record && <VerdictStrip kind={kindOf(record)} />}
       details={
-        record && (
+        record &&
+        !broken && (
           <Details
             area={record}
             selectors={lookup.selectors}
@@ -52,7 +55,8 @@ export function AreaAnswer({
         )
       }
       explain={
-        record && (
+        record &&
+        !broken && (
           <Explain
             area={record}
             kind={kindOf(record)}

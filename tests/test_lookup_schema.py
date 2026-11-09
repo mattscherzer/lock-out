@@ -7,6 +7,7 @@ from jsonschema import Draft202012Validator
 
 from audit_checks import polygon_ids
 from lookup_schema import PUBLIC_COPY, LOOKUP, SCHEMA, load, problems
+from models.area_stats import confidence_thresholds
 from models.eb import SCHEMA_VERSION, evaluate, generate, selector_flags, write_lookup
 from pipeline.clean import clean
 
@@ -43,6 +44,13 @@ def test_generator_output_matches_the_schema(output):
 def test_committed_files_match_the_schema(path):
     # LOOKUP is the real generator output (eb.py on the pinned CSV); PUBLIC_COPY is its copy for the frontend.
     assert problems(load(path)) == []
+
+
+def test_the_committed_lookup_carries_the_generators_version_and_thresholds():
+    # the committed file was patched, not regenerated, for 1.1.0; this catches it going stale again
+    meta = load(LOOKUP)["metadata"]
+    assert meta["schema_version"] == SCHEMA_VERSION
+    assert meta["confidence_thresholds"] == confidence_thresholds()
 
 
 def test_the_frontend_copy_is_a_copy_of_the_committed_lookup():

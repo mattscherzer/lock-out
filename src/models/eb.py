@@ -24,7 +24,7 @@ from pipeline.clean import clean
 ROOT = Path(__file__).resolve().parents[2]
 RESULTS = ROOT / "docs" / "eb-model-results.md"
 LOOKUP = ROOT / "data" / "processed" / "lookup_schema_v1.json"
-SCHEMA_VERSION = "1.1.0"  # schemas/lookup_v1.schema.json; additive changes are a minor bump (issue #40); 1.1.0 adds metadata.confidence_thresholds
+SCHEMA_VERSION = "1.1.0"  # schemas/lookup_v1.schema.json; additive changes are a minor bump (issue #40)
 MODEL_TYPE = "eb_gamma_poisson"
 ATTRIBUTION = {
     "police": "Datenquelle: Polizei Berlin (CC-BY 4.0)",
