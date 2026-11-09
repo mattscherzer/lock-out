@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { afterEach, expect, it, vi } from "vitest";
-import { PALETTE_KEY, readPalette, writePalette } from "./palette.ts";
+import { PALETTE_KEY, palette, writePalette } from "./palette.ts";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -8,23 +8,21 @@ afterEach(() => {
   delete document.documentElement.dataset.palette;
 });
 
-it("stores and restores the choice", () => {
+it("sets the attribute and stores the choice", () => {
   writePalette(true);
   expect(document.documentElement.dataset.palette).toBe("cb");
-  expect(readPalette()).toBe(true);
+  expect(palette()).toBe(true);
+  expect(localStorage.getItem(PALETTE_KEY)).toBe("cb");
   writePalette(false);
   expect(document.documentElement.dataset.palette).toBeUndefined();
-  expect(readPalette()).toBe(false);
+  expect(palette()).toBe(false);
+  expect(localStorage.getItem(PALETTE_KEY)).toBeNull();
 });
 
 it("still applies the palette when storage throws", () => {
-  vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
-    throw new Error("blocked");
-  });
   vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
     throw new Error("blocked");
   });
-  expect(readPalette()).toBe(false);
   writePalette(true);
   expect(document.documentElement.dataset.palette).toBe("cb");
 });

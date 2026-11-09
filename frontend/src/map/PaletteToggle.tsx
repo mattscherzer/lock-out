@@ -2,8 +2,8 @@ import { Check } from "lucide-react";
 import { useSyncExternalStore } from "react";
 import { palette, subscribePalette, writePalette } from "./palette.ts";
 
-// M3 switch at 0.75 scale (quiet in the legend): 40x24 track; the thumb is 12px off, 16px on, 20px pressed, and carries a check when on (a cue besides colour).
-// Pixel values on purpose: the project's spacing scale is --space-*, so Tailwind's numeric sizes do not resolve. Thumb offsets are measured inside the 2px track border.
+// M3 switch at 0.75 scale; the check is a cue besides colour.
+// Pixel values keep the geometry readable; thumb offsets are measured inside the 2px track border (there is no preflight, so the track needs box-border).
 const TRACK_ON = "border-primary bg-primary";
 const TRACK_OFF = "border-outline bg-surface-container";
 const THUMB_ON =

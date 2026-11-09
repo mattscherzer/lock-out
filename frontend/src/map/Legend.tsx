@@ -10,8 +10,9 @@ export function Legend() {
       {ITEMS.map((item) => (
         <LegendItem key={item.label} {...item} />
       ))}
-      <li className="flex items-center max-[599px]:mt-1 max-[599px]:w-0 max-[599px]:min-w-full max-[599px]:border-0 max-[599px]:border-t max-[599px]:border-solid max-[599px]:border-outline-variant max-[599px]:pt-2">
-        <PaletteToggle className="max-[599px]:w-full max-[599px]:flex-row-reverse max-[599px]:justify-between" />
+      {/* one row only from 870px, where it fits beside the open answer card */}
+      <li className="flex items-center max-[869px]:mt-1 max-[869px]:w-0 max-[869px]:min-w-full max-[869px]:border-0 max-[869px]:border-t max-[869px]:border-solid max-[869px]:border-outline-variant max-[869px]:pt-2">
+        <PaletteToggle className="max-[869px]:w-full max-[869px]:flex-row-reverse max-[869px]:justify-between" />
       </li>
     </ul>
   );

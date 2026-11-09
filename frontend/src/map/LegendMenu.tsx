@@ -36,8 +36,8 @@ export function LegendMenu() {
       >
         <Palette aria-hidden="true" className="size-icon-md" />
       </button>
-      {/* the clip lets the bar slide out from behind the button; its padding keeps the shadow, so it sits 8px above the button to line the bar up with it and grow downward */}
-      <div className="absolute top-[-8px] right-full box-border w-max max-w-[calc(100vw-var(--space-4)-var(--control-md))] overflow-hidden p-2">
+      {/* the clip lets the bar slide out from behind the button; its padding keeps the shadow, so -top-2 cancels p-2 and the bar's top aligns with the button */}
+      <div className="absolute -top-2 right-full box-border w-max max-w-[calc(100vw-var(--space-4)-var(--control-md))] overflow-hidden p-2">
         <ul
           id="legend-list"
           aria-hidden={!open}
