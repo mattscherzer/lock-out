@@ -34,3 +34,10 @@ path.leaflet-interactive:focus {
     14px system-ui,
     sans-serif;
 }
+
+/* unlayered and after tokens.css, so it beats [data-theme="dark"] at equal specificity */
+[data-palette="cb"] {
+  --risk-low: var(--cb-risk-low);
+  --risk-medium: var(--cb-risk-medium);
+  --risk-high: var(--cb-risk-high);
+}
