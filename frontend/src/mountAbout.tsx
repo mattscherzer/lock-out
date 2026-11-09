@@ -1,13 +1,13 @@
 import type L from "leaflet";
 import { createRoot } from "react-dom/client";
 import { About } from "./About.tsx";
-import type { Fixture } from "./search/types.ts";
+import type { Lookup } from "./search/types.ts";
 
 // Opens About from the map's attribution link or from a caller; returns the opener.
 export function mountAbout(
   root: HTMLElement,
   map: L.Map,
-  attribution: Fixture["metadata"]["attribution"],
+  attribution: Lookup["metadata"]["attribution"],
 ) {
   const aboutRoot = createRoot(root);
   const render = (open: boolean) =>

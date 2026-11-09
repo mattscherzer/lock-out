@@ -1,8 +1,8 @@
 import { Ban, BarChart3, Database, ListOrdered } from "lucide-react";
-import type { AreaRecord, Fixture } from "../search/types.ts";
+import type { AreaRecord, Lookup } from "../search/types.ts";
 import type { Kind } from "./kind.ts";
 import { Part } from "./Part.tsx";
-import { longDate, PLENTY_FROM, plural } from "./text.ts";
+import { longDate, plural } from "./text.ts";
 
 // Level 3: what the rating means, in pictures and short sentences.
 export function Explain({
@@ -13,8 +13,8 @@ export function Explain({
 }: {
   area: AreaRecord;
   kind: Kind;
-  bands: Fixture["risk_bands"];
-  metadata: Fixture["metadata"];
+  bands: Lookup["risk_bands"];
+  metadata: Lookup["metadata"];
 }) {
   const span = (b: { min_percentile: number; max_percentile: number }) =>
     Math.round((b.max_percentile - b.min_percentile) * 100);
@@ -24,6 +24,7 @@ export function Explain({
       ? { low: bands.LOW, medium: bands.MEDIUM, high: bands.HIGH }[kind]
       : null;
   const w = metadata.data_window;
+  const { limited_below, plenty_from } = metadata.confidence_thresholds;
   return (
     <>
       <Part icon={<BarChart3 aria-hidden="true" />} title="How areas are ranked">
@@ -70,16 +71,16 @@ export function Explain({
           Berlin areas. The data line says how many reports that comparison rests on.
         </p>
         <p className="m-0 body-md">
-          <b>Plenty of data</b> ({PLENTY_FROM} or more reports in 12 months): one or two more thefts
+          <b>Plenty of data</b> ({plenty_from} or more reports in 12 months): one or two more thefts
           would not change the rating.
         </p>
         <p className="m-0 body-md">
-          <b>Some data</b> (5 to {PLENTY_FROM - 1}): our best read, but a few more or fewer reports
-          could move it to a neighbouring level.
+          <b>Some data</b> ({limited_below} to {plenty_from - 1}): our best read, but a few more or
+          fewer reports could move it to a neighbouring level.
         </p>
         <p className="m-0 body-md">
-          <b>Limited data</b> (fewer than 5): too few to rate, so no rating is shown. This does not
-          mean low risk.
+          <b>Limited data</b> (fewer than {limited_below}): too few to rate, so no rating is shown.
+          This does not mean low risk.
         </p>
         <p className="m-0 body-md">
           A lot of data does not mean high risk, and little data does not mean low risk.

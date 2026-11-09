@@ -1,4 +1,4 @@
-import type { AreaRecord, Fixture } from "../search/types.ts";
+import type { AreaRecord, Lookup } from "../search/types.ts";
 import { AnswerCard } from "./AnswerCard.tsx";
 import { Details } from "./Details.tsx";
 import { Explain } from "./Explain.tsx";
@@ -8,7 +8,7 @@ import { Verdict, VerdictStrip } from "./Verdict.tsx";
 export function AreaAnswer({
   record,
   areaId,
-  fixture,
+  lookup,
   open,
   lowerSignal,
   onClose,
@@ -16,47 +16,52 @@ export function AreaAnswer({
 }: {
   record: AreaRecord | null;
   areaId: string | null;
-  fixture: Fixture;
+  lookup: Lookup;
   open: boolean;
   lowerSignal: number;
   onClose: () => void;
   onAbout: () => void;
 }) {
+  // optional in schema 1.0.0: an older file gets the error state, not a crash
+  const broken = record && !(record.confidence && lookup.metadata.confidence_thresholds);
   return (
     <AnswerCard
       open={open}
       area={record}
       areaId={areaId}
-      state={record?.no_record ? "no-data" : "ready"}
+      state={broken ? "error" : record?.no_record ? "no-data" : "ready"}
       lowerSignal={lowerSignal}
       verdict={(explain) =>
         record && (
           <Verdict
             kind={kindOf(record)}
+            confidence={record.confidence}
             reports={record.reports_12m}
-            topShare={topShare(fixture.risk_bands)}
+            topShare={topShare(lookup.risk_bands)}
             onExplain={explain}
           />
         )
       }
-      tier={record && <VerdictStrip kind={kindOf(record)} />}
+      tier={record && !broken && <VerdictStrip kind={kindOf(record)} />}
       details={
-        record && (
+        record &&
+        !broken && (
           <Details
             area={record}
-            selectors={fixture.selectors}
-            metadata={fixture.metadata}
+            selectors={lookup.selectors}
+            metadata={lookup.metadata}
             onAbout={onAbout}
           />
         )
       }
       explain={
-        record && (
+        record &&
+        !broken && (
           <Explain
             area={record}
             kind={kindOf(record)}
-            bands={fixture.risk_bands}
-            metadata={fixture.metadata}
+            bands={lookup.risk_bands}
+            metadata={lookup.metadata}
           />
         )
       }

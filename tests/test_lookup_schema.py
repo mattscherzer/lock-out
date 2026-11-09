@@ -6,7 +6,8 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from audit_checks import polygon_ids
-from lookup_schema import FIXTURE, LOOKUP, SCHEMA, load, problems
+from lookup_schema import PUBLIC_COPY, LOOKUP, SCHEMA, load, problems
+from models.area_stats import confidence_thresholds
 from models.eb import SCHEMA_VERSION, evaluate, generate, selector_flags, write_lookup
 from pipeline.clean import clean
 
@@ -39,15 +40,22 @@ def test_generator_output_matches_the_schema(output):
     assert problems(output) == []
 
 
-@pytest.mark.parametrize("path", [LOOKUP, FIXTURE], ids=["committed lookup", "frontend fixture"])
+@pytest.mark.parametrize("path", [LOOKUP, PUBLIC_COPY], ids=["committed lookup", "frontend copy"])
 def test_committed_files_match_the_schema(path):
-    # LOOKUP is the real generator output (eb.py on the pinned CSV); FIXTURE is its copy for the frontend.
+    # LOOKUP is the real generator output (eb.py on the pinned CSV); PUBLIC_COPY is its copy for the frontend.
     assert problems(load(path)) == []
 
 
-def test_the_frontend_fixture_is_a_copy_of_the_committed_lookup():
-    # a stale fixture can still match the schema; after eb.py, run frontend/scripts/build_fixture.py
-    assert load(FIXTURE) == load(LOOKUP)
+def test_the_committed_lookup_carries_the_generators_version_and_thresholds():
+    # a stale lookup can still match the schema; after a version bump, rerun src/models/eb.py on the pinned CSV
+    meta = load(LOOKUP)["metadata"]
+    assert meta["schema_version"] == SCHEMA_VERSION
+    assert meta["confidence_thresholds"] == confidence_thresholds()
+
+
+def test_the_frontend_copy_is_a_copy_of_the_committed_lookup():
+    # a stale copy can still match the schema; after eb.py, run frontend/scripts/build_public.py
+    assert load(PUBLIC_COPY) == load(LOOKUP)
 
 
 def test_the_generator_refuses_to_write_invalid_output_or_nan(output, tmp_path):

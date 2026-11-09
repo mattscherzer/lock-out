@@ -16,7 +16,7 @@ import { watchLegendFit } from "./map/watchLegendFit.ts";
 import { mountAbout } from "./mountAbout.tsx";
 import { AreaSearch, type Context } from "./search/AreaSearch.tsx";
 import { addStreets, buildIndex } from "./search/places.ts";
-import type { Fixture, Gazetteer, StreetsFile } from "./search/types.ts";
+import type { Lookup, Gazetteer, StreetsFile } from "./search/types.ts";
 
 const getJson = <T,>(name: string): Promise<T> =>
   fetch(`${import.meta.env.BASE_URL}${name}`).then((res) => {
@@ -50,13 +50,13 @@ tintBasemap(map);
 L.control.zoom({ position: "bottomright" }).addTo(map);
 
 try {
-  const [fixture, areas, gazetteer] = await Promise.all([
-    getJson<Fixture>("lookup_fixture.json"),
+  const [lookup, areas, gazetteer] = await Promise.all([
+    getJson<Lookup>("lookup_schema_v1.json"),
     getJson<FeatureCollection>("areas.geojson"),
     loadGazetteer(),
   ]);
-  // Attribution text lives in the fixture metadata so the UI and the data agree on it.
-  const { police, osm } = fixture.metadata.attribution;
+  // Attribution text lives in the lookup metadata so the UI and the data agree on it.
+  const { police, osm } = lookup.metadata.attribution;
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: `<a href="https://www.openstreetmap.org/copyright">${osm}</a> | ${police} | ${SEARCH_ATTRIBUTION} | <a href="#about" data-about>About the data</a>`,
@@ -65,11 +65,11 @@ try {
   const polygons: Record<string, L.Polygon> = {};
   let selected: string | null = null;
   const emphasise = (id: string, emphasis: Emphasis) =>
-    polygons[id].setStyle(areaStyle(kindOf(fixture.areas[id]), emphasis));
+    polygons[id].setStyle(areaStyle(kindOf(lookup.areas[id]), emphasis));
   const layer = L.geoJSON(areas, {
-    style: (feature) => areaStyle(kindOf(fixture.areas[feature!.properties.id as string]), "rest"),
+    style: (feature) => areaStyle(kindOf(lookup.areas[feature!.properties.id as string]), "rest"),
     onEachFeature: (feature, polygon) => {
-      const area = fixture.areas[feature.properties.id as string];
+      const area = lookup.areas[feature.properties.id as string];
       // element, not a string: Leaflet would parse a string as HTML
       const label = Object.assign(document.createElement("span"), {
         textContent: `${area.name} (${area.bzr_name})`,
@@ -85,11 +85,11 @@ try {
   let lowerSignal = 0; // focusing the search lowers the phone sheet out of the way
   const notes = new Set(gazetteer ? [] : ["station and postcode search unavailable"]);
   const showStatus = () => (status.textContent = [...notes].join(" · "));
-  const index = buildIndex(gazetteer ?? EMPTY_GAZETTEER, fixture.areas);
+  const index = buildIndex(gazetteer ?? EMPTY_GAZETTEER, lookup.areas);
   // streets are the bulk of the lookup: fetched when the user first focuses the search, not before the map
   const loadStreets = () =>
     getJson<StreetsFile>("gazetteer_streets.json")
-      .then((file) => addStreets(index, file, fixture.areas))
+      .then((file) => addStreets(index, file, lookup.areas))
       .then(() => notes.delete("street search unavailable"))
       .catch((err) => {
         console.error("Street search unavailable:", err);
@@ -109,18 +109,14 @@ try {
       : { paddingTopLeft: L.point(0, 110), paddingBottomRight: L.point(0, higherPx()) };
   const searchRoot = createRoot(document.getElementById("search")!);
   const cardRoot = createRoot(document.getElementById("answer")!);
-  const openAbout = mountAbout(
-    document.getElementById("about")!,
-    map,
-    fixture.metadata.attribution,
-  );
+  const openAbout = mountAbout(document.getElementById("about")!, map, lookup.metadata.attribution);
   const renderCard = () => {
-    const record = selected ? fixture.areas[selected] : null;
+    const record = selected ? lookup.areas[selected] : null;
     cardRoot.render(
       <AreaAnswer
         record={record}
         areaId={selected}
-        fixture={fixture}
+        lookup={lookup}
         open={selected !== null && cardOpen}
         lowerSignal={lowerSignal}
         onAbout={openAbout}
@@ -158,7 +154,7 @@ try {
     searchRoot.render(
       <AreaSearch
         index={index}
-        areas={fixture.areas}
+        areas={lookup.areas}
         selected={selected}
         onSelect={(id, context) => {
           select(id, context);

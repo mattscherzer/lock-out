@@ -5,7 +5,7 @@ import pytest
 
 import config
 from audit_checks import polygon_ids
-from models.area_stats import area_stats, citywide_facts, confidence
+from models.area_stats import area_stats, citywide_facts, confidence, confidence_thresholds
 from models.eb import generate, generator_window
 from models.selector_checks import SELECTORS
 from pipeline.clean import clean
@@ -21,6 +21,12 @@ def thefts(counts, value="1500", reason="Fahrraddiebstahl, schwerer Fall"):
 
 def test_confidence_lines():
     assert [confidence(n) for n in [0, 4, 5, 19, 20]] == ["LOW", "LOW", "MEDIUM", "MEDIUM", "HIGH"]
+
+
+def test_the_published_thresholds_are_the_lines_confidence_draws():
+    t = confidence_thresholds()
+    assert (confidence(t["limited_below"] - 1), confidence(t["limited_below"])) == ("LOW", "MEDIUM")
+    assert (confidence(t["plenty_from"] - 1), confidence(t["plenty_from"])) == ("MEDIUM", "HIGH")
 
 
 def test_19_thefts_get_the_citywide_median_and_20_their_own():
