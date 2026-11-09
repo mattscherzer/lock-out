@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Dry run: open a PR even if the data did not change (issue #66). Close that PR without merging."
+        description: "Dry run: open a PR even if the data did not change. Close that PR without merging."
         type: boolean
         default: false
 
@@ -55,7 +55,8 @@ jobs:
           # When the build step is switched on, uncomment below to regenerate lookup_schema_v1.json:
           # uv run python src/models/eb.py
 
-      # PRs opened with the default token do not trigger other workflows, so the checks run here and block the PR (D-19)
+      # Repeats the schema check from tests.yaml on purpose: PRs opened with the default token do not trigger other
+      # workflows, so the checks run here and block the PR on failure (D-19)
       - name: 7. Check the Lookup JSON Against the Schema
         run: uv run python src/lookup_schema.py
 
@@ -63,21 +64,26 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           DRY_RUN: ${{ inputs.dry_run }}
-          BRANCH: refresh/${{ github.run_id }}
+          BRANCH: refresh/${{ github.run_id }}-${{ github.run_attempt }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # the PR branch starts from main, so a dry run started from a feature branch still shows only the data change
+          # the PR branch points at main but keeps the files this run wrote, so a run from a feature branch
+          # still compares only the lookup with main
           git fetch --depth=1 origin main
-          git switch -c "$BRANCH" FETCH_HEAD
+          git switch -c "$BRANCH"
+          git reset -q FETCH_HEAD
           git add data/processed/lookup_schema_v1.json
           if ! git diff --staged --quiet; then
             git commit -m "chore(data): automated weekly risk lookup refresh"
             title="Automated weekly risk lookup refresh"
+            if [ "$DRY_RUN" = "true" ]; then
+              title="Dry-run refresh with a data change, close without merging"
+            fi
           elif [ "$DRY_RUN" = "true" ]; then
-            git commit --allow-empty -m "Dry-run refresh: no data change (#66)"
-            title="Dry-run refresh: no data change, close without merging (#66)"
+            git commit --allow-empty -m "Dry-run refresh: no data change"
+            title="Dry-run refresh: no data change, close without merging"
           else
             echo "No data change, so no PR."
             exit 0
