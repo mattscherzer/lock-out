@@ -58,5 +58,6 @@ it("a lookup without confidence or its thresholds shows the error state, not a g
   for (const text of [shown(id, noConfidence), shown(id, a, noThresholds)]) {
     expect(text).toContain("Could not load this area");
     expect(text).not.toContain("behind this:");
+    expect(text).not.toMatch(/(Low|Medium|High|Limited data|No data) ·/);
   }
 });

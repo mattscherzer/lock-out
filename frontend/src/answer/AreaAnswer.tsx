@@ -42,7 +42,7 @@ export function AreaAnswer({
           />
         )
       }
-      tier={record && <VerdictStrip kind={kindOf(record)} />}
+      tier={record && !broken && <VerdictStrip kind={kindOf(record)} />}
       details={
         record &&
         !broken && (
