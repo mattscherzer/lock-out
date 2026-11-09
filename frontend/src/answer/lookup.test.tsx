@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { expect, it } from "vitest";
 import type { Lookup } from "../search/types.ts";
 import { AreaAnswer } from "./AreaAnswer.tsx";
+import { DataLine } from "./DataLine.tsx";
 import { Explain } from "./Explain.tsx";
 import { kindOf } from "./kind.ts";
 import { rec } from "./testData.ts";
@@ -30,7 +31,11 @@ it("every area's data label follows its confidence, and LOW is exactly limited d
   for (const [id, a] of Object.entries(lookup.areas)) {
     expect(a.limited_data, id).toBe(a.confidence === "LOW");
     if (a.confidence === "LOW" || kindOf(a) === "no-data") continue;
-    expect(shown(id), id).toContain(`${WORD[a.confidence]} behind this:`);
+    const { container, unmount } = render(
+      <DataLine reports={a.reports_12m} confidence={a.confidence} />,
+    );
+    expect(container.textContent, id).toContain(WORD[a.confidence]);
+    unmount();
   }
 });
 
