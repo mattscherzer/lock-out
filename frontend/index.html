@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- before first paint; the key must match PALETTE_KEY in src/map/palette.ts -->
+    <script>
+      try {
+        if (localStorage.getItem("palette") === "cb")
+          document.documentElement.dataset.palette = "cb";
+      } catch {}
+    </script>
     <title>Lock Out – Berlin areas</title>
   </head>
   <body class="h-full">
@@ -15,7 +22,7 @@
     ></div>
     <div
       id="legend"
-      class="absolute bottom-(--map-controls-bottom) left-2 z-map-controls transition-transform duration-base ease-standard min-[600px]:left-1/2 min-[600px]:-translate-x-1/2 max-[599px]:[body:has(.answer-card[data-open])_&]:invisible min-[600px]:[body:has(.answer-card[data-open]:not([data-collapsed]))_&]:translate-x-[calc(50vw-100%-var(--map-controls-inset)-var(--control-sm)-var(--space-2))] max-[599px]:[body[data-legend-tight]_&]:invisible"
+      class="absolute bottom-(--map-controls-bottom) left-2 z-map-controls transition-transform duration-base ease-standard min-[600px]:left-1/2 min-[600px]:w-max min-[600px]:-translate-x-1/2 max-[599px]:[body:has(.answer-card[data-open])_&]:invisible min-[600px]:[body:has(.answer-card[data-open]:not([data-collapsed]))_&]:translate-x-[calc(50vw-100%-var(--map-controls-inset)-var(--control-sm)-var(--space-2))] max-[599px]:[body[data-legend-tight]_&]:invisible"
     ></div>
     <div
       id="legend-menu"
