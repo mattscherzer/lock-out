@@ -47,7 +47,7 @@ def test_committed_files_match_the_schema(path):
 
 
 def test_the_committed_lookup_carries_the_generators_version_and_thresholds():
-    # the committed file was patched for 1.1.0, not regenerated
+    # a stale lookup can still match the schema; after a version bump, rerun src/models/eb.py on the pinned CSV
     meta = load(LOOKUP)["metadata"]
     assert meta["schema_version"] == SCHEMA_VERSION
     assert meta["confidence_thresholds"] == confidence_thresholds()
