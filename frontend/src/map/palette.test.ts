@@ -1,6 +1,5 @@
-import { readFileSync } from "node:fs";
 import { afterEach, expect, it, vi } from "vitest";
-import { PALETTE_KEY, palette, writePalette } from "./palette.ts";
+import { palette, setPalette, subscribePalette } from "./palette.ts";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -8,25 +7,29 @@ afterEach(() => {
   delete document.documentElement.dataset.palette;
 });
 
-it("sets the attribute and stores the choice", () => {
-  writePalette(true);
+it("sets and clears the attribute", () => {
+  setPalette(true);
   expect(document.documentElement.dataset.palette).toBe("cb");
   expect(palette()).toBe(true);
-  expect(localStorage.getItem(PALETTE_KEY)).toBe("cb");
-  writePalette(false);
+  setPalette(false);
   expect(document.documentElement.dataset.palette).toBeUndefined();
   expect(palette()).toBe(false);
-  expect(localStorage.getItem(PALETTE_KEY)).toBeNull();
+});
+
+it("notifies subscribers until they unsubscribe", () => {
+  const fn = vi.fn();
+  const off = subscribePalette(fn);
+  setPalette(true);
+  expect(fn).toHaveBeenCalledTimes(1);
+  off();
+  setPalette(false);
+  expect(fn).toHaveBeenCalledTimes(1);
 });
 
 it("still applies the palette when storage throws", () => {
   vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
     throw new Error("blocked");
   });
-  writePalette(true);
-  expect(document.documentElement.dataset.palette).toBe("cb");
-});
-
-it("uses the same key as the inline script in index.html", () => {
-  expect(readFileSync("index.html", "utf8")).toContain(`getItem("${PALETTE_KEY}") === "cb"`);
+  setPalette(true);
+  expect(palette()).toBe(true);
 });

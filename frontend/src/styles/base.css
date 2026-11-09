@@ -35,7 +35,7 @@ path.leaflet-interactive:focus {
     sans-serif;
 }
 
-/* Colour-blind palette: unlayered and after tokens.css (equal specificity to [data-theme="dark"]), so it wins in both themes. */
+/* unlayered and after tokens.css, so it beats [data-theme="dark"] at equal specificity */
 [data-palette="cb"] {
   --risk-low: var(--cb-risk-low);
   --risk-medium: var(--cb-risk-medium);

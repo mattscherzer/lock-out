@@ -1,9 +1,8 @@
 import { Check } from "lucide-react";
 import { useSyncExternalStore } from "react";
-import { palette, subscribePalette, writePalette } from "./palette.ts";
+import { palette, setPalette, subscribePalette } from "./palette.ts";
 
-// M3 switch at 0.75 scale; the check is a cue besides colour.
-// Pixel values keep the geometry readable; thumb offsets are measured inside the 2px track border (there is no preflight, so the track needs box-border).
+// no preflight: the track needs box-border, and thumb offsets sit inside its 2px border
 const TRACK_ON = "border-primary bg-primary";
 const TRACK_OFF = "border-outline bg-surface-container";
 const THUMB_ON =
@@ -18,9 +17,7 @@ export function PaletteToggle({ className = "" }: { className?: string }) {
       type="button"
       role="switch"
       aria-checked={on}
-      onClick={() => {
-        writePalette(!on);
-      }}
+      onClick={() => setPalette(!on)}
       className={`group flex min-h-[24px] cursor-pointer items-center gap-2 border-0 bg-transparent p-0 body-sm whitespace-nowrap text-on-surface ${className}`}
     >
       <span

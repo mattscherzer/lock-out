@@ -1,7 +1,7 @@
 import { Palette } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ITEMS, LegendItem } from "./LegendItem.tsx";
-import { PaletteToggle } from "./PaletteToggle.tsx";
+import { PaletteRow } from "./PaletteRow.tsx";
 
 // Phone, sheet open: the bottom legend would sit under the sheet, so it slides out of a button on tap and back in when focus or a press leaves it.
 export function LegendMenu() {
@@ -36,7 +36,7 @@ export function LegendMenu() {
       >
         <Palette aria-hidden="true" className="size-icon-md" />
       </button>
-      {/* the clip lets the bar slide out from behind the button; its padding keeps the shadow, so -top-2 cancels p-2 and the bar's top aligns with the button */}
+      {/* the clip lets the bar slide out from behind the button; its padding keeps the shadow (-top-2 cancels it) */}
       <div className="absolute -top-2 right-full box-border w-max max-w-[calc(100vw-var(--space-4)-var(--control-md))] overflow-hidden p-2">
         <ul
           id="legend-list"
@@ -46,9 +46,7 @@ export function LegendMenu() {
           {ITEMS.map((item) => (
             <LegendItem key={item.label} {...item} />
           ))}
-          <li className="mt-1 flex w-0 min-w-full items-center border-0 border-t border-solid border-outline-variant pt-2">
-            <PaletteToggle className="w-full flex-row-reverse justify-between" />
-          </li>
+          <PaletteRow stacked="always" />
         </ul>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { ITEMS, LegendItem } from "./LegendItem.tsx";
-import { PaletteToggle } from "./PaletteToggle.tsx";
+import { PaletteRow } from "./PaletteRow.tsx";
 
 export function Legend() {
   return (
@@ -10,10 +10,7 @@ export function Legend() {
       {ITEMS.map((item) => (
         <LegendItem key={item.label} {...item} />
       ))}
-      {/* one row only from 870px, where it fits beside the open answer card */}
-      <li className="flex items-center max-[869px]:mt-1 max-[869px]:w-0 max-[869px]:min-w-full max-[869px]:border-0 max-[869px]:border-t max-[869px]:border-solid max-[869px]:border-outline-variant max-[869px]:pt-2">
-        <PaletteToggle className="max-[869px]:w-full max-[869px]:flex-row-reverse max-[869px]:justify-between" />
-      </li>
+      <PaletteRow stacked="narrow" />
     </ul>
   );
 }
