@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Button } from "./controls/Controls.tsx";
-import type { Fixture } from "./search/types.ts";
+import type { Lookup } from "./search/types.ts";
 
 // Opened from the "About the data" link in the map attribution: a floating button would cover that text.
 export function About({
@@ -8,7 +8,7 @@ export function About({
   open,
   onClose,
 }: {
-  attribution: Fixture["metadata"]["attribution"];
+  attribution: Lookup["metadata"]["attribution"];
   open: boolean;
   onClose: () => void;
 }) {

@@ -382,8 +382,8 @@ describe("streets from gazetteer_streets.json", () => {
 // The empty-state examples are quick filters: each must exist in the shipped data, as its own kind.
 it("every empty-state example is a real place in the shipped data", () => {
   const load = (f: string) => JSON.parse(readFileSync(`public/${f}`, "utf8"));
-  const real = buildIndex(load("gazetteer.json"), load("lookup_fixture.json").areas);
-  addStreets(real, load("gazetteer_streets.json"), load("lookup_fixture.json").areas);
+  const real = buildIndex(load("gazetteer.json"), load("lookup_schema_v1.json").areas);
+  addStreets(real, load("gazetteer_streets.json"), load("lookup_schema_v1.json").areas);
   const word = (p: { kind: string; type?: string }) =>
     p.kind === "street"
       ? (p.type ?? "Street")

@@ -1,6 +1,6 @@
 {
  "metadata": {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "reports_up_to": "2026-10-24",
   "data_window": {
    "start": "2025-10-11",
@@ -21,6 +21,10 @@
   "citywide_facts": {
    "lock_defeated_share": 0.9434,
    "median_stolen_value_eur": 900
+  },
+  "confidence_thresholds": {
+   "limited_below": 5,
+   "plenty_from": 20
   }
  },
  "risk_bands": {

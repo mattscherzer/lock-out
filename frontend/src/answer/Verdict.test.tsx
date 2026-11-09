@@ -19,24 +19,30 @@ it("thin and missing data never read as calm and say so", () => {
     expect(verdictLine(kind, 2, 15)).not.toMatch(/fewer/i);
 });
 
-it("the verdict adds a data line for tiers, with the wording shifting under 20 reports, and none for thin data", () => {
+it("the verdict adds a data line for tiers, with the wording following the lookup's confidence, and none for thin data", () => {
   const { rerender } = render(
-    <Verdict kind="low" reports={14} topShare={15} onExplain={() => {}} />,
+    <Verdict kind="low" confidence="MEDIUM" reports={14} topShare={15} onExplain={() => {}} />,
   );
   expect(screen.getByText(/behind this: 14 reports in 12 months/).textContent).toMatch(
     /Some data behind this.*A few more or fewer could shift the rating/,
   );
-  rerender(<Verdict kind="high" reports={101} topShare={15} onExplain={() => {}} />);
+  rerender(
+    <Verdict kind="high" confidence="HIGH" reports={101} topShare={15} onExplain={() => {}} />,
+  );
   expect(screen.getByText(/behind this: 101 reports in 12 months/).textContent).not.toMatch(
     /shift/,
   );
-  rerender(<Verdict kind="limited" reports={3} topShare={15} onExplain={() => {}} />);
+  rerender(
+    <Verdict kind="limited" confidence="LOW" reports={3} topShare={15} onExplain={() => {}} />,
+  );
   expect(screen.queryByText(/behind this/)).toBeNull();
 });
 
 it("the verdict shows the word and offers the explanation", () => {
   let asked = 0;
-  render(<Verdict kind="high" reports={101} topShare={15} onExplain={() => asked++} />);
+  render(
+    <Verdict kind="high" confidence="HIGH" reports={101} topShare={15} onExplain={() => asked++} />,
+  );
   expect(screen.getByText("High", { selector: ".display-sm" })).toBeTruthy();
   expect(
     screen.getByText("Among the 15% of Berlin areas with the most reported bike thefts."),
