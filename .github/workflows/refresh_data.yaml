@@ -6,9 +6,16 @@ on:
     - cron: "0 6 * * 1"
   # Allow manual trigger from the GitHub Actions tab anytime
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: open a PR even if the data did not change. Close that PR without merging."
+        type: boolean
+        default: false
 
+# main is protected, so the job opens a PR instead of pushing; pull-requests: write lets the default token do that (D-19)
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   update-risk-lookup:
@@ -45,12 +52,41 @@ jobs:
       - name: 6. Run Audit / Precompute Pipeline
         run: |
           uv run python src/audit_police_csv.py
-          # In Week 2, uncomment below to regenerate lookup_schema_v1.json:
-          # uv run python src/build_lookup_json.py
+          # When the build step is switched on, uncomment below to regenerate lookup_schema_v1.json:
+          # uv run python src/models/eb.py
 
-      - name: 7. Commit & Push Updated Lookup JSON
+      # Repeats the schema check from tests.yaml on purpose: PRs opened with the default token do not trigger other
+      # workflows, so the checks run here and block the PR on failure (D-19)
+      - name: 7. Check the Lookup JSON Against the Schema
+        run: uv run python src/lookup_schema.py
+
+      - name: 8. Open a PR With the Updated Lookup JSON
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          BRANCH: refresh/${{ github.run_id }}-${{ github.run_attempt }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # the PR branch points at main but keeps the files this run wrote, so a run from a feature branch
+          # still compares only the lookup with main
+          git fetch --depth=1 origin main
+          git switch -c "$BRANCH"
+          git reset -q FETCH_HEAD
           git add data/processed/lookup_schema_v1.json
-          git diff --staged --quiet || (git commit -m "chore(data): automated weekly risk lookup refresh" && git push)
+          if ! git diff --staged --quiet; then
+            git commit -m "chore(data): automated weekly risk lookup refresh"
+            title="Automated weekly risk lookup refresh"
+            if [ "$DRY_RUN" = "true" ]; then
+              title="Dry-run refresh with a data change, close without merging"
+            fi
+          elif [ "$DRY_RUN" = "true" ]; then
+            git commit --allow-empty -m "Dry-run refresh: no data change"
+            title="Dry-run refresh: no data change, close without merging"
+          else
+            echo "No data change, so no PR."
+            exit 0
+          fi
+          git push origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" --title "$title" --body "Opened by the refresh workflow: $RUN_URL"
