@@ -1,0 +1,90 @@
+.leaflet-bar,
+.leaflet-touch .leaflet-bar {
+  border: 0;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--elevation-2);
+}
+
+.leaflet-bar a,
+.leaflet-touch .leaflet-bar a {
+  width: var(--control-sm);
+  height: var(--control-sm);
+  border-bottom: var(--border-1) solid var(--outline-variant);
+  background: var(--surface-container-lowest);
+  color: var(--on-surface);
+  font-family: var(--font-sans);
+  font-size: var(--icon-md);
+  font-weight: 400;
+  line-height: var(--control-sm);
+}
+
+.leaflet-bar a:first-child,
+.leaflet-touch .leaflet-bar a:first-child {
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.leaflet-bar a:last-child,
+.leaflet-touch .leaflet-bar a:last-child {
+  border-bottom: 0;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+  background: color-mix(
+    in srgb,
+    var(--on-surface) calc(var(--state-hover) * 100%),
+    var(--surface-container-lowest)
+  );
+}
+
+.leaflet-bar a.leaflet-disabled {
+  background: var(--surface-container-lowest);
+  color: var(--on-surface);
+  opacity: var(--opacity-disabled);
+}
+
+/* above the attribution, which wraps to three lines on a phone; the inset is Leaflet's own control margin */
+:root {
+  --map-controls-inset: 10px;
+  --map-controls-bottom: calc(var(--space-12) + var(--space-2));
+}
+
+@media (width >= 600px) {
+  :root {
+    --map-controls-bottom: var(--space-8);
+  }
+}
+
+.leaflet-bottom .leaflet-control-zoom.leaflet-control {
+  position: absolute;
+  right: var(--map-controls-inset);
+  bottom: var(--map-controls-bottom);
+  margin: 0;
+}
+
+.leaflet-tooltip {
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: var(--surface-container-lowest);
+  box-shadow: var(--elevation-3);
+  color: var(--on-surface);
+}
+
+/* the arrow is a border triangle */
+.leaflet-tooltip-top::before {
+  border-top-color: var(--surface-container-lowest);
+}
+
+.leaflet-tooltip-bottom::before {
+  border-bottom-color: var(--surface-container-lowest);
+}
+
+.leaflet-tooltip-left::before {
+  border-left-color: var(--surface-container-lowest);
+}
+
+.leaflet-tooltip-right::before {
+  border-right-color: var(--surface-container-lowest);
+}

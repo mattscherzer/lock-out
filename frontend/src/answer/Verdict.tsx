@@ -1,10 +1,11 @@
+import { STRINGS } from "../strings.ts";
 import { Info } from "lucide-react";
 import { DataLine } from "./DataLine.tsx";
 import { colour, type Kind } from "./kind.ts";
 import { TierMark } from "./TierMark.tsx";
 import { verdictLine } from "./text.ts";
 
-const WORD: Record<Kind, string> = {
+export const WORD: Record<Kind, string> = {
   low: "Low",
   medium: "Medium",
   high: "High",
@@ -71,6 +72,22 @@ export function Verdict({
         <Info aria-hidden="true" size={18} />
         What does this mean?
       </button>
+    </div>
+  );
+}
+
+export function VerdictStrip({ kind }: { kind: Kind }) {
+  return (
+    <div
+      className="box-border flex w-full min-w-0 items-center gap-2 rounded-lg px-3 py-1.5"
+      style={{
+        background: `color-mix(in srgb, ${colour(kind)} 14%, var(--surface-container-lowest))`,
+      }}
+    >
+      <TierMark kind={kind} className="size-6" />
+      <span className="min-w-0 truncate body-md">
+        <b className="title-md">{WORD[kind]}</b> · {STRINGS.verdictPhrase[kind]}
+      </span>
     </div>
   );
 }

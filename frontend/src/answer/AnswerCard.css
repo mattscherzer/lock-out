@@ -1,5 +1,9 @@
 /* One element, two layouts. It stays mounted so it can slide; visibility: hidden keeps it out of the tab order while closed. */
 .answer-card {
+  --pin-top: 0px;
+  --pin-bar-h: calc(var(--space-12) + var(--space-2));
+  --pin-strip-h: calc(var(--space-12) + var(--space-4));
+
   position: fixed;
   z-index: calc(var(--z-search) - 1);
   box-sizing: border-box;
@@ -23,7 +27,72 @@
   border-radius: var(--radius-full);
 }
 
-.answer-appbar {
+/* The card scrolls as a whole; these two bars pin under the top edge once the name and then the verdict card have scrolled away. */
+.answer-drag {
+  display: contents;
+}
+
+.answer-drag > * {
+  flex: none;
+}
+
+.answer-body {
+  flex: none;
+}
+
+.answer-pin {
+  position: sticky;
+  z-index: calc(var(--z-base) + 1);
+  box-sizing: border-box;
+  display: flex;
+  flex: none;
+  align-items: center;
+  background: var(--surface-container-lowest);
+  border-bottom: var(--border-1) solid var(--outline-variant);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(calc(var(--space-2) * -1));
+  transition:
+    opacity var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard),
+    visibility 0s linear var(--duration-base);
+}
+
+.answer-pin[data-on] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+  transition-delay: 0s;
+}
+
+/* zero-height in flow, so pinning never pushes the content */
+.answer-pin-bar {
+  top: var(--pin-top);
+  height: var(--pin-bar-h);
+  margin-bottom: calc(var(--pin-bar-h) * -1);
+}
+
+.answer-pin-strip {
+  top: calc(var(--pin-top) + var(--pin-bar-h));
+  height: var(--pin-strip-h);
+  margin-bottom: calc(var(--pin-strip-h) * -1);
+  padding-block: var(--space-2);
+}
+
+/* on desktop the search pill floats over the panel top: the strip pins below it and covers what scrolls behind the pill */
+.answer-pin-strip::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  height: var(--pin-top);
+  background: inherit;
+}
+
+.answer-peek {
   display: none;
 }
 
@@ -94,10 +163,23 @@
   }
 
   .answer-card[data-open][data-stop="full"] {
-    transform: none;
-    border-radius: 0;
+    transform: translateY(var(--answer-full-gap));
     z-index: calc(var(--z-search) + 1);
-  } /* covers the search pill */
+  } /* covers the search pill, leaving the map margin the pill has */
+
+  /* the sheet is translated down by that margin: pad by it so the last block can scroll into view */
+  .answer-card[data-open][data-stop="full"] .answer-body {
+    padding-bottom: calc(var(--space-4) + var(--answer-full-gap));
+  }
+
+  /* minimized: the name and the risk assessment, nothing else */
+  .answer-card[data-stop="lowered"] .answer-verdict {
+    display: none;
+  }
+
+  .answer-card[data-stop="lowered"] .answer-peek {
+    display: block;
+  }
 
   .answer-card:not([data-stop="full"]) {
     overflow: hidden;
@@ -109,19 +191,6 @@
     overscroll-behavior: contain;
   }
 
-  .answer-drag {
-    display: contents;
-  }
-
-  .answer-drag > * {
-    flex: none;
-  }
-
-  .answer-body {
-    flex: none;
-    overflow: visible;
-  }
-
   /* the card is 100dvh tall and slid down: pad by the hidden part so the last block can scroll into view */
   .answer-card[data-open][data-stop="lowered"] .answer-body {
     padding-bottom: calc(var(--space-4) + 100dvh - var(--answer-lowered));
@@ -131,16 +200,7 @@
     padding-bottom: calc(var(--space-4) + 100dvh - var(--answer-higher));
   }
 
-  .answer-card[data-stop="full"] .answer-handle,
-  .answer-card[data-stop="full"] .answer-close {
-    display: none;
-  }
-
-  .answer-card[data-stop="full"] .answer-appbar {
-    position: sticky;
-    top: 0;
-    display: flex;
-    background: var(--surface-container-lowest);
+  .answer-card[data-stop="full"] .answer-pin {
     touch-action: none;
   }
 }
@@ -156,9 +216,14 @@
   }
 
   .answer-card {
+    --pin-top: calc(var(--space-16) + var(--space-2));
+    --pin-bar-h: 0px;
+
     top: 0;
     bottom: 0;
     left: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     width: var(--answer-panel-w);
     border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
     box-shadow: var(--elevation-3);
@@ -179,7 +244,8 @@
     transition-delay: 0s, var(--duration-slow);
   }
 
-  .answer-handle {
+  .answer-handle,
+  .answer-pin-bar {
     display: none;
   }
 

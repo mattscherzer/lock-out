@@ -33,6 +33,7 @@ type Props = {
   selected: string | null;
   onSelect: (id: string, context: Context | null) => void;
   onClear: () => void;
+  onHighlight?: (id: string | null) => void; // the area under the pointer or arrow keys in the open list
   closeSignal?: number; // changing it closes the list, e.g. on a tap on the map
   loadStreets?: () => Promise<unknown>; // must reject on failure; retried on the next focus
 };
@@ -126,6 +127,7 @@ export function AreaSearch({
   selected,
   onSelect,
   onClear,
+  onHighlight,
   closeSignal,
   loadStreets,
 }: Props) {
@@ -207,6 +209,13 @@ export function AreaSearch({
   const count = empty ? EXAMPLES.length : rows.length; // options in the listbox
   const current = Math.min(active ?? Math.max(picked, 0), count - 1);
   const shown = open && !!query.trim();
+  const row = shown && active !== null ? rows[current] : undefined;
+  const highlighted = row?.type === "area" ? row.id : null;
+  const emitHighlight = useEffectEvent((id: string | null) => onHighlight?.(id));
+  useEffect(() => {
+    emitHighlight(highlighted);
+    return () => emitHighlight(null);
+  }, [highlighted]);
   const tooShort = query.trim().length < 2; // searchPlaces needs two characters
 
   useEffect(() => {
