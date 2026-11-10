@@ -1,10 +1,12 @@
-// The string table (M7), starting with the lock advice; other components still hold some copy of their own until it
-// moves here. English only for the MVP (D-11); a translation is a second object with the same shape. The advice copy
-// follows docs/lock-tier-documentation.md section 3 and names the organisation behind each claim that is specific to it.
+// The string table (M7): every user-visible string and aria-label, grouped by feature. English only for the MVP
+// (D-11); a translation is a second object with the same shape. The advice copy follows
+// docs/lock-tier-documentation.md section 3 and names the organisation behind each claim that is specific to it.
 
 // one ADFC claim, shared by the second-lock step and the one-lock hint so the two cannot drift apart
 const SECOND_LOCK =
   "a second lock of a different type, because thieves often specialise in one kind of lock.";
+
+const reports = (n: number) => `${n} ${n === 1 ? "report" : "reports"}`;
 
 export const STRINGS = {
   // the compact verdict strip; the low phrase must hold for the whole bottom 60% of areas
@@ -14,6 +16,161 @@ export const STRINGS = {
     high: "among the most reported bike thefts",
     limited: "too few reports to rate this area",
     "no-data": "nothing reported, so no rating",
+  },
+  status: {
+    loadError: "Could not load map data",
+    noPostcodeSearch: "station and postcode search unavailable",
+    noStreetSearch: "street search unavailable",
+  },
+  about: {
+    title: "About the data",
+    intro:
+      "Tiers compare areas by reported bike thefts. They are not the risk to a particular bike, and thin or missing data does not mean an area has no thefts.",
+    limitsTitle: "Limits",
+    limits: [
+      "Open data covers about three quarters of the police's own figure.",
+      "Many thefts are never reported.",
+      "Recent reports arrive late, so the latest weeks are left out.",
+      "The data covers one year, so seasons are not modelled.",
+    ],
+    sourcesTitle: "Sources",
+    close: "Close",
+  },
+  map: {
+    // CC-BY: the gazetteer's sources must be credited next to the map
+    searchAttribution: "Search: Amt für Statistik Berlin-Brandenburg (CC-BY 3.0), VBB",
+  },
+  legend: {
+    label: "Map legend",
+    low: "Low",
+    medium: "Medium",
+    high: "High",
+    limited: "Limited data",
+    colourBlind: "Colour-blind",
+  },
+  card: {
+    areaFallback: "Area details",
+    close: "Close area details",
+    changeHeight: "Change height of area details",
+    show: "Show area details",
+    collapse: "Collapse area details",
+    closePanel: "Close",
+    ratingTitle: "What this rating means",
+    note: {
+      empty: ["Nothing to show yet", "There is nothing to show for this area yet."],
+      error: ["Could not load this area", "Something went wrong. Pick the area again to retry."],
+    },
+  },
+  verdict: {
+    word: {
+      low: "Low",
+      medium: "Medium",
+      high: "High",
+      "no-data": "No data",
+      limited: "Limited data",
+    },
+    heading: "Reported bike thefts vs other areas",
+    gauge: ["Low", "Medium", "High"],
+    explain: "What does this mean?",
+    line: {
+      high: (share: number) =>
+        `Among the ${share}% of Berlin areas with the most reported bike thefts.`,
+      medium: "More reported thefts than most Berlin areas, but not among the highest.",
+      low: "Among the 60% of Berlin areas with the fewest reported bike thefts.",
+      limited: (n: number) =>
+        `${n === 0 ? "No reports" : `Only ${reports(n)}`} in 12 months, too few to rate this area. This does not mean low risk.`,
+      noData: "No reports found, so we can't rate this area. This does not mean low risk.",
+    },
+  },
+  dataLine: {
+    reports,
+    plenty: "Plenty of data",
+    some: "Some data",
+    behind: (n: string) => `behind this: ${n} in 12 months.`,
+    shift: "A few more or fewer could shift the rating.",
+  },
+  details: {
+    time: { Morning: "Morning", Afternoon: "Afternoon", Evening: "Evening", Night: "Night" },
+    day: { Mon_Thu: "Mon–Thu", Friday: "Friday", Weekend: "Weekend" },
+    lastSeen: "When bikes were last seen",
+    whyPattern:
+      "These shares come from all of Berlin's reports and are the same for every area. They show when bikes are usually last seen, not when this area is riskier.",
+    timeOfDay: "Time of day",
+    dayOfWeek: "Day of the week",
+    perDay: "Average share of a week's thefts per day.",
+    areaData: "This area's data",
+    reportsIn12: (n: number) => `${n === 1 ? "report" : "reports"} in 12 months`,
+    dataUpTo: (year: string) => `Police data up to ${year}`,
+    thresholds: (plenty: number, limited: number) =>
+      `Plenty of data means ${plenty} or more reports in 12 months, some data ${limited} to ${plenty - 1}, limited data fewer than ${limited}.`,
+    chart: (label: string, parts: string[]) => `${label}: ${parts.join(", ")}`,
+  },
+  explain: {
+    rankTitle: "How areas are ranked",
+    fewest: "Fewest reports",
+    most: "Most reports",
+    ranked: (name: string) =>
+      `All 542 areas, ranked by expected bike thefts per year, with small areas drawn toward their neighbourhood. The pin marks the group ${name} is in.`,
+    unplaced: (n: number) =>
+      `This area is not placed on the scale. With ${n === 0 ? "no reports" : reports(n)}, any rank would be a guess.`,
+    dataTitle: "How much data is behind this?",
+    dataIntro:
+      "Risk and data are two different things. The rating compares reported thefts with other Berlin areas. The data line says how many reports that comparison rests on.",
+    plentyTitle: "Plenty of data",
+    plenty: (n: number) =>
+      `(${n} or more reports in 12 months): one or two more thefts would not change the rating.`,
+    someTitle: "Some data",
+    some: (from: number, to: number) =>
+      `(${from} to ${to}): our best read, but a few more or fewer reports could move it to a neighbouring level.`,
+    limitedTitle: "Limited data",
+    limited: (n: number) =>
+      `(fewer than ${n}): too few to rate, so no rating is shown. This does not mean low risk.`,
+    dataClosing: "A lot of data does not mean high risk, and little data does not mean low risk.",
+    notTitle: "What it doesn't tell you",
+    not: "It is not the chance that your bike is stolen. Busy places collect more reports.",
+    sourceTitle: "Where it comes from",
+    source: (start: string, end: string, lagDays: number) =>
+      `Police reports of street bike thefts, ${start} to ${end}. The latest ${lagDays} days are left out because reports arrive late.`,
+  },
+  search: {
+    closeLabel: "Close search",
+    clearLabel: "Clear search",
+    inputLabel: "Search area, street, station or postcode",
+    placeholder: "Street, postcode, area or station",
+    houseNumber: "House numbers aren't searchable yet, showing the street.",
+    tooShort: "Type at least two characters.",
+    errorWithRows: "Street search isn't available right now",
+    errorNoRows: "Search isn't responding",
+    errorBody: "We kept what you typed. Check your connection and try again.",
+    retry: "Try again",
+    tryTitle: "Try searching for",
+    notFound: (query: string) => `‘${query}’ not found`,
+    berlinOnly: "lock-out covers Berlin only. Try a Berlin street, postcode, area or station.",
+    examplesLabel: "Examples",
+    areasLabel: "Areas",
+    narrow: "Keep typing to narrow down",
+    hints: { navigate: "↑ ↓ navigate", select: "↵ select", close: "esc close" },
+    // the gazetteer's own street type: places.test.ts matches it against the shipped data
+    kind: {
+      postcode: "Postcode",
+      station: "Station",
+      street: "Street",
+      area: "Area",
+      water: "Water",
+    },
+    stationSub: (sub: string) => `${sub} station`,
+    inAreas: (kind: string, n: number) => `${kind} · in ${n} areas`,
+    more: (n: number, name: string) => `+${n} more areas for ${name}`,
+    areaSub: (bezirk: string) => `Area · ${bezirk}`,
+    placeSub: (kind: string, area: string, bezirk: string) => `${kind} · ${area} · ${bezirk}`,
+    rowLabel: (full: string, sub: string, name: string, pct: number) =>
+      `${full}, ${sub}, in ${name}, ${pct}%`,
+    live: {
+      tooShort: "Keep typing",
+      searching: "Searching",
+      results: (n: number) => `${n} ${n === 1 ? "result" : "results"}`,
+      none: "No results",
+    },
   },
   advice: {
     headline: {
@@ -96,7 +253,6 @@ export const STRINGS = {
       ],
     },
     bikeValue: { under_eur_1000: "Under €1,000", eur_1000_or_more: "€1,000 or more" },
-    // shown under the one-lock banner, for a rider whose bike is worth more
     secondLockHint: `For a more valuable bike, the ADFC advises ${SECOND_LOCK}`,
     sourcesLabel: "Where this guidance comes from",
     source: {

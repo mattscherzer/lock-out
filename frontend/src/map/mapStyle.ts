@@ -14,6 +14,10 @@ export const emphasisOf = (
 ): Emphasis =>
   id === active ? "selected" : id === highlighted || id === hovered ? "hover" : "rest";
 
+// the --border-1 and --border-2 widths: Leaflet takes numbers
+const WEIGHT_REST = 1;
+const WEIGHT_SELECTED = 2;
+
 export const HATCH_ID = "limited-hatch";
 export const HATCH_LIFTED_ID = "limited-hatch-lifted";
 
@@ -42,7 +46,7 @@ export function areaStyle(kind: Kind, emphasis: Emphasis): L.PathOptions {
     // an attribute: url(#id) in CSS resolves against the stylesheet in some Safari versions
     fillColor: limited ? `url(#${emphasis === "rest" ? HATCH_ID : HATCH_LIFTED_ID})` : undefined,
     opacity: num(dark ? "--map-stroke-dark" : "--map-stroke-light"),
-    weight: emphasis === "selected" ? 2 : 1,
+    weight: emphasis === "selected" ? WEIGHT_SELECTED : WEIGHT_REST,
     dashArray: limited ? token("--dash-limited") : undefined,
     lineJoin: "miter",
     lineCap: "butt",

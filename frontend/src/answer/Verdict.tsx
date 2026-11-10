@@ -6,13 +6,8 @@ import { colour, type Kind } from "../domain/kind.ts";
 import { TierMark } from "./TierMark.tsx";
 import { verdictLine } from "./text.ts";
 
-export const WORD: Record<Kind, string> = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-  "no-data": "No data",
-  limited: "Limited data",
-};
+const S = STRINGS.verdict;
+const TINT_PCT = 14; // how much of the tier colour tints the verdict card and strip
 const GAUGE: Record<Kind, number> = { low: 0, medium: 1, high: 2, "no-data": -1, limited: -1 };
 
 export function Verdict({
@@ -33,22 +28,20 @@ export function Verdict({
     <div
       className="flex flex-col gap-2 rounded-lg p-3.5"
       style={{
-        background: `color-mix(in srgb, ${colour(kind)} 14%, var(--surface-container-lowest))`,
+        background: `color-mix(in srgb, ${colour(kind)} ${TINT_PCT}%, var(--surface-container-lowest))`,
       }}
     >
-      <div className="label-md text-on-surface-variant uppercase">
-        Reported bike thefts vs other areas
-      </div>
+      <div className="label-md text-on-surface-variant uppercase">{S.heading}</div>
       <div className="flex items-center gap-3.5">
         <TierMark kind={kind} />
-        <div className="display-sm">{WORD[kind]}</div>
+        <div className="display-sm">{S.word[kind]}</div>
       </div>
       <p className="m-0 body-lg">{verdictLine(kind, reports, topShare)}</p>
       {kind !== "limited" && kind !== "no-data" && (
         <DataLine reports={reports} confidence={confidence} />
       )}
       <div className="mt-0.5 flex gap-1.5" aria-hidden="true">
-        {["Low", "Medium", "High"].map((name, i) => (
+        {S.gauge.map((name, i) => (
           <div key={name} className="flex-1">
             <i
               className="block h-3 rounded-xs border border-outline-variant"
@@ -75,7 +68,7 @@ export function Verdict({
         aria-haspopup="dialog"
       >
         <Info aria-hidden="true" size={18} />
-        What does this mean?
+        {S.explain}
       </button>
     </div>
   );
@@ -86,12 +79,12 @@ export function VerdictStrip({ kind }: { kind: Kind }) {
     <div
       className="box-border flex w-full min-w-0 items-center gap-2 rounded-lg px-3 py-1.5"
       style={{
-        background: `color-mix(in srgb, ${colour(kind)} 14%, var(--surface-container-lowest))`,
+        background: `color-mix(in srgb, ${colour(kind)} ${TINT_PCT}%, var(--surface-container-lowest))`,
       }}
     >
       <TierMark kind={kind} className="size-6" />
       <span className="min-w-0 truncate body-md">
-        <b className="title-md">{WORD[kind]}</b> · {STRINGS.verdictPhrase[kind]}
+        <b className="title-md">{S.word[kind]}</b> · {STRINGS.verdictPhrase[kind]}
       </span>
     </div>
   );

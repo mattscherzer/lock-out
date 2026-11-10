@@ -38,7 +38,6 @@ const TERMS: Term[] = [
   "discDetainer",
   "securityNuts",
 ];
-// one flat list, shown for every level
 const SOURCES = Object.keys(SOURCE_URLS) as Source[];
 
 // Two lock levels. twoLocks keeps every step of oneLock and adds to it, so a higher bike value never gets less.
@@ -59,7 +58,7 @@ export type Advice = {
   hint: string | null;
   why: string;
   keys: { id: KeyStep; text: string }[];
-  note: string | null; // the thin-data line, shown on top of the full advice
+  note: string | null;
   steps: string[];
   tips: string[];
   terms: { term: string; meaning: string }[];

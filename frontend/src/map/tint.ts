@@ -10,6 +10,7 @@ export const isSafari = (ua = navigator.userAgent) => /^((?!chrome|android).)*sa
 
 // shortcut: tokens read once, not re-run on a theme switch; 50% blend keeps streets legible, not the token's 100%.
 const STRENGTH = 0.5;
+const SAFARI_FILTER = "grayscale(0.5) sepia(0.1) brightness(1.05)";
 
 export function tintBasemap(map: L.Map) {
   const via = isSafari() ? "css" : "svg";
@@ -27,7 +28,7 @@ export function tintBasemap(map: L.Map) {
     );
     pane.style.filter = "url(#duotone)";
   } else {
-    pane.style.filter = "grayscale(0.5) sepia(0.1) brightness(1.05)";
+    pane.style.filter = SAFARI_FILTER;
   }
   map.getContainer().dataset.tint = via;
 }

@@ -88,3 +88,9 @@
 .leaflet-tooltip-right::before {
   border-right-color: var(--surface-container-lowest);
 }
+
+/* Leaflet writes stroke and fill as presentation attributes, which any CSS rule beats */
+.search-pin {
+  fill: var(--primary);
+  stroke: var(--on-primary);
+}

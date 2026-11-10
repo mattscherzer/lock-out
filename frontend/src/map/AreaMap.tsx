@@ -3,13 +3,14 @@ import type { FeatureCollection } from "geojson";
 import { useEffect, useEffectEvent, useImperativeHandle, useRef, type Ref } from "react";
 import { kindOf } from "../domain/kind.ts";
 import type { Lookup } from "../domain/lookup.ts";
+import { STRINGS } from "../strings.ts";
 import { addHatch, areaStyle, emphasisOf } from "./mapStyle.ts";
 import { tintBasemap } from "./tint.ts";
 
-const BRAND = "#2563EB";
-
-// CC-BY: the gazetteer's sources must be credited next to the map
-const SEARCH_ATTRIBUTION = "Search: Amt für Statistik Berlin-Brandenburg (CC-BY 3.0), VBB";
+const BERLIN_CENTRE: L.LatLngTuple = [52.52, 13.405];
+const START_ZOOM = 11;
+const PIN_RADIUS = 7;
+const PIN_RING_WEIGHT = 3;
 
 export type AreaMapHandle = { flyTo: (id: string) => void };
 
@@ -50,8 +51,8 @@ export function AreaMap(props: Props) {
     const renderer = L.svg();
     addHatch(renderer);
     const m = L.map(container.current!, { zoomControl: false, renderer }).setView(
-      [52.52, 13.405],
-      11,
+      BERLIN_CENTRE,
+      START_ZOOM,
     );
     map.current = m;
     tintBasemap(m);
@@ -60,7 +61,7 @@ export function AreaMap(props: Props) {
     const { police, osm } = lookup.metadata.attribution;
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      attribution: `<a href="https://www.openstreetmap.org/copyright">${osm}</a> | ${police} | ${SEARCH_ATTRIBUTION} | <a href="#about" data-about>About the data</a>`,
+      attribution: `<a href="https://www.openstreetmap.org/copyright">${osm}</a> | ${police} | ${STRINGS.map.searchAttribution} | <a href="#about" data-about>${STRINGS.about.title}</a>`,
     }).addTo(m);
     m.attributionControl.getContainer()!.addEventListener("click", (e) => {
       if (!(e.target as Element).closest("[data-about]")) return;
@@ -115,10 +116,9 @@ export function AreaMap(props: Props) {
   useEffect(() => {
     if (!pin) return;
     const marker = L.circleMarker(pin.ll, {
-      radius: 7,
-      color: "#fff",
-      weight: 3,
-      fillColor: BRAND,
+      radius: PIN_RADIUS,
+      weight: PIN_RING_WEIGHT,
+      className: "search-pin",
       fillOpacity: 1,
       interactive: false,
     })

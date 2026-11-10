@@ -15,6 +15,8 @@ import { ExampleRows, ResultRows } from "./ResultRows.tsx";
 import { useStreets } from "./useStreets.ts";
 import { useVisualViewport } from "./useVisualViewport.ts";
 import type { Areas } from "../domain/lookup.ts";
+import { STRINGS } from "../strings.ts";
+import { WIDE } from "../viewport.ts";
 import type { Context, Index, Row } from "./types.ts";
 
 type Props = {
@@ -29,18 +31,18 @@ type Props = {
 };
 
 // Write class strings out whole so Tailwind sees them; never build one from state.
-// shortcut: py-[10px], h-[10px] are off the token scale, snap them later.
+const S = STRINGS.search;
+const ICON_PX = 22;
 const NOTE = "body-sm m-0 px-4 py-3 text-on-surface-variant";
 const LABEL = "body-sm m-0 px-4 pt-3 pb-1 font-semibold text-on-surface-variant";
 const MESSAGE = "body-sm p-6 text-on-surface-variant";
 const MESSAGE_TITLE = "body-lg m-0 mb-1 font-semibold";
 const ICON_BOX = "grid size-tap-target flex-none place-items-center text-on-surface-variant";
-const SKELETON_ROW = "box-border flex min-h-16 items-center gap-3 px-4 py-[10px]";
+const SKELETON_ROW = "box-border flex min-h-16 items-center gap-3 px-4 py-2";
 const PULSE = "animate-pulse bg-surface-container motion-reduce:animate-none";
 const HINTS =
-  "body-sm hidden flex-none gap-4 border-t border-outline-variant bg-surface px-4 py-[10px] text-on-surface-variant min-[900px]:flex";
+  "body-sm hidden flex-none gap-4 border-t border-outline-variant bg-surface px-4 py-3 text-on-surface-variant min-[900px]:flex";
 
-const WIDE = "(min-width: 600px)"; // tablet and desktop: more rows
 const subscribeWide = (cb: () => void) => {
   const m = window.matchMedia?.(WIDE);
   m?.addEventListener("change", cb);
@@ -110,7 +112,7 @@ export function AreaSearch({
       )
     : -1;
   const empty = open && !query.trim(); // nothing typed: offer the examples
-  const count = empty ? EXAMPLES.length : rows.length; // options in the listbox
+  const count = empty ? EXAMPLES.length : rows.length;
   const current = Math.min(active ?? Math.max(picked, 0), count - 1);
   const shown = open && !!query.trim();
   const row = shown && active !== null ? rows[current] : undefined;
@@ -122,7 +124,6 @@ export function AreaSearch({
   }, [highlighted]);
   const tooShort = query.trim().length < 2; // searchPlaces needs two characters
 
-  // keep the highlighted row in view while arrowing through a long list
   useEffect(() => {
     if ((shown || empty) && count)
       document.getElementById(`${id}-${current}`)?.scrollIntoView?.({ block: "nearest" });
@@ -208,17 +209,17 @@ export function AreaSearch({
         <button
           type="button"
           className="area-search-back"
-          aria-label="Close search"
+          aria-label={S.closeLabel}
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => {
             close();
             input.current?.blur();
           }}
         >
-          <ArrowLeft aria-hidden size={22} />
+          <ArrowLeft aria-hidden size={ICON_PX} />
         </button>
         <span className={`area-search-icon ${ICON_BOX}`} onClick={() => input.current?.focus()}>
-          <Search aria-hidden size={22} />
+          <Search aria-hidden size={ICON_PX} />
         </span>
         <input
           ref={input}
@@ -229,8 +230,8 @@ export function AreaSearch({
           aria-controls={`${id}-list`}
           aria-autocomplete="list"
           aria-activedescendant={(shown || empty) && count ? `${id}-${current}` : undefined}
-          aria-label="Search area, street, station or postcode"
-          placeholder="Street, postcode, area or station"
+          aria-label={S.inputLabel}
+          placeholder={S.placeholder}
           autoComplete="off"
           spellCheck={false}
           value={text}
@@ -250,14 +251,14 @@ export function AreaSearch({
         />
         {slow && streetsLoading && (
           <span className={ICON_BOX} aria-hidden>
-            <LoaderCircle className="animate-spin motion-reduce:animate-none" size={22} />
+            <LoaderCircle className="animate-spin motion-reduce:animate-none" size={ICON_PX} />
           </span>
         )}
         {text && !(slow && streetsLoading) && (
           <button
             type="button"
             className="area-search-clear"
-            aria-label="Clear search"
+            aria-label={S.clearLabel}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
               setDraft("");
@@ -267,23 +268,21 @@ export function AreaSearch({
               input.current?.focus();
             }}
           >
-            <X aria-hidden size={22} />
+            <X aria-hidden size={ICON_PX} />
           </button>
         )}
       </div>
       <div className="area-search-panel" hidden={!open}>
-        {houseNumber && (
-          <p className={NOTE}>House numbers aren't searchable yet, showing the street.</p>
-        )}
-        {shown && tooShort && <p className={NOTE}>Type at least two characters.</p>}
+        {houseNumber && <p className={NOTE}>{S.houseNumber}</p>}
+        {shown && tooShort && <p className={NOTE}>{S.tooShort}</p>}
         {shown && !tooShort && streetsError && (
           <div className={`area-search-error ${MESSAGE}`} role="alert">
             <p className={`${MESSAGE_TITLE} text-error`}>
-              {rows.length ? "Street search isn't available right now" : "Search isn't responding"}
+              {rows.length ? S.errorWithRows : S.errorNoRows}
             </p>
-            <p className="m-0 mb-1">We kept what you typed. Check your connection and try again.</p>
+            <p className="m-0 mb-1">{S.errorBody}</p>
             <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={retry}>
-              Try again
+              {S.retry}
             </button>
           </div>
         )}
@@ -293,26 +292,24 @@ export function AreaSearch({
               <li key={i} className={SKELETON_ROW}>
                 <span className={`size-9 flex-none rounded-full ${PULSE}`} />
                 <span className="flex flex-1 flex-col gap-2">
-                  <i className={`block h-[10px] w-3/5 rounded-full ${PULSE}`} />
-                  <i className={`block h-[10px] w-2/5 rounded-full ${PULSE}`} />
+                  <i className={`block h-3 w-3/5 rounded-full ${PULSE}`} />
+                  <i className={`block h-3 w-2/5 rounded-full ${PULSE}`} />
                 </span>
               </li>
             ))}
           </ul>
         )}
-        {empty && <p className={LABEL}>Try searching for</p>}
+        {empty && <p className={LABEL}>{S.tryTitle}</p>}
         {shown && !tooShort && !rows.length && !streetsLoading && !streetsError && (
           <div className={MESSAGE}>
-            <p className={`${MESSAGE_TITLE} text-on-surface`}>‘{query.trim()}’ not found</p>
-            <p className="m-0 mb-1">
-              lock-out covers Berlin only. Try a Berlin street, postcode, area or station.
-            </p>
+            <p className={`${MESSAGE_TITLE} text-on-surface`}>{S.notFound(query.trim())}</p>
+            <p className="m-0 mb-1">{S.berlinOnly}</p>
           </div>
         )}
         <ul
           id={`${id}-list`}
           role="listbox"
-          aria-label={empty ? "Examples" : "Areas"}
+          aria-label={empty ? S.examplesLabel : S.areasLabel}
           hidden={!count}
           onMouseDown={(e) => e.preventDefault()}
         >
@@ -332,11 +329,11 @@ export function AreaSearch({
             />
           )}
         </ul>
-        {overflow && <p className={NOTE}>Keep typing to narrow down</p>}
+        {overflow && <p className={NOTE}>{S.narrow}</p>}
         <div className={HINTS} aria-hidden>
-          <span>↑ ↓ navigate</span>
-          <span>↵ select</span>
-          <span>esc close</span>
+          <span>{S.hints.navigate}</span>
+          <span>{S.hints.select}</span>
+          <span>{S.hints.close}</span>
         </div>
       </div>
       <div className="sr-only" role="status" aria-live="polite">

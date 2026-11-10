@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { STRINGS } from "../strings.ts";
 import { ExplainSheet } from "./ExplainSheet.tsx";
 import { phone } from "../viewport.ts";
 import { ICON_BUTTON } from "./iconButton.ts";
@@ -32,10 +33,7 @@ type Props = {
 };
 
 type PanelKey = "explain" | "advice";
-const NOTE: Record<Exclude<CardState, "ready" | "no-data">, [title: string, text: string]> = {
-  empty: ["Nothing to show yet", "There is nothing to show for this area yet."],
-  error: ["Could not load this area", "Something went wrong. Pick the area again to retry."],
-};
+const S = STRINGS.card;
 
 // Phone: bottom sheet with three stops; from 600px a left panel. The layout switch is CSS; the drag settles on the stop nearest where the sheet would coast to.
 export function AnswerCard({
@@ -77,7 +75,7 @@ export function AnswerCard({
       ? { key: "advice", ...advicePanel }
       : {
           key: "explain",
-          heading: <h2 className="m-0 title-lg">What this rating means</h2>,
+          heading: <h2 className="m-0 title-lg">{S.ratingTitle}</h2>,
           body: explain,
         };
   const adviceNode = advicePanel && advice?.(() => openPanel("advice"));
@@ -131,7 +129,7 @@ export function AnswerCard({
       <section
         ref={card}
         role="dialog"
-        aria-label={shown?.name ?? "Area details"}
+        aria-label={shown?.name ?? S.areaFallback}
         className="answer-card"
         data-open={open || undefined}
         data-stop={stop}
@@ -158,12 +156,7 @@ export function AnswerCard({
           <span className="min-w-0 flex-1 truncate title-md" aria-hidden="true">
             {shown?.name}
           </span>
-          <button
-            type="button"
-            className={ICON_BUTTON}
-            aria-label="Close area details"
-            onClick={onClose}
-          >
+          <button type="button" className={ICON_BUTTON} aria-label={S.close} onClick={onClose}>
             <X aria-hidden="true" />
           </button>
         </div>
@@ -179,7 +172,7 @@ export function AnswerCard({
           <button
             type="button"
             className="answer-handle grid h-control-sm w-full cursor-pointer place-items-center border-0 bg-transparent"
-            aria-label="Change height of area details"
+            aria-label={S.changeHeight}
             aria-expanded={stop !== "lowered"}
             onClick={step}
           >
@@ -196,7 +189,7 @@ export function AnswerCard({
               <button
                 type="button"
                 className={`answer-close ${ICON_BUTTON} -mt-1.5 -mr-2`}
-                aria-label="Close area details"
+                aria-label={S.close}
                 onClick={onClose}
               >
                 <X aria-hidden="true" />
@@ -224,8 +217,8 @@ export function AnswerCard({
                 data-state={state}
                 role={state === "error" ? "alert" : undefined}
               >
-                <p className="m-0 title-md">{NOTE[state as keyof typeof NOTE][0]}</p>
-                <p className="m-0 mt-1 body-lg">{NOTE[state as keyof typeof NOTE][1]}</p>
+                <p className="m-0 title-md">{S.note[state as keyof typeof S.note][0]}</p>
+                <p className="m-0 mt-1 body-lg">{S.note[state as keyof typeof S.note][1]}</p>
               </div>
               {state === "error" && adviceNode}
             </>
@@ -247,7 +240,7 @@ export function AnswerCard({
         data-open={open || undefined}
         data-explain={explainOpen || undefined}
         data-collapsed={collapsed || undefined}
-        aria-label={collapsed ? "Show area details" : "Collapse area details"}
+        aria-label={collapsed ? S.show : S.collapse}
         aria-expanded={!collapsed}
         onClick={() => setCollapsed(!collapsed)}
       >

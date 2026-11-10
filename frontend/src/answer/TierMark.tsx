@@ -1,5 +1,9 @@
 import { colour, type Kind } from "../domain/kind.ts";
 
+// shortcut: glyph colours stay the same in both themes and no token carries them (white, on-surface light); add on-risk tokens if a theme needs to change them.
+const ON_DEEP = "#fff";
+const ON_AMBER = "#1D1B1C";
+
 export function TierMark({ kind, className = "size-14" }: { kind: Kind; className?: string }) {
   const c = colour(kind);
   return (
@@ -9,7 +13,7 @@ export function TierMark({ kind, className = "size-14" }: { kind: Kind; classNam
           <path d="M28 5 53 49H3Z" fill={c} stroke={c} strokeWidth="4" strokeLinejoin="round" />
           <path
             d="M28 20v14M28 41h.01"
-            stroke="#fff"
+            stroke={ON_DEEP}
             strokeWidth="5"
             strokeLinecap="round"
             fill="none"
@@ -27,7 +31,7 @@ export function TierMark({ kind, className = "size-14" }: { kind: Kind; classNam
           />
           <path
             d="M19 24h18M19 32h18"
-            stroke="#1D1B1C"
+            stroke={ON_AMBER}
             strokeWidth="4"
             strokeLinecap="round"
             fill="none"
@@ -39,7 +43,7 @@ export function TierMark({ kind, className = "size-14" }: { kind: Kind; classNam
           <circle cx="28" cy="28" r="24" fill={c} />
           <path
             d="m18 24 10 10 10-10"
-            stroke="#fff"
+            stroke={ON_DEEP}
             strokeWidth="5"
             strokeLinecap="round"
             strokeLinejoin="round"

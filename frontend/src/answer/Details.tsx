@@ -1,17 +1,12 @@
 import { Info } from "lucide-react";
 import { useId, useState } from "react";
 import type { AreaRecord, Lookup } from "../domain/lookup.ts";
+import { STRINGS } from "../strings.ts";
 import { BarGroup } from "./BarGroup.tsx";
 import { longDate } from "./text.ts";
 import { Tile } from "./Tile.tsx";
 
-const TIME: Record<string, string> = {
-  Morning: "Morning",
-  Afternoon: "Afternoon",
-  Evening: "Evening",
-  Night: "Night",
-};
-const DAY: Record<string, string> = { Mon_Thu: "Mon–Thu", Friday: "Friday", Weekend: "Weekend" };
+const S = STRINGS.details;
 const DAY_COUNT: Record<string, number> = { Mon_Thu: 4, Friday: 1, Weekend: 2 };
 
 // Level 2: quiet detail under the verdict, visible without a tap.
@@ -34,9 +29,7 @@ export function Details({
     <div className="flex flex-col gap-4.5 border-t border-outline-variant pt-3.5">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="m-0 label-md text-on-surface-variant uppercase">
-            When bikes were last seen
-          </h3>
+          <h3 className="m-0 label-md text-on-surface-variant uppercase">{S.lastSeen}</h3>
           <button
             type="button"
             aria-expanded={why}
@@ -50,38 +43,31 @@ export function Details({
         </div>
         {why && (
           <p id={whyId} className="m-0 rounded-md bg-surface-container p-3 body-sm">
-            These shares come from all of Berlin's reports and are the same for every area. They
-            show when bikes are usually last seen, not when this area is riskier.
+            {S.whyPattern}
           </p>
         )}
       </div>
-      <BarGroup label="Time of day" labels={TIME} selector={selectors.time_band} />
+      <BarGroup label={S.timeOfDay} labels={S.time} selector={selectors.time_band} />
       <div className="flex flex-col gap-1.5">
         <BarGroup
-          label="Day of the week"
-          labels={DAY}
+          label={S.dayOfWeek}
+          labels={S.day}
           selector={selectors.day_group}
           perDay={DAY_COUNT}
         />
-        <p className="m-0 body-sm text-on-surface-variant">
-          Average share of a week's thefts per day.
-        </p>
+        <p className="m-0 body-sm text-on-surface-variant">{S.perDay}</p>
       </div>
       <div className="flex flex-col gap-2 border-t border-outline-variant pt-3.5">
-        <h3 className="m-0 label-md text-on-surface-variant uppercase">This area's data</h3>
+        <h3 className="m-0 label-md text-on-surface-variant uppercase">{S.areaData}</h3>
         <div className="grid grid-cols-2 gap-2">
-          <Tile
-            big={String(area.reports_12m)}
-            text={`${area.reports_12m === 1 ? "report" : "reports"} in 12 months`}
-          />
+          <Tile big={String(area.reports_12m)} text={S.reportsIn12(area.reports_12m)} />
           <Tile
             big={longDate(metadata.reports_up_to).replace(/ \d{4}$/, "")}
-            text={`Police data up to ${metadata.reports_up_to.slice(0, 4)}`}
+            text={S.dataUpTo(metadata.reports_up_to.slice(0, 4))}
           />
         </div>
         <p className="m-0 body-sm text-on-surface-variant">
-          Plenty of data means {plenty_from} or more reports in 12 months, some data {limited_below}{" "}
-          to {plenty_from - 1}, limited data fewer than {limited_below}.
+          {S.thresholds(plenty_from, limited_below)}
         </p>
       </div>
       <a
@@ -92,7 +78,7 @@ export function Details({
           onAbout();
         }}
       >
-        About the data
+        {STRINGS.about.title}
       </a>
     </div>
   );

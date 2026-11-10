@@ -11,16 +11,18 @@ import { watchLegendFit } from "../map/watchLegendFit.ts";
 import { AreaSearch } from "../search/AreaSearch.tsx";
 import { addStreets, buildIndex } from "../search/places.ts";
 import type { Context, Gazetteer } from "../search/types.ts";
+import { STRINGS } from "../strings.ts";
 import { phone } from "../viewport.ts";
 import { initialSelection, selection as reduce } from "./selection.ts";
 
+const SEARCH_CLEARANCE_PX = 110;
 const EMPTY_GAZETTEER: Gazetteer = { plz: {}, stations: [] };
 
 const STATUS = "absolute bottom-6 left-2 z-map-controls rounded-xs px-2 py-1 empty:hidden";
 
 export const LoadError = () => (
   <div id="status" className={STATUS} aria-live="polite">
-    Could not load map data
+    {STRINGS.status.loadError}
   </div>
 );
 
@@ -28,7 +30,7 @@ export const LoadError = () => (
 const flyPadding = (): FitBoundsOptions =>
   !phone()
     ? { paddingTopLeft: [document.querySelector<HTMLElement>(".answer-card")!.offsetWidth, 0] }
-    : { paddingTopLeft: [0, 110], paddingBottomRight: [0, higherPx()] };
+    : { paddingTopLeft: [0, SEARCH_CLEARANCE_PX], paddingBottomRight: [0, higherPx()] };
 
 export function App({ lookup, areas, gazetteer }: AppData) {
   const [state, dispatch] = useReducer(reduce, initialSelection);
@@ -42,8 +44,8 @@ export function App({ lookup, areas, gazetteer }: AppData) {
     [gazetteer, lookup],
   );
   const status = [
-    gazetteer ? null : "station and postcode search unavailable",
-    streetsFailed ? "street search unavailable" : null,
+    gazetteer ? null : STRINGS.status.noPostcodeSearch,
+    streetsFailed ? STRINGS.status.noStreetSearch : null,
   ]
     .filter(Boolean)
     .join(" · ");
