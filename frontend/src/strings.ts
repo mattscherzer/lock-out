@@ -2,6 +2,10 @@
 // moves here. English only for the MVP (D-11); a translation is a second object with the same shape. The advice copy
 // follows docs/lock-tier-documentation.md section 3 and names the organisation behind each claim that is specific to it.
 
+// one ADFC claim, shared by the second-lock step and the one-lock hint so the two cannot drift apart
+const SECOND_LOCK =
+  "a second lock of a different type, because thieves often specialise in one kind of lock.";
+
 export const STRINGS = {
   // the compact verdict strip; the low phrase must hold for the whole bottom 60% of areas
   verdictPhrase: {
@@ -22,7 +26,7 @@ export const STRINGS = {
       twoLocks: "Of different types.",
     },
     key: {
-      anchor: "Frame and wheel to a fixed stand",
+      anchor: "Frame and wheel to something fixed",
       solidLock: "Solid U-, chain or folding lock",
       neverAlone: "A frame or cable lock is never enough on its own",
       position: "Keyhole down, off the ground",
@@ -34,7 +38,7 @@ export const STRINGS = {
     panel: {
       made: "How this advice was made",
       madeText:
-        "This advice follows guidance from Polizei Berlin, the police crime-prevention service (ProPK) and the ADFC cycling club. It depends on what a bike is worth, not on the area, so it is the same strong standard everywhere.",
+        "This advice follows guidance from Polizei Berlin, the police crime-prevention service (ProPK), the ADFC cycling club and the VdS lock-testing standard. It depends on what a bike is worth, not on the area, so it is the same strong standard everywhere.",
       tips: "Tips for every bike",
       terms: "Lock words explained",
     },
@@ -48,8 +52,7 @@ export const STRINGS = {
         "Keep the lock off the ground with the keyhole facing down, and leave as little gap as possible around it.",
       neverAlone:
         "A frame lock or a cable lock is never enough on its own. Use one only as an extra.",
-      secondLock:
-        "The ADFC advises a second lock of a different type, because thieves often specialise in one kind of lock.",
+      secondLock: `The ADFC advises ${SECOND_LOCK}`,
       threeMinutes:
         "The ADFC's rule of thumb is that a lock should withstand force for three minutes. It adds that new U-locks with a tungsten-carbide coating also resist angle grinders well.",
       higherClass:
@@ -93,6 +96,8 @@ export const STRINGS = {
       ],
     },
     bikeValue: { under_eur_1000: "Under €1,000", eur_1000_or_more: "€1,000 or more" },
+    // shown under the one-lock banner, for a rider whose bike is worth more
+    secondLockHint: `For a more valuable bike, the ADFC advises ${SECOND_LOCK}`,
     sourcesLabel: "Where this guidance comes from",
     source: {
       polizeiBerlin: "Polizei Berlin: Fahrraddiebstahl verhindern",

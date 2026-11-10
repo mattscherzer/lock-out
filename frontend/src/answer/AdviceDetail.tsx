@@ -37,6 +37,7 @@ export function AdviceDetail({ advice: a, note }: { advice: Advice; note: string
             </li>
           ))}
         </ol>
+        {a.hint && <p className="m-0 mt-2 body-md">{a.hint}</p>}
       </Layer>
       <Layer title={A.panel.tips}>
         <ul className="m-0 mt-1 flex list-disc flex-col gap-2 pl-5 body-md">

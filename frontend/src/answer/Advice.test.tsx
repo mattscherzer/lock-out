@@ -34,6 +34,13 @@ it("starts with under EUR 1,000 chosen, so it shows one lock", () => {
   expect(glance().textContent).toContain(A.why.oneLock);
 });
 
+it("points a one-lock rider to a second lock on the glance and in the panel", () => {
+  show();
+  expect(glance().textContent).toContain(A.secondLockHint);
+  fireEvent.click(allSteps("oneLock"));
+  expect(advicePanel().textContent).toContain(A.secondLockHint);
+});
+
 it("switches to two locks for a bike worth EUR 1,000 or more", () => {
   show();
   fireEvent.click(bike("eur_1000_or_more"));
@@ -43,6 +50,7 @@ it("switches to two locks for a bike worth EUR 1,000 or more", () => {
   expect(text).toContain(A.key.secondLock);
   expect(text).toContain(A.key.neverAlone);
   expect(text).not.toContain(A.banner.oneLock);
+  expect(text).not.toContain(A.secondLockHint);
 });
 
 it("keeps the bike value when another area is picked", () => {

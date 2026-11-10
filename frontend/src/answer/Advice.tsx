@@ -92,6 +92,7 @@ export function Advice({
         onChange={onBikeValue}
       />
       <Banner advice={a} />
+      {a.hint && <p className="m-0 body-md">{a.hint}</p>}
       <KeyList keys={a.keys} />
       <Button variant="tonal" className="self-center" onClick={onMore} aria-haspopup="dialog">
         {A.allSteps(a.steps.length)}

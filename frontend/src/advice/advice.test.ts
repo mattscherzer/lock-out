@@ -21,6 +21,7 @@ const texts = (a: Advice) => [
   a.headline,
   a.banner,
   a.why,
+  ...(a.hint ? [a.hint] : []),
   ...a.keys.map((k) => k.text),
   ...(a.note ? [a.note] : []),
   ...a.steps,
@@ -124,6 +125,19 @@ describe("the router", () => {
     expect(high.steps).toContain(A.step.secondLock);
   });
 
+  it("points a one-lock rider to a second lock, with the same ADFC claim as the second-lock step", () => {
+    const hint = adviceFor("under_eur_1000", WELL_BACKED).hint;
+    expect(hint).toBe(A.secondLockHint);
+    expect(hint).toMatch(/ADFC/);
+    expect(hint).toContain(A.step.secondLock.replace("The ADFC advises ", ""));
+    expect(adviceFor("eur_1000_or_more", WELL_BACKED).hint).toBeNull();
+  });
+
+  it("does not follow the toggle's default: the level comes from the bike value alone", () => {
+    expect(adviceFor("under_eur_1000", WELL_BACKED).level).toBe("oneLock");
+    expect(adviceFor("eur_1000_or_more", WELL_BACKED).level).toBe("twoLocks");
+  });
+
   it.each(["not_a_level", "", "EUR_1000_OR_MORE", "under_eur_1000 "])(
     "gives two locks for a value that is not a known level (%j), never the lighter advice",
     (b) => {
@@ -147,6 +161,7 @@ describe("the router", () => {
       advice.headline,
       advice.banner,
       advice.why,
+      ...(advice.hint ? [advice.hint] : []),
       ...advice.keys.map((k) => k.text),
       ...advice.steps,
       ...advice.tips,

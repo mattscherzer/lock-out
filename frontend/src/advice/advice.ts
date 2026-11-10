@@ -56,6 +56,7 @@ export type Advice = {
   level: Level;
   headline: string;
   banner: string;
+  hint: string | null;
   why: string;
   keys: { id: KeyStep; text: string }[];
   note: string | null; // the thin-data line, shown on top of the full advice
@@ -68,11 +69,12 @@ export type Advice = {
 
 // bikeValue is typed loosely on purpose: a value from the JSON that is not a known level gets two locks, never one
 export function adviceFor(bikeValue: string, data: DataFlags): Advice {
-  const level: Level = bikeValue === DEFAULT_BIKE_VALUE ? "oneLock" : "twoLocks";
+  const level: Level = bikeValue === "under_eur_1000" ? "oneLock" : "twoLocks";
   return {
     level,
     headline: A.headline[level],
     banner: A.banner[level],
+    hint: level === "oneLock" ? A.secondLockHint : null,
     why: A.why[level],
     keys: KEYS[level].map((id) => ({ id, text: A.key[id] })),
     note: data.no_record ? A.note.noRecord : data.limited_data ? A.note.limitedData : null,
