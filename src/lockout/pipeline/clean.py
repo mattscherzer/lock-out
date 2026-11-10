@@ -1,19 +1,14 @@
-"""Clean the police CSV for the model: street thefts only, lag-truncated, time bands allocated.
-
-Run from the repo root: uv run python src/pipeline/clean.py
-"""
-import sys
-from pathlib import Path
-
+"""Clean the police CSV for the model: street thefts only, lag-truncated, time bands allocated."""
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import config
-from audit_checks import check_csv, street_rows
-from fetch_police_csv import find_raw_csv
+from lockout import config
 
-OUT = Path(__file__).resolve().parents[2] / "data" / "processed" / "street_thefts_clean.csv"
 BAND_OF_HOUR = {h: band for band, hours in config.DAYPARTS.items() for h in hours}
+
+
+def street_rows(df):
+    cellar = (df["DELIKT"] == "Keller- und Bodeneinbruch") | df["ERFASSUNGSGRUND"].str.contains("Keller", na=False)
+    return df[~cellar]
 
 
 def parse_dates(df):
@@ -60,13 +55,3 @@ def stolen_value(df):
     value = pd.to_numeric(df["SCHADENSHOEHE"], errors="coerce")
     return value.where(value > 0)
 
-
-if __name__ == "__main__":
-    raw = check_csv(Path(sys.argv[1]) if len(sys.argv) > 1 else find_raw_csv())
-    street = street_rows(raw)
-    cleaned = clean(raw)
-    print(f"Street rows before truncation: {len(street):,}")
-    print(f"Dropped by the {config.LAG_CUTOFF_DAYS}-day lag cutoff: {len(street) - len(cleaned):,}")
-    print(f"Rows kept: {len(cleaned):,} | allocated total: {cleaned[list(config.DAYPARTS)].sum().sum():,.1f}")
-    cleaned.to_csv(OUT, index=False)
-    print(f"Wrote {OUT}")

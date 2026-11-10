@@ -5,10 +5,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from audit_checks import polygon_ids
-from models.eb import evaluate, selector_flags
-from models.selector_checks import MIN_MEDIAN_PER_LEVEL, area_shares, flag, holdout, level_counts, levels, share_strength
-from pipeline.clean import clean
+from lockout.geo.lor import polygon_ids
+from lockout.models.evaluate import evaluate, selector_flags
+from lockout.models.selectors import MIN_MEDIAN_PER_LEVEL, area_shares, flag, holdout, level_counts, levels, share_strength
+from lockout.pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 

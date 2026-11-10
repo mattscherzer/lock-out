@@ -1,81 +1,23 @@
 """Calibration, district fairness and selector validation on the backtest folds (issue #39, roadmap WP 1.4).
 
-Run from the repo root: uv run python src/models/validate.py [path to the police CSV]
+Run from the repo root: uv run python -m lockout.cli.validate [path to the police CSV]
 Writes docs/validation-report.md. The selector flags in data/processed/lookup_schema_v1.json come from
-the same checks, written by src/models/eb.py.
+the same checks, written by lockout.cli.build_lookup.
 """
-import json
 import sys
-from pathlib import Path
 
 import numpy as np
-import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-import config
-from audit_checks import POLYGONS, check_csv, polygon_ids
-from fetch_police_csv import find_raw_csv
-from models.backtest import FOLDS
-from models.eb import TIERS, TOP_QUARTILE, evaluate, selector_flags, top_quartile
-from models.selector_checks import BIKE_VALUE_SPLIT_EUR, MIN_MEDIAN_PER_LEVEL, SELECTORS
-from pipeline.clean import clean
+from lockout.cli.common import load_cleaned, require_folds_complete, table
+from lockout.geo.lor import bezirke
+from lockout.models.eb import TIERS
+from lockout.models.evaluate import TOP_QUARTILE, evaluate, selector_flags, top_quartile
+from lockout.models.selectors import BIKE_VALUE_SPLIT_EUR, MIN_MEDIAN_PER_LEVEL, SELECTORS
+from lockout.models.validation import FAIRNESS_FACTOR, HIGH_OVER_LOW, SMALL_NUMBERS_BELOW, calibration, explain, fairness
+from lockout.paths import DOCS_DIR
 
-OUT = Path(__file__).resolve().parents[2] / "docs" / "validation-report.md"
-HIGH_OVER_LOW = 2  # calibration: the High mean must be at least this multiple of the Low mean
-FAIRNESS_FACTOR = 2  # a Bezirk is flagged if one share is more than this multiple of the other
-SMALL_NUMBERS_BELOW = 3  # a flagged Bezirk with fewer High or top-quartile areas than this gets a small-numbers note
+OUT = DOCS_DIR / "validation-report.md"
 SELECTOR_NAMES = {"time_band": "Time band", "day_group": "Day group", "bike_value": f"Bike value (EUR {BIKE_VALUE_SPLIT_EUR} split)"}
-
-
-def bezirke():
-    """8-digit area id -> Bezirk name, from the planning-area polygons ("01 - Mitte" -> "Mitte")."""
-    geo = json.loads(POLYGONS.read_text(encoding="utf-8"))
-    return pd.Series({f["properties"]["plr_id"]: f["properties"]["bez"].split(" - ", 1)[-1] for f in geo["features"]})
-
-
-def calibration(actual, tier):
-    """Mean actual thefts per area in each tier; passes if the means rise from Low to High and High >= 2x Low."""
-    means = actual.groupby(tier).mean().reindex([name for name, _ in TIERS])
-    rising = bool(means.notna().all() and (means.diff().dropna() > 0).all())
-    return means, rising and bool(means["HIGH"] >= HIGH_OVER_LOW * means["LOW"])
-
-
-def off(ratio):
-    """Flag rule: one share more than FAIRNESS_FACTOR times the other. 0 on one side counts (ratio 0 or inf), 0 on both does not."""
-    return bool(ratio > FAIRNESS_FACTOR or ratio < 1 / FAIRNESS_FACTOR)
-
-
-def fairness(tier, top, bezirk):
-    """Per Bezirk: its share of the city's High areas vs its share of the city's top-quartile areas."""
-    high = tier == "HIGH"
-    t = pd.DataFrame({
-        "areas": True, "high": high, "top": top, "high_and_top": high & top,
-        "top_medium": top & (tier == "MEDIUM"), "top_low": top & (tier == "LOW"),
-    }).astype(int).groupby(bezirk).sum()
-    t["share_high"] = t["high"] / t["high"].sum()
-    t["share_top"] = t["top"] / t["top"].sum()
-    with np.errstate(divide="ignore", invalid="ignore"):
-        t["ratio"] = t["share_high"] / t["share_top"]
-    t["flagged"] = [off(r) for r in t["ratio"]]
-    return t
-
-
-def explain(b, cut):
-    """The numbers behind a flagged Bezirk: which share is larger, and which of its areas make the difference."""
-    if b["share_high"] < b["share_top"]:
-        text = (f"Holds {b['share_top']:.1%} of the city's top-quartile areas but {b['share_high']:.1%} of its High areas. "
-                f"The model ranks {b['top_medium']} of its {b['top']} top-quartile areas Medium and {b['top_low']} Low.")
-    else:
-        text = (f"Holds {b['share_high']:.1%} of the city's High areas but {b['share_top']:.1%} of its top-quartile areas. "
-                f"{b['high'] - b['high_and_top']} of its {b['high']} High areas had fewer thefts in this fold than the top-quartile cut ({cut:g}).")
-    if min(b["high"], b["top"]) < SMALL_NUMBERS_BELOW:
-        text += " Small numbers: one area more or less changes the ratio a lot."
-    return text
-
-
-def table(header, rows):
-    lines = ["| " + " | ".join(header) + " |", "| " + " | ".join("---" for _ in header) + " |"]
-    return "\n".join(lines + ["| " + " | ".join(str(v) for v in row) + " |" for row in rows])
 
 
 def markdown(rows, flags, bezirk, reports_up_to, cutoff, source):
@@ -102,7 +44,7 @@ def markdown(rows, flags, bezirk, reports_up_to, cutoff, source):
     folds = [r["fold"] for r in rows]
     return f"""# Validation Report: Calibration, District Fairness and Selectors
 
-Generated by `uv run python src/models/validate.py data/raw/{source}` from `{source}` (not in Git), with reports up to {reports_up_to:%d %b %Y} and thefts counted up to the 14-day cutoff, {cutoff:%d %b %Y}. It uses the EB model v0 and the two folds of `docs/backtest-results.md`: each fold's tiers come from the 12 months before it and are checked against the thefts in the fold. Compare runs on the same file.
+Generated by `uv run python -m lockout.cli.validate data/raw/{source}` from `{source}` (not in Git), with reports up to {reports_up_to:%d %b %Y} and thefts counted up to the 14-day cutoff, {cutoff:%d %b %Y}. It uses the EB model v0 and the two folds of `docs/backtest-results.md`: each fold's tiers come from the 12 months before it and are checked against the thefts in the fold. Compare runs on the same file.
 
 ## Calibration
 
@@ -140,15 +82,9 @@ Each selector the card shows is checked on both folds. It gets an area pattern o
 """
 
 
-if __name__ == "__main__":
-    path = Path(sys.argv[1]) if len(sys.argv) > 1 else find_raw_csv()
-    cleaned = clean(check_csv(path))
-    cleaned["LOR"] = cleaned["LOR"].str.zfill(8)
-    areas = sorted(polygon_ids())
-    reports_up_to = cleaned["ANGELEGT_AM"].max()
-    cutoff = reports_up_to - pd.Timedelta(days=config.LAG_CUTOFF_DAYS)
-    if pd.Timestamp(FOLDS[-1][1]) > cutoff:
-        sys.exit(f"The file is only complete up to {cutoff:%d %b %Y}, before the last fold ends; use a newer file.")
+def main():
+    path, cleaned, areas, reports_up_to, cutoff = load_cleaned(sys.argv)
+    require_folds_complete(cutoff)
     rows = evaluate(cleaned, areas)
     flags = selector_flags(rows)
     bezirk = bezirke().reindex(areas)
@@ -161,3 +97,7 @@ if __name__ == "__main__":
     for s, result in flags.items():
         print(f"{s}: {result['pattern']} ({result['reason']})")
     print(f"Wrote {OUT}")
+
+
+if __name__ == "__main__":
+    main()

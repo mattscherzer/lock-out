@@ -5,11 +5,13 @@ import pandas as pd
 import pytest
 from jsonschema import Draft202012Validator
 
-from audit_checks import polygon_ids
-from lookup_schema import PUBLIC_COPY, LOOKUP, SCHEMA, load, problems
-from models.area_stats import confidence_thresholds
-from models.eb import SCHEMA_VERSION, evaluate, generate, selector_flags, write_lookup
-from pipeline.clean import clean
+from lockout.geo.lor import polygon_ids
+from lockout.lookup.generate import SCHEMA_VERSION, generate, write_lookup
+from lockout.lookup.schema import load, problems
+from lockout.models.evaluate import evaluate, selector_flags
+from lockout.paths import LOOKUP, PUBLIC_LOOKUP as PUBLIC_COPY, SCHEMA
+from lockout.models.area_stats import confidence_thresholds
+from lockout.pipeline.clean import clean
 
 SAMPLE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 
@@ -47,14 +49,14 @@ def test_committed_files_match_the_schema(path):
 
 
 def test_the_committed_lookup_carries_the_generators_version_and_thresholds():
-    # a stale lookup can still match the schema; after a version bump, rerun src/models/eb.py on the pinned CSV
+    # a stale lookup can still match the schema; after a version bump, rerun lockout.cli.build_lookup on the pinned CSV
     meta = load(LOOKUP)["metadata"]
     assert meta["schema_version"] == SCHEMA_VERSION
     assert meta["confidence_thresholds"] == confidence_thresholds()
 
 
 def test_the_frontend_copy_is_a_copy_of_the_committed_lookup():
-    # a stale copy can still match the schema; after eb.py, run frontend/scripts/build_public.py
+    # a stale copy can still match the schema; after build_lookup, run lockout.cli.build_public
     assert load(PUBLIC_COPY) == load(LOOKUP)
 
 

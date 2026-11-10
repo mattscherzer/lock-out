@@ -4,9 +4,9 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from audit_checks import polygon_ids
-from models.backtest import backtest, baselines, counts, score
-from pipeline.clean import clean
+from lockout.geo.lor import polygon_ids
+from lockout.models.backtest import backtest, baselines, counts, score
+from lockout.pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 

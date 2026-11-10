@@ -1,13 +1,10 @@
 """Checks that stop the audit when the police CSV is broken."""
 import csv
-import json
-from pathlib import Path
 
 import pandas as pd
 
-import config
-
-POLYGONS = Path(__file__).resolve().parents[1] / "data" / "raw" / "lor_planungsraeume_2021.geojson"
+from lockout import config
+from lockout.geo.lor import polygon_ids
 
 
 class AuditError(Exception):
@@ -28,23 +25,6 @@ def detect_delimiter(path, encoding):
         return csv.Sniffer().sniff(sample, delimiters=",;").delimiter
     except csv.Error:
         raise AuditError("Could not detect the delimiter (expected , or ;)")
-
-
-def polygon_ids():
-    geo = json.loads(POLYGONS.read_text(encoding="utf-8"))
-    return {f["properties"]["plr_id"] for f in geo["features"]}
-
-
-def area_names():
-    """8-digit area id -> area name, Bezirksregion id and name, and Bezirk name ("01 - Mitte" -> "Mitte")."""
-    geo = json.loads(POLYGONS.read_text(encoding="utf-8"))
-    return {p["plr_id"]: {"name": p["plr_name"], "bzr_id": p["bzr_id"], "bzr_name": p["bzr_name"], "bez_name": p["bez"].split(" - ", 1)[-1]}
-            for p in (f["properties"] for f in geo["features"])}
-
-
-def street_rows(df):
-    cellar = (df["DELIKT"] == "Keller- und Bodeneinbruch") | df["ERFASSUNGSGRUND"].str.contains("Keller", na=False)
-    return df[~cellar]
 
 
 def check_csv(path, min_rows=config.MIN_ROWS):

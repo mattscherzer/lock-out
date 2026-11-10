@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_poisson_deviance
 
-import config
-from pipeline.clean import stolen_value
+from lockout import config
+from lockout.pipeline.clean import stolen_value
 
 SELECTORS = ("time_band", "day_group", "bike_value")
 BIKE_VALUE_SPLIT_EUR = 1000  # bike value band (D-07); "bike class" in issue #39

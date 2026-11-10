@@ -2,8 +2,9 @@ from pathlib import Path
 
 import pytest
 
-import config
-from audit_checks import AuditError, check_csv, street_rows
+from lockout import config
+from lockout.ingest.police_csv import AuditError, check_csv
+from lockout.pipeline.clean import street_rows
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 

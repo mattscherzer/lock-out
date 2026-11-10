@@ -1,22 +1,11 @@
-"""OpenStreetMap counts per planning area for the S1 test (issue #61, roadmap WP 2.1, scope S1, risk R4).
-
-Run from the repo root: uv run python src/models/osm_features.py
-Downloads five kinds of OpenStreetMap features inside Berlin's bounding box with osmnx (one Overpass request per kind,
-cached in data/raw/osm/cache) and writes data/raw/osm/osm_features.csv: one row per planning area with aggregate counts
-only. The folder is not in Git until the ODbL question (R4) is answered. Data © OpenStreetMap contributors, ODbL.
-"""
-import sys
+"""OpenStreetMap counts per planning area for the S1 test (issue #61, roadmap WP 2.1, scope S1, risk R4)."""
 import time
-from pathlib import Path
 
 import geopandas as gpd
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from audit_checks import POLYGONS
+from lockout.paths import POLYGONS
 
-OSM_DIR = Path(__file__).resolve().parents[2] / "data" / "raw" / "osm"
-OUT = OSM_DIR / "osm_features.csv"
 # Places where bikes are left or where many people come and go: candidates for an exposure proxy (S1)
 KINDS = {
     "bike_parking": {"amenity": "bicycle_parking"},
@@ -52,13 +41,3 @@ def feature_table(areas, download):
         table[kind] = count_features(features, areas)
         print(f"{kind}: {len(features):,} features, {table[kind].sum():,} inside the 542 areas ({time.time() - started:.0f} s)")
     return table
-
-
-if __name__ == "__main__":
-    import osmnx as ox
-
-    OSM_DIR.mkdir(parents=True, exist_ok=True)
-    ox.settings.cache_folder = OSM_DIR / "cache"
-    table = feature_table(planning_areas(), ox.features_from_bbox)
-    table.to_csv(OUT)
-    print(f"Wrote {OUT} ({len(table)} areas). Data © OpenStreetMap contributors, ODbL.")

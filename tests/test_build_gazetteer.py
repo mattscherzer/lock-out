@@ -1,7 +1,7 @@
 import geopandas as gpd
 from shapely.geometry import LineString, box
 
-from build_gazetteer import CRS, nest, shares, with_keys
+from lockout.geo.gazetteer import CRS, nest, shares, with_keys
 
 LOR = gpd.GeoDataFrame({"plr_id": ["A", "B"]}, geometry=[box(0, 0, 10, 10), box(10, 0, 20, 10)], crs=CRS)
 

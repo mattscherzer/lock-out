@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "lock-out"
 version = "0.1.0"
@@ -16,6 +20,9 @@ dependencies = [
     "pytest>=8.0.0",
     "jsonschema>=4.26.0",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lockout"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

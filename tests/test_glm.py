@@ -4,11 +4,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from audit_checks import polygon_ids
-from models.eb import evaluate
-from models.glm import CANDIDATES, LABELS, compare, design, eb_toward, glm_rate, markdown, verdict
-from models.osm_features import KINDS
-from pipeline.clean import clean
+from lockout.geo.lor import polygon_ids
+from lockout.cli.glm import LABELS, markdown
+from lockout.models.evaluate import evaluate
+from lockout.models.glm import CANDIDATES, compare, design, eb_toward, glm_rate, verdict
+from lockout.geo.osm_features import KINDS
+from lockout.pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 

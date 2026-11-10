@@ -1,12 +1,10 @@
 """Rebuild fahrraddiebstahl_sample.csv from data/raw (run: uv run python tests/fixtures/build_fixture.py)."""
-import sys
 from pathlib import Path
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
-from config import LAG_CUTOFF_DAYS
-from fetch_police_csv import find_raw_csv
+from lockout.config import LAG_CUTOFF_DAYS
+from lockout.ingest.fetch import find_raw_csv
 
 OUT = Path(__file__).with_name("fahrraddiebstahl_sample.csv")
 SEED = 42

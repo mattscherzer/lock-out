@@ -2,7 +2,7 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import LineString, Point, box
 
-from models.osm_features import KINDS, count_features, feature_table, planning_areas
+from lockout.geo.osm_features import KINDS, count_features, feature_table, planning_areas
 
 
 def two_areas():

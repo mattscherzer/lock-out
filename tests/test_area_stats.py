@@ -3,12 +3,12 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-import config
-from audit_checks import polygon_ids
-from models.area_stats import area_stats, citywide_facts, confidence, confidence_thresholds
-from models.eb import generate, generator_window
-from models.selector_checks import SELECTORS
-from pipeline.clean import clean
+from lockout import config
+from lockout.geo.lor import polygon_ids
+from lockout.models.area_stats import area_stats, citywide_facts, confidence, confidence_thresholds
+from lockout.lookup.generate import generate, generator_window
+from lockout.models.selectors import SELECTORS
+from lockout.pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 

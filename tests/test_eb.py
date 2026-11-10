@@ -5,10 +5,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from audit_checks import polygon_ids
-from models.backtest import counts
-from models.eb import LIMITED_DATA_BELOW, check_tier_shares, fit, generate, generator_window, posterior_rate, share_in_top_quartile, strength, tiers
-from pipeline.clean import clean
+from lockout.geo.lor import polygon_ids
+from lockout.models.backtest import counts
+from lockout.lookup.generate import generate, generator_window
+from lockout.models.area_stats import LIMITED_DATA_BELOW
+from lockout.models.eb import check_tier_shares, fit, posterior_rate, strength, tiers
+from lockout.models.evaluate import share_in_top_quartile
+from lockout.pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 

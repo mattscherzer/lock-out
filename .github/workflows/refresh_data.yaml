@@ -47,18 +47,18 @@ jobs:
             police-csv-
 
       - name: 5. Fetch Latest Police CSV (or Fallback to Cache)
-        run: uv run python src/fetch_police_csv.py
+        run: uv run python -m lockout.cli.fetch
 
       - name: 6. Run Audit / Precompute Pipeline
         run: |
-          uv run python src/audit_police_csv.py
+          uv run python -m lockout.cli.audit
           # When the build step is switched on, uncomment below to regenerate lookup_schema_v1.json:
-          # uv run python src/models/eb.py
+          # uv run python -m lockout.cli.build_lookup
 
       # Repeats the schema check from tests.yaml on purpose: PRs opened with the default token do not trigger other
       # workflows, so the checks run here and block the PR on failure (D-19)
       - name: 7. Check the Lookup JSON Against the Schema
-        run: uv run python src/lookup_schema.py
+        run: uv run python -m lockout.cli.check_lookup
 
       - name: 8. Open a PR With the Updated Lookup JSON
         env:

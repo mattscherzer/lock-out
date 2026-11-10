@@ -2,10 +2,12 @@ from pathlib import Path
 
 import pandas as pd
 
-from audit_checks import polygon_ids
-from models.eb import evaluate, selector_flags
-from models.validate import bezirke, calibration, explain, fairness, markdown
-from pipeline.clean import clean
+from lockout.geo.lor import polygon_ids
+from lockout.cli.validate import markdown
+from lockout.geo.lor import bezirke
+from lockout.models.evaluate import evaluate, selector_flags
+from lockout.models.validation import calibration, explain, fairness
+from lockout.pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 

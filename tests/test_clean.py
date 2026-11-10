@@ -3,8 +3,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-import config
-from pipeline.clean import band_shares, clean, parse_dates, truncate
+from lockout import config
+from lockout.pipeline.clean import band_shares, clean, parse_dates, truncate
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 BANDS = list(config.DAYPARTS)

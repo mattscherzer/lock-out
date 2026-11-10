@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-import config
+from lockout import config
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "tests" / "fixtures" / "fahrraddiebstahl_sample.csv"
