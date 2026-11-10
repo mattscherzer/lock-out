@@ -1,4 +1,9 @@
+import { useState } from "react";
 import type { AreaRecord, Lookup } from "../search/types.ts";
+import { adviceFor, DEFAULT_BIKE_VALUE } from "../advice/advice.ts";
+import { STRINGS } from "../strings.ts";
+import { Advice } from "./Advice.tsx";
+import { AdviceDetail } from "./AdviceDetail.tsx";
 import { AnswerCard } from "./AnswerCard.tsx";
 import { Details } from "./Details.tsx";
 import { Explain } from "./Explain.tsx";
@@ -23,7 +28,14 @@ export function AreaAnswer({
   onAbout: () => void;
 }) {
   // optional in schema 1.0.0: an older file gets the error state, not a crash
+  const [bikeValue, setBikeValue] = useState(DEFAULT_BIKE_VALUE);
   const broken = record && !(record.confidence && lookup.metadata.confidence_thresholds);
+  // the standard advice needs no rating
+  const advice = adviceFor(bikeValue, {
+    limited_data: !broken && !!record?.limited_data,
+    no_record: !broken && !!record?.no_record,
+  });
+  const note = broken ? STRINGS.advice.note.failed : advice.note;
   return (
     <AnswerCard
       open={open}
@@ -43,6 +55,25 @@ export function AreaAnswer({
         )
       }
       tier={record && !broken && <VerdictStrip kind={kindOf(record)} />}
+      advice={(more) =>
+        record && (
+          <Advice
+            advice={advice}
+            note={note}
+            bikeValue={bikeValue}
+            onBikeValue={setBikeValue}
+            onMore={more}
+          />
+        )
+      }
+      advicePanel={
+        record
+          ? {
+              heading: <h2 className="m-0 headline-sm">{STRINGS.advice.sectionTitle}</h2>,
+              body: <AdviceDetail advice={advice} note={note} />,
+            }
+          : undefined
+      }
       details={
         record &&
         !broken && (

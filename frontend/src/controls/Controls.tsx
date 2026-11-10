@@ -15,7 +15,12 @@ export function Button({
 const LIST = {
   chip: "gap-2",
   segmented: "choice-list-segmented gap-1 rounded-md bg-secondary-container p-1",
+  tag: "items-center gap-2",
 };
+
+// the ! beats controls.css, which is not in a layer; the ::after keeps the 44px tap target
+const TAG =
+  "min-h-control-sm! min-w-0! rounded-sm! px-3! after:inset-y-[calc((var(--control-sm)-var(--tap-target))/2-var(--border-2))]!";
 
 // Single choice from a list. Native radios give grouping and arrow keys; the checked option shows a check mark and a 2px border, not colour alone.
 export function Choice({
@@ -30,19 +35,27 @@ export function Choice({
   options: { value: string; label: string; disabled?: boolean }[];
   value: string;
   onChange: (value: string) => void;
-  variant?: "chip" | "segmented";
+  variant?: "chip" | "segmented" | "tag";
   pattern?: string; // the selector's "citywide pattern" label (D-18)
 }) {
   const id = useId();
   return (
     <fieldset
-      className="m-0 min-w-0 border-0 p-0"
+      className={`m-0 min-w-0 border-0 p-0 ${variant === "tag" ? "@container" : ""}`}
       aria-describedby={pattern ? `${id}-pattern` : undefined}
     >
       <legend className="sr-only">{label}</legend>
       <div className={`flex flex-wrap ${LIST[variant]}`}>
+        {variant === "tag" && (
+          <span
+            aria-hidden="true"
+            className="label-md text-on-surface-variant uppercase @max-[360px]:basis-full"
+          >
+            {label}
+          </span>
+        )}
         {options.map((o) => (
-          <label key={o.value} className="choice label-lg">
+          <label key={o.value} className={`choice label-lg ${variant === "tag" ? TAG : ""}`}>
             <input
               className="absolute inset-0 m-0 cursor-[inherit] opacity-0"
               type="radio"

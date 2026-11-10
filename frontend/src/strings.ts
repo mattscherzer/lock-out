@@ -2,7 +2,7 @@
 // moves here. English only for the MVP (D-11); a translation is a second object with the same shape. The advice copy
 // follows docs/lock-tier-documentation.md section 3 and names the organisation behind each claim that is specific to it.
 
-// one ADFC claim, shared by the second-lock step and the no-bike-value line so the two cannot drift apart
+// one ADFC claim, shared by the second-lock step and the one-lock hint so the two cannot drift apart
 const SECOND_LOCK =
   "a second lock of a different type, because thieves often specialise in one kind of lock.";
 
@@ -19,6 +19,28 @@ export const STRINGS = {
     headline: {
       oneLock: "Lock the frame and a wheel to something fixed, with one solid lock",
       twoLocks: "Use two solid locks of different types",
+    },
+    banner: { oneLock: "Use 1 solid lock", twoLocks: "Use 2 locks" },
+    why: {
+      oneLock: "Locked to something fixed.",
+      twoLocks: "Of different types.",
+    },
+    key: {
+      anchor: "Frame and wheel to something fixed",
+      solidLock: "Solid U-, chain or folding lock",
+      neverAlone: "A frame or cable lock is never enough on its own",
+      position: "Keyhole down, off the ground",
+      secondLock: "Add a second lock, different type",
+    },
+    sectionTitle: "Locking advice",
+    bikeCaption: "Bike value",
+    allSteps: (n: number) => `All ${n} steps`,
+    panel: {
+      made: "How this advice was made",
+      madeText:
+        "This advice follows guidance from Polizei Berlin, the police crime-prevention service (ProPK), the ADFC cycling club and the VdS lock-testing standard. It depends on what a bike is worth, not on the area, so it is the same strong standard everywhere.",
+      tips: "Tips for every bike",
+      terms: "Lock words explained",
     },
     step: {
       anchor:
@@ -46,13 +68,13 @@ export const STRINGS = {
     },
     // shown on top of the full advice when the area's data is thin; no_record wins over limited_data
     note: {
+      failed:
+        "We could not check this area, so this is the standard advice. It is the same everywhere.",
       limitedData:
         "Few thefts were reported in this area, so its rating is uncertain. Lock up as carefully as anywhere else.",
       noRecord:
         "The police data we use has no bike theft from the street on record for this area. That does not mean bikes are never stolen here, so lock up as carefully as anywhere else.",
     },
-    // shown with the one-lock advice when no bike value is chosen
-    noBikeValue: `For a more valuable bike, the ADFC advises ${SECOND_LOCK}`,
     // [term as it appears in the copy, its meaning in plain words]
     term: {
       uLock: ["U-lock", "a rigid steel shackle shaped like a U."],
@@ -73,6 +95,9 @@ export const STRINGS = {
         "wheel and saddle fixings that need a special key, instead of quick-release levers.",
       ],
     },
+    bikeValue: { under_eur_1000: "Under €1,000", eur_1000_or_more: "€1,000 or more" },
+    // shown under the one-lock banner, for a rider whose bike is worth more
+    secondLockHint: `For a more valuable bike, the ADFC advises ${SECOND_LOCK}`,
     sourcesLabel: "Where this guidance comes from",
     source: {
       polizeiBerlin: "Polizei Berlin: Fahrraddiebstahl verhindern",

@@ -5,6 +5,7 @@ import { STRINGS } from "../strings.ts";
 
 const A = STRINGS.advice;
 
+export const DEFAULT_BIKE_VALUE = "under_eur_1000";
 export type DataFlags = { limited_data: boolean; no_record: boolean }; // required on every area in the lookup (M6)
 export type Level = "oneLock" | "twoLocks";
 
@@ -12,6 +13,7 @@ type Step = keyof typeof A.step;
 type Tip = keyof typeof A.tip;
 type Term = keyof typeof A.term;
 type Source = keyof typeof A.source;
+export type KeyStep = keyof typeof A.key;
 
 const SOURCE_URLS: Record<Source, string> = {
   polizeiBerlin:
@@ -45,12 +47,20 @@ export const CATALOG: Record<Level, { steps: Step[] }> = {
   twoLocks: { steps: [...BASE_STEPS, "secondLock", "threeMinutes", "higherClass"] },
 };
 
+const KEYS: Record<Level, KeyStep[]> = {
+  oneLock: ["anchor", "solidLock", "neverAlone", "position"],
+  twoLocks: ["anchor", "solidLock", "neverAlone", "secondLock"],
+};
+
 export type Advice = {
   level: Level;
   headline: string;
+  banner: string;
+  hint: string | null;
+  why: string;
+  keys: { id: KeyStep; text: string }[];
   note: string | null; // the thin-data line, shown on top of the full advice
   steps: string[];
-  hint: string | null; // the second-lock line when no bike value is chosen
   tips: string[];
   terms: { term: string; meaning: string }[];
   sourcesLabel: string;
@@ -58,15 +68,17 @@ export type Advice = {
 };
 
 // bikeValue is typed loosely on purpose: a value from the JSON that is not a known level gets two locks, never one
-export function adviceFor(bikeValue: string | null, data: DataFlags): Advice {
-  const level: Level =
-    bikeValue === null || bikeValue === "under_eur_1000" ? "oneLock" : "twoLocks";
+export function adviceFor(bikeValue: string, data: DataFlags): Advice {
+  const level: Level = bikeValue === "under_eur_1000" ? "oneLock" : "twoLocks";
   return {
     level,
     headline: A.headline[level],
+    banner: A.banner[level],
+    hint: level === "oneLock" ? A.secondLockHint : null,
+    why: A.why[level],
+    keys: KEYS[level].map((id) => ({ id, text: A.key[id] })),
     note: data.no_record ? A.note.noRecord : data.limited_data ? A.note.limitedData : null,
     steps: CATALOG[level].steps.map((s) => A.step[s]),
-    hint: bikeValue === null ? A.noBikeValue : null,
     tips: TIPS.map((t) => A.tip[t]),
     terms: TERMS.map((t) => ({ term: A.term[t][0], meaning: A.term[t][1] })),
     sourcesLabel: A.sourcesLabel,
