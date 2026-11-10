@@ -1,4 +1,4 @@
-"""Print how many areas get their own median stolen value, the citywide facts and the confidence counts (issue #57).
+"""Print the median-source split, citywide facts and confidence counts (issue #57).
 
 Run from the repo root: uv run python -m lockout.cli.area_stats [path to the police CSV]
 """
@@ -10,7 +10,7 @@ from lockout.models.area_stats import area_stats, citywide_facts
 from lockout.pipeline.clean import stolen_value
 
 
-def main():
+def main() -> None:
     _, cleaned, areas, _, cutoff = load_cleaned(sys.argv)
     window, start = generator_window(cleaned, cutoff)
     table = area_stats(window, areas)

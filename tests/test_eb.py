@@ -37,7 +37,7 @@ def test_shrinkage_pulls_toward_parent_and_more_for_thin_areas():
     y = pd.Series([1, 30, 60, 90], index=["01100101", "01100102", "01100203", "01100204"])
     rate, a = fit(y)
     assert np.isfinite(a["area"])
-    assert rate.iloc[0] > y.iloc[0] and rate.iloc[3] < y.iloc[3]  # pulled toward the parent
+    assert rate.iloc[0] > y.iloc[0] and rate.iloc[3] < y.iloc[3]
     assert (rate.iloc[0] - 1) / 1 > (90 - rate.iloc[3]) / 90  # the thin area moves further, relatively
     assert rate.is_monotonic_increasing  # shrinkage keeps the order here
 

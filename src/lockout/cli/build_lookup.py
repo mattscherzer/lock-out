@@ -1,23 +1,22 @@
-"""Empirical Bayes model v0: score both backtest folds, write the lookup file and docs/eb-model-results.md (issue #38, roadmap M4).
+"""Score EB v0 on both folds, write docs/eb-model-results.md and the schema-checked data/processed/lookup_schema_v1.json.
 
 Run from the repo root: uv run python -m lockout.cli.build_lookup [path to the police CSV]
-Scores the model on both backtest folds against the targets, writes docs/eb-model-results.md,
-and writes data/processed/lookup_schema_v1.json for all 542 areas, checked against schemas/lookup_v1.schema.json.
-Each area carries its tier, confidence and statistics, and the metadata the citywide facts (issue #63).
 """
 import sys
+
+import pandas as pd
 
 from lockout.cli.common import load_cleaned, require_folds_complete
 from lockout.lookup.generate import generate, write_lookup
 from lockout.models.area_stats import LIMITED_DATA_BELOW
-from lockout.models.evaluate import evaluate, selector_flags, targets
-from lockout.models.selectors import BIKE_VALUE_SPLIT_EUR
+from lockout.models.evaluate import FoldRow, evaluate, selector_flags, targets
+from lockout.models.selectors import BIKE_VALUE_SPLIT_EUR, Flag
 from lockout.paths import DOCS_DIR, LOOKUP
 
 RESULTS = DOCS_DIR / "eb-model-results.md"
 
 
-def markdown(rows, checks, lookup, reports_up_to, cutoff, source):
+def markdown(rows: list[FoldRow], checks: list[tuple[str, str, str, bool]], lookup: dict, reports_up_to: pd.Timestamp, cutoff: pd.Timestamp, source: str) -> str:
     lines = [f"| {f} | {t} | {v} | {'pass' if ok else 'MISS'} |" for f, t, v, ok in checks]
     folds = [f"| {r['fold']} | {r['deviance']:.3f} | {r['citywide']:.3f} | {r['raw']:.3f} | {r['spearman']:.3f} | {r['high_in_top_quartile']:.0%} | {r['raw_high_in_top_quartile']:.0%} |" for r in rows]
     flagged = sum(a["no_record"] for a in lookup["areas"].values())
@@ -61,7 +60,7 @@ The Spearman target is checked on the last fold only, as the issue states.
 """
 
 
-def main():
+def main() -> None:
     path, cleaned, areas, reports_up_to, cutoff = load_cleaned(sys.argv)
     require_folds_complete(cutoff)
     rows = evaluate(cleaned, areas)

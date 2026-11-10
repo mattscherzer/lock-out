@@ -7,7 +7,7 @@ import sys
 from lockout.ingest.fetch import FetchError, fetch_data
 
 
-def main():
+def main() -> None:
     try:
         fetch_data()
     except FetchError as e:

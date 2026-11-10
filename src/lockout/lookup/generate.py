@@ -1,5 +1,7 @@
 """The lookup file: the JSON contract with the frontend (issue #38, #40, #63)."""
 import json
+from collections.abc import Sequence
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -10,7 +12,7 @@ from lockout.lookup.schema import problems
 from lockout.models.area_stats import LIMITED_DATA_BELOW, area_stats, citywide_facts, confidence_thresholds
 from lockout.models.backtest import HISTORY_MONTHS, counts
 from lockout.models.eb import TIERS, check_tier_shares, fit, tiers
-from lockout.models.selectors import SELECTORS, levels
+from lockout.models.selectors import SELECTORS, Flag, levels
 from lockout.paths import LOOKUP
 
 SCHEMA_VERSION = "1.1.0"  # schemas/lookup_v1.schema.json; additive changes are a minor bump (issue #40)
@@ -22,7 +24,7 @@ ATTRIBUTION = {
 }
 
 
-def citywide_multipliers(df):
+def citywide_multipliers(df: pd.DataFrame) -> dict[str, dict[str, float]]:
     """Share of thefts in each level of each selector: the same for every area (D-18)."""
     out = {}
     for s in SELECTORS:
@@ -31,13 +33,14 @@ def citywide_multipliers(df):
     return out
 
 
-def generator_window(df, cutoff):
+def generator_window(df: pd.DataFrame, cutoff: pd.Timestamp) -> tuple[pd.DataFrame, pd.Timestamp]:
     """The thefts the generator counts: those whose window ended in the 12 months up to the cutoff; also that first day."""
     start = cutoff - pd.DateOffset(months=HISTORY_MONTHS) + pd.Timedelta(days=1)
     return df[df["TATZEIT_ENDE_DATUM"].between(start, cutoff)], start
 
 
-def generate(df, areas, reports_up_to, cutoff, source, selectors):
+def generate(df: pd.DataFrame, areas: Sequence[str], reports_up_to: pd.Timestamp, cutoff: pd.Timestamp, source: str,
+             selectors: dict[str, Flag]) -> dict:
     """The generator output. selectors: the per-selector flags from selector_flags()."""
     window, start = generator_window(df, cutoff)
     y = counts(window, areas, start, cutoff)
@@ -88,10 +91,8 @@ def generate(df, areas, reports_up_to, cutoff, source, selectors):
     return out
 
 
-def write_lookup(lookup, path=LOOKUP):
-    """Write the lookup file only if it matches the schema and holds no NaN or infinity; otherwise raise ValueError and
-    write nothing. The schema lets NaN and infinity through as numbers, but one of them would break JSON.parse for the
-    whole page, so allow_nan=False refuses them."""
+def write_lookup(lookup: dict, path: Path = LOOKUP) -> None:
+    """Write only a schema-valid lookup, else raise ValueError; the schema lets NaN/inf through but they would break JSON.parse."""
     if found := problems(lookup):
         raise ValueError("The output does not match schemas/lookup_v1.schema.json:\n" + "\n".join(found[:20]))
     try:

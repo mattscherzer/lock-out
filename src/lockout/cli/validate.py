@@ -1,18 +1,17 @@
-"""Calibration, district fairness and selector validation on the backtest folds (issue #39, roadmap WP 1.4).
+"""Write docs/validation-report.md; the selector flags in the lookup file come from the same checks (build_lookup).
 
 Run from the repo root: uv run python -m lockout.cli.validate [path to the police CSV]
-Writes docs/validation-report.md. The selector flags in data/processed/lookup_schema_v1.json come from
-the same checks, written by lockout.cli.build_lookup.
 """
 import sys
 
 import numpy as np
+import pandas as pd
 
 from lockout.cli.common import load_cleaned, require_folds_complete, table
 from lockout.geo.lor import bezirke
 from lockout.models.eb import TIERS
-from lockout.models.evaluate import TOP_QUARTILE, evaluate, selector_flags, top_quartile
-from lockout.models.selectors import BIKE_VALUE_SPLIT_EUR, MIN_MEDIAN_PER_LEVEL, SELECTORS
+from lockout.models.evaluate import TOP_QUARTILE, FoldRow, evaluate, selector_flags, top_quartile
+from lockout.models.selectors import BIKE_VALUE_SPLIT_EUR, MIN_MEDIAN_PER_LEVEL, SELECTORS, Flag
 from lockout.models.validation import FAIRNESS_FACTOR, HIGH_OVER_LOW, SMALL_NUMBERS_BELOW, calibration, explain, fairness
 from lockout.paths import DOCS_DIR
 
@@ -20,7 +19,7 @@ OUT = DOCS_DIR / "validation-report.md"
 SELECTOR_NAMES = {"time_band": "Time band", "day_group": "Day group", "bike_value": f"Bike value (EUR {BIKE_VALUE_SPLIT_EUR} split)"}
 
 
-def markdown(rows, flags, bezirk, reports_up_to, cutoff, source):
+def markdown(rows: list[FoldRow], flags: dict[str, Flag], bezirk: pd.Series, reports_up_to: pd.Timestamp, cutoff: pd.Timestamp, source: str) -> str:
     tier_names = [name for name, _ in TIERS]
     cal_rows, fair_parts, flagged = [], [], []
     for r in rows:
@@ -82,7 +81,7 @@ Each selector the card shows is checked on both folds. It gets an area pattern o
 """
 
 
-def main():
+def main() -> None:
     path, cleaned, areas, reports_up_to, cutoff = load_cleaned(sys.argv)
     require_folds_complete(cutoff)
     rows = evaluate(cleaned, areas)

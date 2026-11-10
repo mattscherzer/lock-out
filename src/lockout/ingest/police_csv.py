@@ -1,5 +1,6 @@
 """Checks that stop the audit when the police CSV is broken."""
 import csv
+from pathlib import Path
 
 import pandas as pd
 
@@ -8,10 +9,10 @@ from lockout.geo.lor import polygon_ids
 
 
 class AuditError(Exception):
-    """Raised when the police CSV fails a check."""
+    pass
 
 
-def detect_encoding(path):
+def detect_encoding(path: Path) -> str:
     try:
         path.read_bytes().decode("utf-8")
         return "utf-8"
@@ -19,7 +20,7 @@ def detect_encoding(path):
         return "iso-8859-1"
 
 
-def detect_delimiter(path, encoding):
+def detect_delimiter(path: Path, encoding: str) -> str:
     sample = path.read_text(encoding=encoding)[:5000]
     try:
         return csv.Sniffer().sniff(sample, delimiters=",;").delimiter
@@ -27,7 +28,7 @@ def detect_delimiter(path, encoding):
         raise AuditError("Could not detect the delimiter (expected , or ;)")
 
 
-def check_csv(path, min_rows=config.MIN_ROWS):
+def check_csv(path: Path, min_rows: int = config.MIN_ROWS) -> pd.DataFrame:
     encoding = detect_encoding(path)
     delimiter = detect_delimiter(path, encoding)
     df = pd.read_csv(path, sep=delimiter, encoding=encoding, dtype={"LOR": str})

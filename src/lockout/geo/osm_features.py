@@ -1,5 +1,6 @@
 """OpenStreetMap counts per planning area for the S1 test (issue #61, roadmap WP 2.1, scope S1, risk R4)."""
 import time
+from collections.abc import Callable
 
 import geopandas as gpd
 import pandas as pd
@@ -16,14 +17,14 @@ KINDS = {
 }
 
 
-def planning_areas():
+def planning_areas() -> gpd.GeoDataFrame:
     """The 542 planning areas: polygons and their size in km2 (finhalt is the area in m2)."""
     areas = gpd.read_file(POLYGONS)[["plr_id", "finhalt", "geometry"]].set_index("plr_id")
     areas["area_km2"] = areas["finhalt"] / 1e6
     return areas
 
 
-def count_features(features, areas):
+def count_features(features: gpd.GeoDataFrame, areas: gpd.GeoDataFrame) -> pd.Series:
     """Features of one kind (points, lines or polygons) -> how many lie in each area; each counts once, at a point inside it."""
     shapes = features.geometry.dropna()
     points = gpd.GeoDataFrame(geometry=shapes.representative_point(), crs=features.crs).to_crs(areas.crs)
@@ -31,7 +32,7 @@ def count_features(features, areas):
     return inside.groupby("plr_id").size().reindex(areas.index, fill_value=0)
 
 
-def feature_table(areas, download):
+def feature_table(areas: gpd.GeoDataFrame, download: Callable[[tuple, dict], gpd.GeoDataFrame]) -> pd.DataFrame:
     """download(bbox, tags) -> GeoDataFrame; returns one row per area: size and a count per kind."""
     table = pd.DataFrame({"area_km2": areas["area_km2"].round(4)}, index=areas.index)
     bbox = tuple(areas.total_bounds)  # (west, south, east, north), the order osmnx 2 expects

@@ -11,12 +11,11 @@ DATA_WINDOW_START = date(2025, 1, 1)
 DAYTYPES = {"Mon_Thu": (0, 1, 2, 3), "Friday": (4,), "Weekend": (5, 6)}
 
 
-def daytype_of(weekday_idx):
+def daytype_of(weekday_idx: float) -> str | None:
     # NaN weekday (unparseable date) matches no daytype and stays unmapped
     return next((name for name, days in DAYTYPES.items() if weekday_idx in days), None)
 
 
-# The audit stops if the police CSV has fewer rows than this or lacks a column.
 MIN_ROWS = 25_000
 REQUIRED_COLUMNS = [
     "ANGELEGT_AM", "TATZEIT_ANFANG_DATUM", "TATZEIT_ANFANG_STUNDE",

@@ -1,11 +1,11 @@
-"""Build the place-search lookup (postcode, street, station -> planning areas) for the frontend and the demo.
+"""Build the place-search lookup (postcode, street, station -> planning areas) for the frontend.
 
 Inputs, all downloaded into one directory (default data/raw/gazetteer/, git-ignored):
   plz.json     WFS https://gdi.berlin.de/services/wfs/postleitzahlen  typeNames=postleitzahlen:postleitzahlen
   strab.json   WFS https://gdi.berlin.de/services/wfs/rbs_strab       typeNames=rbs_strab:rbs_strab
                (both outputFormat=application/json&srsName=EPSG:4326; CC-BY-3.0, Amt fuer Statistik Berlin-Brandenburg)
   stops.txt    stops.txt from the VBB GTFS zip https://www.vbb.de/gtfs
-Output, two files in frontend/public/ (shared with the demo, see README):
+Output, two files in frontend/public/:
   gazetteer.json          loaded with the page
     plz:       postcode -> [[lor_id, share_pct], ...] sorted by share, slivers dropped
     stations:  [[display name, kind, lor_id, lat, lon], ...]
@@ -29,7 +29,7 @@ from lockout.geo.gazetteer import CRS, nest, shares, stations, with_keys
 from lockout.paths import GAZETTEER, GAZETTEER_SRC, POLYGONS
 
 
-def main():
+def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", type=Path, default=GAZETTEER_SRC)
     ap.add_argument("--out", type=Path, default=GAZETTEER)

@@ -10,7 +10,7 @@ from lockout.geo.simplify import simplify_ring
 from lockout.paths import LOOKUP, POLYGONS, PUBLIC_AREAS, PUBLIC_LOOKUP
 
 
-def main():
+def main() -> None:
     src = json.loads(POLYGONS.read_text(encoding="utf-8"))
     lookup = json.loads(LOOKUP.read_text(encoding="utf-8"))
 

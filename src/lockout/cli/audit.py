@@ -15,7 +15,7 @@ from lockout.paths import RAW_DIR
 from lockout.pipeline.clean import BAND_OF_HOUR, street_rows
 
 
-def load():
+def load() -> pd.DataFrame:
     # handles daten.berlin.de delimiter and encoding quirks
     csv_path = find_raw_csv()
     if csv_path is None:
@@ -26,13 +26,13 @@ def load():
         sys.exit(f"AUDIT FAILED: {e}")
 
 
-def overview(df):
+def overview(df: pd.DataFrame) -> None:
     print("=== 1. RAW DATASET OVERVIEW ===")
     print(f"Total Rows: {len(df):,}")
     print(f"Columns: {list(df.columns)}\n")
 
 
-def indoor_outdoor(df):
+def indoor_outdoor(df: pd.DataFrame) -> pd.DataFrame:
     print("=== 2. INDOOR VS. OUTDOOR FILTERING (DELIKT & ERFASSUNGSGRUND) ===")
     if "DELIKT" in df.columns:
         print("DELIKT breakdown:")
@@ -46,7 +46,7 @@ def indoor_outdoor(df):
     return df_outdoor
 
 
-def lor_hierarchy(df, df_outdoor):
+def lor_hierarchy(df: pd.DataFrame, df_outdoor: pd.DataFrame) -> None:
     print("=== 3. LOR HIERARCHY & GEOJSON ALIGNMENT ===")
     lor_col = [c for c in df_outdoor.columns if "lor" in c.lower() or "plr" in c.lower()][0]
     df_outdoor[lor_col] = df_outdoor[lor_col].astype(str).str.zfill(8)
@@ -61,7 +61,7 @@ def lor_hierarchy(df, df_outdoor):
     print(f"Areas with no record ({len(zero_areas)}): {zero_areas}\n")
 
 
-def reporting_lag(df_outdoor):
+def reporting_lag(df_outdoor: pd.DataFrame) -> None:
     print("=== 4. REPORTING LAG DISTRIBUTION (HOLDOUT TRUNCATION CUTOFF) ===")
     angelegt = pd.to_datetime(df_outdoor["ANGELEGT_AM"], dayfirst=True, errors="coerce")
     ende_datum = pd.to_datetime(df_outdoor["TATZEIT_ENDE_DATUM"], dayfirst=True, errors="coerce")
@@ -73,7 +73,7 @@ def reporting_lag(df_outdoor):
     print(f"95th percentile lag (Cutoff): {np.percentile(lag_days, 95):.0f} days\n")
 
 
-def offence_windows(df_outdoor):
+def offence_windows(df_outdoor: pd.DataFrame) -> pd.Series:
     print("=== 5. OFFENSE WINDOW DURATION ===")
     time_start = pd.to_datetime(
         df_outdoor["TATZEIT_ANFANG_DATUM"].astype(str) + " " + df_outdoor["TATZEIT_ANFANG_STUNDE"].astype(str) + ":00",
@@ -93,7 +93,7 @@ def offence_windows(df_outdoor):
     return time_start
 
 
-def sparsity(df_outdoor, time_start):
+def sparsity(df_outdoor: pd.DataFrame, time_start: pd.Series) -> None:
     print("=== 6. SPARSITY CHECK: 28 CELLS VS. 12 CELLS PER AREA ===")
     # an hour outside every band (NaN) stays "Night", as the audit always had it
     df_outdoor["daypart"] = df_outdoor["TATZEIT_ANFANG_STUNDE"].apply(lambda h: BAND_OF_HOUR.get(h, "Night"))
@@ -106,7 +106,7 @@ def sparsity(df_outdoor, time_start):
     print(f"12-Cell Grid (542 x 3 x 4 = 6,504 cells)  -> Mean total thefts/cell: {total_outdoor / (n_lors * 12):.2f}")
 
 
-def main():
+def main() -> None:
     df = load()
     overview(df)
     df_outdoor = indoor_outdoor(df)

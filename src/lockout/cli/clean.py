@@ -12,7 +12,7 @@ from lockout.paths import CLEAN_CSV
 from lockout.pipeline.clean import clean, street_rows
 
 
-def main():
+def main() -> None:
     raw = check_csv(Path(sys.argv[1]) if len(sys.argv) > 1 else find_raw_csv())
     street = street_rows(raw)
     cleaned = clean(raw)

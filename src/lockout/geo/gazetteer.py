@@ -1,5 +1,6 @@
 """Place-search lookup: pure functions that turn street, postcode and station layers into planning-area shares."""
 import geopandas as gpd
+import pandas as pd
 
 CRS = "EPSG:25833"
 MIN_SHARE = 5  # percent; below this an overlap is a boundary sliver, not an area the place belongs to
@@ -15,7 +16,7 @@ TYPES = {
 }
 
 
-def with_keys(st):
+def with_keys(st: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """Key every named entry by name, display type and Bezirk."""
     st = st.assign(name=st.strname.str.strip())
     st = st[st.name.ne("") & st.name.notna()].copy()
@@ -23,7 +24,7 @@ def with_keys(st):
     return st
 
 
-def nest(areas):
+def nest(areas: dict[str, list[list]]) -> tuple[list[str], dict[str, dict[str, dict[str, list[list]]]]]:
     """{"name|type|bezirk": [[plr_id, pct], ...]} -> (ids, {bezirk: {type: {name: [[ids_index, pct], ...]}}})."""
     ids = sorted({i for v in areas.values() for i, _ in v})
     at = {i: n for n, i in enumerate(ids)}
@@ -34,7 +35,7 @@ def nest(areas):
     return ids, tree
 
 
-def shares(layer, lor, key):
+def shares(layer: gpd.GeoDataFrame, lor: gpd.GeoDataFrame, key: str) -> dict[str, list[list]]:
     """key value -> [[plr_id, pct]] by overlapping area (polygons) or length (lines)."""
     cut = gpd.overlay(layer[[key, "geometry"]], lor[["plr_id", "geometry"]], how="intersection", keep_geom_type=True)
     cut["w"] = cut.geometry.area if cut.geom_type.iloc[0].endswith("Polygon") else cut.geometry.length
@@ -46,7 +47,7 @@ def shares(layer, lor, key):
     return out
 
 
-def stations(stops, lor):
+def stations(stops: pd.DataFrame, lor: gpd.GeoDataFrame) -> list[tuple[str, str, str, float, float]]:
     # parent stations in Berlin named "S Foo (Berlin)", "U Foo (Berlin)" or "S+U Foo (Berlin)"
     s = stops[(stops.location_type == 1) & stops.stop_name.str.match(r"^(S\+U|S|U) .*\(Berlin\)$")].copy()
     s["kind"] = s.stop_name.str.extract(r"^(S\+U|S|U) ")[0]

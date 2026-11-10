@@ -9,19 +9,19 @@ FAIRNESS_FACTOR = 2  # a Bezirk is flagged if one share is more than this multip
 SMALL_NUMBERS_BELOW = 3  # a flagged Bezirk with fewer High or top-quartile areas than this gets a small-numbers note
 
 
-def calibration(actual, tier):
+def calibration(actual: pd.Series, tier: pd.Series) -> tuple[pd.Series, bool]:
     """Mean actual thefts per area in each tier; passes if the means rise from Low to High and High >= 2x Low."""
     means = actual.groupby(tier).mean().reindex([name for name, _ in TIERS])
     rising = bool(means.notna().all() and (means.diff().dropna() > 0).all())
     return means, rising and bool(means["HIGH"] >= HIGH_OVER_LOW * means["LOW"])
 
 
-def off(ratio):
+def off(ratio: float) -> bool:
     """Flag rule: one share more than FAIRNESS_FACTOR times the other. 0 on one side counts (ratio 0 or inf), 0 on both does not."""
     return bool(ratio > FAIRNESS_FACTOR or ratio < 1 / FAIRNESS_FACTOR)
 
 
-def fairness(tier, top, bezirk):
+def fairness(tier: pd.Series, top: pd.Series, bezirk: pd.Series) -> pd.DataFrame:
     """Per Bezirk: its share of the city's High areas vs its share of the city's top-quartile areas."""
     high = tier == "HIGH"
     t = pd.DataFrame({
@@ -36,7 +36,7 @@ def fairness(tier, top, bezirk):
     return t
 
 
-def explain(b, cut):
+def explain(b: pd.Series, cut: float) -> str:
     """The numbers behind a flagged Bezirk: which share is larger, and which of its areas make the difference."""
     if b["share_high"] < b["share_top"]:
         text = (f"Holds {b['share_top']:.1%} of the city's top-quartile areas but {b['share_high']:.1%} of its High areas. "

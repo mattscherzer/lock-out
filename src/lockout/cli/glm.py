@@ -1,8 +1,7 @@
-"""S1 test: OpenStreetMap counts in a Poisson GLM against EB model v0 (issue #61, roadmap WP 2.1, scope S1).
+"""Compare the OSM-count GLM candidates with EB v0 and write docs/glm-results.md.
 
 Run from the repo root after lockout.cli.osm_features:
     uv run python -m lockout.cli.glm data/raw/fahrraddiebstahl_2026-10-26.csv
-Writes docs/glm-results.md.
 """
 import sys
 
@@ -11,7 +10,7 @@ import pandas as pd
 
 from lockout.cli.common import load_cleaned, require_folds_complete, table
 from lockout.geo.osm_features import KINDS
-from lockout.models.glm import STABILITY_TOLERANCE, compare, verdict
+from lockout.models.glm import STABILITY_TOLERANCE, FoldResult, Verdict, compare, verdict
 from lockout.paths import DOCS_DIR, OSM_FEATURES
 
 OUT = DOCS_DIR / "glm-results.md"
@@ -19,11 +18,12 @@ LABELS = {"bike_parking": "bike parking", "shops": "shops", "food_drink": "food 
           "transit_stops": "transit stops", "education": "schools, colleges and universities"}
 
 
-def fmt(v, pattern):
+def fmt(v: float, pattern: str) -> str:
     return "n/a" if np.isnan(v) else format(v, pattern)
 
 
-def markdown(folds, result, features, reports_up_to, cutoff, source, snapshot):
+def markdown(folds: list[FoldResult], result: dict[str, Verdict], features: pd.DataFrame, reports_up_to: pd.Timestamp, cutoff: pd.Timestamp,
+             source: str, snapshot: pd.Timestamp) -> str:
     rows = [[f["fold"], name, fmt(s["deviance"], ".3f"), fmt(s["spearman"], ".3f"), fmt(s["high_in_top_quartile"], ".0%")]
             for f in folds for name, s in f["scores"].items()]
     coef = [[f["fold"], *(f"{f['coefficients'][c]:.3f}" for c in folds[0]["coefficients"].index)] for f in folds]
@@ -68,7 +68,7 @@ The roadmap keeps S1 only if it improves the hold-out deviance over EB v0 and th
 """
 
 
-def main():
+def main() -> None:
     if not OSM_FEATURES.exists():
         sys.exit(f"{OSM_FEATURES} is missing; run `python -m lockout.cli.osm_features` first.")
     features = pd.read_csv(OSM_FEATURES, dtype={"plr_id": str}).set_index("plr_id")
