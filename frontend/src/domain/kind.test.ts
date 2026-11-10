@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { kindOf, tierOf, topShare } from "./kind.ts";
-import { bands, rec } from "./testData.ts";
+import { bands, rec } from "../answer/testData.ts";
 
 it("maps the lookup; no record is no-data, thin data is limited, never low", () => {
   expect(tierOf(rec({ tier: "HIGH" }))).toBe("high");

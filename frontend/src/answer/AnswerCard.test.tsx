@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { AnswerCard, higherPx, type CardState } from "./AnswerCard.tsx";
+import { AnswerCard, type CardState } from "./AnswerCard.tsx";
+import { higherPx } from "./sheetStops.ts";
 
 afterEach(() => {
   vi.restoreAllMocks();

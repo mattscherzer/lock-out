@@ -1,6 +1,6 @@
 import { Info } from "lucide-react";
 import { useId, useState } from "react";
-import type { AreaRecord, Lookup } from "../search/types.ts";
+import type { AreaRecord, Lookup } from "../domain/lookup.ts";
 import { BarGroup } from "./BarGroup.tsx";
 import { longDate } from "./text.ts";
 import { Tile } from "./Tile.tsx";

@@ -1,4 +1,4 @@
-import type { Selector } from "../search/types.ts";
+import type { Selector } from "../domain/lookup.ts";
 
 const BAR_MAX = 56;
 

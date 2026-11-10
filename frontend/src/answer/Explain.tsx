@@ -1,6 +1,6 @@
 import { Ban, BarChart3, Database, ListOrdered } from "lucide-react";
-import type { AreaRecord, Lookup } from "../search/types.ts";
-import type { Kind } from "./kind.ts";
+import type { AreaRecord, Lookup } from "../domain/lookup.ts";
+import type { Kind } from "../domain/kind.ts";
 import { Part } from "./Part.tsx";
 import { longDate, plural } from "./text.ts";
 

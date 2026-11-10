@@ -2,7 +2,6 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
   type CSSProperties,
   type KeyboardEvent,
-  type PointerEvent,
   type ReactNode,
   useEffect,
   useRef,
@@ -11,6 +10,8 @@ import {
 import { ExplainSheet } from "./ExplainSheet.tsx";
 import { phone } from "../viewport.ts";
 import { ICON_BUTTON } from "./iconButton.ts";
+import { FULL_GAP_PX, higherPx, loweredPx, STOPS, type Stop } from "./sheetStops.ts";
+import { useSheetDrag } from "./useSheetDrag.ts";
 import { PIN_NAME, PIN_VERDICT, usePinned } from "./usePinned.ts";
 import "./AnswerCard.css";
 
@@ -31,22 +32,6 @@ type Props = {
 };
 
 type PanelKey = "explain" | "advice";
-const STOPS = ["lowered", "higher", "full"] as const;
-type Stop = (typeof STOPS)[number];
-const LOWERED_PX = 152; // handle, name, district and the compact verdict
-// at least 40px above lowered, so a short landscape phone never inverts the stops
-const loweredPx = () => Math.min(LOWERED_PX, window.innerHeight);
-export const higherPx = () =>
-  Math.min(
-    window.innerHeight,
-    Math.max(LOWERED_PX + 40, Math.min(520, Math.round(window.innerHeight * 0.64))),
-  );
-const FULL_GAP_PX = 16; // the map margin above a full sheet, the same as the search pill keeps
-const CLOSED = STOPS.length; // index after the last stop in the drag stops
-const SLOP_PX = 6; // movement below this is a tap, not a drag
-const PULL_PX = 2; // a pull down from the top of the content claims the gesture this early, before the browser decides to scroll
-const FLICK_MS = 150; // how far ahead the release velocity projects the sheet
-
 const NOTE: Record<Exclude<CardState, "ready" | "no-data">, [title: string, text: string]> = {
   empty: ["Nothing to show yet", "There is nothing to show for this area yet."],
   error: ["Could not load this area", "Something went wrong. Pick the area again to retry."],
@@ -133,114 +118,7 @@ export function AnswerCard({
     signal.current = lowerSignal;
   }, [lowerSignal]);
 
-  const drag = useRef<{
-    y: number;
-    from: number;
-    stops: number[];
-    moved: boolean;
-    last: [y: number, t: number] | null;
-    v: number;
-  } | null>(null);
-  const begin = (y: number) => {
-    const h = card.current!.offsetHeight;
-    const stops = [h - loweredPx(), h - higherPx(), FULL_GAP_PX, h]; // translateY of lowered, higher, full, then CLOSED
-    drag.current = { y, from: stops[STOPS.indexOf(stop)], stops, moved: false, last: null, v: 0 };
-  };
-  const track = (y: number, capture?: () => void) => {
-    const d = drag.current;
-    if (!d || !card.current) return;
-    if (!d.moved) {
-      if (Math.abs(y - d.y) < SLOP_PX) return;
-      d.moved = true;
-      capture?.();
-      card.current.style.transition = "none";
-    }
-    const now = performance.now();
-    if (!d.last || now - d.last[1] >= 8) {
-      if (d.last) d.v = (y - d.last[0]) / (now - d.last[1]);
-      d.last = [y, now];
-    }
-    const raw = d.from + y - d.y;
-    card.current.style.transform = `translateY(${raw < 0 ? raw / 3 : raw}px)`;
-  };
-  const end = (y: number) => {
-    const d = drag.current;
-    drag.current = null;
-    if (!d?.moved || !card.current) return;
-    const idle = d.last ? performance.now() - d.last[1] > 50 : true; // a held finger has no velocity
-    const at = Math.max(0, d.from + y - d.y) + (idle ? 0 : d.v) * FLICK_MS;
-    card.current.style.removeProperty("transition"); // the CSS transition settles it from here
-    card.current.style.removeProperty("transform");
-    const i = d.stops.reduce(
-      (best, s, k) => (Math.abs(s - at) < Math.abs(d.stops[best] - at) ? k : best),
-      0,
-    );
-    if (i === CLOSED) onClose();
-    else setStop(STOPS[i]);
-  };
-  const cancel = () => {
-    drag.current = null;
-    card.current?.style.removeProperty("transition");
-    card.current?.style.removeProperty("transform");
-  };
-  const down = (e: PointerEvent) => {
-    if (!phone()) return;
-    if (stop === "full" && !(e.target as Element).closest(".answer-pin")) return;
-    begin(e.clientY);
-  };
-  const move = (e: PointerEvent) =>
-    track(e.clientY, () => (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId));
-  const up = (e: PointerEvent) => end(e.clientY);
-
-  const latest = useRef({ stop, begin, track, end, cancel });
-  latest.current = { stop, begin, track, end, cancel };
-  useEffect(() => {
-    const el = card.current;
-    if (!el) return;
-    let pull: { y0: number; on: boolean } | null = null;
-    const start = (e: TouchEvent) => {
-      const free =
-        latest.current.stop === "full" &&
-        phone() &&
-        el.scrollTop <= 0 &&
-        e.touches.length === 1 &&
-        !(e.target as Element).closest(".answer-pin");
-      pull = free ? { y0: e.touches[0].clientY, on: false } : null;
-    };
-    const move = (e: TouchEvent) => {
-      if (!pull) return;
-      const y = e.touches[0].clientY;
-      if (!pull.on) {
-        if (y < pull.y0 || el.scrollTop > 0)
-          pull = null; // scrolling up: the browser scrolls the content
-        else if (y - pull.y0 >= PULL_PX) {
-          pull.on = true;
-          latest.current.begin(pull.y0);
-        }
-        if (!pull?.on) return;
-      }
-      e.preventDefault();
-      latest.current.track(y);
-    };
-    const finish = (e: TouchEvent) => {
-      if (pull?.on) latest.current.end(e.changedTouches[0].clientY);
-      pull = null;
-    };
-    const abort = () => {
-      if (pull?.on) latest.current.cancel();
-      pull = null;
-    };
-    el.addEventListener("touchstart", start, { passive: true });
-    el.addEventListener("touchmove", move, { passive: false });
-    el.addEventListener("touchend", finish);
-    el.addEventListener("touchcancel", abort);
-    return () => {
-      el.removeEventListener("touchstart", start);
-      el.removeEventListener("touchmove", move);
-      el.removeEventListener("touchend", finish);
-      el.removeEventListener("touchcancel", abort);
-    };
-  }, []);
+  const dragProps = useSheetDrag({ card, stop, onStop: setStop, onClose });
   const keys = (e: KeyboardEvent) => {
     if (e.key !== "Escape") return;
     e.stopPropagation();
@@ -268,10 +146,7 @@ export function AnswerCard({
         }
         onScroll={syncPinned}
         onKeyDown={keys}
-        onPointerDown={down}
-        onPointerMove={move}
-        onPointerUp={up}
-        onPointerCancel={cancel}
+        {...dragProps}
         onWheel={(e) => {
           if (phone() && stop !== "full" && e.deltaY > 0) setStop("full");
         }}

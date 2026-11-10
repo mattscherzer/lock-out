@@ -1,32 +1,22 @@
-import {
-  ArrowLeft,
-  ChevronDown,
-  LoaderCircle,
-  Mail,
-  MapPin,
-  Road,
-  Search,
-  TrainFront,
-  VectorPolygon,
-  X,
-} from "lucide-react";
+import { ArrowLeft, LoaderCircle, Search, X } from "lucide-react";
 import { useEffect, useEffectEvent, useId, useRef, useState, useSyncExternalStore } from "react";
 import "./AreaSearch.css";
 import {
-  bezirkLabel,
   buildRows,
   EXAMPLES,
-  isPlainStreet,
-  LOADING_DELAY_MS,
   MAX_ROWS,
   parseQuery,
   placeKey,
+  rank,
   searchPlaces,
+  statusText,
 } from "./places.ts";
-import type { Areas, Index, Kind, Place, Row } from "./types.ts";
+import { ExampleRows, ResultRows } from "./ResultRows.tsx";
+import { useStreets } from "./useStreets.ts";
+import { useVisualViewport } from "./useVisualViewport.ts";
+import type { Areas } from "../domain/lookup.ts";
+import type { Context, Index, Row } from "./types.ts";
 
-// How the area was found; null when the user picked an area by name.
-export type Context = { kind: Kind; label: string; pct: number | null; ll?: [number, number] };
 type Props = {
   index: Index;
   areas: Areas;
@@ -38,48 +28,8 @@ type Props = {
   loadStreets?: () => Promise<unknown>; // must reject on failure; retried on the next focus
 };
 
-const kindWord = (place: Place) =>
-  place.sub
-    ? `${place.sub} station`
-    : (place.type ??
-      { postcode: "Postcode", station: "Station", street: "Street", area: "Area" }[place.kind]); // type: Water, Square, Motorway...
-
-// Outline glyph per kind; one pin for the other named places (square, water, motorway, forest). The type is also written in words, so the glyph is never the only signal.
-const glyph = (place: Place) => {
-  if (place.kind === "area") return VectorPolygon;
-  if (place.kind === "postcode") return Mail;
-  if (place.kind === "station") return TrainFront;
-  return isPlainStreet(place) ? Road : MapPin;
-};
-
-const exampleGlyph = {
-  Street: Road,
-  Postcode: Mail,
-  Station: TrainFront,
-  Area: VectorPolygon,
-  Water: MapPin,
-}; // keyed by EXAMPLES' word
-
 // Write class strings out whole so Tailwind sees them; never build one from state.
-// shortcut: py-[10px], gap-[10px], pb-[6px], text-[13px]/[18px], min-w-[34px], rounded-[3px] are off the token scale, snap them later.
-const OPTION =
-  "box-border flex min-h-16 cursor-pointer items-center gap-3 px-4 py-[10px] aria-selected:bg-surface-container";
-const PARENT =
-  "area-search-parent box-border flex min-h-14 cursor-default items-center gap-3 px-4 pt-[10px] pb-[6px]";
-const CHILD =
-  "box-border flex min-h-tap-target cursor-pointer items-center gap-[10px] bg-surface py-2 pr-4 pl-16 aria-selected:bg-surface-container";
-const MORE =
-  "body-md box-border flex min-h-tap-target cursor-pointer items-center gap-2 py-2 pr-4 pl-16 font-semibold text-on-primary-container aria-selected:bg-surface-container";
-const GLYPH =
-  "grid size-9 flex-none place-items-center rounded-full bg-secondary-container text-on-secondary-container";
-const TEXT = "flex min-w-0 flex-1 flex-col";
-const NAME = "area-search-name body-lg line-clamp-2 [overflow-wrap:anywhere] [&_b]:font-semibold"; // area-search-name is a test hook, no CSS selects it
-const NAME_CHILD =
-  "area-search-name body-md line-clamp-2 font-medium [overflow-wrap:anywhere] [&_b]:font-semibold";
-const SUB = "mt-0.5 truncate text-[13px]/[18px] text-on-surface-variant";
-const SUB_CHILD = "body-sm truncate text-on-surface-variant";
-const BAR = "h-1.5 w-11 flex-none overflow-hidden rounded-[3px] bg-outline-variant";
-const PCT = "body-sm min-w-[34px] flex-none text-right font-semibold text-on-primary-container";
+// shortcut: py-[10px], h-[10px] are off the token scale, snap them later.
 const NOTE = "body-sm m-0 px-4 py-3 text-on-surface-variant";
 const LABEL = "body-sm m-0 px-4 pt-3 pb-1 font-semibold text-on-surface-variant";
 const MESSAGE = "body-sm p-6 text-on-surface-variant";
@@ -90,37 +40,12 @@ const PULSE = "animate-pulse bg-surface-container motion-reduce:animate-none";
 const HINTS =
   "body-sm hidden flex-none gap-4 border-t border-outline-variant bg-surface px-4 py-[10px] text-on-surface-variant min-[900px]:flex";
 
-const rowKey = (r: Row) =>
-  r.type === "area" ? `${placeKey(r.place)}|${r.id}` : `${r.type}|${placeKey(r.place)}`; // a place spans several areas
 const WIDE = "(min-width: 600px)"; // tablet and desktop: more rows
 const subscribeWide = (cb: () => void) => {
   const m = window.matchMedia?.(WIDE);
   m?.addEventListener("change", cb);
   return () => m?.removeEventListener("change", cb);
 };
-// the place of the picked row first so Enter keeps it, then places in the same area
-const rank = (p: Place, selected: string, picked?: string) =>
-  placeKey(p) === picked
-    ? 0
-    : p.areas.some((a) => a.id === selected)
-      ? p.kind === "area"
-        ? 1
-        : 2
-      : 3;
-
-// shortcut: matches the typed text literally, so "muller" does not bold the "Mü" of "Müller"; fold-aware offsets if it matters.
-function Bold({ text, part }: { text: string; part: string }) {
-  const at = part ? text.toLowerCase().indexOf(part.toLowerCase()) : -1;
-  if (at < 0) return <>{text}</>;
-  return (
-    <>
-      {text.slice(0, at)}
-      <b>{text.slice(at, at + part.length)}</b>
-      {text.slice(at + part.length)}
-    </>
-  );
-}
-
 export function AreaSearch({
   index,
   areas,
@@ -135,7 +60,6 @@ export function AreaSearch({
   const input = useRef<HTMLInputElement>(null);
   const justFocused = useRef(false);
   const retrying = useRef(false); // focus returning from Try again must not select the typed text
-  const loading = useRef<Promise<void>>(undefined);
   const [draft, setDraft] = useState<string | null>(null); // what the user typed; null: the field shows the selected area
   const [chosen, setChosen] = useState<{ id: string; query: string; place: string }>(); // the area picked, the place it came from (placeKey) and the query that found it
   const [open, setOpen] = useState(false);
@@ -146,33 +70,13 @@ export function AreaSearch({
     () => ((window.matchMedia?.(WIDE).matches ?? true) ? MAX_ROWS.wide : MAX_ROWS.mobile),
     () => MAX_ROWS.wide,
   );
-  const [streetsLoading, setStreetsLoading] = useState(false);
-  const [streetsError, setStreetsError] = useState(false);
-  const [slow, setSlow] = useState(false); // loading has lasted past LOADING_DELAY_MS
-  const [, setLoaded] = useState(0); // bumped when street data arrives: addStreets fills index in place, so rerender to search again
-
-  // the soft keyboard overlays the page instead of resizing it, so size the full-screen panel to the visible area
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const root = document.documentElement.style;
-    const fit = () => {
-      root.setProperty(
-        "--vv-covered",
-        `${Math.max(0, window.innerHeight - vv.offsetTop - vv.height)}px`,
-      ); // keyboard and Safari's floating bars
-      root.setProperty("--vv-top", `${vv.offsetTop}px`);
-    };
-    fit();
-    vv.addEventListener("resize", fit);
-    vv.addEventListener("scroll", fit);
-    return () => {
-      vv.removeEventListener("resize", fit);
-      vv.removeEventListener("scroll", fit);
-      root.removeProperty("--vv-top");
-      root.removeProperty("--vv-covered");
-    };
-  }, []);
+  const {
+    loading: streetsLoading,
+    error: streetsError,
+    slow,
+    load: loadNow,
+  } = useStreets(loadStreets);
+  useVisualViewport();
 
   const selectedName = selected ? (areas[selected]?.name ?? "") : "";
   const text = draft ?? selectedName;
@@ -218,15 +122,6 @@ export function AreaSearch({
   }, [highlighted]);
   const tooShort = query.trim().length < 2; // searchPlaces needs two characters
 
-  useEffect(() => {
-    if (!streetsLoading) return;
-    const t = setTimeout(() => setSlow(true), LOADING_DELAY_MS);
-    return () => {
-      clearTimeout(t);
-      setSlow(false);
-    };
-  }, [streetsLoading]);
-
   // keep the highlighted row in view while arrowing through a long list
   useEffect(() => {
     if ((shown || empty) && count)
@@ -265,23 +160,6 @@ export function AreaSearch({
     loadNow();
   };
 
-  const loadNow = () => {
-    if (!loadStreets || loading.current) return;
-    setStreetsLoading(true);
-    setStreetsError(false);
-    loading.current = loadStreets().then(
-      () => {
-        setStreetsLoading(false);
-        setLoaded((n) => n + 1);
-      },
-      () => {
-        setStreetsLoading(false);
-        setStreetsError(true);
-        loading.current = undefined;
-      },
-    );
-  };
-
   // the button unmounts once the load starts: hand focus back to the field so the keyboard user stays in the search
   const retry = () => {
     loadNow();
@@ -315,17 +193,9 @@ export function AreaSearch({
     }
   };
 
-  const status = !shown
-    ? ""
-    : tooShort
-      ? "Keep typing"
-      : streetsError
-        ? ""
-        : streetsLoading
-          ? "Searching"
-          : rows.length
-            ? `${rows.length} ${rows.length === 1 ? "result" : "results"}`
-            : "No results";
+  const status = shown
+    ? statusText({ tooShort, error: streetsError, loading: streetsLoading, results: rows.length })
+    : "";
 
   return (
     <div
@@ -446,107 +316,21 @@ export function AreaSearch({
           hidden={!count}
           onMouseDown={(e) => e.preventDefault()}
         >
-          {empty &&
-            EXAMPLES.map((ex, i) => {
-              const Glyph = exampleGlyph[ex.word as keyof typeof exampleGlyph];
-              return (
-                <li
-                  key={ex.label}
-                  id={`${id}-${i}`}
-                  role="option"
-                  aria-selected={i === current}
-                  className={OPTION}
-                  onClick={() => pickExample(ex.label)}
-                  onMouseMove={() => setActive(i)}
-                >
-                  <span className={GLYPH}>
-                    <Glyph aria-hidden size={18} strokeWidth={1.8} />
-                  </span>
-                  <span className={TEXT}>
-                    <span className={NAME}>{ex.label}</span>
-                    <span className={SUB}>{ex.word}</span>
-                  </span>
-                </li>
-              );
-            })}
-          {!empty &&
-            all.map((r) => {
-              const area = r.type === "area" ? areas[r.id] : undefined;
-              const Glyph = glyph(r.place);
-              const name = r.place.bezirk
-                ? `${r.place.label} (${bezirkLabel(r.place.bezirk)})`
-                : r.place.label;
-              const key = rowKey(r);
-              if (r.type === "label")
-                return (
-                  <li key={key} role="presentation" className={PARENT} title={name}>
-                    <span className={GLYPH}>
-                      <Glyph aria-hidden size={18} strokeWidth={1.8} />
-                    </span>
-                    <span className={TEXT}>
-                      <span className={NAME}>
-                        <Bold text={name} part={query.trim()} />
-                      </span>
-                      <span className={SUB}>
-                        {kindWord(r.place)} · in {r.place.areas.length} areas
-                      </span>
-                    </span>
-                  </li>
-                );
-              const i = rows.indexOf(r);
-              const common = {
-                id: `${id}-${i}`,
-                role: "option",
-                "aria-selected": i === current,
-                onClick: () => choose(r, true),
-                onMouseMove: () => setActive(i),
-              } as const;
-              if (r.type === "more")
-                return (
-                  <li key={key} {...common} className={MORE}>
-                    +{r.n} more areas for {name}
-                    <ChevronDown aria-hidden size={16} strokeWidth={2} />
-                  </li>
-                );
-              const child = r.pct != null; // under a label row the area is the subject
-              const full = child ? area!.name : name;
-              const sub =
-                child || r.place.kind === "area"
-                  ? `Area · ${bezirkLabel(area!.bzr_name)}`
-                  : `${kindWord(r.place)} · ${area!.name} · ${bezirkLabel(area!.bzr_name)}`;
-              return (
-                <li
-                  key={key}
-                  {...common}
-                  title={full}
-                  aria-label={child ? `${full}, ${sub}, in ${name}, ${r.pct}%` : undefined}
-                  className={child ? CHILD : OPTION}
-                >
-                  {!child && (
-                    <span className={GLYPH}>
-                      <Glyph aria-hidden size={18} strokeWidth={1.8} />
-                    </span>
-                  )}
-                  <span className={TEXT}>
-                    <span className={child ? NAME_CHILD : NAME}>
-                      <Bold text={full} part={query.trim()} />
-                    </span>
-                    <span className={child ? SUB_CHILD : SUB}>{sub}</span>
-                  </span>
-                  {child && (
-                    <>
-                      <span className={BAR} aria-hidden>
-                        <span
-                          className="block h-full rounded-[3px] bg-primary"
-                          style={{ width: `${r.pct}%` }}
-                        />
-                      </span>
-                      <span className={PCT}>{r.pct}%</span>
-                    </>
-                  )}
-                </li>
-              );
-            })}
+          {empty && (
+            <ExampleRows idPrefix={id} current={current} onPick={pickExample} onHover={setActive} />
+          )}
+          {!empty && (
+            <ResultRows
+              all={all}
+              rows={rows}
+              areas={areas}
+              idPrefix={id}
+              current={current}
+              query={query.trim()}
+              onChoose={(r) => choose(r, true)}
+              onHover={setActive}
+            />
+          )}
         </ul>
         {overflow && <p className={NOTE}>Keep typing to narrow down</p>}
         <div className={HINTS} aria-hidden>

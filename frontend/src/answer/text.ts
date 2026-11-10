@@ -1,4 +1,4 @@
-import type { Kind } from "./kind.ts";
+import type { Kind } from "../domain/kind.ts";
 
 export const plural = (n: number) => `${n} ${n === 1 ? "report" : "reports"}`;
 

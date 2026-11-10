@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { expect, it } from "vitest";
-import type { Lookup } from "../search/types.ts";
+import type { Lookup } from "../domain/lookup.ts";
 import { AreaAnswer } from "./AreaAnswer.tsx";
 import { DataLine } from "./DataLine.tsx";
 import { Explain } from "./Explain.tsx";
-import { kindOf } from "./kind.ts";
+import { kindOf } from "../domain/kind.ts";
 import { rec } from "./testData.ts";
 
 const lookup: Lookup = JSON.parse(readFileSync("public/lookup_schema_v1.json", "utf8"));

@@ -1,4 +1,4 @@
-import type { AreaRecord, Lookup } from "../search/types.ts";
+import type { AreaRecord, Lookup } from "./lookup.ts";
 
 export type Tier = "low" | "medium" | "high" | "no-data";
 export type Kind = Tier | "limited";

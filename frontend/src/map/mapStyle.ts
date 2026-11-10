@@ -1,7 +1,18 @@
 import type L from "leaflet";
-import type { Kind } from "../answer/kind.ts";
+import type { Kind } from "../domain/kind.ts";
 
 export type Emphasis = "rest" | "hover" | "selected";
+
+// the same lift for a map hover and a list highlight, except on the area whose card is open
+export const emphasisOf = (
+  id: string,
+  {
+    active,
+    highlighted,
+    hovered,
+  }: { active: string | null; highlighted: string | null; hovered: string | null },
+): Emphasis =>
+  id === active ? "selected" : id === highlighted || id === hovered ? "hover" : "rest";
 
 export const HATCH_ID = "limited-hatch";
 export const HATCH_LIFTED_ID = "limited-hatch-lifted";

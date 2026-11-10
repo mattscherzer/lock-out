@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Button } from "./controls/Controls.tsx";
-import type { Lookup } from "./search/types.ts";
+import type { Lookup } from "./domain/lookup.ts";
 
 // Opened from the "About the data" link in the map attribution: a floating button would cover that text.
 export function About({

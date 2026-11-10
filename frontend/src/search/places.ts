@@ -1,7 +1,8 @@
 // Place search over the static gazetteer: pure functions, no DOM, no network.
 // A place (postcode, street, station or area name) maps to one or more areas, largest share first.
 
-import type { Areas, Gazetteer, Index, Kind, Place, Row, Share, StreetsFile } from "./types.ts";
+import type { Areas } from "../domain/lookup.ts";
+import type { Gazetteer, Index, Kind, Place, Row, Share, StreetsFile } from "./types.ts";
 
 // Proposals to tune after the usability test (#67).
 export const MAX_AREAS_PER_RESULT = 3; // the rest sit behind one "+N more areas" row
@@ -180,3 +181,29 @@ export function searchPlaces(index: Index, text: string) {
     ns,
   );
 }
+
+// the place of the picked row first so Enter keeps it, then places in the same area
+export const rank = (p: Place, selected: string, picked?: string) =>
+  placeKey(p) === picked
+    ? 0
+    : p.areas.some((a) => a.id === selected)
+      ? p.kind === "area"
+        ? 1
+        : 2
+      : 3;
+
+export const statusText = (s: {
+  tooShort: boolean;
+  error: boolean;
+  loading: boolean;
+  results: number;
+}) =>
+  s.tooShort
+    ? "Keep typing"
+    : s.error
+      ? ""
+      : s.loading
+        ? "Searching"
+        : s.results
+          ? `${s.results} ${s.results === 1 ? "result" : "results"}`
+          : "No results";

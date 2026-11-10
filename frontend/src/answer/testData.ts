@@ -1,4 +1,4 @@
-import type { AreaRecord, Lookup } from "../search/types.ts";
+import type { AreaRecord, Lookup } from "../domain/lookup.ts";
 
 export const rec = (over: Partial<AreaRecord> = {}): AreaRecord => ({
   name: "A",

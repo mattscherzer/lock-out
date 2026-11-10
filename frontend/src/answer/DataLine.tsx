@@ -1,4 +1,4 @@
-import type { AreaRecord } from "../search/types.ts";
+import type { AreaRecord } from "../domain/lookup.ts";
 import { plural } from "./text.ts";
 
 export function DataLine({

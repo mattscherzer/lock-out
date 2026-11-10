@@ -1,4 +1,4 @@
-import { colour, type Kind } from "./kind.ts";
+import { colour, type Kind } from "../domain/kind.ts";
 
 export function TierMark({ kind, className = "size-14" }: { kind: Kind; className?: string }) {
   const c = colour(kind);

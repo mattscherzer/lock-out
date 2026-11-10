@@ -1,8 +1,8 @@
 import { STRINGS } from "../strings.ts";
 import { Info } from "lucide-react";
-import type { AreaRecord } from "../search/types.ts";
+import type { AreaRecord } from "../domain/lookup.ts";
 import { DataLine } from "./DataLine.tsx";
-import { colour, type Kind } from "./kind.ts";
+import { colour, type Kind } from "../domain/kind.ts";
 import { TierMark } from "./TierMark.tsx";
 import { verdictLine } from "./text.ts";
 

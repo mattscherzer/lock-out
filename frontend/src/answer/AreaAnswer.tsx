@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { AreaRecord, Lookup } from "../search/types.ts";
+import type { AreaRecord, Lookup } from "../domain/lookup.ts";
 import { adviceFor, DEFAULT_BIKE_VALUE } from "../advice/advice.ts";
 import { STRINGS } from "../strings.ts";
 import { Advice } from "./Advice.tsx";
@@ -7,7 +7,7 @@ import { AdviceDetail } from "./AdviceDetail.tsx";
 import { AnswerCard } from "./AnswerCard.tsx";
 import { Details } from "./Details.tsx";
 import { Explain } from "./Explain.tsx";
-import { kindOf, topShare } from "./kind.ts";
+import { kindOf, topShare } from "../domain/kind.ts";
 import { Verdict, VerdictStrip } from "./Verdict.tsx";
 
 export function AreaAnswer({

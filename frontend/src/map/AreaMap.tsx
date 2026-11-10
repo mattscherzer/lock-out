@@ -1,0 +1,149 @@
+import L from "leaflet";
+import type { FeatureCollection } from "geojson";
+import { useEffect, useEffectEvent, useImperativeHandle, useRef, type Ref } from "react";
+import { kindOf } from "../domain/kind.ts";
+import type { Lookup } from "../domain/lookup.ts";
+import { addHatch, areaStyle, emphasisOf } from "./mapStyle.ts";
+import { tintBasemap } from "./tint.ts";
+
+const BRAND = "#2563EB";
+
+// CC-BY: the gazetteer's sources must be credited next to the map
+const SEARCH_ATTRIBUTION = "Search: Amt für Statistik Berlin-Brandenburg (CC-BY 3.0), VBB";
+
+export type AreaMapHandle = { flyTo: (id: string) => void };
+
+type Props = {
+  ref: Ref<AreaMapHandle>;
+  areas: FeatureCollection;
+  lookup: Lookup;
+  active: string | null; // the area whose card is open
+  selected: string | null;
+  highlighted: string | null; // the area under the arrow keys or pointer in the open search list
+  pin: { ll: [number, number]; label: string } | null; // "you searched here"
+  onSelect: (id: string) => void;
+  onMapClick: () => void;
+  onAbout: () => void;
+  flyPadding: () => L.FitBoundsOptions;
+};
+
+export function AreaMap(props: Props) {
+  const { ref, areas, lookup, active, selected, highlighted, pin } = props;
+  const container = useRef<HTMLDivElement>(null);
+  const map = useRef<L.Map>(undefined);
+  const polygons = useRef<Record<string, L.Polygon>>({});
+  const hovered = useRef<string | null>(null);
+  const touched = useRef<(string | null)[]>([]);
+  const restyle = useEffectEvent((id: string) =>
+    polygons.current[id].setStyle(
+      areaStyle(
+        kindOf(lookup.areas[id]),
+        emphasisOf(id, { active, highlighted, hovered: hovered.current }),
+      ),
+    ),
+  );
+  const select = useEffectEvent(props.onSelect);
+  const mapClick = useEffectEvent(props.onMapClick);
+  const about = useEffectEvent(props.onAbout);
+
+  useEffect(() => {
+    const renderer = L.svg();
+    addHatch(renderer);
+    const m = L.map(container.current!, { zoomControl: false, renderer }).setView(
+      [52.52, 13.405],
+      11,
+    );
+    map.current = m;
+    tintBasemap(m);
+    L.control.zoom({ position: "bottomright" }).addTo(m);
+    // Attribution text lives in the lookup metadata so the UI and the data agree on it.
+    const { police, osm } = lookup.metadata.attribution;
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: `<a href="https://www.openstreetmap.org/copyright">${osm}</a> | ${police} | ${SEARCH_ATTRIBUTION} | <a href="#about" data-about>About the data</a>`,
+    }).addTo(m);
+    m.attributionControl.getContainer()!.addEventListener("click", (e) => {
+      if (!(e.target as Element).closest("[data-about]")) return;
+      e.preventDefault();
+      about();
+    });
+
+    const byId: Record<string, L.Polygon> = {};
+    polygons.current = byId;
+    const layer = L.geoJSON(areas, {
+      style: (feature) => areaStyle(kindOf(lookup.areas[feature!.properties.id as string]), "rest"),
+      onEachFeature: (feature, polygon) => {
+        const id = feature.properties.id as string;
+        const area = lookup.areas[id];
+        // element, not a string: Leaflet would parse a string as HTML
+        const label = Object.assign(document.createElement("span"), {
+          textContent: `${area.name} (${area.bzr_name})`,
+        });
+        polygon.bindTooltip(label, { className: "body-md" });
+        byId[id] = polygon as L.Polygon;
+        polygon.on("click", () => select(id));
+        polygon.on("mouseover", () => {
+          hovered.current = id;
+          restyle(id);
+        });
+        polygon.on("mouseout", () => {
+          hovered.current = null;
+          restyle(id);
+        });
+      },
+    }).addTo(m);
+    m.fitBounds(layer.getBounds());
+    // a tap on the map closes the list; a tap on an area also selects it
+    m.on("click", () => mapClick());
+    return () => {
+      m.remove();
+      map.current = undefined;
+    };
+  }, [areas, lookup]);
+
+  useEffect(() => {
+    // only the areas that changed: a highlight moves with every arrow key
+    for (const id of new Set([...touched.current, selected, highlighted])) if (id) restyle(id);
+    touched.current = [selected, highlighted];
+  }, [active, selected, highlighted]);
+
+  useEffect(() => {
+    if (selected) polygons.current[selected].bringToFront();
+    Object.values(polygons.current).forEach((polygon) => polygon.closeTooltip()); // a hover tooltip would stay open after the map moves
+  }, [selected]);
+
+  useEffect(() => {
+    if (!pin) return;
+    const marker = L.circleMarker(pin.ll, {
+      radius: 7,
+      color: "#fff",
+      weight: 3,
+      fillColor: BRAND,
+      fillOpacity: 1,
+      interactive: false,
+    })
+      .bindTooltip(pin.label, { permanent: true, direction: "top", className: "body-md" })
+      .addTo(map.current!);
+    return () => {
+      marker.remove();
+    };
+  }, [pin]);
+
+  useImperativeHandle(ref, () => ({
+    // a fly (zoom out, pan, zoom in) reads smoother than a straight jump; the motion token is 0 under reduced motion
+    flyTo(id) {
+      const ms = parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue("--duration-slow"),
+      );
+      Object.values(polygons.current).forEach((polygon) => polygon.closeTooltip());
+      map.current!.flyToBounds(polygons.current[id].getBounds(), {
+        ...props.flyPadding(),
+        duration: ms / 1000,
+        animate: ms > 0,
+      });
+    },
+  }));
+
+  // own stacking context: Leaflet's controls stay below the search (z-search)
+  return <div id="map" ref={container} className="z-0 h-full" />;
+}
