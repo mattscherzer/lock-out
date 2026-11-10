@@ -14,7 +14,7 @@ Work in progress; see [docs/product-roadmap.md](docs/product-roadmap.md) for the
 | Data audit | Works (`lockout.cli.audit`); stops on a missing column, too few rows or an unknown area ID |
 | Cleaning, backtest, Empirical Bayes model, lookup generator | Working on real data (`lockout.cli.clean`, `.backtest`, `.build_lookup`, `.validate`) |
 | `lookup_schema_v1.json` | Written by `lockout.cli.build_lookup`; shape locked by `schemas/lookup_v1.schema.json` |
-| Frontend (`frontend/`) | React + TypeScript + Vite + Leaflet app that reads the static JSON in `frontend/public/`; runs locally. `pages.yaml` still deploys only the older `demo/` prototype |
+| Frontend (`frontend/`) | React + TypeScript + Vite + Leaflet app that reads the static JSON in `frontend/public/`; released weekly to GitHub Pages (see Releases) |
 | Weekly refresh workflow | Fetches, audits and schema-checks, then opens a PR. The step that regenerates the lookup is still commented out in `refresh_data.yaml`, so a PR opens only on a dry run until it is switched on |
 | OSM Poisson GLM | Tested as a candidate (`lockout.cli.glm`, `docs/glm-results.md`); not adopted for the MVP |
 
@@ -97,7 +97,8 @@ lock-out/
 ├── .github/workflows/
 │   ├── refresh_data.yaml                # Weekly fetch, audit, schema check and PR
 │   ├── tests.yaml                       # uv run pytest on every PR and push to main
-│   └── pages.yaml                       # GitHub Pages deploy of demo/
+│   ├── release.yaml                     # Weekly tag and GitHub Release when frontend/ changed
+│   └── deploy.yaml                      # Builds a v* tag and deploys it to GitHub Pages
 ├── data/
 │   ├── raw/                             # LOR polygons (tracked), police CSV (git-ignored)
 │   └── processed/lookup_schema_v1.json  # The precomputed lookup
@@ -189,6 +190,15 @@ The GitHub Actions workflow `.github/workflows/refresh_data.yaml` runs every Mon
 2. Runs `uv run python -m lockout.cli.fetch` to pull fresh data from `polizei-berlin.eu` (or retain the cached copy if the portal is down).
 3. Runs `uv run python -m lockout.cli.audit`. The line that runs `lockout.cli.build_lookup` to regenerate `data/processed/lookup_schema_v1.json` is still commented out.
 4. Checks the lookup against the schema and opens a pull request when `data/processed/lookup_schema_v1.json` changed; `main` is branch-protected, so a direct push is not possible. A manual run with **Dry run** ticked opens the PR even without a data change, to test this path; close that PR without merging.
+
+---
+
+## 🚢 Releases
+
+The site is `https://mattscherzer.github.io/lock-out/`. Every Wednesday at `06:00 UTC` (`.github/workflows/release.yaml`) the workflow checks whether `frontend/` or `docs/design-system/` changed since the last `vMAJOR.MINOR.PATCH` tag. If so, it builds and tests, tags `main` with the next minor version (the first release is `v1.0.0`), publishes a GitHub Release with generated notes and starts `deploy.yaml`, which builds that tag and deploys it. No change means no release.
+
+- **Out of cycle:** run *Release* manually and pick `patch`, `minor` or `major`. It only runs from `main`.
+- **Roll back:** run *Deploy to GitHub Pages* with *Use workflow from* set to an older `v*` tag. The `github-pages` environment accepts nothing but `v*` tags, so `main` never deploys directly.
 
 ---
 

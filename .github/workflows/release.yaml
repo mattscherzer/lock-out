@@ -1,0 +1,75 @@
+name: Release
+
+# Wednesday: the Monday data refresh PR has had two days to be merged.
+on:
+  schedule:
+    - cron: "0 6 * * 3"
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Version part to raise (the weekly run always raises minor)
+        type: choice
+        options: [minor, patch, major]
+        default: minor
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    # a tag cut from another branch would ship unreviewed code
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      BUMP: ${{ inputs.bump || 'minor' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # frontend/ and the design tokens are everything the deployed site is built from
+      - name: Next version
+        id: next
+        run: |
+          last=$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || true)
+          if [ -z "$last" ]; then
+            tag=v1.0.0
+          elif git diff --quiet "$last" HEAD -- frontend docs/design-system; then
+            echo "Nothing changed since $last; no release."
+            exit 0
+          else
+            IFS=. read -r major minor patch <<< "${last#v}"
+            case "$BUMP" in
+              major) tag=v$((major + 1)).0.0 ;;
+              minor) tag=v$major.$((minor + 1)).0 ;;
+              *) tag=v$major.$minor.$((patch + 1)) ;;
+            esac
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - if: steps.next.outputs.tag
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # never tag a red build
+      - if: steps.next.outputs.tag
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+          npm test
+
+      - if: steps.next.outputs.tag
+        run: |
+          gh release create "${{ steps.next.outputs.tag }}" --target "$GITHUB_SHA" --generate-notes
+          # a tag pushed with the workflow token starts no workflow, and the Pages environment only accepts runs from a tag
+          gh workflow run deploy.yaml --ref "${{ steps.next.outputs.tag }}"
