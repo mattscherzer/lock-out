@@ -197,8 +197,10 @@ The GitHub Actions workflow `.github/workflows/refresh_data.yaml` runs every Mon
 
 The site is `https://mattscherzer.github.io/lock-out/`. Every Wednesday at `06:00 UTC` (`.github/workflows/release.yaml`) the workflow checks whether `frontend/` or `docs/design-system/` changed since the last `vMAJOR.MINOR.PATCH` tag. If so, it builds and tests, tags `main` with the next minor version (the first release is `v1.0.0`), publishes a GitHub Release with generated notes and starts `deploy.yaml`, which builds that tag and deploys it. No change means no release.
 
-- **Out of cycle:** run *Release* manually and pick `patch`, `minor` or `major`. It only runs from `main`.
-- **Roll back:** run *Deploy to GitHub Pages* with *Use workflow from* set to an older `v*` tag. The `github-pages` environment accepts nothing but `v*` tags, so `main` never deploys directly.
+The site reads its own copy of the lookup, `frontend/public/lookup_schema_v1.json`. A merged data refresh only changes `data/processed/`, so it ships only after `python3 frontend/scripts/build_public.py` has regenerated the copy and that change is merged.
+
+- **Out of cycle:** run *Release* manually and pick `patch`, `minor` or `major`. It only runs from `main`, and it is still skipped when nothing changed since the last tag.
+- **Roll back, or deploy a tag whose deploy failed:** run *Deploy to GitHub Pages* with *Use workflow from* set to that `v*` tag. A failed deploy leaves the tag in place, so the next weekly run sees no change and does not retry it. The `github-pages` environment accepts nothing but `v*` tags, so `main` never deploys directly.
 
 ---
 
