@@ -201,6 +201,7 @@ The site reads its own copy of the lookup, `frontend/public/lookup_schema_v1.jso
 
 - **Out of cycle:** run *Release* manually and pick `patch`, `minor` or `major`. It only runs from `main`, and it is still skipped when nothing changed since the last tag.
 - **Roll back, or deploy a tag whose deploy failed:** run *Deploy to GitHub Pages* with *Use workflow from* set to that `v*` tag. A failed deploy leaves the tag in place, so the next weekly run sees no change and does not retry it. The `github-pages` environment accepts nothing but `v*` tags, so `main` never deploys directly.
+- **Approval:** every deploy waits for approval from `mattscherzer` (required reviewer on the `github-pages` environment), so a stray `v*` tag cannot ship by itself. After the weekly release, approve the pending *Deploy* run in the Actions tab. The ruleset *Release tags are immutable* stops released tags from being moved or deleted.
 
 ---
 
