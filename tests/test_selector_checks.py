@@ -5,10 +5,18 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from audit_checks import polygon_ids
-from models.eb import evaluate, selector_flags
-from models.selector_checks import MIN_MEDIAN_PER_LEVEL, area_shares, flag, holdout, level_counts, levels, share_strength
-from pipeline.clean import clean
+from lockout.geo.lor import polygon_ids
+from lockout.models.evaluate import evaluate, selector_flags
+from lockout.models.selectors import (
+    MIN_MEDIAN_PER_LEVEL,
+    area_shares,
+    flag,
+    holdout,
+    level_counts,
+    levels,
+    share_strength,
+)
+from lockout.pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 
@@ -24,13 +32,18 @@ def thefts(rows):
 
 def test_level_counts_per_selector():
     # 2026-06-01 is a Monday, 06-05 a Friday, 06-06 a Saturday; the July row is outside the period.
-    df = thefts([
-        ("A", "2026-06-01", "2026-06-01", "500", 0.5),
-        ("A", "2026-06-05", "2026-06-05", "1000", 0.8),
-        ("B", "2026-06-06", "2026-06-06", None, 0.0),
-        ("B", "2026-07-01", "2026-07-01", "2000", 0.8),
-    ])
-    count = lambda s: level_counts(df, ["A", "B", "C"], s, "2026-06-01", "2026-06-30")
+    df = thefts(
+        [
+            ("A", "2026-06-01", "2026-06-01", "500", 0.5),
+            ("A", "2026-06-05", "2026-06-05", "1000", 0.8),
+            ("B", "2026-06-06", "2026-06-06", None, 0.0),
+            ("B", "2026-07-01", "2026-07-01", "2000", 0.8),
+        ]
+    )
+
+    def count(selector):
+        return level_counts(df, ["A", "B", "C"], selector, "2026-06-01", "2026-06-30")
+
     assert count("time_band").loc["A"].tolist() == pytest.approx([1.3, 0.2, 0.2, 0.3])
     assert count("day_group").to_dict("index")["A"] == {"Mon_Thu": 1, "Friday": 1, "Weekend": 0}
     assert count("day_group").loc["B", "Weekend"] == 1
@@ -85,6 +98,7 @@ def test_holdout_finds_area_patterns_when_areas_really_differ():
     assert result["median"] == 3  # per area: 24 or 0 morning, 3 afternoon, 3 evening, 0 or 24 night
     assert result["area"] < result["citywide"]
 
+
 def test_flag_through_holdout_at_low_and_ten_times_the_counts():
     # Area A loses mostly bikes worth EUR 1000 or more, B mostly cheaper ones, in the history and both folds alike.
     def flagged(n):
@@ -93,7 +107,10 @@ def test_flag_through_holdout_at_low_and_ten_times_the_counts():
             rows += [("A", day, day, "2000", 0.0)] * (2 * n) + [("A", day, day, "500", 0.0)] * n
             rows += [("B", day, day, "2000", 0.0)] * n + [("B", day, day, "500", 0.0)] * (2 * n)
         df = thefts(rows)
-        folds = [(("2026-01-01", "2026-03-31"), ("2026-04-01", "2026-06-30")), (("2026-01-01", "2026-06-30"), ("2026-07-01", "2026-09-30"))]
+        folds = [
+            (("2026-01-01", "2026-03-31"), ("2026-04-01", "2026-06-30")),
+            (("2026-01-01", "2026-06-30"), ("2026-07-01", "2026-09-30")),
+        ]
         return flag([holdout(df, ["A", "B"], [3 * n, 3 * n], history, fold, "bike_value") for history, fold in folds])
 
     assert flagged(1)["pattern"] == "citywide pattern" and flagged(1)["reason"].startswith("too sparse")
@@ -103,10 +120,14 @@ def test_flag_through_holdout_at_low_and_ten_times_the_counts():
 def test_sample_data_is_too_sparse_for_every_selector():
     raw = pd.read_csv(FIXTURE, encoding="iso-8859-1", dtype={"LOR": str})
     cleaned = clean(raw[raw["LOR"] != "99999999"])
-    cleaned["LOR"] = cleaned["LOR"].str.zfill(8)
     flags = selector_flags(evaluate(cleaned, sorted(polygon_ids())))
     assert set(flags) == {"time_band", "day_group", "bike_value"}
     assert all(f["pattern"] == "citywide pattern" and f["reason"].startswith("too sparse") for f in flags.values())
+
+
+def test_an_unknown_start_date_counts_in_no_day_group():
+    df = thefts([("A", "2026-06-01", None, "500", 0.0), ("A", "2026-06-01", "2026-06-06", "500", 0.0)])
+    assert levels(df, "day_group").sum(axis=1).tolist() == [0, 1]
 
 
 def test_a_zero_value_counts_in_neither_bike_value_level():

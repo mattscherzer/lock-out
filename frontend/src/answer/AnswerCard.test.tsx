@@ -1,6 +1,8 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { createRef } from "react";
 import { afterEach, expect, it, vi } from "vitest";
-import { AnswerCard, higherPx, type CardState } from "./AnswerCard.tsx";
+import { AnswerCard, type AnswerCardHandle } from "./AnswerCard.tsx";
+import { higherPx } from "./sheetStops.ts";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -53,12 +55,9 @@ it("puts the advice above the details when given", () => {
   ).toBeTruthy();
 });
 
-it("no-data keeps the verdict; empty and error replace it", () => {
+it("no-data keeps the verdict; error replaces it", () => {
   const { rerender } = render(card({ state: "no-data" }));
   expect(screen.getByText("What does this mean?")).toBeTruthy();
-  rerender(card({ state: "empty" }));
-  expect(screen.getByText("Nothing to show yet")).toBeTruthy();
-  expect(screen.queryByText("What does this mean?")).toBeNull();
   rerender(card({ state: "error" }));
   expect(screen.getByText("Could not load this area")).toBeTruthy();
   expect(screen.queryByText("details")).toBeNull();
@@ -186,9 +185,11 @@ it("does not drag from 600px up", () => {
   expect(stop()).toBe("higher");
 });
 
-it("lowers the phone sheet when the signal changes", () => {
-  const { rerender } = render(card({ lowerSignal: 0 }));
-  rerender(card({ lowerSignal: 1 }));
+it("lowers the phone sheet when told to", () => {
+  asPhone();
+  const handle = createRef<AnswerCardHandle>();
+  render(card({ ref: handle }));
+  act(() => handle.current!.lower());
   expect(stop()).toBe("lowered");
 });
 

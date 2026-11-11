@@ -5,11 +5,14 @@ import pandas as pd
 import pytest
 from jsonschema import Draft202012Validator
 
-from audit_checks import polygon_ids
-from lookup_schema import PUBLIC_COPY, LOOKUP, SCHEMA, load, problems
-from models.area_stats import confidence_thresholds
-from models.eb import SCHEMA_VERSION, evaluate, generate, selector_flags, write_lookup
-from pipeline.clean import clean
+from lockout.geo.lor import area_names, polygon_ids
+from lockout.lookup.generate import SCHEMA_VERSION, generate, write_lookup
+from lockout.lookup.schema import load, problems
+from lockout.models.area_stats import confidence_thresholds
+from lockout.models.evaluate import evaluate, selector_flags
+from lockout.paths import LOOKUP, SCHEMA
+from lockout.paths import PUBLIC_LOOKUP as PUBLIC_COPY
+from lockout.pipeline.clean import clean, cutoff
 
 SAMPLE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 
@@ -19,18 +22,25 @@ def output():
     """The generator's output on the committed sample data."""
     raw = pd.read_csv(SAMPLE, encoding="iso-8859-1", dtype={"LOR": str})
     cleaned = clean(raw[raw["LOR"] != "99999999"])
-    cleaned["LOR"] = cleaned["LOR"].str.zfill(8)
     areas = sorted(polygon_ids())
     reports_up_to = cleaned["ANGELEGT_AM"].max()
     flags = selector_flags(evaluate(cleaned, areas))
-    return generate(cleaned, areas, reports_up_to, reports_up_to - pd.Timedelta(days=14), "sample.csv", flags)
+    return generate(cleaned, areas, area_names(), reports_up_to, cutoff(cleaned), "sample.csv", flags)
 
 
 def test_the_schema_itself_is_valid_and_accepts_every_1_x_version(output):
     Draft202012Validator.check_schema(load(SCHEMA))
     assert output["metadata"]["schema_version"] == SCHEMA_VERSION
     # a minor bump (1.1.0) must not need a change to this rule; a new major version (2.0.0) must
-    for version, ok in [("1.0.0", True), ("1.1.0", True), ("1.12.3", True), ("2.0.0", False), ("1.1", False), ("1.00.0", False), ("1.0.0\n", False)]:
+    for version, ok in [
+        ("1.0.0", True),
+        ("1.1.0", True),
+        ("1.12.3", True),
+        ("2.0.0", False),
+        ("1.1", False),
+        ("1.00.0", False),
+        ("1.0.0\n", False),
+    ]:
         doc = copy.deepcopy(output)
         doc["metadata"]["schema_version"] = version
         assert (problems(doc) == []) == ok, version
@@ -47,14 +57,14 @@ def test_committed_files_match_the_schema(path):
 
 
 def test_the_committed_lookup_carries_the_generators_version_and_thresholds():
-    # a stale lookup can still match the schema; after a version bump, rerun src/models/eb.py on the pinned CSV
+    # a stale lookup can still match the schema; after a version bump, rerun lockout.cli.build_lookup on the pinned CSV
     meta = load(LOOKUP)["metadata"]
     assert meta["schema_version"] == SCHEMA_VERSION
     assert meta["confidence_thresholds"] == confidence_thresholds()
 
 
 def test_the_frontend_copy_is_a_copy_of_the_committed_lookup():
-    # a stale copy can still match the schema; after eb.py, run frontend/scripts/build_public.py
+    # a stale copy can still match the schema; after build_lookup, run lockout.cli.build_public
     assert load(PUBLIC_COPY) == load(LOOKUP)
 
 

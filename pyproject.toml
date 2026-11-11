@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "lock-out"
 version = "0.1.0"
@@ -11,11 +15,11 @@ dependencies = [
     "osmnx>=1.9.0",
     "scikit-learn>=1.4.0",
     "statsmodels>=0.14.0",
-    "fastapi>=0.110.0",
-    "uvicorn>=0.27.0",
-    "pytest>=8.0.0",
     "jsonschema>=4.26.0",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lockout"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
@@ -23,4 +27,17 @@ pythonpath = ["src"]
 [dependency-groups]
 dev = [
     "ipykernel>=7.4.0",
+    "pytest>=8.0.0",
+    "ruff",
 ]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/lockout/cli/*.py" = ["E501"]

@@ -1,0 +1,13 @@
+import type { AreaRecord, Grade, Lookup } from "./lookup.ts";
+
+export type Tier = "low" | "medium" | "high" | "no-data";
+export type Kind = Tier | "limited";
+
+const TIER: Record<Grade, Tier> = { LOW: "low", MEDIUM: "medium", HIGH: "high" };
+
+export const tierOf = (a: AreaRecord): Tier => (a.no_record ? "no-data" : TIER[a.tier]);
+export const kindOf = (a: AreaRecord): Kind =>
+  a.no_record ? "no-data" : a.limited_data ? "limited" : tierOf(a);
+export const topShare = (bands: Lookup["risk_bands"]) =>
+  Math.round((1 - bands.HIGH.min_percentile) * 100);
+export const colour = (kind: Kind) => `var(--risk-${kind === "limited" ? "no-data" : kind})`;

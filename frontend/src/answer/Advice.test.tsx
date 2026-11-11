@@ -3,7 +3,7 @@ import { expect, it } from "vitest";
 import { adviceFor, CATALOG, DEFAULT_BIKE_VALUE } from "../advice/advice.ts";
 import { STRINGS } from "../strings.ts";
 import { AreaAnswer } from "./AreaAnswer.tsx";
-import { attribution, bands, metadata, rec, selectors } from "./testData.ts";
+import { attribution, bands, metadata, rec, selectors } from "../domain/testData.ts";
 
 const A = STRINGS.advice;
 const answer = (over = {}, areaId = "1") => (
@@ -12,7 +12,6 @@ const answer = (over = {}, areaId = "1") => (
     areaId={areaId}
     lookup={{ risk_bands: bands, metadata: { ...metadata, attribution }, selectors, areas: {} }}
     open
-    lowerSignal={0}
     onClose={() => {}}
     onAbout={() => {}}
   />

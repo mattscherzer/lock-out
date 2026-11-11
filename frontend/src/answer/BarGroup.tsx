@@ -1,4 +1,5 @@
-import type { Selector } from "../search/types.ts";
+import type { Selector } from "../domain/lookup.ts";
+import { STRINGS } from "../strings.ts";
 
 const BAR_MAX = 56;
 
@@ -22,7 +23,10 @@ export function BarGroup({
       <div className="title-sm">{label}</div>
       <div
         role="img"
-        aria-label={`${label}: ${values.map(([key, v]) => `${labels[key]} ${Math.round(v)}%`).join(", ")}`}
+        aria-label={STRINGS.details.chart(
+          label,
+          values.map(([key, v]) => `${labels[key]} ${Math.round(v)}%`),
+        )}
         className="flex items-end gap-1.5"
       >
         {values.map(([key, v]) => (

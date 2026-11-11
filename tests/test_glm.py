@@ -4,11 +4,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from audit_checks import polygon_ids
-from models.eb import evaluate
-from models.glm import CANDIDATES, LABELS, compare, design, eb_toward, glm_rate, markdown, verdict
-from models.osm_features import KINDS
-from pipeline.clean import clean
+from lockout.cli.glm import LABELS, markdown
+from lockout.geo.lor import polygon_ids
+from lockout.geo.osm_features import KINDS
+from lockout.models.evaluate import evaluate
+from lockout.models.glm import CANDIDATES, compare, design, eb_toward, glm_rate, verdict
+from lockout.pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 
@@ -66,23 +67,22 @@ def test_verdict_keeps_only_a_candidate_that_passes_every_check():
     shuffled = pd.Series([3.0, 9, 0, 6, 1, 8, 2, 7, 4, 5], index=index)
     glm, toward = CANDIDATES
     folds = [
-        fold({"EB v0": 1.0, glm: 0.9, toward: 0.9}, {"EB v0": same, glm: same, toward: same}),
-        fold({"EB v0": 1.0, glm: 0.9, toward: 1.1}, {"EB v0": same, glm: same, toward: same}),
+        fold({"eb": 1.0, glm: 0.9, toward: 0.9}, {"eb": same, glm: same, toward: same}),
+        fold({"eb": 1.0, glm: 0.9, toward: 1.1}, {"eb": same, glm: same, toward: same}),
     ]
     result = verdict(folds)
     assert result[glm]["keep"] is True
     assert result[toward]["keep"] is False  # worse than EB v0 on the second fold
-    assert [ok for _, _, ok in result[toward]["checks"]] == [True, False, True]
+    assert [ok for *_, ok in result[toward]["checks"]] == [True, False, True]
     folds[1]["rates"][glm] = shuffled  # better on both folds, but the ranking changes between folds
     result = verdict(folds)
     assert result[glm]["keep"] is False
-    assert [ok for _, _, ok in result[glm]["checks"]] == [True, True, False]
+    assert [ok for *_, ok in result[glm]["checks"]] == [True, True, False]
 
 
 def cleaned_fixture():
     raw = pd.read_csv(FIXTURE, encoding="iso-8859-1", dtype={"LOR": str})
     cleaned = clean(raw[raw["LOR"] != "99999999"])
-    cleaned["LOR"] = cleaned["LOR"].str.zfill(8)
     return cleaned
 
 
@@ -91,15 +91,17 @@ def test_compare_scores_every_model_on_both_folds():
     folds = compare(cleaned_fixture(), areas, synthetic_features(areas))
     assert len(folds) == 2
     for f in folds:
-        assert list(f["scores"]) == ["Citywide share", "Raw area history", "EB v0", *CANDIDATES]
+        assert list(f["scores"]) == ["citywide", "raw", "eb", *CANDIDATES]
         assert all(np.isfinite(s["deviance"]) for s in f["scores"].values())
         assert all(len(r) == 542 and (r > 0).all() for r in f["rates"].values())
         assert list(f["coefficients"].index) == ["const", *KINDS, "log_area_km2"]
     # EB v0 scores as in docs/eb-model-results.md: the same model, windows and scaling
-    assert [f["scores"]["EB v0"]["deviance"] for f in folds] == pytest.approx([r["deviance"] for r in evaluate(cleaned_fixture(), areas)])
+    assert [f["scores"]["eb"]["deviance"] for f in folds] == pytest.approx(
+        [r["deviance"] for r in evaluate(cleaned_fixture(), areas)]
+    )
     result = verdict(folds)
     assert set(result) == set(CANDIDATES)
-    assert all(r["keep"] == all(ok for _, _, ok in r["checks"]) for r in result.values())
+    assert all(r["keep"] == all(ok for *_, ok in r["checks"]) for r in result.values())
 
 
 def test_compare_refuses_a_table_that_misses_areas():

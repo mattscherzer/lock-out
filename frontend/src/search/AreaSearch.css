@@ -22,7 +22,7 @@
   outline: var(--border-2) solid transparent; /* shown in forced-colors mode */
 }
 
-.area-search[data-list] {
+.area-search[data-open] {
   border-radius: var(--radius-lg);
   box-shadow:
     var(--elevation-3),
@@ -44,7 +44,7 @@
   box-sizing: border-box;
 }
 
-.area-search[data-list] .area-search-field {
+.area-search[data-open] .area-search-field {
   height: 56px;
   border-bottom: var(--border-1) solid var(--outline-variant);
 }

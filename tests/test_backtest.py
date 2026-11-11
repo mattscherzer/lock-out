@@ -4,26 +4,29 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from audit_checks import polygon_ids
-from models.backtest import backtest, baselines, counts, score
-from pipeline.clean import clean
+from lockout.cli.backtest import display
+from lockout.geo.lor import polygon_ids
+from lockout.models.backtest import backtest, baselines, counts, score
+from lockout.pipeline.clean import clean
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 
 
 def test_counts_use_end_date_with_both_days_included():
-    df = pd.DataFrame({
-        "LOR": ["A"] * 4,
-        "TATZEIT_ENDE_DATUM": pd.to_datetime(["2026-03-31", "2026-04-01", "2026-06-30", "2026-07-01"]),
-    })
+    df = pd.DataFrame(
+        {
+            "LOR": ["A"] * 4,
+            "TATZEIT_ENDE_DATUM": pd.to_datetime(["2026-03-31", "2026-04-01", "2026-06-30", "2026-07-01"]),
+        }
+    )
     assert counts(df, ["A", "B"], "2026-04-01", "2026-06-30").tolist() == [2, 0]
 
 
 def test_baselines_scale_to_fold_length_and_replace_zero():
     history = pd.Series([0, 10, 20], index=["A", "B", "C"])
-    predicted = baselines(history, history_days=10, test_days=5)
-    assert predicted["Citywide share"].tolist() == [5, 5, 5]
-    assert predicted["Raw area history"].tolist() == [0.25, 5, 10]
+    predicted = baselines(history, scale=0.5)
+    assert predicted["citywide"].tolist() == [5, 5, 5]
+    assert predicted["raw"].tolist() == [0.25, 5, 10]
 
 
 def test_constant_prediction_has_no_spearman():
@@ -37,8 +40,9 @@ def test_backtest_reports_both_baselines_on_both_folds():
     raw = raw[raw["LOR"] != "99999999"]
     table = backtest(clean(raw), sorted(polygon_ids()))
     assert len(table) == 4
-    assert set(table["Baseline"]) == {"Citywide share", "Raw area history"}
-    assert table["Fold"].nunique() == 2
+    assert set(table["baseline"]) == {"citywide", "raw"}
+    assert table["fold"].nunique() == 2
+    assert display(table)["Spearman"].tolist()[0] == "n/a"  # the citywide share ranks nothing
 
 
 def test_backtest_windows_and_a_hand_computed_value():
@@ -51,11 +55,15 @@ def test_backtest_windows_and_a_hand_computed_value():
         [(area, day) for area, days in ends.items() for day in days], columns=["LOR", "TATZEIT_ENDE_DATUM"]
     )
     df["TATZEIT_ENDE_DATUM"] = pd.to_datetime(df["TATZEIT_ENDE_DATUM"])
-    row = backtest(df, ["A", "B"]).iloc[1]  # fold 1, raw area history
+    results = backtest(df, ["A", "B"])
+    row = results.iloc[1]  # fold 1, raw area history
     # History: A = 4 (the day before the window is out, the first test day is not history), B = 0, so 0.5.
     # Predictions scaled by 91/365: A = 0.99726, B = 0.12466. Actual: A = 1, B = 2.
     # Deviance per area 2 * (y * ln(y / mu) - (y - mu)): A = 0.0000075, B = 7.3506; mean = 3.675.
-    assert row["Baseline"] == "Raw area history"
-    assert row["Thefts in fold"] == 3
-    assert row["Mean Poisson deviance"] == "3.675"
-    assert row["Spearman"] == "-1.000"
+    assert row["baseline"] == "raw"
+    assert row["thefts"] == 3
+    assert row["deviance"] == pytest.approx(3.6753, abs=1e-4)
+    assert row["spearman"] == pytest.approx(-1.0)
+    shown = display(results).iloc[1]
+    assert shown["Baseline"] == "Raw area history"
+    assert (shown["Mean Poisson deviance"], shown["Spearman"]) == ("3.675", "-1.000")

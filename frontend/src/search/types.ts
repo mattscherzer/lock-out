@@ -1,40 +1,7 @@
-export type Share = [id: string, pct: number];
-export type Area = { name: string; bzr_name: string };
-export type Areas = Record<string, Area>;
-export type Station = [name: string, kind: string, id: string, lat: number, lon: number];
-export type Gazetteer = { plz: Record<string, Share[]>; stations: Station[] };
-// gazetteer_streets.json: shares are [index into ids, pct]; streets nest as bezirk -> street type -> name.
-export type StreetsFile = {
-  ids: string[];
-  streets: Record<string, Record<string, Record<string, [number, number][]>>>;
-};
-
-export type AreaRecord = Area & {
-  tier: "LOW" | "MEDIUM" | "HIGH";
-  reports_12m: number;
-  confidence: "LOW" | "MEDIUM" | "HIGH"; // never recomputed from reports_12m
-  limited_data: boolean;
-  no_record: boolean;
-};
-export type Selector = { shares: Record<string, number>; pattern: string };
-export type Band = { min_percentile: number; max_percentile: number };
-export type Lookup = {
-  risk_bands: { LOW: Band; MEDIUM: Band; HIGH: Band };
-  metadata: {
-    attribution: { police: string; osm: string; lor: string };
-    data_window: { start: string; end: string };
-    reports_up_to: string;
-    truncation_lag_days: number;
-    confidence_thresholds: { limited_below: number; plenty_from: number };
-  };
-  selectors: { time_band: Selector; day_group: Selector };
-  areas: Record<string, AreaRecord>;
-};
-
-export type Kind = "postcode" | "station" | "street" | "area";
+export type PlaceKind = "postcode" | "station" | "street" | "area";
 export type Place = {
   label: string;
-  kind: Kind;
+  kind: PlaceKind;
   keys: string[];
   areas: { id: string; pct: number }[];
   sub?: string;
@@ -48,4 +15,7 @@ export type Row =
   | { type: "label"; place: Place }
   | { type: "area"; place: Place; id: string; pct: number | null }
   | { type: "more"; place: Place; n: number };
-export type Index = Record<Kind, Place[]>;
+export type Index = Record<PlaceKind, Place[]>;
+
+// How the area was found; null when the user picked an area by name.
+export type Context = { kind: PlaceKind; label: string; pct: number | null; ll?: [number, number] };

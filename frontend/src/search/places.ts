@@ -1,24 +1,25 @@
 // Place search over the static gazetteer: pure functions, no DOM, no network.
-// A place (postcode, street, station or area name) maps to one or more areas, largest share first.
 
-import type { Areas, Gazetteer, Index, Kind, Place, Row, Share, StreetsFile } from "./types.ts";
+import type { Areas } from "../domain/lookup.ts";
+import { STRINGS } from "../strings.ts";
+import type { Gazetteer, Share, StreetsFile } from "../data/files.ts";
+import type { Index, Place, PlaceKind, Row } from "./types.ts";
 
 // Proposals to tune after the usability test (#67).
 export const MAX_AREAS_PER_RESULT = 3; // the rest sit behind one "+N more areas" row
 export const MAX_ROWS = { mobile: 8, wide: 10 };
 
-// "01 - Mitte" -> "Mitte"
 export const bezirkLabel = (s: string) => s.replace(/^\d+\s*-\s*/, "");
 export const LOADING_DELAY_MS = 300; // a reply faster than this never flashes the loading rows
 
 // Fixed quick filters for the empty field, one per kind and across Bezirke; places.test.ts checks each against the shipped data.
 export const EXAMPLES = [
-  { label: "Kurfürstendamm", word: "Street" },
-  { label: "12043", word: "Postcode" },
-  { label: "Hermannplatz", word: "Station" },
-  { label: "Kollwitzplatz", word: "Area" },
-  { label: "Großer Müggelsee", word: "Water" },
-];
+  { label: "Kurfürstendamm", kind: "street", word: STRINGS.search.kind.street },
+  { label: "12043", kind: "postcode", word: STRINGS.search.kind.postcode },
+  { label: "Hermannplatz", kind: "station", word: STRINGS.search.kind.station },
+  { label: "Kollwitzplatz", kind: "area", word: STRINGS.search.kind.area },
+  { label: "Großer Müggelsee", kind: "water", word: STRINGS.search.kind.water },
+] as const;
 
 const UMLAUTS: Record<string, string> = { ä: "ae", ö: "oe", ü: "ue" };
 
@@ -46,7 +47,7 @@ export function parseQuery(q: string) {
 const placeIn = (
   areas: Areas,
   label: string,
-  kind: Kind,
+  kind: PlaceKind,
   list: Share[],
   extra: Partial<Place> = {},
 ): Place => ({
@@ -61,10 +62,9 @@ const placeIn = (
 });
 const kept = (places: Place[]) => places.filter((p) => p.areas.length > 0);
 
-// areas: id -> {name, bzr_name}. Gazetteer ids unknown to the map are dropped.
-// Streets come separately (addStreets) because their file is fetched on the first search.
+// Streets come separately (streetPlaces) because their file is fetched on the first search.
 export function buildIndex(gazetteer: Gazetteer, areas: Areas): Index {
-  const place = (label: string, kind: Kind, list: Share[], extra: Partial<Place> = {}) =>
+  const place = (label: string, kind: PlaceKind, list: Share[], extra: Partial<Place> = {}) =>
     placeIn(areas, label, kind, list, extra);
   const byName = Object.entries(areas)
     .map(([id, a]) =>
@@ -88,9 +88,7 @@ export function buildIndex(gazetteer: Gazetteer, areas: Areas): Index {
   };
 }
 
-// file: the fetched gazetteer_streets.json. An entry's areas are [[index into ids, pct], ...].
-// Fills index.street in place.
-export function addStreets(index: Index, file: StreetsFile | null | undefined, areas: Areas) {
+export function streetPlaces(file: StreetsFile | null | undefined, areas: Areas): Place[] {
   const { ids, streets } = file ?? {};
   if (!Array.isArray(ids) || !streets) throw new Error("gazetteer_streets.json: unexpected shape");
   const places: Place[] = [];
@@ -107,7 +105,7 @@ export function addStreets(index: Index, file: StreetsFile | null | undefined, a
           ),
         );
       }
-  index.street = kept(places);
+  return kept(places);
 }
 
 export const placeKey = (p: Place) => `${p.kind}|${p.label}|${p.bezirk}|${p.type}|${p.ll}`; // one name can repeat per Bezirk and type, and per station
@@ -180,3 +178,29 @@ export function searchPlaces(index: Index, text: string) {
     ns,
   );
 }
+
+// the place of the picked row first so Enter keeps it, then places in the same area
+export const rank = (p: Place, selected: string, picked?: string) =>
+  placeKey(p) === picked
+    ? 0
+    : p.areas.some((a) => a.id === selected)
+      ? p.kind === "area"
+        ? 1
+        : 2
+      : 3;
+
+export const statusText = (s: {
+  tooShort: boolean;
+  error: boolean;
+  loading: boolean;
+  results: number;
+}) =>
+  s.tooShort
+    ? STRINGS.search.live.tooShort
+    : s.error
+      ? ""
+      : s.loading
+        ? STRINGS.search.live.searching
+        : s.results
+          ? STRINGS.search.live.results(s.results)
+          : STRINGS.search.live.none;

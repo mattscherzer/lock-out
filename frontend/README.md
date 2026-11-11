@@ -11,10 +11,16 @@ npm run build      # typecheck, tokens.css drift check, production build
 
 ## Layout
 
-- `src/components/`: React components (`Name.tsx`) with their test next to them (`Name.test.tsx`). Hooks go in `src/hooks/`.
-- `src/search/`: place search logic. Pure functions in `places.ts`; the React search field and dropdown are `AreaSearch.tsx` (#87).
-- `src/main.tsx`: the Leaflet map stays imperative and mounts the React search component beside it.
-- `src/styles/`: tokens and base styles. `tokens.css` is generated, run `npm run tokens`.
+- `src/main.tsx` only loads the data and mounts `App`; a render error ends in `LoadError` through the error boundary.
+- `src/app/`: `App` composes the features and holds the selection state (`selection.ts`).
+- `src/map/`: the Leaflet map, legend and palette. `AreaMap.tsx` is the only module that drives Leaflet.
+- `src/search/`: place search; `src/answer/`: the area card; `src/advice/`: lock advice; `src/controls/`: the map buttons.
+- `src/domain/`: the lookup contract types and `kind`. `src/data/`: fetching, the file shapes and the check of the files against each other.
+- Dependencies: features depend on `domain/` and `data/`, never on each other or on `app/`; `data/` and `domain/` depend on no feature.
+- `src/boundaries.test.ts` enforces that rule, and bans value imports of `leaflet` outside `src/map/` (runs with `npm test`).
+- Shared test fixtures live in `src/domain/testData.ts`, so `domain/` tests do not import a feature.
+- Pure logic lives in `places.ts`, `advice.ts`, `selection.ts`, `sheetStops.ts` and `mapStyle.ts`, with its test beside it.
+- `src/strings.ts`: all UI copy. `src/styles/`: tokens and base styles; `tokens.css` is generated, run `npm run tokens`.
 - `scripts/`: Node scripts in TypeScript, run with `--experimental-strip-types`. Type annotations only: no enums or namespaces, and imports carry the `.ts` extension.
 
 ## Styling

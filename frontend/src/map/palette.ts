@@ -2,7 +2,7 @@ import { rememberPalette } from "./paletteStorage.ts";
 
 const listeners = new Set<() => void>();
 
-// the legend bar and the phone menu are separate React roots; both subscribe here
+// the legend bar and the phone menu both subscribe here
 export const subscribePalette = (fn: () => void) => {
   listeners.add(fn);
   return () => void listeners.delete(fn);

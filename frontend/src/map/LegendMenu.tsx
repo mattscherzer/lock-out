@@ -1,5 +1,6 @@
 import { Palette } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { STRINGS } from "../strings.ts";
 import { ITEMS, LegendItem } from "./LegendItem.tsx";
 import { PaletteRow } from "./PaletteRow.tsx";
 
@@ -29,7 +30,7 @@ export function LegendMenu() {
       <button
         type="button"
         className="grid size-control-md cursor-pointer place-items-center rounded-sm border-0 bg-surface-container-lowest text-on-surface shadow-elevation-2"
-        aria-label="Map legend"
+        aria-label={STRINGS.legend.label}
         aria-expanded={open}
         aria-controls="legend-list"
         onClick={() => setOpen(!open)}

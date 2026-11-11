@@ -2,24 +2,32 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import LineString, Point, box
 
-from models.osm_features import KINDS, count_features, feature_table, planning_areas
+from lockout.geo.osm_features import KINDS, count_features, feature_table, planning_areas
 
 
 def two_areas():
-    areas = gpd.GeoDataFrame({"area_km2": [1.0, 2.0]}, geometry=[box(0, 0, 1, 1), box(1, 0, 3, 1)],
-                             index=pd.Index(["A", "B"], name="plr_id"), crs="EPSG:4326")
+    areas = gpd.GeoDataFrame(
+        {"area_km2": [1.0, 2.0]},
+        geometry=[box(0, 0, 1, 1), box(1, 0, 3, 1)],
+        index=pd.Index(["A", "B"], name="plr_id"),
+        crs="EPSG:4326",
+    )
     return areas
 
 
 def test_each_feature_counts_once_in_the_area_it_lies_in():
-    features = gpd.GeoDataFrame(geometry=[
-        Point(0.5, 0.5), Point(0.2, 0.8),  # A
-        Point(2.0, 0.5),  # B
-        LineString([(1.5, 0.5), (2.5, 0.5)]),  # a line inside B counts once
-        box(0.1, 0.1, 0.3, 0.3),  # a polygon inside A counts once
-        Point(5.0, 5.0),  # outside both areas
-        None,  # a feature without a geometry is skipped
-    ], crs="EPSG:4326")
+    features = gpd.GeoDataFrame(
+        geometry=[
+            Point(0.5, 0.5),
+            Point(0.2, 0.8),  # A
+            Point(2.0, 0.5),  # B
+            LineString([(1.5, 0.5), (2.5, 0.5)]),  # a line inside B counts once
+            box(0.1, 0.1, 0.3, 0.3),  # a polygon inside A counts once
+            Point(5.0, 5.0),  # outside both areas
+            None,  # a feature without a geometry is skipped
+        ],
+        crs="EPSG:4326",
+    )
     assert count_features(features, two_areas()).to_dict() == {"A": 3, "B": 2}
 
 

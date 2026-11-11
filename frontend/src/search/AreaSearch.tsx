@@ -1,141 +1,79 @@
+import { ArrowLeft, LoaderCircle, Search, X } from "lucide-react";
 import {
-  ArrowLeft,
-  ChevronDown,
-  LoaderCircle,
-  Mail,
-  MapPin,
-  Road,
-  Search,
-  TrainFront,
-  VectorPolygon,
-  X,
-} from "lucide-react";
-import { useEffect, useEffectEvent, useId, useRef, useState, useSyncExternalStore } from "react";
+  useEffect,
+  useEffectEvent,
+  useId,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type Ref,
+} from "react";
 import "./AreaSearch.css";
 import {
-  bezirkLabel,
   buildRows,
   EXAMPLES,
-  isPlainStreet,
-  LOADING_DELAY_MS,
   MAX_ROWS,
   parseQuery,
   placeKey,
+  rank,
   searchPlaces,
+  statusText,
 } from "./places.ts";
-import type { Areas, Index, Kind, Place, Row } from "./types.ts";
+import { ExampleRows, ResultRows } from "./ResultRows.tsx";
+import { useStreets } from "./useStreets.ts";
+import { useVisualViewport } from "./useVisualViewport.ts";
+import type { Areas } from "../domain/lookup.ts";
+import { STRINGS } from "../strings.ts";
+import { WIDE } from "../viewport.ts";
+import type { Context, Index, Row } from "./types.ts";
 
-// How the area was found; null when the user picked an area by name.
-export type Context = { kind: Kind; label: string; pct: number | null; ll?: [number, number] };
+export type AreaSearchHandle = { close: () => void; focus: () => void };
+
 type Props = {
+  ref?: Ref<AreaSearchHandle>;
   index: Index;
   areas: Areas;
   selected: string | null;
   onSelect: (id: string, context: Context | null) => void;
   onClear: () => void;
   onHighlight?: (id: string | null) => void; // the area under the pointer or arrow keys in the open list
-  closeSignal?: number; // changing it closes the list, e.g. on a tap on the map
   loadStreets?: () => Promise<unknown>; // must reject on failure; retried on the next focus
 };
 
-const kindWord = (place: Place) =>
-  place.sub
-    ? `${place.sub} station`
-    : (place.type ??
-      { postcode: "Postcode", station: "Station", street: "Street", area: "Area" }[place.kind]); // type: Water, Square, Motorway...
-
-// Outline glyph per kind; one pin for the other named places (square, water, motorway, forest). The type is also written in words, so the glyph is never the only signal.
-const glyph = (place: Place) => {
-  if (place.kind === "area") return VectorPolygon;
-  if (place.kind === "postcode") return Mail;
-  if (place.kind === "station") return TrainFront;
-  return isPlainStreet(place) ? Road : MapPin;
-};
-
-const exampleGlyph = {
-  Street: Road,
-  Postcode: Mail,
-  Station: TrainFront,
-  Area: VectorPolygon,
-  Water: MapPin,
-}; // keyed by EXAMPLES' word
-
 // Write class strings out whole so Tailwind sees them; never build one from state.
-// shortcut: py-[10px], gap-[10px], pb-[6px], text-[13px]/[18px], min-w-[34px], rounded-[3px] are off the token scale, snap them later.
-const OPTION =
-  "box-border flex min-h-16 cursor-pointer items-center gap-3 px-4 py-[10px] aria-selected:bg-surface-container";
-const PARENT =
-  "area-search-parent box-border flex min-h-14 cursor-default items-center gap-3 px-4 pt-[10px] pb-[6px]";
-const CHILD =
-  "box-border flex min-h-tap-target cursor-pointer items-center gap-[10px] bg-surface py-2 pr-4 pl-16 aria-selected:bg-surface-container";
-const MORE =
-  "body-md box-border flex min-h-tap-target cursor-pointer items-center gap-2 py-2 pr-4 pl-16 font-semibold text-on-primary-container aria-selected:bg-surface-container";
-const GLYPH =
-  "grid size-9 flex-none place-items-center rounded-full bg-secondary-container text-on-secondary-container";
-const TEXT = "flex min-w-0 flex-1 flex-col";
-const NAME = "area-search-name body-lg line-clamp-2 [overflow-wrap:anywhere] [&_b]:font-semibold"; // area-search-name is a test hook, no CSS selects it
-const NAME_CHILD =
-  "area-search-name body-md line-clamp-2 font-medium [overflow-wrap:anywhere] [&_b]:font-semibold";
-const SUB = "mt-0.5 truncate text-[13px]/[18px] text-on-surface-variant";
-const SUB_CHILD = "body-sm truncate text-on-surface-variant";
-const BAR = "h-1.5 w-11 flex-none overflow-hidden rounded-[3px] bg-outline-variant";
-const PCT = "body-sm min-w-[34px] flex-none text-right font-semibold text-on-primary-container";
+const S = STRINGS.search;
+const ICON_PX = 22;
 const NOTE = "body-sm m-0 px-4 py-3 text-on-surface-variant";
 const LABEL = "body-sm m-0 px-4 pt-3 pb-1 font-semibold text-on-surface-variant";
 const MESSAGE = "body-sm p-6 text-on-surface-variant";
 const MESSAGE_TITLE = "body-lg m-0 mb-1 font-semibold";
 const ICON_BOX = "grid size-tap-target flex-none place-items-center text-on-surface-variant";
-const SKELETON_ROW = "box-border flex min-h-16 items-center gap-3 px-4 py-[10px]";
+const SKELETON_ROW = "box-border flex min-h-16 items-center gap-3 px-4 py-2";
 const PULSE = "animate-pulse bg-surface-container motion-reduce:animate-none";
 const HINTS =
-  "body-sm hidden flex-none gap-4 border-t border-outline-variant bg-surface px-4 py-[10px] text-on-surface-variant min-[900px]:flex";
+  "body-sm hidden flex-none gap-4 border-t border-outline-variant bg-surface px-4 py-3 text-on-surface-variant min-[900px]:flex";
 
-const rowKey = (r: Row) =>
-  r.type === "area" ? `${placeKey(r.place)}|${r.id}` : `${r.type}|${placeKey(r.place)}`; // a place spans several areas
-const WIDE = "(min-width: 600px)"; // tablet and desktop: more rows
 const subscribeWide = (cb: () => void) => {
   const m = window.matchMedia?.(WIDE);
   m?.addEventListener("change", cb);
   return () => m?.removeEventListener("change", cb);
 };
-// the place of the picked row first so Enter keeps it, then places in the same area
-const rank = (p: Place, selected: string, picked?: string) =>
-  placeKey(p) === picked
-    ? 0
-    : p.areas.some((a) => a.id === selected)
-      ? p.kind === "area"
-        ? 1
-        : 2
-      : 3;
-
-// shortcut: matches the typed text literally, so "muller" does not bold the "Mü" of "Müller"; fold-aware offsets if it matters.
-function Bold({ text, part }: { text: string; part: string }) {
-  const at = part ? text.toLowerCase().indexOf(part.toLowerCase()) : -1;
-  if (at < 0) return <>{text}</>;
-  return (
-    <>
-      {text.slice(0, at)}
-      <b>{text.slice(at, at + part.length)}</b>
-      {text.slice(at + part.length)}
-    </>
-  );
-}
-
 export function AreaSearch({
+  ref,
   index,
   areas,
   selected,
   onSelect,
   onClear,
   onHighlight,
-  closeSignal,
   loadStreets,
 }: Props) {
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
   const justFocused = useRef(false);
   const retrying = useRef(false); // focus returning from Try again must not select the typed text
-  const loading = useRef<Promise<void>>(undefined);
   const [draft, setDraft] = useState<string | null>(null); // what the user typed; null: the field shows the selected area
   const [chosen, setChosen] = useState<{ id: string; query: string; place: string }>(); // the area picked, the place it came from (placeKey) and the query that found it
   const [open, setOpen] = useState(false);
@@ -146,67 +84,49 @@ export function AreaSearch({
     () => ((window.matchMedia?.(WIDE).matches ?? true) ? MAX_ROWS.wide : MAX_ROWS.mobile),
     () => MAX_ROWS.wide,
   );
-  const [streetsLoading, setStreetsLoading] = useState(false);
-  const [streetsError, setStreetsError] = useState(false);
-  const [slow, setSlow] = useState(false); // loading has lasted past LOADING_DELAY_MS
-  const [, setLoaded] = useState(0); // bumped when street data arrives: addStreets fills index in place, so rerender to search again
-
-  // the soft keyboard overlays the page instead of resizing it, so size the full-screen panel to the visible area
-  useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const root = document.documentElement.style;
-    const fit = () => {
-      root.setProperty(
-        "--vv-covered",
-        `${Math.max(0, window.innerHeight - vv.offsetTop - vv.height)}px`,
-      ); // keyboard and Safari's floating bars
-      root.setProperty("--vv-top", `${vv.offsetTop}px`);
-    };
-    fit();
-    vv.addEventListener("resize", fit);
-    vv.addEventListener("scroll", fit);
-    return () => {
-      vv.removeEventListener("resize", fit);
-      vv.removeEventListener("scroll", fit);
-      root.removeProperty("--vv-top");
-      root.removeProperty("--vv-covered");
-    };
-  }, []);
+  const {
+    loading: streetsLoading,
+    error: streetsError,
+    slow,
+    load: loadNow,
+  } = useStreets(loadStreets);
+  useVisualViewport();
 
   const selectedName = selected ? (areas[selected]?.name ?? "") : "";
   const text = draft ?? selectedName;
   // a new selection (a pick, or a click on the map) replaces any draft; a pick from elsewhere forgets what found the last one
-  useEffect(() => {
+  const [seen, setSeen] = useState(selected);
+  if (selected !== seen) {
+    setSeen(selected);
     setDraft(null);
     setChosen((c) => (c?.id === selected ? c : undefined));
-  }, [selected]);
+  }
 
   const close = () => {
     setOpen(false);
     setDraft((d) => (selected ? null : d)); // an abandoned edit keeps the previous selection; with none, the draft stays
   };
-  const closeFromOutside = useEffectEvent(close);
-  useEffect(() => {
-    if (closeSignal) closeFromOutside();
-  }, [closeSignal]);
+  useImperativeHandle(ref, () => ({ close, focus: () => input.current?.focus() }));
 
   // field still shows the selection: list the results of the query that found it, so a different pick needs no retyping
   const showingSelection = draft === null && !!selected;
   const searchText = showingSelection && chosen?.id === selected ? chosen.query : text;
   const { text: query, houseNumber } = parseQuery(searchText);
-  const places = query.trim() ? searchPlaces(index, query) : [];
-  if (showingSelection)
-    places.sort((a, b) => rank(a, selected, chosen?.place) - rank(b, selected, chosen?.place));
-  const { rows: all, overflow } = buildRows(places, limit, expanded);
-  const rows = all.filter((r) => r.type !== "label"); // options; label rows are rendered between them
+  const { all, rows, overflow } = useMemo(() => {
+    const places = query.trim() ? searchPlaces(index, query) : [];
+    if (showingSelection && selected)
+      places.sort((a, b) => rank(a, selected, chosen?.place) - rank(b, selected, chosen?.place));
+    const { rows: all, overflow } = buildRows(places, limit, expanded);
+    // options; label rows are rendered between them
+    return { all, rows: all.filter((r) => r.type !== "label"), overflow };
+  }, [index, query, showingSelection, selected, chosen?.place, limit, expanded]);
   const picked = showingSelection
     ? rows.findIndex(
         (r) => r.type === "area" && r.id === selected && placeKey(r.place) === chosen?.place,
       )
     : -1;
   const empty = open && !query.trim(); // nothing typed: offer the examples
-  const count = empty ? EXAMPLES.length : rows.length; // options in the listbox
+  const count = empty ? EXAMPLES.length : rows.length;
   const current = Math.min(active ?? Math.max(picked, 0), count - 1);
   const shown = open && !!query.trim();
   const row = shown && active !== null ? rows[current] : undefined;
@@ -218,16 +138,6 @@ export function AreaSearch({
   }, [highlighted]);
   const tooShort = query.trim().length < 2; // searchPlaces needs two characters
 
-  useEffect(() => {
-    if (!streetsLoading) return;
-    const t = setTimeout(() => setSlow(true), LOADING_DELAY_MS);
-    return () => {
-      clearTimeout(t);
-      setSlow(false);
-    };
-  }, [streetsLoading]);
-
-  // keep the highlighted row in view while arrowing through a long list
   useEffect(() => {
     if ((shown || empty) && count)
       document.getElementById(`${id}-${current}`)?.scrollIntoView?.({ block: "nearest" });
@@ -265,23 +175,6 @@ export function AreaSearch({
     loadNow();
   };
 
-  const loadNow = () => {
-    if (!loadStreets || loading.current) return;
-    setStreetsLoading(true);
-    setStreetsError(false);
-    loading.current = loadStreets().then(
-      () => {
-        setStreetsLoading(false);
-        setLoaded((n) => n + 1);
-      },
-      () => {
-        setStreetsLoading(false);
-        setStreetsError(true);
-        loading.current = undefined;
-      },
-    );
-  };
-
   // the button unmounts once the load starts: hand focus back to the field so the keyboard user stays in the search
   const retry = () => {
     loadNow();
@@ -315,40 +208,31 @@ export function AreaSearch({
     }
   };
 
-  const status = !shown
-    ? ""
-    : tooShort
-      ? "Keep typing"
-      : streetsError
-        ? ""
-        : streetsLoading
-          ? "Searching"
-          : rows.length
-            ? `${rows.length} ${rows.length === 1 ? "result" : "results"}`
-            : "No results";
+  const status = shown
+    ? statusText({ tooShort, error: streetsError, loading: streetsLoading, results: rows.length })
+    : "";
 
   return (
     <div
       className="area-search"
       onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && close()}
       data-open={open || undefined}
-      data-list={open || undefined}
     >
       <div className="area-search-field">
         <button
           type="button"
           className="area-search-back"
-          aria-label="Close search"
+          aria-label={S.closeLabel}
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => {
             close();
             input.current?.blur();
           }}
         >
-          <ArrowLeft aria-hidden size={22} />
+          <ArrowLeft aria-hidden size={ICON_PX} />
         </button>
         <span className={`area-search-icon ${ICON_BOX}`} onClick={() => input.current?.focus()}>
-          <Search aria-hidden size={22} />
+          <Search aria-hidden size={ICON_PX} />
         </span>
         <input
           ref={input}
@@ -359,8 +243,8 @@ export function AreaSearch({
           aria-controls={`${id}-list`}
           aria-autocomplete="list"
           aria-activedescendant={(shown || empty) && count ? `${id}-${current}` : undefined}
-          aria-label="Search area, street, station or postcode"
-          placeholder="Street, postcode, area or station"
+          aria-label={S.inputLabel}
+          placeholder={S.placeholder}
           autoComplete="off"
           spellCheck={false}
           value={text}
@@ -380,14 +264,14 @@ export function AreaSearch({
         />
         {slow && streetsLoading && (
           <span className={ICON_BOX} aria-hidden>
-            <LoaderCircle className="animate-spin motion-reduce:animate-none" size={22} />
+            <LoaderCircle className="animate-spin motion-reduce:animate-none" size={ICON_PX} />
           </span>
         )}
         {text && !(slow && streetsLoading) && (
           <button
             type="button"
             className="area-search-clear"
-            aria-label="Clear search"
+            aria-label={S.clearLabel}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
               setDraft("");
@@ -397,23 +281,21 @@ export function AreaSearch({
               input.current?.focus();
             }}
           >
-            <X aria-hidden size={22} />
+            <X aria-hidden size={ICON_PX} />
           </button>
         )}
       </div>
       <div className="area-search-panel" hidden={!open}>
-        {houseNumber && (
-          <p className={NOTE}>House numbers aren't searchable yet, showing the street.</p>
-        )}
-        {shown && tooShort && <p className={NOTE}>Type at least two characters.</p>}
+        {houseNumber && <p className={NOTE}>{S.houseNumber}</p>}
+        {shown && tooShort && <p className={NOTE}>{S.tooShort}</p>}
         {shown && !tooShort && streetsError && (
           <div className={`area-search-error ${MESSAGE}`} role="alert">
             <p className={`${MESSAGE_TITLE} text-error`}>
-              {rows.length ? "Street search isn't available right now" : "Search isn't responding"}
+              {rows.length ? S.errorWithRows : S.errorNoRows}
             </p>
-            <p className="m-0 mb-1">We kept what you typed. Check your connection and try again.</p>
+            <p className="m-0 mb-1">{S.errorBody}</p>
             <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={retry}>
-              Try again
+              {S.retry}
             </button>
           </div>
         )}
@@ -423,136 +305,48 @@ export function AreaSearch({
               <li key={i} className={SKELETON_ROW}>
                 <span className={`size-9 flex-none rounded-full ${PULSE}`} />
                 <span className="flex flex-1 flex-col gap-2">
-                  <i className={`block h-[10px] w-3/5 rounded-full ${PULSE}`} />
-                  <i className={`block h-[10px] w-2/5 rounded-full ${PULSE}`} />
+                  <i className={`block h-3 w-3/5 rounded-full ${PULSE}`} />
+                  <i className={`block h-3 w-2/5 rounded-full ${PULSE}`} />
                 </span>
               </li>
             ))}
           </ul>
         )}
-        {empty && <p className={LABEL}>Try searching for</p>}
+        {empty && <p className={LABEL}>{S.tryTitle}</p>}
         {shown && !tooShort && !rows.length && !streetsLoading && !streetsError && (
           <div className={MESSAGE}>
-            <p className={`${MESSAGE_TITLE} text-on-surface`}>‘{query.trim()}’ not found</p>
-            <p className="m-0 mb-1">
-              lock-out covers Berlin only. Try a Berlin street, postcode, area or station.
-            </p>
+            <p className={`${MESSAGE_TITLE} text-on-surface`}>{S.notFound(query.trim())}</p>
+            <p className="m-0 mb-1">{S.berlinOnly}</p>
           </div>
         )}
         <ul
           id={`${id}-list`}
           role="listbox"
-          aria-label={empty ? "Examples" : "Areas"}
+          aria-label={empty ? S.examplesLabel : S.areasLabel}
           hidden={!count}
           onMouseDown={(e) => e.preventDefault()}
         >
-          {empty &&
-            EXAMPLES.map((ex, i) => {
-              const Glyph = exampleGlyph[ex.word as keyof typeof exampleGlyph];
-              return (
-                <li
-                  key={ex.label}
-                  id={`${id}-${i}`}
-                  role="option"
-                  aria-selected={i === current}
-                  className={OPTION}
-                  onClick={() => pickExample(ex.label)}
-                  onMouseMove={() => setActive(i)}
-                >
-                  <span className={GLYPH}>
-                    <Glyph aria-hidden size={18} strokeWidth={1.8} />
-                  </span>
-                  <span className={TEXT}>
-                    <span className={NAME}>{ex.label}</span>
-                    <span className={SUB}>{ex.word}</span>
-                  </span>
-                </li>
-              );
-            })}
-          {!empty &&
-            all.map((r) => {
-              const area = r.type === "area" ? areas[r.id] : undefined;
-              const Glyph = glyph(r.place);
-              const name = r.place.bezirk
-                ? `${r.place.label} (${bezirkLabel(r.place.bezirk)})`
-                : r.place.label;
-              const key = rowKey(r);
-              if (r.type === "label")
-                return (
-                  <li key={key} role="presentation" className={PARENT} title={name}>
-                    <span className={GLYPH}>
-                      <Glyph aria-hidden size={18} strokeWidth={1.8} />
-                    </span>
-                    <span className={TEXT}>
-                      <span className={NAME}>
-                        <Bold text={name} part={query.trim()} />
-                      </span>
-                      <span className={SUB}>
-                        {kindWord(r.place)} · in {r.place.areas.length} areas
-                      </span>
-                    </span>
-                  </li>
-                );
-              const i = rows.indexOf(r);
-              const common = {
-                id: `${id}-${i}`,
-                role: "option",
-                "aria-selected": i === current,
-                onClick: () => choose(r, true),
-                onMouseMove: () => setActive(i),
-              } as const;
-              if (r.type === "more")
-                return (
-                  <li key={key} {...common} className={MORE}>
-                    +{r.n} more areas for {name}
-                    <ChevronDown aria-hidden size={16} strokeWidth={2} />
-                  </li>
-                );
-              const child = r.pct != null; // under a label row the area is the subject
-              const full = child ? area!.name : name;
-              const sub =
-                child || r.place.kind === "area"
-                  ? `Area · ${bezirkLabel(area!.bzr_name)}`
-                  : `${kindWord(r.place)} · ${area!.name} · ${bezirkLabel(area!.bzr_name)}`;
-              return (
-                <li
-                  key={key}
-                  {...common}
-                  title={full}
-                  aria-label={child ? `${full}, ${sub}, in ${name}, ${r.pct}%` : undefined}
-                  className={child ? CHILD : OPTION}
-                >
-                  {!child && (
-                    <span className={GLYPH}>
-                      <Glyph aria-hidden size={18} strokeWidth={1.8} />
-                    </span>
-                  )}
-                  <span className={TEXT}>
-                    <span className={child ? NAME_CHILD : NAME}>
-                      <Bold text={full} part={query.trim()} />
-                    </span>
-                    <span className={child ? SUB_CHILD : SUB}>{sub}</span>
-                  </span>
-                  {child && (
-                    <>
-                      <span className={BAR} aria-hidden>
-                        <span
-                          className="block h-full rounded-[3px] bg-primary"
-                          style={{ width: `${r.pct}%` }}
-                        />
-                      </span>
-                      <span className={PCT}>{r.pct}%</span>
-                    </>
-                  )}
-                </li>
-              );
-            })}
+          {empty && (
+            <ExampleRows idPrefix={id} current={current} onPick={pickExample} onHover={setActive} />
+          )}
+          {!empty && (
+            <ResultRows
+              all={all}
+              rows={rows}
+              areas={areas}
+              idPrefix={id}
+              current={current}
+              query={query.trim()}
+              onChoose={(r) => choose(r, true)}
+              onHover={setActive}
+            />
+          )}
         </ul>
-        {overflow && <p className={NOTE}>Keep typing to narrow down</p>}
+        {overflow && <p className={NOTE}>{S.narrow}</p>}
         <div className={HINTS} aria-hidden>
-          <span>↑ ↓ navigate</span>
-          <span>↵ select</span>
-          <span>esc close</span>
+          <span>{S.hints.navigate}</span>
+          <span>{S.hints.select}</span>
+          <span>{S.hints.close}</span>
         </div>
       </div>
       <div className="sr-only" role="status" aria-live="polite">

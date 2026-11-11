@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { expect, it } from "vitest";
 import { Explain } from "./Explain.tsx";
-import { bands, metadata, rec } from "./testData.ts";
+import { bands, metadata, rec } from "../domain/testData.ts";
 
 it("the sheet leaves thin data off the scale and never says safe", () => {
   const { container } = render(

@@ -1,19 +1,16 @@
-import type { AreaRecord } from "../search/types.ts";
+import type { Grade } from "../domain/lookup.ts";
+import { STRINGS } from "../strings.ts";
 import { plural } from "./text.ts";
 
-export function DataLine({
-  reports,
-  confidence,
-}: {
-  reports: number;
-  confidence: AreaRecord["confidence"];
-}) {
+const S = STRINGS.dataLine;
+
+export function DataLine({ reports, confidence }: { reports: number; confidence: Grade }) {
   const plenty = confidence === "HIGH";
   return (
     <p className="m-0 body-md text-on-surface-variant">
-      <b className="font-semibold text-on-surface">{plenty ? "Plenty of data" : "Some data"}</b>{" "}
-      behind this: {plural(reports)} in 12 months.
-      {!plenty && " A few more or fewer could shift the rating."}
+      <b className="font-semibold text-on-surface">{plenty ? S.plenty : S.some}</b>{" "}
+      {S.behind(plural(reports))}
+      {!plenty && ` ${S.shift}`}
     </p>
   );
 }

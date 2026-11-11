@@ -5,10 +5,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from audit_checks import polygon_ids
-from models.backtest import counts
-from models.eb import LIMITED_DATA_BELOW, check_tier_shares, fit, generate, generator_window, posterior_rate, share_in_top_quartile, strength, tiers
-from pipeline.clean import clean
+from lockout.geo.lor import area_names, polygon_ids
+from lockout.lookup.generate import generate, generator_window
+from lockout.models.area_stats import LIMITED_DATA_BELOW
+from lockout.models.backtest import counts
+from lockout.models.eb import check_tier_shares, fit, posterior_rate, strength, tiers
+from lockout.models.evaluate import share_in_top_quartile
+from lockout.pipeline.clean import clean, cutoff
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 
@@ -34,7 +37,7 @@ def test_shrinkage_pulls_toward_parent_and_more_for_thin_areas():
     y = pd.Series([1, 30, 60, 90], index=["01100101", "01100102", "01100203", "01100204"])
     rate, a = fit(y)
     assert np.isfinite(a["area"])
-    assert rate.iloc[0] > y.iloc[0] and rate.iloc[3] < y.iloc[3]  # pulled toward the parent
+    assert rate.iloc[0] > y.iloc[0] and rate.iloc[3] < y.iloc[3]
     assert (rate.iloc[0] - 1) / 1 > (90 - rate.iloc[3]) / 90  # the thin area moves further, relatively
     assert rate.is_monotonic_increasing  # shrinkage keeps the order here
 
@@ -52,9 +55,9 @@ def test_equal_rates_get_the_same_higher_tier():
 
 
 def test_tier_check_rejects_a_degenerate_split():
-    with pytest.raises(AssertionError, match="LOW holds 0.0%"):
+    with pytest.raises(ValueError, match="LOW holds 0.0%"):
         check_tier_shares(tiers(pd.Series([1.0] * 10)))  # all 10 HIGH
-    with pytest.raises(AssertionError, match="LOW holds 0.0%"):
+    with pytest.raises(ValueError, match="LOW holds 0.0%"):
         check_tier_shares(tiers(pd.Series([0.0] * 8 + [1.0] * 2)))  # 8 MEDIUM, 2 HIGH
 
 
@@ -67,21 +70,22 @@ def cleaned_fixture():
     raw = pd.read_csv(FIXTURE, encoding="iso-8859-1", dtype={"LOR": str})
     raw = raw[raw["LOR"] != "99999999"]
     cleaned = clean(raw)
-    cleaned["LOR"] = cleaned["LOR"].str.zfill(8)
     return raw, cleaned
 
 
 def test_generator_emits_all_542_areas_with_flags_from_cleaned_data():
     raw, cleaned = cleaned_fixture()
     reports_up_to = cleaned["ANGELEGT_AM"].max()
-    cutoff = reports_up_to - pd.Timedelta(days=14)
     flags = {s: {"pattern": "citywide pattern", "reason": "test"} for s in ["time_band", "day_group", "bike_value"]}
-    out = generate(cleaned, sorted(polygon_ids()), reports_up_to, cutoff, "sample.csv", flags)
+    out = generate(cleaned, sorted(polygon_ids()), area_names(), reports_up_to, cutoff(cleaned), "sample.csv", flags)
     areas = out["areas"]
     assert len(areas) == 542
     assert out["metadata"]["model_type"] == "eb_gamma_poisson"
     assert out["metadata"]["source_file"] == "sample.csv"
-    assert out["selectors"]["time_band"]["pattern"] == "citywide pattern" and out["selectors"]["time_band"]["area_values"] is False
+    assert (
+        out["selectors"]["time_band"]["pattern"] == "citywide pattern"
+        and out["selectors"]["time_band"]["area_values"] is False
+    )
     no_street_theft = set(polygon_ids()) - set(cleaned["LOR"])
     assert {lor for lor, a in areas.items() if a["no_record"]} == no_street_theft
     cellar_only = set(raw["LOR"].str.zfill(8)) & no_street_theft
@@ -106,14 +110,16 @@ def test_every_areas_tier_and_rate_come_from_the_model():
     # a fixed tier or expected_per_year for every area fails here (#104)
     _, cleaned = cleaned_fixture()
     reports_up_to = cleaned["ANGELEGT_AM"].max()
-    cutoff = reports_up_to - pd.Timedelta(days=14)
+    last_day = cutoff(cleaned)
     areas = sorted(polygon_ids())
     flags = {s: {"pattern": "citywide pattern", "reason": "test"} for s in ["time_band", "day_group", "bike_value"]}
-    out = generate(cleaned, areas, reports_up_to, cutoff, "sample.csv", flags)["areas"]
-    window, start = generator_window(cleaned, cutoff)
-    rate, _ = fit(counts(window, areas, start, cutoff))
+    out = generate(cleaned, areas, area_names(), reports_up_to, last_day, "sample.csv", flags)["areas"]
+    window, start = generator_window(cleaned, last_day)
+    rate, _ = fit(counts(window, areas, start, last_day))
     assert {lor: a["tier"] for lor, a in out.items()} == tiers(rate).to_dict()
-    assert {lor: a["expected_per_year"] for lor, a in out.items()} == {lor: round(float(r), 2) for lor, r in rate.items()}
+    assert {lor: a["expected_per_year"] for lor, a in out.items()} == {
+        lor: round(float(r), 2) for lor, r in rate.items()
+    }
     # and literal values for three areas, one per tier: 22, 2 and 0 thefts in the window
     assert (out["01100309"]["tier"], out["01100309"]["expected_per_year"]) == ("HIGH", 15.16)
     assert (out["01100101"]["tier"], out["01100101"]["expected_per_year"]) == ("MEDIUM", 4.13)
@@ -123,5 +129,13 @@ def test_every_areas_tier_and_rate_come_from_the_model():
 def test_generator_raises_on_degenerate_rates():
     # A cutoff before the data leaves no theft in the window, so every area gets the same rate and lands in HIGH.
     _, cleaned = cleaned_fixture()
-    with pytest.raises(AssertionError, match="LOW holds 0.0%"):
-        generate(cleaned, sorted(polygon_ids()), cleaned["ANGELEGT_AM"].max(), pd.Timestamp("2000-01-01"), "sample.csv", {})
+    with pytest.raises(ValueError, match="LOW holds 0.0%"):
+        generate(
+            cleaned,
+            sorted(polygon_ids()),
+            area_names(),
+            cleaned["ANGELEGT_AM"].max(),
+            pd.Timestamp("2000-01-01"),
+            "sample.csv",
+            {},
+        )

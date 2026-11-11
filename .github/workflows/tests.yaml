@@ -22,10 +22,14 @@ jobs:
 
       - run: uv sync --frozen
 
+      - run: uv run ruff check src tests
+
+      - run: uv run ruff format --check src tests
+
       - run: uv run pytest
 
       # M5 (issue #63): the committed lookup file and the frontend copy must match the locked schema
-      - run: uv run python src/lookup_schema.py
+      - run: uv run python -m lockout.cli.check_lookup
 
   frontend:
     runs-on: ubuntu-latest

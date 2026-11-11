@@ -3,11 +3,11 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-import config
-from pipeline.clean import band_shares, clean, parse_dates, truncate
+from lockout import config
+from lockout.pipeline.clean import band_shares, clean, cutoff, parse_dates, truncate
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
-BANDS = list(config.DAYPARTS)
+BANDS = list(config.TIME_BANDS)
 
 
 @pytest.fixture
@@ -23,22 +23,30 @@ def test_allocation_conserves_counts(raw):
 
 def test_truncation_removes_exactly_rows_newer_than_cutoff(raw):
     df = parse_dates(raw)
-    cutoff = df["ANGELEGT_AM"].max() - pd.Timedelta(days=config.LAG_CUTOFF_DAYS)
-    newer = (df["TATZEIT_ENDE_DATUM"] > cutoff).sum()
+    last_day = cutoff(df)
+    newer = (df["TATZEIT_ENDE_DATUM"] > last_day).sum()
     kept = truncate(df)
     assert newer > 0
     assert len(df) - len(kept) == newer
-    assert (kept["TATZEIT_ENDE_DATUM"] <= cutoff).all()
+    assert (kept["TATZEIT_ENDE_DATUM"] <= last_day).all()
 
 
 def test_truncation_keeps_rows_ending_on_the_cutoff_day():
     # Latest report 24 Oct, so with the 14-day cutoff the last kept end date is 10 Oct.
-    df = pd.DataFrame({
-        "ANGELEGT_AM": pd.to_datetime(["2026-10-24"] * 3),
-        "TATZEIT_ENDE_DATUM": pd.to_datetime(["2026-10-09", "2026-10-10", "2026-10-11"]),
-        "row": ["day before", "on the cutoff", "day after"],
-    })
+    df = pd.DataFrame(
+        {
+            "ANGELEGT_AM": pd.to_datetime(["2026-10-24"] * 3),
+            "TATZEIT_ENDE_DATUM": pd.to_datetime(["2026-10-09", "2026-10-10", "2026-10-11"]),
+            "row": ["day before", "on the cutoff", "day after"],
+        }
+    )
+    assert cutoff(df) == pd.Timestamp("2026-10-10")
     assert list(truncate(df)["row"]) == ["day before", "on the cutoff"]
+
+
+def test_clean_zero_fills_area_ids(raw):
+    short = raw.assign(LOR=raw["LOR"].str.lstrip("0"))
+    assert clean(short)["LOR"].str.len().eq(8).all()
 
 
 def test_street_filter_applied(raw):
@@ -49,12 +57,15 @@ def hours(day, hour):
     return pd.Timestamp(day) + pd.Timedelta(hours=hour)
 
 
-@pytest.mark.parametrize("start, end, expected", [
-    (hours("2026-10-01", 13), hours("2026-10-01", 13), {"Afternoon": 1}),
-    (hours("2026-10-01", 21), hours("2026-10-01", 23), {"Evening": 1 / 3, "Night": 2 / 3}),
-    (hours("2026-10-01", 22), hours("2026-10-02", 5), {"Night": 1}),
-    (pd.NaT, pd.NaT, {"Morning": 5 / 24, "Afternoon": 6 / 24, "Evening": 5 / 24, "Night": 8 / 24}),
-])
+@pytest.mark.parametrize(
+    "start, end, expected",
+    [
+        (hours("2026-10-01", 13), hours("2026-10-01", 13), {"Afternoon": 1}),
+        (hours("2026-10-01", 21), hours("2026-10-01", 23), {"Evening": 1 / 3, "Night": 2 / 3}),
+        (hours("2026-10-01", 22), hours("2026-10-02", 5), {"Night": 1}),
+        (pd.NaT, pd.NaT, {"Morning": 5 / 24, "Afternoon": 6 / 24, "Evening": 5 / 24, "Night": 8 / 24}),
+    ],
+)
 def test_band_shares(start, end, expected):
     shares = band_shares(start, end)
     assert shares == pytest.approx({band: expected.get(band, 0) for band in BANDS})

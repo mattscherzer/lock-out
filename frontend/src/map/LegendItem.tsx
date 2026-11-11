@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { STRINGS } from "../strings.ts";
 
 const SWATCH = "box-border size-legend-swatch rounded-xs border border-(--c)";
 const FILL =
@@ -7,10 +8,10 @@ const HATCH =
   "border-dashed bg-[repeating-linear-gradient(45deg,var(--c)_0_var(--hatch-line),transparent_var(--hatch-line)_var(--hatch-pitch))]";
 
 export const ITEMS = [
-  { label: "Low", colour: "low" },
-  { label: "Medium", colour: "medium" },
-  { label: "High", colour: "high" },
-  { label: "Limited data", colour: "no-data", limited: true },
+  { label: STRINGS.legend.low, colour: "low" },
+  { label: STRINGS.legend.medium, colour: "medium" },
+  { label: STRINGS.legend.high, colour: "high" },
+  { label: STRINGS.legend.limited, colour: "no-data", limited: true },
 ];
 
 export function LegendItem({ label, colour, limited }: (typeof ITEMS)[number]) {

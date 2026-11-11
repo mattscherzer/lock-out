@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it } from "vitest";
 import { Details } from "./Details.tsx";
-import { metadata, rec, selectors } from "./testData.ts";
+import { metadata, rec, selectors } from "../domain/testData.ts";
 
 it("details chart the citywide timing as a labelled picture, with days compared per day", () => {
   render(

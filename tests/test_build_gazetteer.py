@@ -1,7 +1,7 @@
 import geopandas as gpd
 from shapely.geometry import LineString, box
 
-from build_gazetteer import CRS, nest, shares, with_keys
+from lockout.geo.gazetteer import CRS, nest, shares, with_keys
 
 LOR = gpd.GeoDataFrame({"plr_id": ["A", "B"]}, geometry=[box(0, 0, 10, 10), box(10, 0, 20, 10)], crs=CRS)
 
@@ -18,7 +18,12 @@ def streets(rows):
 def build(rows):
     """{(bezirk, type, name): [[area id, pct], ...]} for the given street rows."""
     ids, tree = nest(shares(with_keys(streets(rows)), LOR, "key"))
-    return {(b, t, n): [[ids[i], pct] for i, pct in v] for b, ts in tree.items() for t, ns in ts.items() for n, v in ns.items()}
+    return {
+        (b, t, n): [[ids[i], pct] for i, pct in v]
+        for b, ts in tree.items()
+        for t, ns in ts.items()
+        for n, v in ns.items()
+    }
 
 
 def test_each_entry_type_gets_its_display_type():
@@ -32,15 +37,25 @@ def test_each_entry_type_gets_its_display_type():
         ("X", "Something new", "Mitte", 1, 2),
     ]
     types = {n: t for _, t, n in build(rows)}
-    assert types == {"S": "Street", "W": "Street", "Platz": "Square", "See": "Water", "A 1": "Motorway", "Wald": "Forest", "X": "Other"}
+    assert types == {
+        "S": "Street",
+        "W": "Street",
+        "Platz": "Square",
+        "See": "Water",
+        "A 1": "Motorway",
+        "Wald": "Forest",
+        "X": "Other",
+    }
 
 
 def test_name_in_two_bezirke_is_split_and_same_name_other_type_stays_apart():
-    out = build([
-        ("Hauptstraße", "Strasse", "Pankow", 1, 9),
-        ("Hauptstraße", "Strasse", "Spandau", 11, 19),
-        ("Hauptstraße", "Gewässerabschnitt", "Pankow", 1, 9),
-    ])
+    out = build(
+        [
+            ("Hauptstraße", "Strasse", "Pankow", 1, 9),
+            ("Hauptstraße", "Strasse", "Spandau", 11, 19),
+            ("Hauptstraße", "Gewässerabschnitt", "Pankow", 1, 9),
+        ]
+    )
     assert out == {
         ("Pankow", "Street", "Hauptstraße"): [["A", 100]],
         ("Spandau", "Street", "Hauptstraße"): [["B", 100]],
@@ -54,7 +69,9 @@ def test_street_and_verwaltungsweg_of_one_name_merge_into_one_street():
 
 
 def test_a_name_in_five_bezirke_gives_five_results():
-    out = build([("Hauptstraße", "Strasse", b, 1, 9) for b in ["Mitte", "Pankow", "Spandau", "Lichtenberg", "Neukölln"]])
+    out = build(
+        [("Hauptstraße", "Strasse", b, 1, 9) for b in ["Mitte", "Pankow", "Spandau", "Lichtenberg", "Neukölln"]]
+    )
     assert sorted(b for b, _, _ in out) == ["Lichtenberg", "Mitte", "Neukölln", "Pankow", "Spandau"]
 
 

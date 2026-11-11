@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { type ReactNode, useEffect, useId, useRef } from "react";
+import { STRINGS } from "../strings.ts";
 import { ICON_BUTTON } from "./iconButton.ts";
 
 // Level 3. Not a modal: the map stays reachable behind the scrim and the page keeps its tab order, so only focus entry, return and Esc are handled.
@@ -54,7 +55,7 @@ export function ExplainSheet({
             ref={close}
             type="button"
             className={ICON_BUTTON}
-            aria-label="Close"
+            aria-label={STRINGS.card.closePanel}
             onClick={onClose}
           >
             <X aria-hidden="true" />
