@@ -4,6 +4,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
   useEffect,
+  useEffectEvent,
   useImperativeHandle,
   useRef,
   useState,
@@ -113,12 +114,13 @@ export function AnswerCard({
   const shown = area ?? last.current;
   useSyncExternalStore(subscribeResize, () => window.innerHeight); // stops are measured from the viewport, so a rotation needs a re-render
 
+  const syncOnLayout = useEffectEvent(syncPinned);
   const scrolledFor = useRef(areaId);
   useEffect(() => {
     const another = scrolledFor.current !== areaId; // another area starts at its top
     scrolledFor.current = areaId;
     if (another || stop !== "full") card.current?.scrollTo?.(0, 0);
-    syncPinned(); // no scroll event fires when the position did not change, but the layout did
+    syncOnLayout(); // no scroll event fires when the position did not change, but the layout did
   }, [stop, areaId, open]);
   useEffect(() => {
     if (open) title.current?.focus();

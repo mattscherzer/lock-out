@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import type { FeatureCollection } from "geojson";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { bands, metadata, rec, selectors } from "../answer/testData.ts";
+import { bands, metadata, rec, selectors } from "../domain/testData.ts";
 import type { Lookup } from "../domain/lookup.ts";
 import { App } from "./App.tsx";
 

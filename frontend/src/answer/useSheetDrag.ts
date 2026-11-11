@@ -115,7 +115,7 @@ export function useSheetDrag({ card, stop, onStop, onClose }: Args) {
       el.removeEventListener("touchend", finish);
       el.removeEventListener("touchcancel", abort);
     };
-  }, []);
+  }, [card]);
 
   return {
     onPointerDown: (e: PointerEvent) => {

@@ -1,4 +1,4 @@
-import type { AreaRecord, RatedMetadata } from "../domain/lookup.ts";
+import type { AreaRecord, RatedMetadata } from "./lookup.ts";
 
 export const rec = (over: Partial<AreaRecord> = {}): AreaRecord => ({
   name: "A",
