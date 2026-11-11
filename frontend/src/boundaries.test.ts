@@ -24,10 +24,10 @@ it("imports respect the dependency rule and only src/map imports leaflet as a va
   const violations: string[] = [];
   for (const file of files(SRC)) {
     const rel = relative(SRC, file);
-    const home = rel.split("/")[0];
+    const home = rel.split(/[\\/]/)[0];
     for (const [, typeOnly, spec] of readFileSync(file, "utf8").matchAll(IMPORT)) {
       if (spec.startsWith(".")) {
-        const target = relative(SRC, resolve(dirname(file), spec)).split("/")[0];
+        const target = relative(SRC, resolve(dirname(file), spec)).split(/[\\/]/)[0];
         if (FORBIDDEN[home]?.includes(target))
           violations.push(`${rel} imports ${spec} (${home}/ must not import ${target}/)`);
       } else if (spec === "leaflet" && !typeOnly && home !== "map") {
