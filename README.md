@@ -1,6 +1,6 @@
 # LockOut 🚲🔒
 
-LockOut is a map-first geospatial web application that helps urban cyclists evaluate street-parking risk and choose the right locking strategy before leaving their bike unattended. Starting in Berlin across all 542 official planning areas (*Lebensweltlich orientierte Räume* — LOR), LockOut turns the open police theft records into a smoothed risk tier per area, with a confidence label and lock advice.
+LockOut is a map-first geospatial web application that helps urban cyclists see how many bike thefts the police reported around a place and choose the right locking strategy before leaving their bike unattended. Starting in Berlin across all 542 official planning areas (*Lebensweltlich orientierte Räume* — LOR), LockOut turns the open police theft records into a tier per area (reported thefts compared with other areas, smoothed for thin data), with a confidence label and lock advice. It is not the chance that a particular bike is stolen.
 
 ---
 
@@ -17,10 +17,12 @@ Work in progress; see [docs/product-roadmap.md](docs/product-roadmap.md) for the
 | Frontend (`frontend/`) | React + TypeScript + Vite + Leaflet app that reads the static JSON in `frontend/public/`; released weekly to GitHub Pages (see Releases) |
 | Weekly refresh workflow | Fetches, audits and schema-checks, then opens a PR. The step that regenerates the lookup is still commented out in `refresh_data.yaml`, so a PR opens only on a dry run until it is switched on |
 | OSM Poisson GLM | Tested as a candidate (`lockout.cli.glm`, `docs/glm-results.md`); not adopted for the MVP |
+| Location lookup ("near me") | Planned, not built |
+| FastAPI service | Planned for after the MVP, not built |
 
 There is no server and no API. The product is the static `lookup_schema_v1.json` plus the polygons, both read by the frontend in the browser.
 
-Only 534 of the 542 areas have any police record in the committed data; the other 8 are shrunk toward their parent and flagged `no_record`.
+In the committed lookup (reports up to 24 Oct 2026, 12-month window 11 Oct 2025 to 10 Oct 2026), 8 of the 542 areas have no street theft at all in the cleaned data; they are shrunk toward their parent and flagged `no_record`. A further 6 areas have thefts in the data but none in the 12-month window.
 
 **Lookup schema v1 (locked).** `data/processed/lookup_schema_v1.json` is written by `lockout.cli.build_lookup` and must match `schemas/lookup_v1.schema.json`; `uv run pytest` and `uv run python -m lockout.cli.check_lookup` check it. `frontend/public/lookup_schema_v1.json` is a copy made by `lockout.cli.build_public`. After the lock, changes are additive only: a new optional field is a minor version bump (1.x.0) and needs both approvals; removing or renaming a field, or changing its meaning, is a new major version.
 
@@ -28,19 +30,18 @@ Only 534 of the 542 areas have any police record in the committed data; the othe
 
 ## 🎯 Problem & Core Value Proposition
 
-Urban cyclists in Berlin face roughly 16,400 reported street bicycle thefts per year in the open police dataset (2025, by offence date, cellar break-ins excluded; 17,190 including them; the PKS 2025 report counts 22,630, so the open data is a subset). Existing crime maps suffer from two fundamental flaws:
+Around 16,000 street bicycle thefts were reported in Berlin in the 12 months to 10 Oct 2026 in the open police dataset (rounded to the nearest thousand; cellar break-ins excluded). The police's own 2025 crime statistics (PKS) count close to 23,000 bicycle thefts, so the open data covers roughly three quarters of them.
 
-1. **The Volume Illusion:** Raw count maps flag busy transit hubs (e.g., Alexanderplatz) as "High Risk" without accounting for underlying urban activity density.
-2. **The Denominator Trap:** Naive rate maps ($\text{Thefts} / \text{Mapped Bike Racks}$) create extreme outliers in residential areas where OpenStreetMap (OSM) rack coverage is incomplete.
+**LockOut shows these parts, per planning area:**
 
-**LockOut answers with these parts, per planning area:**
-
-* **Hotspot Tier:** Low, Medium or High, a percentile band of the Empirical Bayes smoothed expected theft count (see below).
+* **Tier:** Low, Medium or High, a percentile band of the Empirical Bayes smoothed expected theft count (see below), shown as reported thefts compared with other areas.
 * **Confidence and limited-data flags:** a LOW, MEDIUM or HIGH confidence label from the number of thefts behind the area, plus `limited_data` and `no_record` flags, so a thin area never reads as reassuring.
-* **Local context:** the median stolen bicycle value (`SCHADENSHOEHE`), the area's own when it has enough values and the citywide one otherwise, and the citywide share of thefts where a lock was defeated.
-* **Lock advice:** a one-lock or two-lock recommendation chosen by bike value, with steps and sources from Polizei Berlin, ADFC and VdS. It does not depend on the area's tier.
+* **Citywide patterns:** time of day, day of week and bike value as citywide shares, the same for every area.
+* **Lock advice:** a one-lock or two-lock recommendation chosen by bike value, with steps and sources from Polizei Berlin, the police crime-prevention service (ProPK), ADFC and VdS. It does not depend on the area's tier.
 
-OpenStreetMap activity counts are not part of the risk signal: a GLM on them was tested and not adopted.
+The lookup also holds the median stolen bicycle value (`SCHADENSHOEHE`, the area's own when it has enough values, otherwise the citywide one) and the citywide share of thefts where a lock was defeated. The frontend does not show them yet.
+
+**What it is not.** The tier is not the chance that a bike is stolen. There is no exposure adjustment, so busy places collect more reports. OpenStreetMap activity counts are not part of the signal: a GLM on them was tested and not adopted (D-22).
 
 ---
 
@@ -67,7 +68,7 @@ police CSV -> fetch -> audit -> clean -> model -> lookup_schema_v1.json -> front
 **Data flow and refresh.**
 
 1. `lockout.cli.fetch` downloads `Fahrraddiebstahl.csv` from `polizei-berlin.eu` (excluded from Git). A download under 1 MB is discarded. If the download fails, the cached CSV is used for up to 21 days (the age is kept in `data/raw/.fetched_at`); after that the command fails.
-2. `lockout.cli.build_lookup` cleans the CSV, scores the model on two backtest folds, writes `docs/eb-model-results.md`, and writes `data/processed/lookup_schema_v1.json` only if it matches `schemas/lookup_v1.schema.json` and holds no NaN or infinity.
+2. `lockout.cli.build_lookup` cleans the CSV, scores the model on two backtest folds, writes `docs/eb-model-results.md`, and writes `data/processed/lookup_schema_v1.json` only if it matches `schemas/lookup_v1.schema.json` and holds no NaN or infinity. It exits without writing if the cleaned CSV, complete up to 14 days before its latest report, ends before the last backtest fold (29 Sep 2026).
 3. `lockout.cli.build_public` copies the lookup to `frontend/public/` and writes `areas.geojson`, the 542 polygons simplified to about 15 m.
 4. A weekly GitHub Action (`.github/workflows/refresh_data.yaml`) fetches, audits and schema-checks, then opens a PR; `main` is protected, so it never pushes. The lookup regeneration step is still commented out in that workflow.
 
@@ -96,8 +97,8 @@ police CSV -> fetch -> audit -> clean -> model -> lookup_schema_v1.json -> front
 lock-out/
 ├── .github/workflows/
 │   ├── refresh_data.yaml                # Weekly fetch, audit, schema check and PR
-│   ├── tests.yaml                       # uv run pytest on every PR and push to main
-│   ├── release.yaml                     # Weekly tag and GitHub Release when frontend/ changed
+│   ├── tests.yaml                       # ruff, pytest, schema check and the frontend build and tests on every PR and push to main
+│   ├── release.yaml                     # Weekly tag and GitHub Release when frontend/ or docs/design-system/ changed
 │   └── deploy.yaml                      # Builds a v* tag and deploys it to GitHub Pages
 ├── data/
 │   ├── raw/                             # LOR polygons (tracked), police CSV (git-ignored)
@@ -157,8 +158,14 @@ Separate from the main run: `lockout.cli.build_gazetteer` writes the place-searc
 
 ### 3. Run the Tests
 
+CI runs these on every PR (`.github/workflows/tests.yaml`):
+
 ```bash
+uv run ruff check src tests
+uv run ruff format --check src tests
 uv run pytest
+uv run python -m lockout.cli.check_lookup
+cd frontend && npm run build && npm test
 ```
 
 ### 4. Run the Frontend
@@ -206,8 +213,9 @@ The site reads its own copy of the lookup, `frontend/public/lookup_schema_v1.jso
 
 ## 🔒 Privacy & Ethics
 
-* **No user tracking:** the site is static. There are no accounts, no analytics and no server that receives user input; place search matches typed text against the bundled gazetteer files in the browser.
-* **Non-Stigmatizing Framing:** Risk indicators describe *bicycle parking vulnerability*, never labeling neighborhoods as "unsafe". The lock advice is the same in every area.
+* **No user tracking:** the site is static. There are no accounts, no analytics and no server that receives user input; place search matches typed text against the bundled gazetteer files in the browser. The basemap tiles come from `tile.openstreetmap.org`, which sees the visitor's IP address and the map area viewed.
+* **Location (planned):** a "near me" lookup is planned. It is not built yet; when it is, this section will say what it does with the position.
+* **Non-Stigmatizing Framing:** Tiers describe reported thefts compared with other areas, never labeling neighborhoods as "unsafe", and they are not the risk to a particular bike. The lock advice is the same in every area.
 
 ---
 
@@ -217,10 +225,12 @@ This project relies on open public datasets and complies with their respective a
 
 * **Bicycle Theft Data:** *Datenquelle: Polizei Berlin – [Fahrraddiebstahl in Berlin](https://daten.berlin.de/) (Licensed under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))*.
 * **Spatial Boundaries (LOR 2021):** *Amt für Statistik Berlin-Brandenburg / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen – [ODIS Berlin](https://daten.odis-berlin.de/) (Licensed under dl-de/by-2-0)*.
-* **Urban Infrastructure & POI Proxies:** *© [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (Licensed under [ODbL](https://opendatacommons.org/licenses/odbl/))*.
+* **Basemap:** *© [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (Licensed under [ODbL](https://opendatacommons.org/licenses/odbl/))*.
+* **Place Search:** *Amt für Statistik Berlin-Brandenburg, postcodes and streets via the Berlin geoportal (Licensed under CC-BY 3.0); station names from the VBB GTFS data.*
+* **Lock Advice:** guidance from Polizei Berlin, the police crime-prevention service (ProPK), the ADFC and the VdS 2597 standard for two-wheeler locks; the page links are in the app's advice details.
 
 ---
 
 ## 📄 License
 
-Distributed under the MIT License. See [LICENSE](./LICENSE) for more information.
+Distributed under the GNU General Public License v3.0. See [LICENSE](./LICENSE) for more information.
