@@ -1,12 +1,13 @@
 // Lock advice catalog and router (issue #58, scope M6 and M7). The copy lives in the string table; this file only
 // says which pieces each lock level uses. The router reads the bike value band and the area's thin-data flags, never
 // the area's tier: the advice is the same strong standard everywhere, so a Low area never reads as "lock less".
+import type { AreaRecord } from "../domain/lookup.ts";
 import { STRINGS } from "../strings.ts";
 
 const A = STRINGS.advice;
 
 export const DEFAULT_BIKE_VALUE = "under_eur_1000";
-export type DataFlags = { limited_data: boolean; no_record: boolean }; // required on every area in the lookup (M6)
+export type DataFlags = Pick<AreaRecord, "limited_data" | "no_record">;
 export type Level = "oneLock" | "twoLocks";
 
 type Step = keyof typeof A.step;
@@ -68,7 +69,7 @@ export type Advice = {
 
 // bikeValue is typed loosely on purpose: a value from the JSON that is not a known level gets two locks, never one
 export function adviceFor(bikeValue: string, data: DataFlags): Advice {
-  const level: Level = bikeValue === "under_eur_1000" ? "oneLock" : "twoLocks";
+  const level: Level = bikeValue === DEFAULT_BIKE_VALUE ? "oneLock" : "twoLocks";
   return {
     level,
     headline: A.headline[level],

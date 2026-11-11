@@ -1,6 +1,6 @@
 import type { FeatureCollection } from "geojson";
 import type { Lookup } from "../domain/lookup.ts";
-import type { Gazetteer, StreetsFile } from "../search/types.ts";
+import type { Gazetteer, StreetsFile } from "./files.ts";
 
 const getJson = <T>(name: string): Promise<T> =>
   fetch(`${import.meta.env.BASE_URL}${name}`).then((res) => {
@@ -28,6 +28,11 @@ export const loadAppData = async (): Promise<AppData> => {
     getJson<FeatureCollection>("areas.geojson"),
     loadGazetteer(),
   ]);
+  // the map and the card read these by id: fail here, with a message, not in a render
+  if (!lookup.metadata?.attribution) throw new Error("lookup: metadata.attribution is missing");
+  for (const { properties } of areas.features)
+    if (!(properties?.id in lookup.areas))
+      throw new Error(`areas.geojson: feature ${properties?.id} has no record in the lookup`);
   return { lookup, areas, gazetteer };
 };
 

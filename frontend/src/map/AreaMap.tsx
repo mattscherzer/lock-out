@@ -4,13 +4,17 @@ import { useEffect, useEffectEvent, useImperativeHandle, useRef, type Ref } from
 import { kindOf } from "../domain/kind.ts";
 import type { Lookup } from "../domain/lookup.ts";
 import { STRINGS } from "../strings.ts";
-import { addHatch, areaStyle, emphasisOf } from "./mapStyle.ts";
+import { addHatch, areaStyle, emphasisOf, num } from "./mapStyle.ts";
 import { tintBasemap } from "./tint.ts";
 
 const BERLIN_CENTRE: L.LatLngTuple = [52.52, 13.405];
 const START_ZOOM = 11;
 const PIN_RADIUS = 7;
 const PIN_RING_WEIGHT = 3;
+
+// a hover tooltip would stay open after the map moves
+const closeTooltips = (polygons: Record<string, L.Polygon>) =>
+  Object.values(polygons).forEach((polygon) => polygon.closeTooltip());
 
 export type AreaMapHandle = { flyTo: (id: string) => void };
 
@@ -34,6 +38,7 @@ export function AreaMap(props: Props) {
   const map = useRef<L.Map>(undefined);
   const polygons = useRef<Record<string, L.Polygon>>({});
   const hovered = useRef<string | null>(null);
+  const opened = useRef<string | null>(null);
   const touched = useRef<(string | null)[]>([]);
   const restyle = useEffectEvent((id: string) =>
     polygons.current[id].setStyle(
@@ -103,6 +108,9 @@ export function AreaMap(props: Props) {
   }, [areas, lookup]);
 
   useEffect(() => {
+    // closing the card by Esc or a swipe fires no mouseout, so the area would stay in hover style
+    if (!active && hovered.current === opened.current) hovered.current = null;
+    opened.current = active;
     // only the areas that changed: a highlight moves with every arrow key
     for (const id of new Set([...touched.current, selected, highlighted])) if (id) restyle(id);
     touched.current = [selected, highlighted];
@@ -110,7 +118,7 @@ export function AreaMap(props: Props) {
 
   useEffect(() => {
     if (selected) polygons.current[selected].bringToFront();
-    Object.values(polygons.current).forEach((polygon) => polygon.closeTooltip()); // a hover tooltip would stay open after the map moves
+    closeTooltips(polygons.current);
   }, [selected]);
 
   useEffect(() => {
@@ -132,10 +140,8 @@ export function AreaMap(props: Props) {
   useImperativeHandle(ref, () => ({
     // a fly (zoom out, pan, zoom in) reads smoother than a straight jump; the motion token is 0 under reduced motion
     flyTo(id) {
-      const ms = parseFloat(
-        getComputedStyle(document.documentElement).getPropertyValue("--duration-slow"),
-      );
-      Object.values(polygons.current).forEach((polygon) => polygon.closeTooltip());
+      const ms = num("--duration-slow");
+      closeTooltips(polygons.current);
       map.current!.flyToBounds(polygons.current[id].getBounds(), {
         ...props.flyPadding(),
         duration: ms / 1000,
@@ -145,5 +151,5 @@ export function AreaMap(props: Props) {
   }));
 
   // own stacking context: Leaflet's controls stay below the search (z-search)
-  return <div id="map" ref={container} className="z-0 h-full" />;
+  return <div ref={container} className="z-0 h-full" />;
 }

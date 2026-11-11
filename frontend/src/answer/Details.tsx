@@ -1,6 +1,6 @@
 import { Info } from "lucide-react";
 import { useId, useState } from "react";
-import type { AreaRecord, Lookup } from "../domain/lookup.ts";
+import type { AreaRecord, Lookup, RatedMetadata } from "../domain/lookup.ts";
 import { STRINGS } from "../strings.ts";
 import { BarGroup } from "./BarGroup.tsx";
 import { longDate } from "./text.ts";
@@ -18,7 +18,7 @@ export function Details({
 }: {
   area: AreaRecord;
   selectors: Lookup["selectors"];
-  metadata: Lookup["metadata"];
+  metadata: RatedMetadata;
   onAbout: () => void;
 }) {
   const pattern = selectors.time_band.pattern;
@@ -37,7 +37,7 @@ export function Details({
             onClick={() => setWhy(!why)}
             className="relative inline-flex min-h-5.5 cursor-pointer items-center gap-1 rounded-full border-0 bg-surface-container px-2 label-sm text-on-surface-variant after:absolute after:-inset-x-2 after:-inset-y-3 after:content-['']"
           >
-            {`${pattern[0].toUpperCase()}${pattern.slice(1)}`}
+            {S.pattern[pattern]}
             <Info aria-hidden="true" size={12} />
           </button>
         </div>

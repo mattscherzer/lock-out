@@ -2,7 +2,8 @@
 
 import type { Areas } from "../domain/lookup.ts";
 import { STRINGS } from "../strings.ts";
-import type { Gazetteer, Index, Kind, Place, Row, Share, StreetsFile } from "./types.ts";
+import type { Gazetteer, Share, StreetsFile } from "../data/files.ts";
+import type { Index, Place, PlaceKind, Row } from "./types.ts";
 
 // Proposals to tune after the usability test (#67).
 export const MAX_AREAS_PER_RESULT = 3; // the rest sit behind one "+N more areas" row
@@ -13,12 +14,12 @@ export const LOADING_DELAY_MS = 300; // a reply faster than this never flashes t
 
 // Fixed quick filters for the empty field, one per kind and across Bezirke; places.test.ts checks each against the shipped data.
 export const EXAMPLES = [
-  { label: "Kurfürstendamm", word: STRINGS.search.kind.street },
-  { label: "12043", word: STRINGS.search.kind.postcode },
-  { label: "Hermannplatz", word: STRINGS.search.kind.station },
-  { label: "Kollwitzplatz", word: STRINGS.search.kind.area },
-  { label: "Großer Müggelsee", word: STRINGS.search.kind.water },
-];
+  { label: "Kurfürstendamm", kind: "street", word: STRINGS.search.kind.street },
+  { label: "12043", kind: "postcode", word: STRINGS.search.kind.postcode },
+  { label: "Hermannplatz", kind: "station", word: STRINGS.search.kind.station },
+  { label: "Kollwitzplatz", kind: "area", word: STRINGS.search.kind.area },
+  { label: "Großer Müggelsee", kind: "water", word: STRINGS.search.kind.water },
+] as const;
 
 const UMLAUTS: Record<string, string> = { ä: "ae", ö: "oe", ü: "ue" };
 
@@ -46,7 +47,7 @@ export function parseQuery(q: string) {
 const placeIn = (
   areas: Areas,
   label: string,
-  kind: Kind,
+  kind: PlaceKind,
   list: Share[],
   extra: Partial<Place> = {},
 ): Place => ({
@@ -61,9 +62,9 @@ const placeIn = (
 });
 const kept = (places: Place[]) => places.filter((p) => p.areas.length > 0);
 
-// Streets come separately (addStreets) because their file is fetched on the first search.
+// Streets come separately (streetPlaces) because their file is fetched on the first search.
 export function buildIndex(gazetteer: Gazetteer, areas: Areas): Index {
-  const place = (label: string, kind: Kind, list: Share[], extra: Partial<Place> = {}) =>
+  const place = (label: string, kind: PlaceKind, list: Share[], extra: Partial<Place> = {}) =>
     placeIn(areas, label, kind, list, extra);
   const byName = Object.entries(areas)
     .map(([id, a]) =>
@@ -87,8 +88,7 @@ export function buildIndex(gazetteer: Gazetteer, areas: Areas): Index {
   };
 }
 
-// fills index.street in place
-export function addStreets(index: Index, file: StreetsFile | null | undefined, areas: Areas) {
+export function streetPlaces(file: StreetsFile | null | undefined, areas: Areas): Place[] {
   const { ids, streets } = file ?? {};
   if (!Array.isArray(ids) || !streets) throw new Error("gazetteer_streets.json: unexpected shape");
   const places: Place[] = [];
@@ -105,7 +105,7 @@ export function addStreets(index: Index, file: StreetsFile | null | undefined, a
           ),
         );
       }
-  index.street = kept(places);
+  return kept(places);
 }
 
 export const placeKey = (p: Place) => `${p.kind}|${p.label}|${p.bezirk}|${p.type}|${p.ll}`; // one name can repeat per Bezirk and type, and per station

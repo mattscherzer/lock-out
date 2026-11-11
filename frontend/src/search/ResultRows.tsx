@@ -27,13 +27,13 @@ const glyph = (place: Place) => {
   return isPlainStreet(place) ? Road : MapPin;
 };
 
-const exampleGlyph: Record<string, LucideIcon> = {
-  [S.kind.street]: Road,
-  [S.kind.postcode]: Mail,
-  [S.kind.station]: TrainFront,
-  [S.kind.area]: VectorPolygon,
-  [S.kind.water]: MapPin,
-}; // keyed by EXAMPLES' word
+const exampleGlyph: Record<(typeof EXAMPLES)[number]["kind"], LucideIcon> = {
+  street: Road,
+  postcode: Mail,
+  station: TrainFront,
+  area: VectorPolygon,
+  water: MapPin,
+};
 
 // Write class strings out whole so Tailwind sees them; never build one from state.
 const OPTION =
@@ -85,7 +85,7 @@ export function ExampleRows({
   onHover: (i: number) => void;
 }) {
   return EXAMPLES.map((ex, i) => {
-    const Glyph = exampleGlyph[ex.word as keyof typeof exampleGlyph];
+    const Glyph = exampleGlyph[ex.kind];
     return (
       <li
         key={ex.label}

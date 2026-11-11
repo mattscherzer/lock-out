@@ -1,6 +1,6 @@
 import { STRINGS } from "../strings.ts";
 import { Info } from "lucide-react";
-import type { AreaRecord } from "../domain/lookup.ts";
+import type { Grade } from "../domain/lookup.ts";
 import { DataLine } from "./DataLine.tsx";
 import { colour, type Kind } from "../domain/kind.ts";
 import { TierMark } from "./TierMark.tsx";
@@ -8,6 +8,8 @@ import { verdictLine } from "./text.ts";
 
 const S = STRINGS.verdict;
 const TINT_PCT = 14; // how much of the tier colour tints the verdict card and strip
+const tint = (kind: Kind) =>
+  `color-mix(in srgb, ${colour(kind)} ${TINT_PCT}%, var(--surface-container-lowest))`;
 const GAUGE: Record<Kind, number> = { low: 0, medium: 1, high: 2, "no-data": -1, limited: -1 };
 
 export function Verdict({
@@ -18,19 +20,14 @@ export function Verdict({
   onExplain,
 }: {
   kind: Kind;
-  confidence: AreaRecord["confidence"];
+  confidence: Grade;
   reports: number;
   topShare: number;
   onExplain: () => void;
 }) {
   const on = GAUGE[kind];
   return (
-    <div
-      className="flex flex-col gap-2 rounded-lg p-3.5"
-      style={{
-        background: `color-mix(in srgb, ${colour(kind)} ${TINT_PCT}%, var(--surface-container-lowest))`,
-      }}
-    >
+    <div className="flex flex-col gap-2 rounded-lg p-3.5" style={{ background: tint(kind) }}>
       <div className="label-md text-on-surface-variant uppercase">{S.heading}</div>
       <div className="flex items-center gap-3.5">
         <TierMark kind={kind} />
@@ -78,9 +75,7 @@ export function VerdictStrip({ kind }: { kind: Kind }) {
   return (
     <div
       className="box-border flex w-full min-w-0 items-center gap-2 rounded-lg px-3 py-1.5"
-      style={{
-        background: `color-mix(in srgb, ${colour(kind)} ${TINT_PCT}%, var(--surface-container-lowest))`,
-      }}
+      style={{ background: tint(kind) }}
     >
       <TierMark kind={kind} className="size-6" />
       <span className="min-w-0 truncate body-md">

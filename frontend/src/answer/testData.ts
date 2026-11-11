@@ -1,4 +1,4 @@
-import type { AreaRecord, Lookup } from "../domain/lookup.ts";
+import type { AreaRecord, RatedMetadata } from "../domain/lookup.ts";
 
 export const rec = (over: Partial<AreaRecord> = {}): AreaRecord => ({
   name: "A",
@@ -12,11 +12,11 @@ export const rec = (over: Partial<AreaRecord> = {}): AreaRecord => ({
 });
 export const selectors = {
   time_band: {
-    pattern: "citywide pattern",
+    pattern: "citywide pattern" as const,
     shares: { Morning: 0.1772, Afternoon: 0.2909, Evening: 0.2761, Night: 0.2558 },
   },
   day_group: {
-    pattern: "citywide pattern",
+    pattern: "citywide pattern" as const,
     shares: { Mon_Thu: 0.5934, Friday: 0.159, Weekend: 0.2476 },
   },
 };
@@ -25,7 +25,7 @@ export const attribution = {
   osm: "© OpenStreetMap contributors (ODbL)",
   lor: "Datenquelle: Amt für Statistik",
 };
-export const metadata: Lookup["metadata"] = {
+export const metadata: RatedMetadata = {
   attribution,
   data_window: { start: "2025-10-11", end: "2026-10-10" },
   reports_up_to: "2026-10-24",

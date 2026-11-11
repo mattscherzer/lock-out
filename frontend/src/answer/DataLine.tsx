@@ -1,16 +1,10 @@
-import type { AreaRecord } from "../domain/lookup.ts";
+import type { Grade } from "../domain/lookup.ts";
 import { STRINGS } from "../strings.ts";
 import { plural } from "./text.ts";
 
 const S = STRINGS.dataLine;
 
-export function DataLine({
-  reports,
-  confidence,
-}: {
-  reports: number;
-  confidence: AreaRecord["confidence"];
-}) {
+export function DataLine({ reports, confidence }: { reports: number; confidence: Grade }) {
   const plenty = confidence === "HIGH";
   return (
     <p className="m-0 body-md text-on-surface-variant">

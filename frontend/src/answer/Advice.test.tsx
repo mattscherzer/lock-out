@@ -12,7 +12,6 @@ const answer = (over = {}, areaId = "1") => (
     areaId={areaId}
     lookup={{ risk_bands: bands, metadata: { ...metadata, attribution }, selectors, areas: {} }}
     open
-    lowerSignal={0}
     onClose={() => {}}
     onAbout={() => {}}
   />

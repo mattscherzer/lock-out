@@ -1,7 +1,8 @@
 import type L from "leaflet";
+import { token } from "./mapStyle.ts";
 
 const hex = (name: string) => {
-  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const v = token(name);
   return [1, 3, 5].map((i) => parseInt(v.slice(i, i + 2), 16) / 255);
 };
 

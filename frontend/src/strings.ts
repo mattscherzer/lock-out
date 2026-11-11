@@ -57,7 +57,6 @@ export const STRINGS = {
     closePanel: "Close",
     ratingTitle: "What this rating means",
     note: {
-      empty: ["Nothing to show yet", "There is nothing to show for this area yet."],
       error: ["Could not load this area", "Something went wrong. Pick the area again to retry."],
     },
   },
@@ -93,6 +92,7 @@ export const STRINGS = {
     time: { Morning: "Morning", Afternoon: "Afternoon", Evening: "Evening", Night: "Night" },
     day: { Mon_Thu: "Mon–Thu", Friday: "Friday", Weekend: "Weekend" },
     lastSeen: "When bikes were last seen",
+    pattern: { "citywide pattern": "Citywide pattern", "area pattern": "Area pattern" },
     whyPattern:
       "These shares come from all of Berlin's reports and are the same for every area. They show when bikes are usually last seen, not when this area is riskier.",
     timeOfDay: "Time of day",

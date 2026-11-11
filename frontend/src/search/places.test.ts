@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  addStreets,
   buildIndex,
   EXAMPLES,
   fold,
@@ -12,8 +11,10 @@ import {
   bezirkLabel,
   MAX_AREAS_PER_RESULT,
   placeKey,
+  streetPlaces,
 } from "./places.ts";
-import type { Gazetteer, Place, StreetsFile } from "./types.ts";
+import type { Gazetteer, StreetsFile } from "../data/files.ts";
+import type { Place } from "./types.ts";
 
 const areas = {
   A1: { name: "Stülerstraße", bzr_name: "Tiergarten Süd" },
@@ -34,9 +35,7 @@ const gazetteer: Gazetteer = {
 const IDS = ["A1", "A2", "A3"];
 const streetFile = (streets: StreetsFile["streets"]): StreetsFile => ({ ids: IDS, streets });
 const indexWith = (streets: StreetsFile["streets"], g: Gazetteer = { plz: {}, stations: [] }) => {
-  const idx = buildIndex(g, areas);
-  addStreets(idx, streetFile(streets), areas);
-  return idx;
+  return { ...buildIndex(g, areas), street: streetPlaces(streetFile(streets), areas) };
 };
 const index = indexWith(
   {
@@ -369,9 +368,7 @@ describe("streets from gazetteer_streets.json", () => {
   it.each([[{ streets: {} }], [{ ids: [] }], [null]])(
     "rejects a file of the wrong shape: %j",
     (file) => {
-      expect(() =>
-        addStreets(buildIndex({ plz: {}, stations: [] }, areas), file as StreetsFile | null, areas),
-      ).toThrow("unexpected shape");
+      expect(() => streetPlaces(file as StreetsFile | null, areas)).toThrow("unexpected shape");
     },
   );
   it("finds nothing before the streets are added", () => {
@@ -382,8 +379,11 @@ describe("streets from gazetteer_streets.json", () => {
 // The empty-state examples are quick filters: each must exist in the shipped data, as its own kind.
 it("every empty-state example is a real place in the shipped data", () => {
   const load = (f: string) => JSON.parse(readFileSync(`public/${f}`, "utf8"));
-  const real = buildIndex(load("gazetteer.json"), load("lookup_schema_v1.json").areas);
-  addStreets(real, load("gazetteer_streets.json"), load("lookup_schema_v1.json").areas);
+  const { areas } = load("lookup_schema_v1.json");
+  const real = {
+    ...buildIndex(load("gazetteer.json"), areas),
+    street: streetPlaces(load("gazetteer_streets.json"), areas),
+  };
   const word = (p: { kind: string; type?: string }) =>
     p.kind === "street"
       ? (p.type ?? "Street")

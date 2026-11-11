@@ -1,16 +1,7 @@
-export type Share = [id: string, pct: number];
-export type Station = [name: string, kind: string, id: string, lat: number, lon: number];
-export type Gazetteer = { plz: Record<string, Share[]>; stations: Station[] };
-// gazetteer_streets.json: shares are [index into ids, pct]; streets nest as bezirk -> street type -> name.
-export type StreetsFile = {
-  ids: string[];
-  streets: Record<string, Record<string, Record<string, [number, number][]>>>;
-};
-
-export type Kind = "postcode" | "station" | "street" | "area";
+export type PlaceKind = "postcode" | "station" | "street" | "area";
 export type Place = {
   label: string;
-  kind: Kind;
+  kind: PlaceKind;
   keys: string[];
   areas: { id: string; pct: number }[];
   sub?: string;
@@ -24,7 +15,7 @@ export type Row =
   | { type: "label"; place: Place }
   | { type: "area"; place: Place; id: string; pct: number | null }
   | { type: "more"; place: Place; n: number };
-export type Index = Record<Kind, Place[]>;
+export type Index = Record<PlaceKind, Place[]>;
 
 // How the area was found; null when the user picked an area by name.
-export type Context = { kind: Kind; label: string; pct: number | null; ll?: [number, number] };
+export type Context = { kind: PlaceKind; label: string; pct: number | null; ll?: [number, number] };

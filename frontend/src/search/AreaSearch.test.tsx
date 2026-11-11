@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { useState } from "react";
+import { createRef, useState } from "react";
 import { afterEach, expect, it, vi } from "vitest";
-import { AreaSearch } from "./AreaSearch.tsx";
-import { addStreets, buildIndex, EXAMPLES, LOADING_DELAY_MS } from "./places.ts";
+import { AreaSearch, type AreaSearchHandle } from "./AreaSearch.tsx";
+import { buildIndex, EXAMPLES, LOADING_DELAY_MS, streetPlaces } from "./places.ts";
+import type { Place } from "./types.ts";
 
 const areas = {
   a1: { name: "Charitéviertel", bzr_name: "Mitte" },
@@ -177,30 +178,33 @@ it("ArrowDown reopens a closed list", () => {
 });
 
 it("closes when told to from outside", () => {
-  const { rerender } = render(<Harness closeSignal={0} />);
+  const handle = createRef<AreaSearchHandle>();
+  render(<Harness ref={handle} />);
   type("nord");
   expect(screen.getAllByRole("option").length).toBeGreaterThan(0);
-  rerender(<Harness closeSignal={1} />);
+  act(() => handle.current!.close());
   expect(screen.queryByRole("option")).toBeNull();
 });
 
 it("searches again once the street data has loaded", async () => {
-  const withStreets = buildIndex(gazetteer, areas);
   const file = {
     ids: ["a2"],
     streets: { Mitte: { Street: { Zimmerstraße: [[0, 100]] as [number, number][] } } },
   };
-  const loadStreets = () => Promise.resolve().then(() => addStreets(withStreets, file, areas));
-  render(
-    <AreaSearch
-      index={withStreets}
-      areas={areas}
-      selected={null}
-      onSelect={vi.fn()}
-      onClear={vi.fn()}
-      loadStreets={loadStreets}
-    />,
-  );
+  function WithStreets() {
+    const [street, setStreet] = useState<Place[]>([]);
+    return (
+      <AreaSearch
+        index={{ ...index, street }}
+        areas={areas}
+        selected={null}
+        onSelect={vi.fn()}
+        onClear={vi.fn()}
+        loadStreets={() => Promise.resolve().then(() => setStreet(streetPlaces(file, areas)))}
+      />
+    );
+  }
+  render(<WithStreets />);
   fireEvent.focus(field());
   fireEvent.change(field(), { target: { value: "zimmer" } });
   expect(screen.queryByRole("option")).toBeNull();

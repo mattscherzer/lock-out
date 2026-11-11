@@ -1,5 +1,15 @@
 import { ArrowLeft, LoaderCircle, Search, X } from "lucide-react";
-import { useEffect, useEffectEvent, useId, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useId,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type Ref,
+} from "react";
 import "./AreaSearch.css";
 import {
   buildRows,
@@ -19,14 +29,16 @@ import { STRINGS } from "../strings.ts";
 import { WIDE } from "../viewport.ts";
 import type { Context, Index, Row } from "./types.ts";
 
+export type AreaSearchHandle = { close: () => void; focus: () => void };
+
 type Props = {
+  ref?: Ref<AreaSearchHandle>;
   index: Index;
   areas: Areas;
   selected: string | null;
   onSelect: (id: string, context: Context | null) => void;
   onClear: () => void;
   onHighlight?: (id: string | null) => void; // the area under the pointer or arrow keys in the open list
-  closeSignal?: number; // changing it closes the list, e.g. on a tap on the map
   loadStreets?: () => Promise<unknown>; // must reject on failure; retried on the next focus
 };
 
@@ -49,13 +61,13 @@ const subscribeWide = (cb: () => void) => {
   return () => m?.removeEventListener("change", cb);
 };
 export function AreaSearch({
+  ref,
   index,
   areas,
   selected,
   onSelect,
   onClear,
   onHighlight,
-  closeSignal,
   loadStreets,
 }: Props) {
   const id = useId();
@@ -83,29 +95,31 @@ export function AreaSearch({
   const selectedName = selected ? (areas[selected]?.name ?? "") : "";
   const text = draft ?? selectedName;
   // a new selection (a pick, or a click on the map) replaces any draft; a pick from elsewhere forgets what found the last one
-  useEffect(() => {
+  const [seen, setSeen] = useState(selected);
+  if (selected !== seen) {
+    setSeen(selected);
     setDraft(null);
     setChosen((c) => (c?.id === selected ? c : undefined));
-  }, [selected]);
+  }
 
   const close = () => {
     setOpen(false);
     setDraft((d) => (selected ? null : d)); // an abandoned edit keeps the previous selection; with none, the draft stays
   };
-  const closeFromOutside = useEffectEvent(close);
-  useEffect(() => {
-    if (closeSignal) closeFromOutside();
-  }, [closeSignal]);
+  useImperativeHandle(ref, () => ({ close, focus: () => input.current?.focus() }));
 
   // field still shows the selection: list the results of the query that found it, so a different pick needs no retyping
   const showingSelection = draft === null && !!selected;
   const searchText = showingSelection && chosen?.id === selected ? chosen.query : text;
   const { text: query, houseNumber } = parseQuery(searchText);
-  const places = query.trim() ? searchPlaces(index, query) : [];
-  if (showingSelection)
-    places.sort((a, b) => rank(a, selected, chosen?.place) - rank(b, selected, chosen?.place));
-  const { rows: all, overflow } = buildRows(places, limit, expanded);
-  const rows = all.filter((r) => r.type !== "label"); // options; label rows are rendered between them
+  const { all, rows, overflow } = useMemo(() => {
+    const places = query.trim() ? searchPlaces(index, query) : [];
+    if (showingSelection && selected)
+      places.sort((a, b) => rank(a, selected, chosen?.place) - rank(b, selected, chosen?.place));
+    const { rows: all, overflow } = buildRows(places, limit, expanded);
+    // options; label rows are rendered between them
+    return { all, rows: all.filter((r) => r.type !== "label"), overflow };
+  }, [index, query, showingSelection, selected, chosen?.place, limit, expanded]);
   const picked = showingSelection
     ? rows.findIndex(
         (r) => r.type === "area" && r.id === selected && placeKey(r.place) === chosen?.place,
@@ -203,7 +217,6 @@ export function AreaSearch({
       className="area-search"
       onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && close()}
       data-open={open || undefined}
-      data-list={open || undefined}
     >
       <div className="area-search-field">
         <button
