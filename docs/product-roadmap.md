@@ -61,12 +61,12 @@ Usability and value thresholds are working targets inherited from `scope-definit
 | Component                                                       | State                                                                                                                                 |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | CSV fetch with stale-cache fallback (`src/fetch_police_csv.py`) | Done: >1 MB check, 21-day maximum fallback age, fails loudly                                                                          |
-| LOR polygons (542 features, key `plr_id`)                       | Done: `data/raw/`                                                                                                                  |
+| LOR polygons (542 features, key `plr_id`)                       | Done: `data/raw/` and `demo/lor.json`                                                                                                 |
 | Data audit (`src/audit_police_csv.py`)                          | Runs; asserts nothing, always exits 0; street filter is a regex over all columns                                                      |
 | Cleaning pipeline, model, `build_lookup_json.py`                | Not started (`src/pipeline`, `src/models` empty)                                                                                      |
 | `lookup_schema_v1.json`                                         | One hand-written sample area; not generated                                                                                           |
 | FastAPI service (`src/api/main.py`)                             | Not started                                                                                                                           |
-| Frontend                                                        | `frontend/` holds the Vite + React + Leaflet client, released weekly to GitHub Pages from `v*` tags (`release.yaml`, `deploy.yaml`); `demo/` is removed |
+| Frontend                                                        | `frontend/` empty; `demo/index.html` is a single-file prototype on mock data (React/Tailwind/Babel via CDN), deployed to GitHub Pages |
 | Weekly refresh workflow                                         | Runs fetch + audit only; the commit step is a no-op. Pushing to `main` will fail once enabled because `main` requires a reviewed PR   |
 | Tests and PR CI                                                 | None; the raw CSV is not tracked in git                                                                                               |
 | Advice catalog                                                  | The sample JSON still cites Sold Secure and "frame + U-lock", contradicting `lock-tier-documentation.md`                              |
