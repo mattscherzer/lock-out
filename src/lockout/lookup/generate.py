@@ -81,7 +81,7 @@ def generate(
             name: {"min_percentile": low, "max_percentile": top}
             for (name, top), low in zip(TIERS, bounds, strict=False)
         },
-        # citywide shares and the hold-out flag per selector; 1.0.0 carries no area values for any selector
+        # citywide shares and the hold-out flag per selector; no selector carries area values yet
         "selectors": {s: {"shares": shares[s], **selectors[s], "area_values": False} for s in SELECTORS},
         "areas": {
             lor: {

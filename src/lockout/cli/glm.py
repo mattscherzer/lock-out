@@ -24,6 +24,12 @@ LABELS = {
 }
 
 
+def describe(key: str, fold: str, values: tuple[float, float]) -> tuple[str, str]:
+    """The label and value text of one check from verdict()."""
+    label = f"Deviance below EB v0, {fold}" if key == "deviance" else "Ranking as stable across folds as EB v0"
+    return label, f"{values[0]:.3f} vs {values[1]:.3f}"
+
+
 def markdown(
     folds: list[FoldResult],
     result: dict[str, Verdict],
@@ -46,9 +52,9 @@ def markdown(
     ]
     coef = [[f["fold"], *(f"{f['coefficients'][c]:.3f}" for c in folds[0]["coefficients"].index)] for f in folds]
     checks = [
-        [MODEL_LABELS[name], check, value, "pass" if ok else "MISS"]
+        [MODEL_LABELS[name], *describe(key, fold, values), "pass" if ok else "MISS"]
         for name, r in result.items()
-        for check, value, ok in r["checks"]
+        for key, fold, values, ok in r["checks"]
     ]
     keep = [MODEL_LABELS[name] for name, r in result.items() if r["keep"]]
     totals = "; ".join(f"{LABELS[k]}: {int(features[k].sum()):,}" for k in KINDS)
@@ -120,7 +126,8 @@ def main() -> None:
                 f"{f['fold']}  {MODEL_LABELS[name]}: deviance {s['deviance']:.3f}, Spearman {fmt(s['spearman'], '.3f')}, High in top quartile {fmt(s['high_in_top_quartile'], '.0%')}"
             )
     for name, r in result.items():
-        for check, value, ok in r["checks"]:
+        for key, fold, values, ok in r["checks"]:
+            check, value = describe(key, fold, values)
             print(f"{'pass' if ok else 'MISS'}  {MODEL_LABELS[name]}: {check}: {value}")
         print(f"{MODEL_LABELS[name]}: {'passes every check' if r['keep'] else 'fails a check'}")
     print(f"Wrote {OUT}")

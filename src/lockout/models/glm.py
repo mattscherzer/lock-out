@@ -37,7 +37,7 @@ class FoldResult(TypedDict):
 
 
 class Verdict(TypedDict):
-    checks: list[tuple[str, str, bool]]
+    checks: list[tuple[str, str, tuple[float, float], bool]]  # (check key, fold, (candidate, reference), passed)
     keep: bool
 
 
@@ -100,15 +100,14 @@ def verdict(folds: Sequence[FoldResult]) -> dict[str, Verdict]:
     for name in CANDIDATES:
         checks = [
             (
-                f"Deviance below EB v0, {f['fold']}",
-                f"{f['scores'][name]['deviance']:.3f} vs {f['scores']['eb']['deviance']:.3f}",
+                "deviance",
+                f["fold"],
+                (f["scores"][name]["deviance"], f["scores"]["eb"]["deviance"]),
                 f["scores"][name]["deviance"] < f["scores"]["eb"]["deviance"],
             )
             for f in folds
         ]
         own = stability(folds, name)
-        checks.append(
-            ("Ranking as stable across folds as EB v0", f"{own:.3f} vs {base:.3f}", own >= base - STABILITY_TOLERANCE)
-        )
-        result[name] = {"checks": checks, "keep": all(ok for _, _, ok in checks)}
+        checks.append(("stability", "", (own, base), own >= base - STABILITY_TOLERANCE))
+        result[name] = {"checks": checks, "keep": all(ok for *_, ok in checks)}
     return result

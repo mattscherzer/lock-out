@@ -73,11 +73,11 @@ def test_verdict_keeps_only_a_candidate_that_passes_every_check():
     result = verdict(folds)
     assert result[glm]["keep"] is True
     assert result[toward]["keep"] is False  # worse than EB v0 on the second fold
-    assert [ok for _, _, ok in result[toward]["checks"]] == [True, False, True]
+    assert [ok for *_, ok in result[toward]["checks"]] == [True, False, True]
     folds[1]["rates"][glm] = shuffled  # better on both folds, but the ranking changes between folds
     result = verdict(folds)
     assert result[glm]["keep"] is False
-    assert [ok for _, _, ok in result[glm]["checks"]] == [True, True, False]
+    assert [ok for *_, ok in result[glm]["checks"]] == [True, True, False]
 
 
 def cleaned_fixture():
@@ -101,7 +101,7 @@ def test_compare_scores_every_model_on_both_folds():
     )
     result = verdict(folds)
     assert set(result) == set(CANDIDATES)
-    assert all(r["keep"] == all(ok for _, _, ok in r["checks"]) for r in result.values())
+    assert all(r["keep"] == all(ok for *_, ok in r["checks"]) for r in result.values())
 
 
 def test_compare_refuses_a_table_that_misses_areas():
