@@ -1,10 +1,11 @@
-"""Score the EB model on the backtest folds against the targets, with the selector checks behind them (issue #38, #39)."""
+"""Score the EB model on the backtest folds against the targets, with the selector checks (issue #38, #39)."""
+
 from collections.abc import Sequence
 from typing import TypedDict
 
 import pandas as pd
 
-from lockout.models.backtest import baselines, counts, days, fold_periods, score
+from lockout.models.backtest import baselines, fold_data, score
 from lockout.models.eb import fit, tiers
 from lockout.models.selectors import SELECTORS, Flag, HoldoutResult, flag, holdout
 
@@ -39,24 +40,28 @@ def share_in_top_quartile(actual: pd.Series, high: pd.Series) -> float:
 def evaluate(df: pd.DataFrame, areas: Sequence[str]) -> list[FoldRow]:
     """Per fold: the scores against the targets, plus the tiers, actual counts and selector checks behind them."""
     rows: list[FoldRow] = []
-    for history_start, history_end, start, end in fold_periods():
-        history = counts(df, areas, history_start, history_end)
-        actual = counts(df, areas, start, end)
-        scale = days(start, end) / days(history_start, history_end)
-        base = baselines(history, days(history_start, history_end), days(start, end))
-        rate, _ = fit(history)
-        expected = rate * scale
+    for f in fold_data(df, areas):
+        base = baselines(f.history, f.scale)
+        rate, _ = fit(f.history)
+        expected = rate * f.scale
         tier = tiers(rate)
-        dev, rho = score(actual, expected)
-        dev_city, _ = score(actual, base["Citywide share"])
-        dev_raw, _ = score(actual, base["Raw area history"])
-        rows.append({
-            "fold": f"{start:%Y-%m-%d} to {end:%Y-%m-%d}", "deviance": dev, "citywide": dev_city, "raw": dev_raw, "spearman": rho,
-            "high_in_top_quartile": share_in_top_quartile(actual, tier == "HIGH"),
-            "raw_high_in_top_quartile": share_in_top_quartile(actual, tiers(base["Raw area history"]) == "HIGH"),
-            "tier": tier, "actual": actual,
-            "selectors": {s: holdout(df, areas, expected, (history_start, history_end), (start, end), s) for s in SELECTORS},
-        })
+        dev, rho = score(f.actual, expected)
+        dev_city, _ = score(f.actual, base["citywide"])
+        dev_raw, _ = score(f.actual, base["raw"])
+        rows.append(
+            {
+                "fold": f.label,
+                "deviance": dev,
+                "citywide": dev_city,
+                "raw": dev_raw,
+                "spearman": rho,
+                "high_in_top_quartile": share_in_top_quartile(f.actual, tier == "HIGH"),
+                "raw_high_in_top_quartile": share_in_top_quartile(f.actual, tiers(base["raw"]) == "HIGH"),
+                "tier": tier,
+                "actual": f.actual,
+                "selectors": {s: holdout(df, areas, expected, f.history_period, f.period, s) for s in SELECTORS},
+            }
+        )
     return rows
 
 
@@ -65,14 +70,15 @@ def selector_flags(rows: Sequence[FoldRow]) -> dict[str, Flag]:
     return {s: flag([r["selectors"][s] for r in rows]) for s in SELECTORS}
 
 
-def targets(rows: Sequence[FoldRow]) -> list[tuple[str, str, str, bool]]:
+def targets(rows: Sequence[FoldRow]) -> list[tuple[str, str, tuple[float, ...], bool]]:
+    """(fold, check key, the numbers compared, passed): "citywide" and "raw" hold (deviance, baseline deviance)."""
     checks = []
     for r in rows:
         checks += [
-            (r["fold"], "Deviance better than citywide share", f"{r['deviance']:.3f} vs {r['citywide']:.3f}", r["deviance"] < r["citywide"]),
-            (r["fold"], "Deviance within 1% of or better than raw area history", f"{r['deviance']:.3f} vs {r['raw']:.3f}", r["deviance"] <= TARGET_WITHIN_RAW * r["raw"]),
-            (r["fold"], "High-tier areas in the actual top quartile >= 70%", f"{r['high_in_top_quartile']:.0%}", r["high_in_top_quartile"] >= TARGET_HIGH_IN_TOP_QUARTILE),
+            (r["fold"], "citywide", (r["deviance"], r["citywide"]), r["deviance"] < r["citywide"]),
+            (r["fold"], "raw", (r["deviance"], r["raw"]), r["deviance"] <= TARGET_WITHIN_RAW * r["raw"]),
+            (r["fold"], "high", (r["high_in_top_quartile"],), r["high_in_top_quartile"] >= TARGET_HIGH_IN_TOP_QUARTILE),
         ]
     last = rows[-1]
-    checks.append((last["fold"], "Spearman >= 0.6 (last fold only)", f"{last['spearman']:.3f}", last["spearman"] >= TARGET_SPEARMAN))
+    checks.append((last["fold"], "spearman", (last["spearman"],), last["spearman"] >= TARGET_SPEARMAN))
     return checks

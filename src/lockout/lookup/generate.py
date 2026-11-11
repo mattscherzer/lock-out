@@ -1,4 +1,5 @@
 """The lookup file: the JSON contract with the frontend (issue #38, #40, #63)."""
+
 import json
 from collections.abc import Sequence
 from pathlib import Path
@@ -7,7 +8,6 @@ import numpy as np
 import pandas as pd
 
 from lockout import config
-from lockout.geo.lor import area_names
 from lockout.lookup.schema import problems
 from lockout.models.area_stats import LIMITED_DATA_BELOW, area_stats, citywide_facts, confidence_thresholds
 from lockout.models.backtest import HISTORY_MONTHS, counts
@@ -20,7 +20,10 @@ MODEL_TYPE = "eb_gamma_poisson"
 ATTRIBUTION = {
     "police": "Datenquelle: Polizei Berlin (CC-BY 4.0)",
     "osm": "© OpenStreetMap contributors (ODbL)",
-    "lor": "Datenquelle: Amt für Statistik Berlin-Brandenburg / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen – ODIS Berlin (dl-de/by-2-0)",
+    "lor": (
+        "Datenquelle: Amt für Statistik Berlin-Brandenburg / Senatsverwaltung für Stadtentwicklung, "
+        "Bauen und Wohnen – ODIS Berlin (dl-de/by-2-0)"
+    ),
 }
 
 
@@ -34,14 +37,21 @@ def citywide_multipliers(df: pd.DataFrame) -> dict[str, dict[str, float]]:
 
 
 def generator_window(df: pd.DataFrame, cutoff: pd.Timestamp) -> tuple[pd.DataFrame, pd.Timestamp]:
-    """The thefts the generator counts: those whose window ended in the 12 months up to the cutoff; also that first day."""
+    """The thefts the generator counts: those whose window ended in the 12 months to the cutoff, and its first day."""
     start = cutoff - pd.DateOffset(months=HISTORY_MONTHS) + pd.Timedelta(days=1)
     return df[df["TATZEIT_ENDE_DATUM"].between(start, cutoff)], start
 
 
-def generate(df: pd.DataFrame, areas: Sequence[str], reports_up_to: pd.Timestamp, cutoff: pd.Timestamp, source: str,
-             selectors: dict[str, Flag]) -> dict:
-    """The generator output. selectors: the per-selector flags from selector_flags()."""
+def generate(
+    df: pd.DataFrame,
+    areas: Sequence[str],
+    names: dict[str, dict[str, str]],
+    reports_up_to: pd.Timestamp,
+    cutoff: pd.Timestamp,
+    source: str,
+    selectors: dict[str, Flag],
+) -> dict:
+    """The generator output. names: area_names(); selectors: the per-selector flags from selector_flags()."""
     window, start = generator_window(df, cutoff)
     y = counts(window, areas, start, cutoff)
     rate, a = fit(y)
@@ -49,10 +59,10 @@ def generate(df: pd.DataFrame, areas: Sequence[str], reports_up_to: pd.Timestamp
     check_tier_shares(tier)
     stats = area_stats(window, areas)
     # the confidence label rests on the same counts as reports_12m and limited_data
-    assert (stats["reports_12m"] == y.reindex(stats.index)).all(), "area_stats and the generator count different thefts"
+    if not (stats["reports_12m"] == y.reindex(stats.index)).all():
+        raise ValueError("area_stats and the generator count different thefts")
     street_record = set(df["LOR"])  # no_record: no street theft at all in the cleaned data
     shares = citywide_multipliers(window)
-    names = area_names()
     bounds = [0.0] + [top for _, top in TIERS]
     out = {
         "metadata": {
@@ -67,7 +77,10 @@ def generate(df: pd.DataFrame, areas: Sequence[str], reports_up_to: pd.Timestamp
             "citywide_facts": citywide_facts(window),
             "confidence_thresholds": confidence_thresholds(),
         },
-        "risk_bands": {name: {"min_percentile": low, "max_percentile": top} for (name, top), low in zip(TIERS, bounds)},
+        "risk_bands": {
+            name: {"min_percentile": low, "max_percentile": top}
+            for (name, top), low in zip(TIERS, bounds, strict=False)
+        },
         # citywide shares and the hold-out flag per selector; 1.0.0 carries no area values for any selector
         "selectors": {s: {"shares": shares[s], **selectors[s], "area_values": False} for s in SELECTORS},
         "areas": {
@@ -87,12 +100,11 @@ def generate(df: pd.DataFrame, areas: Sequence[str], reports_up_to: pd.Timestamp
             for lor in areas
         },
     }
-    assert len(out["areas"]) == 542
     return out
 
 
 def write_lookup(lookup: dict, path: Path = LOOKUP) -> None:
-    """Write only a schema-valid lookup, else raise ValueError; the schema lets NaN/inf through but they would break JSON.parse."""
+    """Write only a schema-valid lookup, else raise ValueError; NaN/inf pass the schema but break JSON.parse."""
     if found := problems(lookup):
         raise ValueError("The output does not match schemas/lookup_v1.schema.json:\n" + "\n".join(found[:20]))
     try:

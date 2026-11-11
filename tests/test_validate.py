@@ -2,12 +2,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from lockout.geo.lor import polygon_ids
-from lockout.cli.validate import markdown
-from lockout.geo.lor import bezirke
+from lockout.cli.validate import explain, markdown
+from lockout.geo.lor import bezirke, polygon_ids
 from lockout.models.evaluate import evaluate, selector_flags
-from lockout.models.validation import calibration, explain, fairness
-from lockout.pipeline.clean import clean
+from lockout.models.validation import calibration, fairness
+from lockout.pipeline.clean import clean, cutoff
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "fahrraddiebstahl_sample.csv"
 
@@ -41,7 +40,11 @@ def test_zero_on_one_side_is_flagged_with_a_small_numbers_note():
 
 
 def test_explanation_names_the_areas_behind_the_flag():
-    t = fairness(pd.Series(["MEDIUM", "LOW", "HIGH", "HIGH"]), pd.Series([True, True, True, False]), pd.Series(["X", "X", "Y", "Y"]))
+    t = fairness(
+        pd.Series(["MEDIUM", "LOW", "HIGH", "HIGH"]),
+        pd.Series([True, True, True, False]),
+        pd.Series(["X", "X", "Y", "Y"]),
+    )
     under = explain(t.loc["X"], cut=4)
     over = explain(t.loc["Y"], cut=4)
     assert "ranks 1 of its 2 top-quartile areas Medium and 1 Low" in under and "Small numbers" in under
@@ -57,11 +60,10 @@ def test_every_area_has_one_of_the_twelve_bezirke():
 def test_report_on_the_sample_data():
     raw = pd.read_csv(FIXTURE, encoding="iso-8859-1", dtype={"LOR": str})
     cleaned = clean(raw[raw["LOR"] != "99999999"])
-    cleaned["LOR"] = cleaned["LOR"].str.zfill(8)
     areas = sorted(polygon_ids())
     rows = evaluate(cleaned, areas)
     end = cleaned["ANGELEGT_AM"].max()
-    md = markdown(rows, selector_flags(rows), bezirke().reindex(areas), end, end - pd.Timedelta(days=14), "sample.csv")
+    md = markdown(rows, selector_flags(rows), bezirke().reindex(areas), end, cutoff(cleaned), "sample.csv")
     for heading in ["## Calibration", "## District fairness", "### Flagged Bezirke", "## Selectors"]:
         assert heading in md
     assert md.count("| citywide pattern |") == 3

@@ -2,48 +2,120 @@
 
 Run from the repo root: uv run python -m lockout.cli.validate [path to the police CSV]
 """
+
 import sys
 
 import numpy as np
 import pandas as pd
 
+from lockout import config
 from lockout.cli.common import load_cleaned, require_folds_complete, table
 from lockout.geo.lor import bezirke
 from lockout.models.eb import TIERS
 from lockout.models.evaluate import TOP_QUARTILE, FoldRow, evaluate, selector_flags, top_quartile
 from lockout.models.selectors import BIKE_VALUE_SPLIT_EUR, MIN_MEDIAN_PER_LEVEL, SELECTORS, Flag
-from lockout.models.validation import FAIRNESS_FACTOR, HIGH_OVER_LOW, SMALL_NUMBERS_BELOW, calibration, explain, fairness
+from lockout.models.validation import FAIRNESS_FACTOR, HIGH_OVER_LOW, SMALL_NUMBERS_BELOW, calibration, fairness
 from lockout.paths import DOCS_DIR
 
 OUT = DOCS_DIR / "validation-report.md"
-SELECTOR_NAMES = {"time_band": "Time band", "day_group": "Day group", "bike_value": f"Bike value (EUR {BIKE_VALUE_SPLIT_EUR} split)"}
+SELECTOR_NAMES = {
+    "time_band": "Time band",
+    "day_group": "Day group",
+    "bike_value": f"Bike value (EUR {BIKE_VALUE_SPLIT_EUR} split)",
+}
 
 
-def markdown(rows: list[FoldRow], flags: dict[str, Flag], bezirk: pd.Series, reports_up_to: pd.Timestamp, cutoff: pd.Timestamp, source: str) -> str:
+def explain(b: pd.Series, cut: float) -> str:
+    """The numbers behind a flagged Bezirk: which share is larger, and which of its areas make the difference."""
+    if b["share_high"] < b["share_top"]:
+        text = (
+            f"Holds {b['share_top']:.1%} of the city's top-quartile areas but {b['share_high']:.1%} of its High areas. "
+            f"The model ranks {b['top_medium']} of its {b['top']} top-quartile areas Medium and {b['top_low']} Low."
+        )
+    else:
+        text = (
+            f"Holds {b['share_high']:.1%} of the city's High areas but {b['share_top']:.1%} of its top-quartile areas. "
+            f"{b['high'] - b['high_and_top']} of its {b['high']} High areas had fewer thefts in this fold than the top-quartile cut ({cut:g})."
+        )
+    if min(b["high"], b["top"]) < SMALL_NUMBERS_BELOW:
+        text += " Small numbers: one area more or less changes the ratio a lot."
+    return text
+
+
+def markdown(
+    rows: list[FoldRow],
+    flags: dict[str, Flag],
+    bezirk: pd.Series,
+    reports_up_to: pd.Timestamp,
+    cutoff: pd.Timestamp,
+    source: str,
+) -> str:
     tier_names = [name for name, _ in TIERS]
     cal_rows, fair_parts, flagged = [], [], []
     for r in rows:
         means, ok = calibration(r["actual"], r["tier"])
-        cal_rows.append([r["fold"], *(f"{means[n]:.2f}" for n in tier_names), f"{means['HIGH'] / means['LOW']:.1f}x", "pass" if ok else "MISS"])
+        cal_rows.append(
+            [
+                r["fold"],
+                *(f"{means[n]:.2f}" for n in tier_names),
+                f"{means['HIGH'] / means['LOW']:.1f}x",
+                "pass" if ok else "MISS",
+            ]
+        )
         top = top_quartile(r["actual"])
         t = fairness(r["tier"], top, bezirk)
         cut = r["actual"].quantile(TOP_QUARTILE)
-        fair_parts.append(f"### {r['fold']}\n\n" + table(
-            ["Bezirk", "Areas", "High", "Top quartile", "Share of city's High", "Share of city's top quartile", "Ratio", "Flag"],
-            [[name, b["areas"], b["high"], b["top"], f"{b['share_high']:.1%}", f"{b['share_top']:.1%}",
-              "n/a" if np.isnan(b["ratio"]) else ("inf" if np.isinf(b["ratio"]) else f"{b['ratio']:.2f}"), "flagged" if b["flagged"] else ""]
-             for name, b in t.iterrows()]))
+        fair_parts.append(
+            f"### {r['fold']}\n\n"
+            + table(
+                [
+                    "Bezirk",
+                    "Areas",
+                    "High",
+                    "Top quartile",
+                    "Share of city's High",
+                    "Share of city's top quartile",
+                    "Ratio",
+                    "Flag",
+                ],
+                [
+                    [
+                        name,
+                        b["areas"],
+                        b["high"],
+                        b["top"],
+                        f"{b['share_high']:.1%}",
+                        f"{b['share_top']:.1%}",
+                        "n/a" if np.isnan(b["ratio"]) else ("inf" if np.isinf(b["ratio"]) else f"{b['ratio']:.2f}"),
+                        "flagged" if b["flagged"] else "",
+                    ]
+                    for name, b in t.iterrows()
+                ],
+            )
+        )
         flagged += [f"- **{name}, {r['fold']}:** {explain(b, cut)}" for name, b in t[t["flagged"]].iterrows()]
     sel_rows = []
     for s in SELECTORS:
         checks = [r["selectors"][s] for r in rows]
-        holdout_alone = "area better in both folds" if all(c["area"] < c["citywide"] for c in checks) else "not better in both folds"
-        sel_rows.append([SELECTOR_NAMES[s], *(f"{c['median']:.1f}" for c in checks),
-                         *(f"{c['citywide']:.3f} vs {c['area']:.3f}" for c in checks), holdout_alone, flags[s]["pattern"], flags[s]["reason"]])
+        holdout_alone = (
+            "area better in both folds"
+            if all(c["area"] < c["citywide"] for c in checks)
+            else "not better in both folds"
+        )
+        sel_rows.append(
+            [
+                SELECTOR_NAMES[s],
+                *(f"{c['median']:.1f}" for c in checks),
+                *(f"{c['citywide']:.3f} vs {c['area']:.3f}" for c in checks),
+                holdout_alone,
+                flags[s]["pattern"],
+                flags[s]["reason"],
+            ]
+        )
     folds = [r["fold"] for r in rows]
     return f"""# Validation Report: Calibration, District Fairness and Selectors
 
-Generated by `uv run python -m lockout.cli.validate data/raw/{source}` from `{source}` (not in Git), with reports up to {reports_up_to:%d %b %Y} and thefts counted up to the 14-day cutoff, {cutoff:%d %b %Y}. It uses the EB model v0 and the two folds of `docs/backtest-results.md`: each fold's tiers come from the 12 months before it and are checked against the thefts in the fold. Compare runs on the same file.
+Generated by `uv run python -m lockout.cli.validate data/raw/{source}` from `{source}` (not in Git), with reports up to {reports_up_to:%d %b %Y} and thefts counted up to the {config.LAG_CUTOFF_DAYS}-day cutoff, {cutoff:%d %b %Y}. It uses the EB model v0 and the two folds of `docs/backtest-results.md`: each fold's tiers come from the 12 months before it and are checked against the thefts in the fold. Compare runs on the same file.
 
 ## Calibration
 
@@ -91,8 +163,10 @@ def main() -> None:
     for r in rows:
         means, ok = calibration(r["actual"], r["tier"])
         t = fairness(r["tier"], top_quartile(r["actual"]), bezirk)
-        print(f"{r['fold']}: calibration {'pass' if ok else 'MISS'} ({', '.join(f'{n} {m:.2f}' for n, m in means.items())}); "
-              f"flagged Bezirke: {', '.join(t.index[t['flagged']]) or 'none'}")
+        print(
+            f"{r['fold']}: calibration {'pass' if ok else 'MISS'} ({', '.join(f'{n} {m:.2f}' for n, m in means.items())}); "
+            f"flagged Bezirke: {', '.join(t.index[t['flagged']]) or 'none'}"
+        )
     for s, result in flags.items():
         print(f"{s}: {result['pattern']} ({result['reason']})")
     print(f"Wrote {OUT}")

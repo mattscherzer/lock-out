@@ -2,6 +2,7 @@
 
 Run from the repo root: uv run python -m lockout.cli.fetch
 """
+
 import sys
 
 from lockout.ingest.fetch import FetchError, fetch_data

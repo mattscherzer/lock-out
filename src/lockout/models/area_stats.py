@@ -2,6 +2,7 @@
 
 Everything uses the generator's 12-month window, so the counts match the report count on the card.
 """
+
 from collections.abc import Sequence
 
 import pandas as pd
@@ -14,7 +15,7 @@ LOCK_DEFEATED = "schwerer"  # ERFASSUNGSGRUND marks a theft where a lock was def
 
 
 def confidence(n: int) -> str:
-    """LOW below LIMITED_DATA_BELOW (same line as "limited data", M6); HIGH from 20 thefts even if fewer have a usable value."""
+    """LOW below LIMITED_DATA_BELOW (same line as "limited data", M6); HIGH from 20 thefts, usable value or not."""
     if n < LIMITED_DATA_BELOW:
         return "LOW"
     return "MEDIUM" if n < OWN_MEDIAN_FROM else "HIGH"
@@ -36,15 +37,18 @@ def citywide_facts(window: pd.DataFrame) -> dict[str, float]:
 
 def area_stats(window: pd.DataFrame, areas: Sequence[str]) -> pd.DataFrame:
     """One row per area: reports_12m, median stolen value, its source and the confidence.
-    An area with OWN_MEDIAN_FROM usable values gets its own median ("area"), the rest the citywide one; every theft counts in reports_12m."""
+    An area with OWN_MEDIAN_FROM usable values gets its own median ("area"), the rest the citywide one;
+    every theft counts in reports_12m."""
     n = window.groupby("LOR").size().reindex(areas, fill_value=0)
     value = stolen_value(window).groupby(window["LOR"])
     own = value.median().reindex(areas)
     has_own = value.count().reindex(areas, fill_value=0) >= OWN_MEDIAN_FROM
     city = citywide_facts(window)["median_stolen_value_eur"]
-    return pd.DataFrame({
-        "reports_12m": n,
-        "median_stolen_value_eur": own.where(has_own, city).round().astype(int),
-        "median_source": has_own.map({True: "area", False: "citywide"}),
-        "confidence": n.map(confidence),
-    })
+    return pd.DataFrame(
+        {
+            "reports_12m": n,
+            "median_stolen_value_eur": own.where(has_own, city).round().astype(int),
+            "median_source": has_own.map({True: "area", False: "citywide"}),
+            "confidence": n.map(confidence),
+        }
+    )

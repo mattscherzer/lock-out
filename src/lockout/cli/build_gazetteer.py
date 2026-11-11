@@ -18,8 +18,10 @@ Output, two files in frontend/public/:
 
 Run from the repo root: uv run python -m lockout.cli.build_gazetteer [--src DIR] [--out FILE]
 """
+
 import argparse
 import json
+import sys
 from pathlib import Path
 
 import geopandas as gpd
@@ -46,14 +48,23 @@ def main() -> None:
     lazy = {"ids": ids, "streets": tree}
     # self-check: a few places everybody knows, and no empty answers
     named = {(b, t, n): v for b, ts in tree.items() for t, ns in ts.items() for n, v in ns.items()}
-    assert len(eager["plz"]) > 150 and len(named) > 8000 and len(eager["stations"]) > 250
-    assert all(eager["plz"].values()) and all(named.values())
-    assert any(x[0] == "Ostbahnhof" for x in eager["stations"])
-    assert len(tree["Mitte"]["Street"]["Invalidenstraße"]) > 1  # spans several areas
-    assert sum("Hauptstraße" in ts.get("Street", {}) for ts in tree.values()) > 1  # one result per Bezirk
-    assert {t for ts in tree.values() for t in ts} >= {"Street", "Square", "Water", "Motorway", "Forest"}
-    assert "Spandauer See" in tree["Spandau"]["Water"] and "Großer Stern" in tree["Charlottenburg-Wilmersdorf"]["Square"]
-    assert any("A 100 BAB Stadtring" in ts.get("Motorway", {}) for ts in tree.values())
+    checks = {
+        "too few postcodes, streets or stations": len(eager["plz"]) > 150
+        and len(named) > 8000
+        and len(eager["stations"]) > 250,
+        "an entry without areas": all(eager["plz"].values()) and all(named.values()),
+        "no station Ostbahnhof": any(x[0] == "Ostbahnhof" for x in eager["stations"]),
+        "Invalidenstraße does not span several areas": len(tree["Mitte"]["Street"]["Invalidenstraße"]) > 1,
+        "Hauptstraße is not one result per Bezirk": sum("Hauptstraße" in ts.get("Street", {}) for ts in tree.values())
+        > 1,
+        "a display type is missing": {t for ts in tree.values() for t in ts}
+        >= {"Street", "Square", "Water", "Motorway", "Forest"},
+        "Spandauer See or Großer Stern is missing": "Spandauer See" in tree["Spandau"]["Water"]
+        and "Großer Stern" in tree["Charlottenburg-Wilmersdorf"]["Square"],
+        "no motorway A 100 BAB Stadtring": any("A 100 BAB Stadtring" in ts.get("Motorway", {}) for ts in tree.values()),
+    }
+    if failed := [what for what, ok in checks.items() if not ok]:
+        sys.exit("Gazetteer self-check failed: " + "; ".join(failed))
     for path, data in ((a.out, eager), (a.out.with_name("gazetteer_streets.json"), lazy)):
         path.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")))
         print(path.name, {k: len(v) for k, v in data.items()}, f"{path.stat().st_size / 1e3:.0f} kB")

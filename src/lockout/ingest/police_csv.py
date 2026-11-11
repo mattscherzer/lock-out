@@ -1,4 +1,5 @@
-"""Checks that stop the audit when the police CSV is broken."""
+"""Load the police CSV and stop if it is broken."""
+
 import csv
 from pathlib import Path
 
@@ -8,7 +9,7 @@ from lockout import config
 from lockout.geo.lor import polygon_ids
 
 
-class AuditError(Exception):
+class CsvError(Exception):
     pass
 
 
@@ -25,22 +26,21 @@ def detect_delimiter(path: Path, encoding: str) -> str:
     try:
         return csv.Sniffer().sniff(sample, delimiters=",;").delimiter
     except csv.Error:
-        raise AuditError("Could not detect the delimiter (expected , or ;)")
+        raise CsvError("Could not detect the delimiter (expected , or ;)") from None
 
 
-def check_csv(path: Path, min_rows: int = config.MIN_ROWS) -> pd.DataFrame:
+def load_police_csv(path: Path, min_rows: int = config.MIN_ROWS) -> pd.DataFrame:
     encoding = detect_encoding(path)
     delimiter = detect_delimiter(path, encoding)
     df = pd.read_csv(path, sep=delimiter, encoding=encoding, dtype={"LOR": str})
     missing = set(config.REQUIRED_COLUMNS) - set(df.columns)
     if missing:
-        raise AuditError(f"Missing columns: {sorted(missing)}")
+        raise CsvError(f"Missing columns: {sorted(missing)}")
     if len(df) < min_rows:
-        raise AuditError(f"Only {len(df):,} rows, expected at least {min_rows:,}")
-    unknown = set(df["LOR"].str.zfill(8)) - polygon_ids()
+        raise CsvError(f"Only {len(df):,} rows, expected at least {min_rows:,}")
+    known = polygon_ids()
+    unknown = set(df["LOR"].str.zfill(8)) - known
     if unknown:
-        raise AuditError(f"Area IDs not among the 542 polygons: {sorted(unknown)}")
-    if not isinstance(config.LAG_CUTOFF_DAYS, int) or config.LAG_CUTOFF_DAYS <= 0:
-        raise AuditError("Lag cutoff is not set in config.py")
+        raise CsvError(f"Area IDs not among the {len(known)} polygons: {sorted(unknown)}")
     print(f"Encoding: {encoding}, delimiter: {delimiter!r}, rows: {len(df):,}")
     return df

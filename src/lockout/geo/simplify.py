@@ -1,4 +1,5 @@
 """Boundary simplification for the frontend map (stdlib only)."""
+
 TOL = 0.0002  # degrees, about 15 m
 
 

@@ -2,6 +2,7 @@
 
 Run from the repo root: uv run python -m lockout.cli.area_stats [path to the police CSV]
 """
+
 import sys
 
 from lockout.cli.common import load_cleaned
@@ -11,14 +12,24 @@ from lockout.pipeline.clean import stolen_value
 
 
 def main() -> None:
-    _, cleaned, areas, _, cutoff = load_cleaned(sys.argv)
-    window, start = generator_window(cleaned, cutoff)
-    table = area_stats(window, areas)
+    data = load_cleaned(sys.argv)
+    window, start = generator_window(data.df, data.cutoff)
+    table = area_stats(window, data.areas)
     facts = citywide_facts(window)
-    print(f"Window: {start:%d %b %Y} to {cutoff:%d %b %Y}, {len(window):,} street thefts, {stolen_value(window).isna().sum():,} without a usable value (blank or 0)")
+    print(
+        f"Window: {start:%d %b %Y} to {data.cutoff:%d %b %Y}, {len(window):,} street thefts, {stolen_value(window).isna().sum():,} without a usable value (blank or 0)"
+    )
     print(f"Areas with their own median stolen value: {(table['median_source'] == 'area').sum()} of {len(table)}")
-    print(f"Citywide: median stolen value EUR {facts['median_stolen_value_eur']:,}, lock-defeated share {facts['lock_defeated_share']:.0%}")
-    print("Confidence:", ", ".join(f"{k} {v}" for k, v in table["confidence"].value_counts().reindex(["LOW", "MEDIUM", "HIGH"], fill_value=0).items()))
+    print(
+        f"Citywide: median stolen value EUR {facts['median_stolen_value_eur']:,}, lock-defeated share {facts['lock_defeated_share']:.0%}"
+    )
+    print(
+        "Confidence:",
+        ", ".join(
+            f"{k} {v}"
+            for k, v in table["confidence"].value_counts().reindex(["LOW", "MEDIUM", "HIGH"], fill_value=0).items()
+        ),
+    )
 
 
 if __name__ == "__main__":

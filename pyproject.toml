@@ -28,4 +28,16 @@ pythonpath = ["src"]
 dev = [
     "ipykernel>=7.4.0",
     "pytest>=8.0.0",
+    "ruff",
 ]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/lockout/cli/*.py" = ["E501"]

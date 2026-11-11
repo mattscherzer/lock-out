@@ -4,6 +4,7 @@ Run from the repo root: uv run python -m lockout.cli.osm_features
 Aggregate counts only, one Overpass request per kind cached in data/raw/osm/cache; not in Git until the ODbL question (R4)
 is answered. Data © OpenStreetMap contributors, ODbL.
 """
+
 import osmnx as ox
 
 from lockout.geo.osm_features import feature_table, planning_areas

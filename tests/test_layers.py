@@ -24,6 +24,9 @@ def test_layers_only_import_downwards_and_only_cli_runs_things():
         for name in imported(tree):
             if name.startswith("lockout."):
                 assert LAYER[name.split(".")[1]] <= layer, f"{path} imports {name} from a higher layer"
-        runs = any(isinstance(n, ast.Attribute) and n.attr == "exit" and getattr(n.value, "id", "") == "sys" for n in ast.walk(tree))
+        runs = any(
+            isinstance(n, ast.Attribute) and n.attr == "exit" and getattr(n.value, "id", "") == "sys"
+            for n in ast.walk(tree)
+        )
         runs |= any(isinstance(n, ast.Name) and n.id == "__name__" for n in ast.walk(tree))
         assert not runs or parts[1] == "cli", f"{path} has sys.exit or __main__ outside lockout.cli"

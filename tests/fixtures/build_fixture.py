@@ -1,4 +1,5 @@
 """Rebuild fahrraddiebstahl_sample.csv from data/raw (run: uv run python tests/fixtures/build_fixture.py)."""
+
 from pathlib import Path
 
 import pandas as pd

@@ -4,6 +4,7 @@ Run from the repo root: uv run python -m lockout.cli.check_lookup [file ...]
 With no file, checks data/processed/lookup_schema_v1.json and frontend/public/lookup_schema_v1.json.
 Exits 1 and lists the problems if a file does not match, so the refresh workflow can use it as a step.
 """
+
 import sys
 
 from lockout.lookup.schema import load, problems

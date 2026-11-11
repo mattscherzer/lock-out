@@ -1,4 +1,5 @@
 """Empirical Bayes model v0: Gamma-Poisson shrinkage from area to Bezirksregion to city (issue #38, roadmap M4)."""
+
 from typing import TypeAlias
 
 import numpy as np
@@ -44,7 +45,7 @@ def fit(area_counts: pd.Series) -> tuple[pd.Series, dict[str, float]]:
 def tiers(rate: pd.Series) -> pd.Series:
     """Relative percentile bands, cut at 60% and 85%. Areas with the same rate get the same, higher tier."""
     pct = rate.rank(method="max") / len(rate)
-    return pct.apply(lambda p: next(name for name, top in TIERS if p <= top))
+    return pd.cut(pct, [0.0, *(top for _, top in TIERS)], labels=[name for name, _ in TIERS]).astype(object)
 
 
 def check_tier_shares(tier: pd.Series) -> None:
@@ -52,5 +53,6 @@ def check_tier_shares(tier: pd.Series) -> None:
     lower = 0.0
     for name, top in TIERS:
         target, share = top - lower, float(shares.get(name, 0.0))
-        assert abs(share - target) <= TIER_SHARE_TOLERANCE, f"{name} holds {share:.1%} of areas, target {target:.0%}"
+        if abs(share - target) > TIER_SHARE_TOLERANCE:
+            raise ValueError(f"{name} holds {share:.1%} of areas, target {target:.0%}")
         lower = top
