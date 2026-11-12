@@ -6,6 +6,7 @@ import { AreaAnswer } from "../answer/AreaAnswer.tsx";
 import { About } from "../About.tsx";
 import type { Gazetteer } from "../data/files.ts";
 import { loadStreets, type AppData } from "../data/load.ts";
+import { buildAreaFinder } from "../domain/areaAt.ts";
 import { AreaMap, type AreaMapHandle } from "../map/AreaMap.tsx";
 import { Legend } from "../map/Legend.tsx";
 import { LegendMenu } from "../map/LegendMenu.tsx";
@@ -47,6 +48,7 @@ export function App({ lookup, areas, gazetteer }: AppData) {
     () => buildIndex(gazetteer ?? EMPTY_GAZETTEER, lookup.areas),
     [gazetteer, lookup],
   );
+  const areaAt = useMemo(() => buildAreaFinder(areas), [areas]);
   const index = useMemo(() => ({ ...base, street: streets }), [base, streets]);
   const status = [
     gazetteer ? null : STRINGS.status.noPostcodeSearch,
@@ -119,6 +121,7 @@ export function App({ lookup, areas, gazetteer }: AppData) {
           onClear={() => dispatch({ type: "clear" })}
           onHighlight={(id) => dispatch({ type: "highlight", id })}
           loadStreets={searchStreets}
+          locate={areaAt}
         />
       </div>
       <div>

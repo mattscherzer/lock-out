@@ -21,7 +21,9 @@ import {
   searchPlaces,
   statusText,
 } from "./places.ts";
+import { LocationRow } from "./LocationRow.tsx";
 import { ExampleRows, ResultRows } from "./ResultRows.tsx";
+import { useLocate } from "./useLocate.ts";
 import { useStreets } from "./useStreets.ts";
 import { useVisualViewport } from "./useVisualViewport.ts";
 import type { Areas } from "../domain/lookup.ts";
@@ -40,6 +42,7 @@ type Props = {
   onClear: () => void;
   onHighlight?: (id: string | null) => void; // the area under the pointer or arrow keys in the open list
   loadStreets?: () => Promise<unknown>; // must reject on failure; retried on the next focus
+  locate?: (lat: number, lon: number) => string | null; // the area id at a position, or null; without it there is no "Use my location" row
 };
 
 // Write class strings out whole so Tailwind sees them; never build one from state.
@@ -69,6 +72,7 @@ export function AreaSearch({
   onClear,
   onHighlight,
   loadStreets,
+  locate,
 }: Props) {
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
@@ -79,6 +83,7 @@ export function AreaSearch({
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<number | null>(null); // null: the picked row, else the first
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set()); // places showing all their areas
+  const [announce, setAnnounce] = useState(""); // for the live region: what the location row just did
   const limit = useSyncExternalStore(
     subscribeWide,
     () => ((window.matchMedia?.(WIDE).matches ?? true) ? MAX_ROWS.wide : MAX_ROWS.mobile),
@@ -91,6 +96,11 @@ export function AreaSearch({
     load: loadNow,
   } = useStreets(loadStreets);
   useVisualViewport();
+  const where = useLocate({
+    open,
+    find: locate,
+    onFound: (id) => pickArea(id),
+  });
 
   const selectedName = selected ? (areas[selected]?.name ?? "") : "";
   const text = draft ?? selectedName;
@@ -149,9 +159,21 @@ export function AreaSearch({
     reselect.current = false;
   });
 
+  // the area found from the position: selected like a picked area, with no place it was found by
+  const pickArea = (id: string) => {
+    setChosen(undefined);
+    setDraft(null);
+    setOpen(false);
+    setActive(null);
+    setAnnounce(S.location.live.selected(areas[id]?.name ?? ""));
+    input.current?.blur();
+    onSelect(id, null);
+  };
+
   const choose = (r: Row, pointer = false) => {
     if (r.type === "more") return setExpanded((e) => new Set(e).add(placeKey(r.place)));
     if (r.type !== "area") return;
+    where.reset();
     setChosen({ id: r.id, query: searchText, place: placeKey(r.place) });
     setDraft(null);
     setOpen(false);
@@ -168,6 +190,7 @@ export function AreaSearch({
 
   const onFocus = () => {
     justFocused.current = true;
+    setAnnounce("");
     if (!retrying.current) input.current?.select();
     retrying.current = false;
     setActive(null);
@@ -183,12 +206,14 @@ export function AreaSearch({
   };
 
   const pickExample = (label: string) => {
+    where.reset();
     setDraft(label);
     setActive(null);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
+      where.reset();
       reselect.current = !!selected;
       return close();
     }
@@ -212,6 +237,16 @@ export function AreaSearch({
     ? statusText({ tooShort, error: streetsError, loading: streetsLoading, results: rows.length })
     : "";
 
+  const locateLive = !empty
+    ? ""
+    : where.noArea
+      ? `${S.location.noAreaTitle}. ${S.location.noAreaBody}`
+      : where.view === "wait"
+        ? S.location.live.waiting
+        : where.view === "fail"
+          ? S.location.failed
+          : "";
+
   return (
     <div
       className="area-search"
@@ -225,6 +260,7 @@ export function AreaSearch({
           aria-label={S.closeLabel}
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => {
+            where.reset();
             close();
             input.current?.blur();
           }}
@@ -249,6 +285,7 @@ export function AreaSearch({
           spellCheck={false}
           value={text}
           onChange={(e) => {
+            where.reset();
             setDraft(e.target.value);
             setActive(null);
             setOpen(true);
@@ -274,6 +311,7 @@ export function AreaSearch({
             aria-label={S.clearLabel}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              where.reset();
               setDraft("");
               setActive(null);
               setOpen(true);
@@ -311,6 +349,21 @@ export function AreaSearch({
               </li>
             ))}
           </ul>
+        )}
+        {empty && where.noArea && (
+          <div className={MESSAGE}>
+            <p className={`${MESSAGE_TITLE} text-on-surface`}>{S.location.noAreaTitle}</p>
+            <p className="m-0">{S.location.noAreaBody}</p>
+          </div>
+        )}
+        {empty && where.supported && (
+          <LocationRow
+            view={where.view}
+            helpOpen={where.helpOpen}
+            helpId={`${id}-locate-help`}
+            onLocate={where.locate}
+            onToggleHelp={where.toggleHelp}
+          />
         )}
         {empty && <p className={LABEL}>{S.tryTitle}</p>}
         {shown && !tooShort && !rows.length && !streetsLoading && !streetsError && (
@@ -350,7 +403,7 @@ export function AreaSearch({
         </div>
       </div>
       <div className="sr-only" role="status" aria-live="polite">
-        {status}
+        {status || announce || locateLive}
       </div>
     </div>
   );

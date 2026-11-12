@@ -149,6 +149,19 @@ export const STRINGS = {
     examplesLabel: "Examples",
     areasLabel: "Areas",
     narrow: "Keep typing to narrow down",
+    location: {
+      title: "Use my location",
+      ready: "Find the area you are in",
+      waitTitle: "Finding your area…",
+      wait: "This takes a few seconds",
+      denied: "Blocked in your browser settings",
+      help: "Allow location for this site in your browser’s site settings (the icon at the left of the address bar), then reload this page. You can also just type above.",
+      failed: "We couldn’t find your location. Try again or search instead.",
+      noAreaTitle: "We don’t have data for your location",
+      noAreaBody:
+        "lock-out covers Berlin only. Search for a Berlin street, postcode, area or station, or try again from another spot.",
+      live: { waiting: "Finding your area", selected: (area: string) => `Selected ${area}` },
+    },
     hints: { navigate: "↑ ↓ navigate", select: "↵ select", close: "esc close" },
     // the gazetteer's own street type: places.test.ts matches it against the shipped data
     kind: {
