@@ -12,6 +12,8 @@ import { Legend } from "../map/Legend.tsx";
 import { LegendMenu } from "../map/LegendMenu.tsx";
 import { useLegendTight } from "../map/useLegendTight.ts";
 import { AreaSearch, type AreaSearchHandle } from "../search/AreaSearch.tsx";
+import { LocateIcon } from "../search/LocateIcon.tsx";
+import { hasGeolocation } from "../search/location.ts";
 import { buildIndex, streetPlaces } from "../search/places.ts";
 import type { Context, Place } from "../search/types.ts";
 import { STRINGS } from "../strings.ts";
@@ -19,6 +21,7 @@ import { phone } from "../viewport.ts";
 import { initialSelection, selection as reduce } from "./selection.ts";
 
 const SEARCH_CLEARANCE_PX = 110;
+const LOCATE_ICON_PX = 18;
 const EMPTY_GAZETTEER: Gazetteer = { plz: {}, stations: [] };
 
 const STATUS = "absolute bottom-6 left-2 z-map-controls rounded-xs px-2 py-1 empty:hidden";
@@ -38,6 +41,8 @@ const flyPadding = (cardWidth: number): FitBoundsOptions =>
 export function App({ lookup, areas, gazetteer }: AppData) {
   const [state, dispatch] = useReducer(reduce, initialSelection);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [blocked, setBlocked] = useState(false); // the location permission is denied
+  const [me, setMe] = useState<[number, number] | null>(null); // where the user was last located; stays until the next fix
   const [streetsFailed, setStreetsFailed] = useState(false);
   const [streets, setStreets] = useState<Place[]>([]);
   const map = useRef<AreaMapHandle>(null);
@@ -90,6 +95,7 @@ export function App({ lookup, areas, gazetteer }: AppData) {
         selected={state.selected}
         highlighted={state.highlighted}
         pin={pin}
+        me={blocked ? null : me}
         onSelect={(id) => choose(id, null)}
         onMapClick={() => search.current?.close()}
         onAbout={() => setAboutOpen(true)}
@@ -98,6 +104,28 @@ export function App({ lookup, areas, gazetteer }: AppData) {
       <div id="status" className={STATUS} aria-live="polite">
         {status}
       </div>
+      {hasGeolocation() && (
+        <div className="leaflet-bar locate-control">
+          <a
+            role="button"
+            href="#locate"
+            aria-label={
+              STRINGS.search.location.mapButton[blocked ? "denied" : me ? "located" : "ready"]
+            }
+            onClick={(e) => {
+              e.preventDefault();
+              search.current?.locate();
+            }}
+            onKeyDown={(e) => {
+              if (e.key !== " ") return; // an anchor with role=button only answers Enter
+              e.preventDefault();
+              search.current?.locate();
+            }}
+          >
+            <LocateIcon blocked={blocked} located={!!me} size={LOCATE_ICON_PX} />
+          </a>
+        </div>
+      )}
       <div
         ref={legend}
         data-tight={tight || undefined}
@@ -122,6 +150,9 @@ export function App({ lookup, areas, gazetteer }: AppData) {
           onHighlight={(id) => dispatch({ type: "highlight", id })}
           loadStreets={searchStreets}
           locate={areaAt}
+          onLocated={setMe}
+          located={!!me}
+          onDenied={setBlocked}
         />
       </div>
       <div>
