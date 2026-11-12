@@ -11,6 +11,8 @@ const BERLIN_CENTRE: L.LatLngTuple = [52.52, 13.405];
 const START_ZOOM = 11;
 const PIN_RADIUS = 7;
 const PIN_RING_WEIGHT = 3;
+const ME_RADIUS = 8;
+const ME_RING_WEIGHT = 3;
 
 // a hover tooltip would stay open after the map moves
 const closeTooltips = (polygons: Record<string, L.Polygon>) =>
@@ -26,6 +28,7 @@ type Props = {
   selected: string | null;
   highlighted: string | null; // the area under the arrow keys or pointer in the open search list
   pin: { ll: [number, number]; label: string } | null; // "you searched here"
+  me: [number, number] | null; // the device position, shown as a dot
   onSelect: (id: string) => void;
   onMapClick: () => void;
   onAbout: () => void;
@@ -33,7 +36,7 @@ type Props = {
 };
 
 export function AreaMap(props: Props) {
-  const { ref, areas, lookup, active, selected, highlighted, pin } = props;
+  const { ref, areas, lookup, active, selected, highlighted, pin, me } = props;
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<L.Map>(undefined);
   const polygons = useRef<Record<string, L.Polygon>>({});
@@ -61,6 +64,7 @@ export function AreaMap(props: Props) {
     );
     map.current = m;
     tintBasemap(m);
+    m.createPane("me").style.zIndex = "450"; // above the areas, whose selected one is brought to front
     L.control.zoom({ position: "bottomright" }).addTo(m);
     // Attribution text lives in the lookup metadata so the UI and the data agree on it.
     const { police, osm } = lookup.metadata.attribution;
@@ -136,6 +140,21 @@ export function AreaMap(props: Props) {
       marker.remove();
     };
   }, [pin]);
+
+  useEffect(() => {
+    if (!me) return;
+    const dot = L.circleMarker(me, {
+      pane: "me",
+      radius: ME_RADIUS,
+      weight: ME_RING_WEIGHT,
+      className: "my-location",
+      fillOpacity: 1,
+      interactive: false,
+    }).addTo(map.current!);
+    return () => {
+      dot.remove();
+    };
+  }, [me]);
 
   useImperativeHandle(ref, () => ({
     // a fly (zoom out, pan, zoom in) reads smoother than a straight jump; the motion token is 0 under reduced motion

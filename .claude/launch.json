@@ -1,0 +1,50 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "refactor-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "../lock-out-refactor/frontend",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5199",
+        "--strictPort"
+      ],
+      "port": 5199
+    },
+    {
+      "name": "onboarding-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "../lock-out-onboarding/frontend",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5200",
+        "--strictPort"
+      ],
+      "port": 5200
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "frontend",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5188",
+        "--strictPort"
+      ],
+      "port": 5188
+    }
+  ]
+}
