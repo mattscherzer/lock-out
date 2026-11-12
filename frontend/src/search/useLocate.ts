@@ -5,9 +5,9 @@ export type LocateView = "ready" | "wait" | "denied" | "fail";
 type Status = "idle" | "waiting" | "noArea" | "failed";
 
 type Options = {
-  open: boolean; // the search list; the permission is read when it opens
+  open: boolean; // the search list; opening or closing it drops an old message
   find?: (lat: number, lon: number) => string | null; // the area id at a position
-  onFound: (id: string) => void;
+  onFound: (id: string, ll: [number, number]) => void;
 };
 
 /** The "Use my location" row: permission, one tap = one position, and the five outcomes. */
@@ -19,9 +19,9 @@ export function useLocate({ open, find, onFound }: Options) {
   const [helpOpen, setHelpOpen] = useState(false);
   const request = useRef(0); // a newer tap, or typing, makes an older answer stale
 
-  // read when the list opens, kept current with the change event while it is open
+  // read on load (reading never prompts, and the map button shows it) and on every open, kept current with the change event
   useEffect(() => {
-    if (!open || !supported) return;
+    if (!supported) return;
     let stale = false;
     let watched: PermissionStatus | null = null;
     const onChange = () => {
@@ -40,7 +40,7 @@ export function useLocate({ open, find, onFound }: Options) {
       stale = true;
       watched?.removeEventListener("change", onChange);
     };
-  }, [open, supported]);
+  }, [open, supported]); // read again on open: not every browser fires change
 
   // opening or closing the list drops an old message and the help; a search in flight carries on
   useEffect(() => {
@@ -60,7 +60,7 @@ export function useLocate({ open, find, onFound }: Options) {
         if (!fresh()) return;
         const area = find(lat, lon);
         setStatus(area ? "idle" : "noArea");
-        if (area) onFound(area);
+        if (area) onFound(area, [lat, lon]);
       },
       async (failure) => {
         if (!fresh()) return;
