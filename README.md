@@ -30,13 +30,13 @@ In the committed lookup (reports up to 24 Oct 2026, 12-month window 11 Oct 2025 
 
 ## 🎯 Problem & Core Value Proposition
 
-Around 16,000 street bicycle thefts were reported in Berlin in the 12 months to 10 Oct 2026 in the open police dataset (rounded to the nearest thousand; cellar break-ins excluded). The police's own 2025 crime statistics (PKS) count close to 23,000 bicycle thefts, so the open data covers roughly three quarters of them.
+Around 16,000 street bicycle thefts were reported in Berlin in the 12 months to 10 Oct 2026 in the open police dataset (rounded to the nearest thousand; cellar break-ins excluded). The police's own crime statistics (PKS) for calendar year 2025 count close to 23,000 bicycle thefts of all kinds, so the street thefts in the open data are roughly 70% of that figure (the two periods and definitions differ, so this is only a rough comparison).
 
 **LockOut shows these parts, per planning area:**
 
 * **Tier:** Low, Medium or High, a percentile band of the Empirical Bayes smoothed expected theft count (see below), shown as reported thefts compared with other areas.
 * **Confidence and limited-data flags:** a LOW, MEDIUM or HIGH confidence label from the number of thefts behind the area, plus `limited_data` and `no_record` flags, so a thin area never reads as reassuring.
-* **Citywide patterns:** time of day, day of week and bike value as citywide shares, the same for every area.
+* **Citywide patterns:** time of day and day of week as citywide shares, the same for every area. Bike value is only the toggle that picks the lock advice.
 * **Lock advice:** a one-lock or two-lock recommendation chosen by bike value, with steps and sources from Polizei Berlin, the police crime-prevention service (ProPK), ADFC and VdS. It does not depend on the area's tier.
 
 The lookup also holds the median stolen bicycle value (`SCHADENSHOEHE`, the area's own when it has enough values, otherwise the citywide one) and the citywide share of thefts where a lock was defeated. The frontend does not show them yet.
@@ -226,7 +226,7 @@ This project relies on open public datasets and complies with their respective a
 * **Bicycle Theft Data:** *Datenquelle: Polizei Berlin – [Fahrraddiebstahl in Berlin](https://daten.berlin.de/) (Licensed under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/))*.
 * **Spatial Boundaries (LOR 2021):** *Amt für Statistik Berlin-Brandenburg / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen – [ODIS Berlin](https://daten.odis-berlin.de/) (Licensed under dl-de/by-2-0)*.
 * **Basemap:** *© [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (Licensed under [ODbL](https://opendatacommons.org/licenses/odbl/))*.
-* **Place Search:** *Amt für Statistik Berlin-Brandenburg, postcodes and streets via the Berlin geoportal (Licensed under CC-BY 3.0); station names from the VBB GTFS data.*
+* **Place Search:** *Amt für Statistik Berlin-Brandenburg, postcodes and streets via the Berlin geoportal (Licensed under CC-BY 3.0); station names from the VBB GTFS data (VBB licence not yet confirmed, issue #55).*
 * **Lock Advice:** guidance from Polizei Berlin, the police crime-prevention service (ProPK), the ADFC and the VdS 2597 standard for two-wheeler locks; the page links are in the app's advice details.
 
 ---
