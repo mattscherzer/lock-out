@@ -9,15 +9,16 @@ type Shape = {
 
 type Where = "outside" | "inside" | "edge";
 
-// Ray casting, with an edge test so a point on a shared border is not decided by rounding.
+const between = (v: number, a: number, b: number) => v >= Math.min(a, b) && v <= Math.max(a, b);
+
+// Ray casting, plus an exact edge test: a point exactly on an edge is "edge", not left to the crossing count.
 function inRing(ring: Ring, lon: number, lat: number): Where {
   let inside = false;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
     const [x1, y1] = ring[j];
     const [x2, y2] = ring[i];
     const cross = (lon - x1) * (y2 - y1) - (lat - y1) * (x2 - x1);
-    const within = lon >= Math.min(x1, x2) && lon <= Math.max(x1, x2) && lat >= Math.min(y1, y2) && lat <= Math.max(y1, y2); // prettier-ignore
-    if (cross === 0 && within) return "edge";
+    if (cross === 0 && between(lon, x1, x2) && between(lat, y1, y2)) return "edge";
     if (y1 > lat !== y2 > lat && lon < ((x2 - x1) * (lat - y1)) / (y2 - y1) + x1) inside = !inside;
   }
   return inside ? "inside" : "outside";

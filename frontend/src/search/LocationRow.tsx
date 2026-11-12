@@ -1,4 +1,5 @@
 import { ChevronDown, LoaderCircle, LocateFixed } from "lucide-react";
+import { useRef } from "react";
 import { STRINGS } from "../strings.ts";
 import type { LocateView } from "./useLocate.ts";
 
@@ -24,6 +25,7 @@ type Props = {
 
 // A button, not an option: Tab reaches it after the field and the list keeps only the examples. The row and "Try again" are siblings, as buttons cannot nest.
 export function LocationRow({ view, helpOpen, helpId, onLocate, onToggleHelp }: Props) {
+  const row = useRef<HTMLButtonElement>(null);
   const denied = view === "denied";
   const wait = view === "wait";
   const fail = view === "fail";
@@ -32,6 +34,7 @@ export function LocationRow({ view, helpOpen, helpId, onLocate, onToggleHelp }: 
     <div className="area-search-locate">
       <div className="flex items-center">
         <button
+          ref={row}
           type="button"
           className="area-search-locate-row"
           aria-busy={wait || undefined}
@@ -60,8 +63,8 @@ export function LocationRow({ view, helpOpen, helpId, onLocate, onToggleHelp }: 
           {denied && (
             <ChevronDown
               aria-hidden
-              size={18}
-              strokeWidth={2}
+              size={GLYPH_PX}
+              strokeWidth={GLYPH_STROKE}
               className={helpOpen ? "rotate-180" : undefined}
             />
           )}
@@ -71,13 +74,17 @@ export function LocationRow({ view, helpOpen, helpId, onLocate, onToggleHelp }: 
             type="button"
             className="area-search-locate-retry"
             onMouseDown={(e) => e.preventDefault()}
-            onClick={onLocate}
+            onClick={() => {
+              onLocate();
+              row.current?.focus(); // this button unmounts while waiting: keep the keyboard user in the list
+            }}
           >
             {STRINGS.search.retry}
           </button>
         )}
       </div>
       {denied && helpOpen && (
+        // pl-16 lines the text up with the row title: px-4 + size-9 glyph + gap-3
         <p
           id={helpId}
           className="m-0 bg-surface-container py-3 pr-4 pl-16 body-sm text-on-surface-variant"

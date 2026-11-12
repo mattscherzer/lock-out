@@ -77,6 +77,8 @@ export function AreaSearch({
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
   const justFocused = useRef(false);
+  const panel = useRef<HTMLDivElement>(null);
+  const quietFocus = useRef(false); // focus returning from the location row must not reopen the list
   const retrying = useRef(false); // focus returning from Try again must not select the typed text
   const [draft, setDraft] = useState<string | null>(null); // what the user typed; null: the field shows the selected area
   const [chosen, setChosen] = useState<{ id: string; query: string; place: string }>(); // the area picked, the place it came from (placeKey) and the query that found it
@@ -96,7 +98,7 @@ export function AreaSearch({
     load: loadNow,
   } = useStreets(loadStreets);
   useVisualViewport();
-  const where = useLocate({
+  const locator = useLocate({
     open,
     find: locate,
     onFound: (id) => pickArea(id),
@@ -141,6 +143,8 @@ export function AreaSearch({
   const shown = open && !!query.trim();
   const row = shown && active !== null ? rows[current] : undefined;
   const highlighted = row?.type === "area" ? row.id : null;
+  const dropPending = useEffectEvent(() => locator.reset());
+  useEffect(() => dropPending(), [selected]); // a pick elsewhere (the map) outranks a position still being found
   const emitHighlight = useEffectEvent((id: string | null) => onHighlight?.(id));
   useEffect(() => {
     emitHighlight(highlighted);
@@ -166,14 +170,19 @@ export function AreaSearch({
     setOpen(false);
     setActive(null);
     setAnnounce(S.location.live.selected(areas[id]?.name ?? ""));
-    input.current?.blur();
+    if (document.activeElement === input.current) input.current?.blur();
+    else if (panel.current?.contains(document.activeElement)) {
+      // keyboard on the row: the panel is about to be hidden, so hand focus back to the field without opening the list
+      quietFocus.current = true;
+      input.current?.focus();
+    }
     onSelect(id, null);
   };
 
   const choose = (r: Row, pointer = false) => {
     if (r.type === "more") return setExpanded((e) => new Set(e).add(placeKey(r.place)));
     if (r.type !== "area") return;
-    where.reset();
+    locator.reset();
     setChosen({ id: r.id, query: searchText, place: placeKey(r.place) });
     setDraft(null);
     setOpen(false);
@@ -189,6 +198,10 @@ export function AreaSearch({
   };
 
   const onFocus = () => {
+    if (quietFocus.current) {
+      quietFocus.current = false;
+      return;
+    }
     justFocused.current = true;
     setAnnounce("");
     if (!retrying.current) input.current?.select();
@@ -206,14 +219,14 @@ export function AreaSearch({
   };
 
   const pickExample = (label: string) => {
-    where.reset();
+    locator.reset();
     setDraft(label);
     setActive(null);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
-      where.reset();
+      locator.reset();
       reselect.current = !!selected;
       return close();
     }
@@ -237,15 +250,17 @@ export function AreaSearch({
     ? statusText({ tooShort, error: streetsError, loading: streetsLoading, results: rows.length })
     : "";
 
-  const locateLive = !empty
-    ? ""
-    : where.noArea
-      ? `${S.location.noAreaTitle}. ${S.location.noAreaBody}`
-      : where.view === "wait"
-        ? S.location.live.waiting
-        : where.view === "fail"
-          ? S.location.failed
-          : "";
+  // what the location row says, for the live region; the typed-search status and the "Selected" line come first
+  const locateLive = (() => {
+    if (!empty) return "";
+    if (locator.noArea) return `${S.location.noAreaTitle}. ${S.location.noAreaBody}`;
+    return {
+      wait: S.location.live.waiting,
+      fail: S.location.failed,
+      denied: S.location.denied,
+      ready: "",
+    }[locator.view];
+  })();
 
   return (
     <div
@@ -260,7 +275,7 @@ export function AreaSearch({
           aria-label={S.closeLabel}
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => {
-            where.reset();
+            locator.reset();
             close();
             input.current?.blur();
           }}
@@ -285,7 +300,7 @@ export function AreaSearch({
           spellCheck={false}
           value={text}
           onChange={(e) => {
-            where.reset();
+            locator.reset();
             setDraft(e.target.value);
             setActive(null);
             setOpen(true);
@@ -311,7 +326,7 @@ export function AreaSearch({
             aria-label={S.clearLabel}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
-              where.reset();
+              locator.reset();
               setDraft("");
               setActive(null);
               setOpen(true);
@@ -323,7 +338,7 @@ export function AreaSearch({
           </button>
         )}
       </div>
-      <div className="area-search-panel" hidden={!open}>
+      <div ref={panel} className="area-search-panel" hidden={!open}>
         {houseNumber && <p className={NOTE}>{S.houseNumber}</p>}
         {shown && tooShort && <p className={NOTE}>{S.tooShort}</p>}
         {shown && !tooShort && streetsError && (
@@ -350,19 +365,19 @@ export function AreaSearch({
             ))}
           </ul>
         )}
-        {empty && where.noArea && (
+        {empty && locator.noArea && (
           <div className={MESSAGE}>
             <p className={`${MESSAGE_TITLE} text-on-surface`}>{S.location.noAreaTitle}</p>
             <p className="m-0">{S.location.noAreaBody}</p>
           </div>
         )}
-        {empty && where.supported && (
+        {empty && locator.supported && (
           <LocationRow
-            view={where.view}
-            helpOpen={where.helpOpen}
+            view={locator.view}
+            helpOpen={locator.helpOpen}
             helpId={`${id}-locate-help`}
-            onLocate={where.locate}
-            onToggleHelp={where.toggleHelp}
+            onLocate={locator.locate}
+            onToggleHelp={locator.toggleHelp}
           />
         )}
         {empty && <p className={LABEL}>{S.tryTitle}</p>}

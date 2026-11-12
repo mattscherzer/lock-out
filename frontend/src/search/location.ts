@@ -5,14 +5,20 @@ export const PROMPT_WAIT_MS = 30_000; // a prompt left unanswered never calls ba
 
 export type Permission = "prompt" | "granted" | "denied";
 export type LocateFailure = "denied" | "unavailable" | "timeout";
-export type Position = { lat: number; lon: number };
+export type LatLon = { lat: number; lon: number };
 
-export const hasGeolocation = () => typeof navigator !== "undefined" && !!navigator.geolocation;
+export const PERMISSION_WAIT_MS = 1_000; // a permission read that never settles (some webviews) must not hold the row
+
+// an insecure page has the API but is always refused, so the row would only mislead
+export const hasGeolocation = () =>
+  typeof navigator !== "undefined" && !!navigator.geolocation && window.isSecureContext !== false;
 
 // null when the Permissions API is missing or throws (older Safari, some webviews): callers treat that as "prompt"
 export async function queryPermission(): Promise<PermissionStatus | null> {
   try {
-    return (await navigator.permissions?.query({ name: "geolocation" })) ?? null;
+    const read = navigator.permissions?.query({ name: "geolocation" });
+    const late = new Promise<null>((resolve) => setTimeout(resolve, PERMISSION_WAIT_MS, null));
+    return (await Promise.race([read, late])) ?? null;
   } catch {
     return null;
   }
@@ -25,7 +31,7 @@ const FAILURE: Record<number, LocateFailure> = { 1: "denied", 3: "timeout" };
 export function getPosition(
   geo: Pick<Geolocation, "getCurrentPosition">,
   promptWaitMs = PROMPT_WAIT_MS,
-): Promise<Position> {
+): Promise<LatLon> {
   return new Promise((resolve, reject) => {
     const guard = setTimeout(() => reject("timeout" satisfies LocateFailure), promptWaitMs);
     const done = () => clearTimeout(guard);
@@ -39,7 +45,7 @@ export function getPosition(
           done();
           reject(FAILURE[code] ?? ("unavailable" satisfies LocateFailure));
         },
-        { timeout: LOCATE_TIMEOUT_MS, maximumAge: 0, enableHighAccuracy: false },
+        { timeout: LOCATE_TIMEOUT_MS, maximumAge: 0 },
       );
     } catch {
       done(); // some browsers throw in an insecure context instead of calling back

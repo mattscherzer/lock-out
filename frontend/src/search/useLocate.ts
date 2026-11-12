@@ -33,6 +33,7 @@ export function useLocate({ open, find, onFound }: Options) {
       if (stale) return;
       watched = s;
       setPermission(s?.state ?? "prompt");
+      if (s && s.state !== "denied") setRefused(false); // the setting changed while the list was closed
       s?.addEventListener("change", onChange);
     });
     return () => {
@@ -41,9 +42,8 @@ export function useLocate({ open, find, onFound }: Options) {
     };
   }, [open, supported]);
 
-  // a closed list forgets its message and help; a search in flight carries on
+  // opening or closing the list drops an old message and the help; a search in flight carries on
   useEffect(() => {
-    if (open) return;
     setStatus((s) => (s === "waiting" ? s : "idle"));
     setHelpOpen(false);
   }, [open]);
@@ -67,7 +67,9 @@ export function useLocate({ open, find, onFound }: Options) {
         const read = (await queryPermission())?.state ?? null; // a dismissed prompt can arrive as a refusal
         if (!fresh()) return;
         if (read) setPermission(read);
-        const blocked = read === "denied" || (failure === "denied" && read === null);
+        const dismissed = failure === "denied" && read === "prompt"; // some browsers report a dismissed prompt as a refusal
+        const blocked =
+          !dismissed && (read === "denied" || (failure === "denied" && read === null));
         if (blocked && failure === "denied") setRefused(true);
         setStatus(blocked ? "idle" : "failed");
       },

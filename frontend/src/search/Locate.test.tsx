@@ -145,18 +145,21 @@ it("no area: a gentle message with the examples still listed, no alert", async (
 it.each([
   [2, "unavailable"],
   [3, "timeout"],
-] as const)("%s (%s): the retry line and Try again, which asks again", async (code, _name) => {
-  await open();
-  answer({ fail: code });
-  await tap();
-  expect(row().textContent).toContain(L.failed);
-  answer({ ok: [52.5, 13.4] });
-  await act(async () =>
-    fireEvent.click(screen.getByRole("button", { name: STRINGS.search.retry })),
-  );
-  expect(getCurrentPosition).toHaveBeenCalledTimes(2);
-  expect(field().value).toBe("Charitéviertel");
-});
+] as const)(
+  "error %s (%s): the retry line and Try again, which asks again",
+  async (code, _name) => {
+    await open();
+    answer({ fail: code });
+    await tap();
+    expect(row().textContent).toContain(L.failed);
+    answer({ ok: [52.5, 13.4] });
+    await act(async () =>
+      fireEvent.click(screen.getByRole("button", { name: STRINGS.search.retry })),
+    );
+    expect(getCurrentPosition).toHaveBeenCalledTimes(2);
+    expect(field().value).toBe("Charitéviertel");
+  },
+);
 
 it("denied up front: muted row, help on tap, the API is never called", async () => {
   permission.state = "denied";
@@ -211,9 +214,81 @@ it("treats a Permissions API that throws as prompt", async () => {
   expect(row().textContent).toBe(`${L.title}${L.ready}`);
 });
 
-it("keeps the row a 44px-minimum button with no listbox option role", async () => {
+it("is a button outside the listbox, with no option role", async () => {
   await open();
   expect(row().tagName).toBe("BUTTON");
-  expect(row().className).toContain("area-search-locate-row");
   expect(screen.getAllByRole("option").every((o) => !o.textContent!.includes(L.title))).toBe(true);
+});
+
+it("a newer selection from elsewhere drops the answer still on its way", async () => {
+  const onSelect = vi.fn();
+  function Outer() {
+    const [selected, setSelected] = useState<string | null>(null);
+    return (
+      <>
+        <button onClick={() => setSelected("a1")}>map click</button>
+        <AreaSearch
+          index={index}
+          areas={areas}
+          selected={selected}
+          locate={() => "a1"}
+          onSelect={onSelect}
+          onClear={() => {}}
+        />
+      </>
+    );
+  }
+  render(<Outer />);
+  await act(async () => fireEvent.focus(field()));
+  let deliver!: PositionCallback;
+  getCurrentPosition.mockImplementation((ok: PositionCallback) => (deliver = ok));
+  await tap();
+  fireEvent.click(screen.getByText("map click"));
+  await act(async () => deliver({ coords: { latitude: 1, longitude: 1 } } as GeolocationPosition));
+  expect(onSelect).not.toHaveBeenCalled();
+});
+
+it("clears a stale denied once the setting was changed while the list was closed", async () => {
+  const { unmount } = render(<Harness />);
+  await act(async () => fireEvent.focus(field()));
+  answer({ fail: 1 });
+  permission.state = "denied";
+  await tap();
+  expect(row().textContent).toContain(L.denied);
+  fireEvent.keyDown(field(), { key: "Escape" });
+  permission.state = "granted";
+  await act(async () => fireEvent.focus(field()));
+  expect(row().textContent).toBe(`${L.title}${L.ready}`);
+  unmount();
+});
+
+it("a keyboard activation of the row hands focus back to the field without reopening the list", async () => {
+  await open();
+  answer({ ok: [52.5, 13.4] });
+  row().focus();
+  await tap();
+  expect(document.activeElement).toBe(field());
+  expect(field().getAttribute("aria-expanded")).toBe("false");
+});
+
+it("does not wait for a permission read that never settles", async () => {
+  vi.useFakeTimers();
+  vi.stubGlobal("navigator", {
+    geolocation: { getCurrentPosition },
+    permissions: { query: vi.fn(() => new Promise(() => {})) },
+  });
+  render(<Harness />);
+  await act(async () => fireEvent.focus(field()));
+  answer({ fail: 2 });
+  await act(async () => fireEvent.click(row()));
+  await act(async () => vi.advanceTimersByTimeAsync(1_500));
+  expect(row().textContent).toContain(L.failed);
+  vi.useRealTimers();
+});
+
+it("hides the row on an insecure page", async () => {
+  vi.stubGlobal("isSecureContext", false);
+  render(<Harness />);
+  await act(async () => fireEvent.focus(field()));
+  expect(screen.queryByText(L.title)).toBeNull();
 });
