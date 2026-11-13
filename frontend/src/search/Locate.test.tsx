@@ -1,8 +1,8 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { useState } from "react";
+import { createRef, useState } from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { STRINGS } from "../strings.ts";
-import { AreaSearch } from "./AreaSearch.tsx";
+import { AreaSearch, type AreaSearchHandle } from "./AreaSearch.tsx";
 import { buildIndex } from "./places.ts";
 
 const L = STRINGS.search.location;
@@ -46,7 +46,13 @@ afterEach(() => vi.unstubAllGlobals());
 // 52.5 / 13.4 is in a1; anything else is in no area
 const find = (lat: number, lon: number) => (lat === 52.5 && lon === 13.4 ? "a1" : null);
 
-function Harness({ onSelect = vi.fn() }: { onSelect?: (id: string, c: unknown) => void }) {
+function Harness({
+  onSelect = vi.fn(),
+  onLocated,
+}: {
+  onSelect?: (id: string, c: unknown) => void;
+  onLocated?: (ll: [number, number]) => void;
+}) {
   const [selected, setSelected] = useState<string | null>(null);
   return (
     <AreaSearch
@@ -54,6 +60,7 @@ function Harness({ onSelect = vi.fn() }: { onSelect?: (id: string, c: unknown) =
       areas={areas}
       selected={selected}
       locate={find}
+      onLocated={onLocated}
       onSelect={(id, c) => {
         setSelected(id);
         onSelect(id, c);
@@ -90,14 +97,16 @@ it("shows the row above the examples", async () => {
   expect(text.indexOf(L.title)).toBeLessThan(text.indexOf(STRINGS.search.tryTitle));
 });
 
-it("found: selects the area like a picked result, with no found-via context", async () => {
+it("found: selects the area like a picked result and reports the position", async () => {
   const onSelect = vi.fn();
-  render(<Harness onSelect={onSelect} />);
+  const onLocated = vi.fn();
+  render(<Harness onSelect={onSelect} onLocated={onLocated} />);
   await act(async () => fireEvent.focus(field()));
   answer({ ok: [52.5, 13.4] });
   await tap();
   expect(getCurrentPosition).toHaveBeenCalledOnce();
   expect(onSelect).toHaveBeenCalledWith("a1", null);
+  expect(onLocated).toHaveBeenCalledWith([52.5, 13.4]);
   expect(field().value).toBe("Charitéviertel");
   expect(screen.getByRole("status").textContent).toBe(L.live.selected("Charitéviertel"));
 });
@@ -291,4 +300,32 @@ it("hides the row on an insecure page", async () => {
   render(<Harness />);
   await act(async () => fireEvent.focus(field()));
   expect(screen.queryByText(L.title)).toBeNull();
+});
+
+it("the map button: locates through the handle with the list closed, then selects", async () => {
+  const ref = createRef<AreaSearchHandle>();
+  const onSelect = vi.fn();
+  render(
+    <AreaSearch
+      ref={ref}
+      index={index}
+      areas={areas}
+      selected={null}
+      onSelect={onSelect}
+      onClear={vi.fn()}
+      locate={find}
+    />,
+  );
+  answer({ ok: [52.5, 13.4] });
+  await act(async () => ref.current!.locate());
+  expect(getCurrentPosition).toHaveBeenCalledOnce();
+  expect(onSelect).toHaveBeenCalledWith("a1", null);
+});
+
+it("reports a blocked permission on load, before the list is ever opened", async () => {
+  permission.state = "denied";
+  const onDenied = vi.fn();
+  render(<AreaSearch index={index} areas={areas} selected={null} onSelect={vi.fn()} onClear={vi.fn()} locate={find} onDenied={onDenied} />); // prettier-ignore
+  await act(async () => {});
+  expect(onDenied).toHaveBeenLastCalledWith(true);
 });

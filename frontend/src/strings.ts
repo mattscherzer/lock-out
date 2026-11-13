@@ -151,6 +151,7 @@ export const STRINGS = {
     narrow: "Keep typing to narrow down",
     location: {
       title: "Use my location",
+      mapButton: "Show my location",
       ready: "Find the area you are in",
       waitTitle: "Finding your area…",
       wait: "This takes a few seconds",
