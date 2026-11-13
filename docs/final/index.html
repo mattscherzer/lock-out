@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LockOut Final Pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;800&family=Instrument+Sans:wght@400;600&family=Piazzolla:ital,opsz,wght@0,8..30,400;0,8..30,700;0,8..30,900;1,8..30,400;1,8..30,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --plum:#65474C; --plum-ink:#2A1518; --plum-night:#1E1316; --blush:#F0DFE1; --blush-hi:#E8C3CB;
+  --paper:#FAF8F8; --well:#EFEBEB; --ink:#1D1B1C; --muted:#4D4547; --line:#CFC6C8; --outline:#746A6C;
+  --indigo:#4A5090; --low:#0A84AC; --med:#E69A00; --high:#B0102E; --nodata:#6F6266;
+  --low-d:#3A93A6; --med-d:#C9A444; --high-d:#D4506A;
+  --letterbox:#140D0F;
+  --serif:"Piazzolla",Georgia,"Times New Roman",serif;
+  --sans:"Atkinson Hyperlegible Next",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --credit:"Instrument Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --letterbox:#0B0708; } }
+:root[data-theme="dark"]{ --letterbox:#0B0708; }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100vw;height:100vh;overflow:hidden;background:var(--letterbox);}
+body{font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+.stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:center;overflow:hidden;background:var(--paper);cursor:default}
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;transform:translateX(48px);
+  transition:opacity .7s ease,transform .9s cubic-bezier(.2,.7,.2,1),visibility 0s .9s;color:var(--ink);background:var(--paper)}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .7s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
+.slide.past{transform:translateX(-48px)}
+.dark{background:var(--plum-ink);color:var(--paper)}
+.night{background:var(--plum-night);color:var(--paper)}
+.blush{background:var(--blush);color:var(--plum-ink)}
+
+.r{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform 1s cubic-bezier(.2,.7,.2,1);transition-delay:calc(var(--d,0) * 1ms + 250ms)}
+.active .r{opacity:1;transform:none}
+
+/* chrome: one rule across the top, counter on the right */
+.chrome{position:absolute;left:80px;right:80px;top:44px;display:grid;grid-template-columns:1fr auto auto;gap:48px;align-items:end;
+  padding-bottom:16px;border-bottom:1px solid color-mix(in srgb,currentColor 28%,transparent);
+  font:600 14px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase}
+.chrome .mark{font:700 20px/1 var(--serif);letter-spacing:0;text-transform:none}
+.chrome .mark i{font-weight:400}
+.chrome .num{font:400 20px/1 var(--serif);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.chrome .num b{font-weight:700}
+.chrome .num span{opacity:.45;margin:0 .3em}
+.foot{position:absolute;left:80px;right:80px;bottom:36px;display:flex;justify-content:space-between;font:400 13px/1.3 var(--credit);opacity:.72}
+
+.eyebrow{font:600 15px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase}
+.serif{font-family:var(--serif)}
+h1,h2{font-family:var(--serif);font-weight:700;letter-spacing:-.02em}
+.tab{font-variant-numeric:tabular-nums}
+
+/* 01 title */
+.s-title .word{position:absolute;left:72px;top:150px;font:900 250px/.8 var(--serif);letter-spacing:-.045em}
+.s-title .word em{display:block;font-weight:400;font-style:italic;color:var(--blush-hi);margin-left:120px}
+.s-title .tag{position:absolute;left:80px;top:610px;width:620px;font:400 40px/1.15 var(--serif);font-style:italic}
+.s-title .who{position:absolute;left:80px;bottom:92px;display:flex;gap:56px;font:600 16px/1.4 var(--sans);letter-spacing:.06em}
+.s-title .who b{display:block;font:700 26px/1.1 var(--serif);letter-spacing:0}
+.s-title .map{position:absolute;right:40px;top:110px;width:860px;height:710px}
+.s-title .legend{position:absolute;right:80px;bottom:92px;display:flex;gap:26px;font:600 14px var(--sans);letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.sw{display:inline-block;width:14px;height:14px;margin-right:8px;vertical-align:-1px}
+
+.map path{stroke-width:.5;transition:opacity .6s ease;opacity:0}
+.active .map path{opacity:1}
+
+/* 02 hook */
+.s-hook .lines{position:absolute;left:80px;top:180px;font:700 128px/1.02 var(--serif);letter-spacing:-.03em}
+.s-hook .lines div:nth-child(3){color:var(--high);font-style:italic;font-weight:400}
+.s-hook .cap{position:absolute;left:80px;bottom:110px;display:flex;gap:24px;align-items:center;font:400 26px/1.3 var(--sans);color:var(--muted)}
+.s-hook .cap b{color:var(--ink)}
+.s-hook .chrome{right:700px}
+.s-hook .art{position:absolute;right:0;top:0;width:620px;height:900px;background:var(--well);border-left:1px solid var(--line)}
+.s-hook .stamp{position:absolute;right:56px;top:128px;text-align:right;font:400 22px/1.4 var(--serif);color:var(--muted)}
+.s-hook .stamp b{display:block;font:700 54px/1 var(--serif);color:var(--ink);font-variant-numeric:tabular-nums}
+.spark{stroke-dasharray:40;stroke-dashoffset:40}
+.active .spark{animation:draw .5s 1.9s forwards}
+.active .lockfall{animation:fall 1.1s 1.5s cubic-bezier(.5,0,.6,1.4) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fall{to{transform:translate(26px,196px) rotate(80deg)}}
+
+/* 03 clock */
+.s-clock .every{position:absolute;left:80px;top:150px;font:400 44px/1 var(--serif);font-style:italic;color:var(--blush-hi)}
+.s-clock .big{position:absolute;left:52px;top:150px;font:900 520px/1 var(--serif);letter-spacing:-.06em}
+.s-clock .unit{position:absolute;left:80px;top:665px;font:400 46px/1.15 var(--serif)}
+.s-clock .unit i{color:var(--blush-hi)}
+.s-clock .dial{position:absolute;right:110px;top:150px;width:600px;height:600px}
+.s-clock .facts{position:absolute;right:80px;bottom:96px;display:flex;gap:64px;text-align:right}
+.s-clock .facts b{display:block;font:700 56px/1 var(--serif);font-variant-numeric:tabular-nums}
+.s-clock .facts span{font:600 14px/1.4 var(--sans);letter-spacing:.14em;text-transform:uppercase;opacity:.8}
+.hand{transform-origin:300px 300px}
+.active .hand{animation:sweep 3.2s 1s cubic-bezier(.6,0,.4,1) infinite}
+@keyframes sweep{0%{transform:rotate(0)}70%,100%{transform:rotate(138deg)}}
+.arc{stroke-dasharray:1634;stroke-dashoffset:1634}
+.active .arc{animation:arc 1.4s .8s ease-out forwards}
+@keyframes arc{to{stroke-dashoffset:1008}}
+
+/* 04 locked */
+.s-locked h2{position:absolute;left:80px;top:150px;width:640px;font-size:104px;line-height:.98}
+.s-locked h2 em{color:var(--high);font-weight:400}
+.s-locked .sub{position:absolute;left:80px;top:560px;width:560px;font:400 32px/1.3 var(--sans);color:var(--muted)}
+.s-locked .grid{position:absolute;right:80px;top:132px;width:690px;height:690px;display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.s-locked .grid svg{width:100%;height:100%;opacity:0;transform:scale(.6);transition:opacity .4s,transform .5s cubic-bezier(.2,.9,.3,1.4)}
+.active.s-locked .grid svg{opacity:1;transform:none}
+
+/* 05 problem */
+.s-prob .half{position:absolute;top:0;bottom:0;width:800px}
+.s-prob .l{left:0;background:var(--well)}
+.s-prob .r2{right:0;background:var(--paper);border-left:1px solid var(--line)}
+.s-prob .lab{position:absolute;left:80px;top:140px}
+.s-prob .r2 .lab{left:80px}
+.s-prob .dots{position:absolute;left:70px;top:190px;width:660px;height:544px}
+.s-prob .cap{position:absolute;left:80px;bottom:96px;width:620px;font:400 28px/1.3 var(--sans);color:var(--muted)}
+.s-prob .cap b{color:var(--ink)}
+.s-prob .q{position:absolute;left:80px;top:250px;width:640px;font:400 92px/1.02 var(--serif);font-style:italic;color:var(--plum-ink);letter-spacing:-.02em}
+.s-prob .q b{font-style:normal;font-weight:700;color:var(--plum)}
+.s-prob .r2 .cap{color:var(--muted)}
+.s-prob .x{position:absolute;left:80px;top:610px;font:400 30px/1.3 var(--serif);color:var(--outline);text-decoration:line-through;text-decoration-color:var(--high);text-decoration-thickness:3px}
+
+/* 06 idea */
+.s-idea h2{position:absolute;left:80px;top:140px;width:1440px;white-space:nowrap;font-size:84px;line-height:1}
+.s-idea h2 em{font-weight:400;color:var(--plum)}
+.s-idea .rail{position:absolute;left:80px;right:80px;top:480px;height:1px;background:var(--plum)}
+.s-idea .steps{position:absolute;left:80px;right:80px;top:380px;display:grid;grid-template-columns:repeat(3,1fr)}
+.s-idea .step{position:relative;padding-right:56px}
+.s-idea .step .n{font:400 22px/1 var(--serif);font-style:italic;color:var(--plum);height:100px}
+.s-idea .step svg{position:absolute;left:0;top:20px;width:120px;height:120px}
+.s-idea .step h3{margin-top:72px;font:700 44px/1.05 var(--serif)}
+.s-idea .step p{margin-top:16px;font:400 24px/1.35 var(--sans);color:var(--plum)}
+.s-idea .node{position:absolute;top:-8px;left:0;width:17px;height:17px;border-radius:50%;background:var(--plum)}
+.s-idea .stepbox{position:relative;padding-top:130px}
+
+/* 07 map */
+.s-map h2{position:absolute;left:80px;top:140px;width:560px;font-size:80px;line-height:1}
+.s-map h2 em{font-weight:400;color:var(--plum)}
+.s-map .map{position:absolute;right:30px;top:100px;width:920px;height:758px}
+.s-map .bar{position:absolute;left:80px;top:520px;width:520px}
+.s-map .bar .track{display:flex;height:22px}
+.s-map .bar .track div{height:100%;transform-origin:left;transform:scaleX(0);transition:transform 1s cubic-bezier(.2,.7,.2,1)}
+.active.s-map .bar .track div{transform:none}
+.s-map .bar .keys{display:grid;grid-template-columns:325fr 135fr 82fr;margin-top:14px;font:600 14px/1.3 var(--sans);letter-spacing:.1em;text-transform:uppercase}
+.s-map .bar .keys b{display:block;font:700 46px/1 var(--serif);letter-spacing:0;font-variant-numeric:tabular-nums}
+.s-map .hatchkey{position:absolute;left:80px;top:680px;display:flex;align-items:center;gap:12px;font:400 20px/1.3 var(--sans);color:var(--muted)}
+.s-map .hatchkey i{width:22px;height:22px;border:1.5px dashed var(--nodata);background:repeating-linear-gradient(45deg,var(--nodata) 0 2px,transparent 2px 6px)}
+.s-map .callout{position:absolute;font:600 15px/1.3 var(--sans);letter-spacing:.06em}
+.s-map .callout b{display:block;font:700 30px/1.1 var(--serif);letter-spacing:0}
+
+/* 08 locks */
+.s-locks h2{position:absolute;left:80px;top:130px;width:1300px;font-size:76px;line-height:1.02}
+.s-locks h2 em{font-weight:400;color:var(--blush-hi)}
+.s-locks .cols{position:absolute;left:80px;right:80px;top:340px;bottom:90px;display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(250,248,248,.3)}
+.s-locks .col{position:relative;padding:36px 40px 0 0}
+.s-locks .col+.col{padding-left:56px;border-left:1px solid rgba(250,248,248,.3)}
+.s-locks .price{font:700 72px/1 var(--serif);font-variant-numeric:tabular-nums}
+.s-locks .price small{display:block;font:600 14px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;opacity:.75;margin-bottom:14px}
+.s-locks .col svg{position:absolute;right:24px;top:160px;height:200px}
+.s-locks .verdict{position:absolute;left:0;bottom:0;width:380px;font:400 28px/1.3 var(--sans)}
+.s-locks .col+.col .verdict{left:56px}
+.s-locks .verdict b{display:block;font:700 40px/1.1 var(--serif);margin-bottom:8px;color:var(--blush-hi)}
+
+/* 09 demo */
+.s-demo .big{position:absolute;left:72px;top:170px;font:400 250px/.88 var(--serif);font-style:italic;letter-spacing:-.04em}
+.s-demo .big b{font-style:normal;font-weight:900;display:block}
+.s-demo .phone{position:absolute;right:130px;top:104px;width:359px;height:680px}
+.s-demo .cues{position:absolute;left:80px;bottom:96px;display:flex;gap:0;font:600 22px/1.3 var(--sans)}
+.s-demo .cues div{padding:20px 40px 0 0;margin-right:40px;border-top:2px solid var(--blush-hi);width:250px}
+.s-demo .cues i{display:block;font:400 18px/1 var(--serif);color:var(--blush-hi);margin-bottom:12px}
+.s-demo .url{position:absolute;right:130px;width:359px;text-align:center;bottom:72px;font:400 22px/1 var(--credit);color:var(--blush-hi)}
+.pulse{transform-origin:190px 300px;transform-box:view-box}
+.active .pulse{animation:pulse 1.8s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.4);opacity:.9}100%{transform:scale(2.6);opacity:0}}
+
+/* 10 honest */
+.s-honest h2{position:absolute;left:80px;top:140px;width:900px;font-size:92px;line-height:1}
+.s-honest h2 em{font-weight:400;color:var(--plum)}
+.s-honest .tri{position:absolute;left:80px;right:80px;top:400px;display:grid;grid-template-columns:repeat(3,1fr);gap:48px}
+.s-honest .tri svg{width:100%;height:250px;display:block}
+.s-honest .tri h3{margin-top:22px;font:700 34px/1.1 var(--serif)}
+.s-honest .tri p{margin-top:8px;font:400 22px/1.35 var(--sans);color:var(--muted)}
+.s-honest .promise{position:absolute;right:80px;top:160px;text-align:right;font:600 15px/2 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--plum)}
+
+/* 11 next */
+.s-next h2{position:absolute;left:80px;top:140px;width:1100px;font-size:96px;line-height:1}
+.s-next h2 em{font-weight:400;color:var(--blush-hi)}
+.s-next .path{position:absolute;left:0;top:470px;width:1600px;height:120px}
+.s-next .stops{position:absolute;left:80px;right:80px;top:600px;display:grid;grid-template-columns:repeat(3,1fr);gap:48px}
+.s-next .stops i{display:block;font:600 14px/1 var(--sans);font-style:normal;letter-spacing:.18em;text-transform:uppercase;color:var(--blush-hi);margin-bottom:14px}
+.s-next .stops b{display:block;font:700 40px/1.08 var(--serif)}
+.s-next .stops p{margin-top:10px;font:400 22px/1.35 var(--sans);opacity:.8}
+.trail{stroke-dasharray:6 10}
+.active .trail{animation:march 1.2s linear infinite}
+@keyframes march{to{stroke-dashoffset:-16}}
+
+/* 12 thanks */
+.s-end .danke{position:absolute;left:56px;top:110px;font:400 300px/.9 var(--serif);font-style:italic;letter-spacing:-.05em;color:var(--plum)}
+.s-end .q{position:absolute;left:80px;top:470px;font:700 54px/1.1 var(--serif);color:var(--plum-ink)}
+.s-end .q em{font-weight:400}
+.s-end .links{position:absolute;left:80px;bottom:96px;display:grid;grid-template-columns:repeat(2,minmax(0,360px));gap:28px 56px;font:400 22px/1.35 var(--credit)}
+.s-end .links span{display:block;font:600 13px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--plum);margin-bottom:8px}
+.s-end a{color:var(--plum-ink);text-decoration:none;border-bottom:1px solid var(--plum)}
+.s-end .qrbox{position:absolute;right:80px;top:150px;width:520px;height:650px;background:var(--plum-ink);color:var(--paper);padding:44px}
+.s-end .qr{width:432px;height:432px;background:var(--paper);padding:20px}
+.s-end .qr svg{width:100%;height:100%;display:block}
+.s-end .qr.fallback{display:flex;align-items:center;justify-content:center;text-align:center;color:var(--plum-ink);font:700 40px/1.2 var(--serif)}
+.s-end .qrbox p{margin-top:28px;font:400 34px/1.15 var(--serif);font-style:italic}
+.s-end .qrbox small{display:block;margin-top:8px;font:400 18px/1 var(--credit);opacity:.75}
+
+.progress{position:absolute;left:0;bottom:0;height:4px;background:var(--high);transition:width .6s cubic-bezier(.2,.7,.2,1);z-index:5}
+.hint{position:fixed;right:16px;bottom:12px;font:400 12px var(--credit);color:#9c8f92;opacity:.0;transition:opacity .4s}
+body:hover .hint{opacity:.7}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+<!-- 01 TITLE -->
+<section class="slide dark s-title" data-label="Final presentation">
+  <div class="chrome"><span class="mark">Lock<i>Out</i></span><span>Berlin, bike theft</span><span class="num"></span></div>
+  <div class="word r">Lock<em>Out.</em></div>
+  <p class="tag r" style="--d:250">Know your street before you lock your bike.</p>
+  <div class="who r" style="--d:450"><div><b>Burcak</b>Data &amp; research</div><div><b>Fritz</b>Product &amp; build</div></div>
+  <svg class="map" data-map="dark" viewBox="0 0 1000 824" aria-label="Map of Berlin's 542 neighbourhoods coloured by reported bike thefts"></svg>
+  <div class="legend r" style="--d:900"><span><i class="sw" style="background:var(--low-d)"></i>Low</span><span><i class="sw" style="background:var(--med-d)"></i>Medium</span><span><i class="sw" style="background:var(--high-d)"></i>High</span></div>
+</section>
+
+<!-- 02 HOOK -->
+<section class="slide s-hook" data-label="A Tuesday in Neukölln">
+  <div class="chrome"><span class="mark">Lock<i>Out</i></span><span>The moment</span><span class="num"></span></div>
+  <div class="lines"><div class="r">You lock it.</div><div class="r" style="--d:500">You come back.</div><div class="r" style="--d:1100">It's gone.</div></div>
+  <div class="cap r" style="--d:1600"><b>Lena, Neukölln.</b> Her second bike in two years.</div>
+  <div class="art">
+    <div class="stamp r" style="--d:300"><b>22:30</b>locked outside the flat</div>
+    <div class="stamp r" style="--d:900;top:290px"><b>07:45</b>an empty lamp post</div>
+    <svg viewBox="0 0 620 900" width="620" height="900" style="position:absolute;inset:0" aria-label="A lamp post with a cut lock falling to the ground">
+      <rect x="196" y="130" width="34" height="704" fill="#65474C"/>
+      <rect x="178" y="130" width="70" height="22" fill="#65474C"/>
+      <path d="M190 130 Q213 70 300 110 L300 124" fill="none" stroke="#65474C" stroke-width="10"/>
+      <rect x="168" y="816" width="90" height="20" fill="#2A1518"/>
+      <g class="lockfall" style="transform-origin:213px 560px;transform-box:view-box">
+        <path d="M166 560 V470 a47 47 0 0 1 94 0 V505" fill="none" stroke="#1D1B1C" stroke-width="16" stroke-linecap="butt"/>
+        <path d="M260 530 V560" fill="none" stroke="#1D1B1C" stroke-width="16"/>
+        <rect x="146" y="556" width="134" height="64" rx="6" fill="#B0102E"/>
+        <rect x="204" y="578" width="18" height="22" rx="3" fill="#FAF8F8"/>
+      </g>
+      <g stroke="#E69A00" stroke-width="4" stroke-linecap="round">
+        <path class="spark" d="M270 515 L320 492"/><path class="spark" d="M272 520 L330 528"/><path class="spark" d="M268 512 L300 470"/>
+      </g>
+      <path d="M40 836 H600" stroke="#CFC6C8" stroke-width="2"/>
+    </svg>
+  </div>
+</section>
+
+<!-- 03 CLOCK -->
+<section class="slide dark s-clock" data-label="Berlin, 2025">
+  <div class="chrome"><span class="mark">Lock<i>Out</i></span><span>She is not alone</span><span class="num"></span></div>
+  <div class="every r">Every</div>
+  <div class="big r" style="--d:150">23</div>
+  <div class="unit r" style="--d:400">minutes, a bike is stolen<br><i>somewhere in Berlin.</i></div>
+  <svg class="dial" viewBox="0 0 600 600" aria-label="A clock face with 23 of 60 minutes marked">
+    <circle cx="300" cy="300" r="260" fill="none" stroke="rgba(250,248,248,.15)" stroke-width="2"/>
+    <g id="ticks"></g>
+    <circle class="arc" cx="300" cy="300" r="260" fill="none" stroke="#D4506A" stroke-width="10" transform="rotate(-90 300 300)"/>
+    <g class="hand"><line x1="300" y1="300" x2="300" y2="70" stroke="#FAF8F8" stroke-width="5" stroke-linecap="round"/></g>
+    <circle cx="300" cy="300" r="12" fill="#FAF8F8"/>
+  </svg>
+  <div class="facts r" style="--d:900"><div><b>22,630</b><span>bikes in 2025</span></div><div><b>62</b><span>every day</span></div><div><b>€1,246</b><span>average loss</span></div></div>
+  <div class="foot"><span>Source: Polizei Berlin, PKS Kurzbericht 2025. Reported cases only.</span></div>
+</section>
+
+<!-- 04 LOCKED -->
+<section class="slide s-locked" data-label="The lock was there">
+  <div class="chrome"><span class="mark">Lock<i>Out</i></span><span>The twist</span><span class="num"></span></div>
+  <h2 class="r">94 of 100 stolen bikes <em>were locked.</em></h2>
+  <p class="sub r" style="--d:400">The lock was there. It just wasn't the right one, in the right place.</p>
+  <div class="grid" id="lockgrid" aria-label="100 bikes, 94 of them with a broken lock"></div>
+  <div class="foot"><span>Source: Polizei Berlin open data, street thefts, Oct 2025 – Oct 2026 (“schwerer Diebstahl”).</span></div>
+</section>
+
+<!-- 05 PROBLEM -->
+<section class="slide s-prob" data-label="What exists today">
+  <div class="half l">
+    <div class="lab eyebrow r">What riders get today</div>
+    <svg class="dots" id="dotmap" viewBox="0 0 1000 824" aria-label="A crime map where dots cover the whole city"></svg>
+    <p class="cap r" style="--d:600"><b>Dots everywhere.</b> Busy squares look scary. Nothing tells you what to do.</p>
+  </div>
+  <div class="half r2">
+    <div class="chrome" style="left:80px;right:80px"><span></span><span>The gap</span><span class="num"></span></div>
+    <div class="lab eyebrow r" style="--d:300">What riders actually ask</div>
+    <p class="q r" style="--d:500">“I'm parking <b>here</b>, tonight. Which lock?”</p>
+    <p class="x r" style="--d:900">“Just buy a good lock.”</p>
+  </div>
+</section>
+
+<!-- 06 IDEA -->
+<section class="slide blush s-idea" data-label="The idea">
+  <div class="chrome"><span class="mark">Lock<i>Out</i></span><span>The idea</span><span class="num"></span></div>
+  <h2 class="r">Police data in. <em>One clear answer out.</em></h2>
+  <div class="rail r" style="--d:200"></div>
+  <div class="steps">
+    <div class="step r" style="--d:400"><div class="node"></div><div class="stepbox">
+      <svg viewBox="0 0 120 120" style="top:-150px"><path d="M60 10 a34 34 0 0 1 34 34 c0 26 -34 64 -34 64 s-34 -38 -34 -64 a34 34 0 0 1 34 -34z" fill="#65474C"/><circle cx="60" cy="44" r="12" fill="#F0DFE1"/></svg>
+      <h3>Find your spot</h3><p>Type a street, or let it find you.</p></div></div>
+    <div class="step r" style="--d:700"><div class="node"></div><div class="stepbox">
+      <svg viewBox="0 0 120 120" style="top:-150px"><path d="M14 92 a46 46 0 0 1 30 -43" fill="none" stroke="#0A84AC" stroke-width="16"/><path d="M50 47 a46 46 0 0 1 22 0" fill="none" stroke="#E69A00" stroke-width="16"/><path d="M78 49 a46 46 0 0 1 28 43" fill="none" stroke="#B0102E" stroke-width="16"/><line x1="60" y1="92" x2="88" y2="62" stroke="#2A1518" stroke-width="6" stroke-linecap="round"/><circle cx="60" cy="92" r="8" fill="#2A1518"/></svg>
+      <h3>See how it compares</h3><p>Low, Medium or High, against all of Berlin.</p></div></div>
+    <div class="step r" style="--d:1000"><div class="node"></div><div class="stepbox">
+      <svg viewBox="0 0 120 120" style="top:-150px"><path d="M36 60 V40 a24 24 0 0 1 48 0 V60" fill="none" stroke="#65474C" stroke-width="12"/><rect x="22" y="56" width="76" height="56" rx="8" fill="#65474C"/><rect x="55" y="74" width="10" height="20" rx="3" fill="#F0DFE1"/></svg>
+      <h3>Lock it right</h3><p>Advice from police and cycling experts.</p></div></div>
+  </div>
+</section>
+
+<!-- 07 MAP -->
+<section class="slide s-map" data-label="The map">
+  <div class="chrome"><span class="mark">Lock<i>Out</i></span><span>The whole city</span><span class="num"></span></div>
+  <h2 class="r">542 neighbour­hoods, <em>side by side.</em></h2>
+  <div class="bar r" style="--d:300">
+    <div class="track"><div style="flex:325;background:var(--low);transition-delay:.5s"></div><div style="flex:135;background:var(--med);transition-delay:.8s"></div><div style="flex:82;background:var(--high);transition-delay:1.1s"></div></div>
+    <div class="keys"><div><b>325</b>Low</div><div><b>135</b>Med.</div><div><b>82</b>High</div></div>
+  </div>
+  <svg class="map" data-map="light" viewBox="0 0 1000 824" aria-label="Map of Berlin's neighbourhoods by reported bike thefts"></svg>
+  <div class="callout r" id="callout" style="--d:1400"><b>Alt-Treptow</b>252 reports in a year</div>
+  <div class="hatchkey r" style="--d:600"><i></i>Hatched: too few reports to rate</div>
+  <div class="foot"><span>Data: Polizei Berlin (CC-BY 4.0) · Areas: Amt für Statistik Berlin-Brandenburg</span></div>
+</section>
+
+<!-- 08 LOCKS -->
+<section class="slide dark s-locks" data-label="The advice">
+  <div class="chrome"><span class="mark">Lock<i>Out</i></span><span>The advice</span><span class="num"></span></div>
+  <h2 class="r">A calm street is never a reason <em>to lock less.</em></h2>
+  <div class="cols">
+    <div class="col r" style="--d:400"><div class="price"><small>Bike worth</small>under €1,000</div>
+      <svg viewBox="0 0 160 260"><path d="M30 130 V70 a50 50 0 0 1 100 0 V130" fill="none" stroke="#E8C3CB" stroke-width="20"/><rect x="8" y="124" width="144" height="120" rx="10" fill="#E8C3CB"/><rect x="72" y="164" width="16" height="40" rx="4" fill="#2A1518"/></svg>
+      <p class="verdict"><b>One solid lock.</b>Frame and wheel, to something fixed.</p></div>
+    <div class="col r" style="--d:700"><div class="price"><small>Bike worth</small>€1,000 or more</div>
+      <svg viewBox="0 0 330 260"><path d="M30 130 V70 a50 50 0 0 1 100 0 V130" fill="none" stroke="#E8C3CB" stroke-width="20"/><rect x="8" y="124" width="144" height="120" rx="10" fill="#E8C3CB"/><rect x="72" y="164" width="16" height="40" rx="4" fill="#2A1518"/>
+        <g fill="none" stroke="#E69A00" stroke-width="10"><rect x="182" y="30" width="44" height="28" rx="14"/><rect x="216" y="56" width="28" height="44" rx="14"/><rect x="208" y="96" width="44" height="28" rx="14"/><rect x="242" y="122" width="28" height="44" rx="14"/><rect x="234" y="162" width="44" height="28" rx="14"/></g>
+        <rect x="236" y="190" width="80" height="58" rx="8" fill="#E69A00"/></svg>
+      <p class="verdict"><b>Two locks, two types.</b>Thieves specialise in one kind.</p></div>
+  </div>
+  <div class="foot"><span>Guidance: Polizei Berlin · ProPK · ADFC · VdS</span></div>
+</section>
+
+<!-- 09 DEMO -->
+<section class="slide night s-demo" data-label="Live">
+  <div class="chrome"><span class="mark">Lock<i>Out</i></span><span>Live demo</span><span class="num"></span></div>
+  <div class="big r">Let's<b>try it.</b></div>
+  <svg class="phone r" style="--d:300" viewBox="0 0 380 720" aria-label="A phone showing the LockOut map with a location pin">
+    <defs><clipPath id="screen"><rect x="16" y="16" width="348" height="688" rx="40"/></clipPath></defs>
+    <rect x="2" y="2" width="376" height="716" rx="54" fill="none" stroke="#E8C3CB" stroke-width="3"/>
+    <g clip-path="url(#screen)"><g id="phonemap" transform="translate(-460 -60) scale(1.25)"></g>
+      <rect x="16" y="470" width="348" height="240" fill="#FAF8F8"/>
+      <rect x="166" y="484" width="48" height="5" rx="2.5" fill="#CFC6C8"/>
+      <text x="40" y="530" font-family="Piazzolla, serif" font-weight="700" font-size="28" fill="#1D1B1C">Wrangelkiez</text>
+      <rect x="40" y="548" width="88" height="28" rx="14" fill="#B0102E"/><text x="84" y="567" text-anchor="middle" font-family="Atkinson Hyperlegible Next, sans-serif" font-weight="600" font-size="14" fill="#fff">High</text>
+      <text x="40" y="612" font-family="Atkinson Hyperlegible Next, sans-serif" font-size="15" fill="#4D4547">Among the 15% of Berlin areas</text>
+      <text x="40" y="632" font-family="Atkinson Hyperlegible Next, sans-serif" font-size="15" fill="#4D4547">with the most reported thefts.</text>
+      <rect x="40" y="652" width="300" height="40" rx="12" fill="#65474C"/><text x="190" y="677" text-anchor="middle" font-family="Atkinson Hyperlegible Next, sans-serif" font-weight="600" font-size="15" fill="#fff">Use 2 locks</text>
+    </g>
+    <circle class="pulse" cx="190" cy="300" r="14" fill="#D4506A"/>
+    <circle cx="190" cy="300" r="10" fill="#FAF8F8" stroke="#2A1518" stroke-width="4"/>
+  </svg>
+  <div class="cues">
+    <div class="r" style="--d:600"><i>i</i>Find where I am</div>
+    <div class="r" style="--d:800"><i>ii</i>Read the answer</div>
+    <div class="r" style="--d:1000"><i>iii</i>Pick the lock</div>
+  </div>
+  <div class="url r" style="--d:1200">mattscherzer.github.io/lock-out</div>
+</section>
+
+<!-- 10 HONEST -->
+<section class="slide s-honest" data-label="Trust">
+  <div class="chrome"><span class="mark">Lock<i>Out</i></span><span>Honest by design</span><span class="num"></span></div>
+  <h2 class="r">When we don't know, <em>we say so.</em></h2>
+  <div class="promise r" style="--d:200">No accounts<br>No tracking<br>Open source</div>
+  <div class="tri">
+    <div class="r" style="--d:400"><svg viewBox="0 0 440 250" data-dots="90" aria-label="Many reports"></svg><h3>Plenty of data</h3><p>A rating you can lean on.</p></div>
+    <div class="r" style="--d:650"><svg viewBox="0 0 440 250" data-dots="22" aria-label="Some reports"></svg><h3>Some data</h3><p>Our best read. It could shift.</p></div>
+    <div class="r" style="--d:900"><svg viewBox="0 0 440 250" aria-label="Too few reports, hatched">
+      <defs><pattern id="hatch" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="14" stroke="#6F6266" stroke-width="3"/></pattern></defs>
+      <rect x="2" y="2" width="436" height="246" fill="url(#hatch)" opacity=".5" stroke="#6F6266" stroke-width="3" stroke-dasharray="10 8"/>
+      <circle cx="140" cy="110" r="9" fill="#65474C"/><circle cx="300" cy="160" r="9" fill="#65474C"/></svg>
+      <h3>Too few reports</h3><p>No rating. Never “safe”.</p></div>
+  </div>
+</section>
+
+<!-- 11 NEXT -->
+<section class="slide dark s-next" data-label="What's next">
+  <div class="chrome"><span class="mark">Lock<i>Out</i></span><span>What's next</span><span class="num"></span></div>
+  <h2 class="r">Berlin is only <em>the first city.</em></h2>
+  <svg class="path" viewBox="0 0 1600 120" aria-hidden="true">
+    <line x1="80" y1="60" x2="1060" y2="60" stroke="#E8C3CB" stroke-width="3"/>
+    <line class="trail" x1="1060" y1="60" x2="1600" y2="60" stroke="#E8C3CB" stroke-width="3"/>
+    <circle cx="88" cy="60" r="14" fill="#E8C3CB"/>
+    <circle cx="573" cy="60" r="14" fill="#2A1518" stroke="#E8C3CB" stroke-width="3"/>
+    <circle cx="1058" cy="60" r="14" fill="#2A1518" stroke="#E8C3CB" stroke-width="3" stroke-dasharray="5 5"/>
+  </svg>
+  <div class="stops">
+    <div class="r" style="--d:300"><i>Today</i><b>Berlin, live</b><p>542 neighbourhoods, on any phone.</p></div>
+    <div class="r" style="--d:600"><i>Next</i><b>Real riders</b><p>Test it on real streets, with real cyclists.</p></div>
+    <div class="r" style="--d:900"><i>Then</i><b>Your city</b><p>Anywhere police share their theft data.</p></div>
+  </div>
+</section>
+
+<!-- 12 THANKS -->
+<section class="slide blush s-end" data-label="Thank you">
+  <div class="chrome"><span class="mark">Lock<i>Out</i></span><span>Thank you</span><span class="num"></span></div>
+  <div class="danke r">Danke.</div>
+  <p class="q r" style="--d:300">Try it tonight, <em>before you lock up.</em></p>
+  <div class="links r" style="--d:500">
+    <div><span>The app</span><a href="https://mattscherzer.github.io/lock-out/" target="_blank" rel="noopener">mattscherzer.github.io/lock-out</a></div>
+    <div><span>The code</span><a href="https://github.com/mattscherzer/lock-out" target="_blank" rel="noopener">github.com/mattscherzer/lock-out</a></div>
+    <div><span>Burcak on LinkedIn</span><a class="li" data-li="burcak" rel="noopener">Burcak Bulut</a></div>
+    <div><span>Fritz on LinkedIn</span><a class="li" data-li="fritz" rel="noopener">Fritz von Scherzer</a></div>
+  </div>
+  <div class="qrbox r" style="--d:700"><div class="qr" id="qr"></div><p>Scan, find your street.</p><small>mattscherzer.github.io/lock-out</small></div>
+</section>
+
+<div class="progress" id="progress"></div>
+</div>
+<div class="hint">← → to move · F for full screen</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+const MAP = {"w":1000,"h":824,"a":[["l","M386 411L380 408L380 413L372 415L388 421L391 415L393 415L391 405L384 404L383 409L386 411Z","Stülerstraße",[386,412],20],["h","M407 415L417 414L426 420L430 409L428 404L430 391L428 390L429 381L427 377L423 373L419 374L414 379L400 387L396 387L389 381L386 381L385 385L381 388L382 390L372 391L371 395L360 397L365 400L359 404L366 407L365 412L368 415L372 415L380 413L380 408L386 411L383 409L384 404L391 405L393 415L400 413L407 415Z","Großer Tiergarten",[396,397],107],["h","M407 415L400 413L391 415L388 421L408 430L416 414L407 415Z","Lützowstraße",[400,420],77],["m","M416 414L408 430L418 432L420 429L424 420L416 414Z","Körnerstraße",[417,422],48],["m","M449 410L440 391L436 392L435 389L428 390L430 391L428 407L432 412L449 410Z","Wilhelmstraße",[436,401],32],["h","M434 382L429 381L428 390L435 389L436 392L440 391L442 400L458 398L459 397L458 391L469 387L461 377L454 375L446 375L434 382Z","Unter den Linden",[449,387],119],["h","M444 400L449 410L462 409L463 406L469 409L472 404L472 401L467 401L474 393L469 387L464 389L458 391L459 397L458 398L444 400Z","Leipziger Straße",[460,399],88],["h","M424 361L424 364L420 364L421 373L427 375L429 381L436 382L446 375L444 362L426 338L423 336L417 341L415 339L412 341L424 361Z","Charitéviertel",[432,358],107],["h","M458 375L474 372L475 369L473 368L478 358L465 355L444 363L446 375L458 375Z","Oranienburger Straße",[459,365],140],["h","M474 372L458 375L464 380L474 393L480 396L485 393L490 395L490 392L484 380L494 367L478 358L473 368L475 369L474 372Z","Alexanderplatzviertel",[474,378],112],["h","M502 383L503 380L505 381L507 377L501 373L503 372L494 367L484 380L490 392L490 395L497 399L503 385L502 383Z","Karl-Marx-Allee",[494,383],63],["h","M467 401L472 401L472 404L469 409L471 409L475 414L478 412L481 417L490 395L485 393L480 396L474 393L467 401Z","Heine-Viertel West",[478,406],72],["h","M481 417L484 419L485 417L489 419L492 415L500 416L504 415L507 408L490 395L481 417Z","Heine-Viertel Ost",[495,405],63],["h","M433 331L426 338L437 352L445 347L433 331Z","Nordbahnhof",[435,342],70],["h","M457 336L453 338L445 347L437 352L444 362L464 356L457 336Z","Invalidenstraße",[452,349],105],["h","M457 336L465 355L472 356L473 350L476 345L469 330L457 336Z","Arkonaplatz",[467,342],70],["m","M357 374L358 370L350 366L351 360L351 350L399 341L405 336L396 332L384 334L365 328L355 328L355 332L358 335L332 342L334 351L341 350L339 353L334 355L339 378L341 379L343 371L347 369L352 369L357 374Z","Huttenkiez",[344,354],24],["l","M356 369L358 361L357 348L351 350L351 360L350 366L356 369Z","Beusselkiez",[354,355],17],["m","M357 348L357 362L367 364L370 347L357 348Z","Emdener Straße",[363,355],37],["h","M379 365L380 344L370 347L367 364L379 365Z","Bremer Straße",[374,358],77],["m","M372 365L357 362L356 369L359 370L372 365Z","Zwinglistraße",[362,367],29],["h","M365 388L377 374L379 365L372 365L358 370L357 374L358 377L358 384L362 388L365 388Z","Elberfelder Straße",[366,376],79],["h","M379 352L394 358L398 366L410 360L400 341L380 344L379 352Z","Stephankiez",[397,355],71],["h","M400 341L412 366L424 361L412 341L413 339L405 337L400 341Z","Heidestraße",[413,352],100],["m","M379 352L379 365L397 364L394 358L379 352Z","Lübecker Straße",[387,361],33],["m","M399 370L397 364L379 365L377 374L383 374L389 380L397 381L399 370Z","Thomasiusstraße",[388,372],56],["l","M412 366L410 360L398 366L399 370L403 371L412 366Z","Zillesiedlung",[407,364],10],["m","M424 361L403 371L399 370L397 381L389 380L397 387L404 386L421 373L420 364L424 363L424 361Z","Lüneburger Straße",[409,374],34],["m","M365 388L368 395L371 395L372 391L382 390L381 388L385 385L385 382L389 381L383 374L378 374L375 375L372 381L365 388Z","Hansaviertel",[377,383],50],["m","M414 289L440 292L442 285L431 280L420 281L414 286L414 289Z","Drontheimer Straße",[428,286],46],["m","M447 264L440 263L431 267L429 281L442 285L447 276L453 271L447 264Z","Koloniestraße",[440,274],25],["l","M453 271L447 276L440 292L459 294L458 280L453 271Z","Soldiner Straße",[451,284],16],["h","M459 305L460 300L459 294L440 292L435 301L444 309L455 307L459 305Z","Gesundbrunnen",[448,301],87],["h","M462 304L455 307L444 309L457 336L468 330L466 331L464 323L462 315L464 315L462 304Z","Brunnenstraße",[456,319],80],["m","M457 336L445 311L438 313L433 321L433 331L445 347L453 338L457 336Z","Humboldthain Süd",[443,327],29],["h","M413 325L400 334L408 336L413 341L415 339L417 341L423 336L425 338L433 331L433 321L435 316L440 312L445 311L435 301L419 318L407 319L413 325Z","Humboldthain Nordwest",[422,323],101],["m","M382 295L362 278L354 276L351 280L329 288L317 309L341 311L355 328L365 328L367 326L362 317L382 295Z","Afrikanische Straße",[348,302],33],["h","M392 305L382 295L362 317L367 326L365 328L381 334L386 327L386 324L379 315L392 305Z","Kameruner Straße",[377,310],123],["m","M380 285L374 288L392 305L402 296L398 293L393 298L380 285Z","Glasgower Straße",[385,294],42],["m","M414 289L414 286L411 287L410 279L404 281L403 278L387 277L380 285L393 298L398 293L402 296L410 289L414 289Z","Schillerpark",[398,288],39],["l","M362 278L374 288L380 285L387 277L370 271L362 278Z","Londoner Straße",[375,281],12],["h","M386 327L403 315L392 305L379 315L386 324L386 327Z","Westliche Müllerstraße",[390,318],65],["m","M403 315L407 319L417 319L417 310L414 303L403 315Z","Antonstraße",[411,313],41],["m","M435 301L429 297L420 296L414 303L417 310L417 318L419 318L435 301Z","Uferstraße",[423,307],36],["l","M440 292L423 289L421 296L429 297L435 301L440 292Z","Schwedenstraße",[430,294],22],["m","M396 321L387 326L381 334L395 332L400 334L403 332L396 321Z","Nordufer",[393,328],34],["m","M413 325L403 315L396 321L403 332L413 325Z","Sparrplatz",[405,324],52],["m","M392 305L403 315L410 307L407 304L406 293L392 305Z","Leopoldplatz",[403,299],51],["m","M414 289L406 293L407 304L410 307L421 296L423 291L423 289L414 289Z","Schulstraße",[412,301],28],["h","M442 411L432 412L430 409L426 421L432 430L447 434L447 427L442 411Z","Askanischer Platz",[437,423],104],["m","M457 434L455 424L462 409L442 411L447 427L447 434L457 434Z","Mehringplatz",[451,417],48],["m","M470 410L463 406L455 424L457 434L462 433L464 430L459 428L460 426L467 423L471 416L466 414L470 410Z","Am Berlin Museum",[463,420],41],["h","M468 421L484 428L486 421L485 417L484 419L480 417L478 412L475 414L471 409L466 414L471 416L468 421Z","Moritzplatz",[476,418],58],["m","M462 432L484 432L491 431L468 421L467 423L460 425L459 428L464 430L462 432Z","Prinzenstraße",[470,426],40],["m","M491 431L458 434L482 440L493 438L491 431Z","Wassertorplatz",[476,435],56],["h","M416 445L428 450L432 448L434 431L431 429L424 419L417 435L416 445Z","Gleisdreieck",[425,434],101],["m","M432 448L439 445L445 447L449 439L447 434L434 431L432 448Z","Rathaus Yorckstraße",[440,441],48],["h","M445 447L439 445L428 450L424 458L425 465L421 465L443 466L445 447Z","Viktoriapark",[434,455],64],["h","M471 455L472 452L474 454L477 446L472 445L473 441L471 437L457 434L447 434L449 439L445 447L471 455Z","Urbanstraße",[459,444],161],["h","M473 471L473 464L476 460L475 456L445 447L443 463L455 463L455 468L473 471Z","Chamissokiez",[459,458],108],["h","M471 456L498 462L500 459L477 446L474 454L472 452L471 456Z","Graefekiez Süd",[483,455],80],["h","M471 437L473 441L472 445L501 458L493 438L484 440L471 437Z","Graefekiez Nord",[491,450],130],["h","M484 428L491 432L497 431L504 415L497 417L492 415L489 419L485 417L486 421L484 428Z","Oranienplatz",[493,423],100],["h","M503 417L497 431L519 429L503 417Z","Lausitzer Platz",[507,426],85],["h","M507 408L503 417L519 429L530 426L507 408Z","Köpenicker Straße",[517,422],63],["h","M510 431L502 432L491 432L494 439L506 445L511 435L509 434L510 431Z","Reichenberger Straße West",[502,437],107],["h","M511 431L509 434L511 435L506 445L522 454L530 443L529 442L530 441L511 431Z","Reichenberger Straße Ost",[518,442],113],["h","M543 435L530 426L511 431L530 441L529 442L530 443L543 435Z","Wrangelkiez",[529,433],177],["m","M493 366L503 372L501 373L507 377L507 372L520 371L533 364L526 353L521 358L519 357L498 361L493 366Z","Barnimkiez",[513,364],50],["m","M502 383L506 385L524 387L525 384L526 384L531 377L526 368L517 371L507 372L505 381L503 380L502 383Z","Friedenstraße",[518,379],48],["h","M524 387L543 391L541 383L533 364L526 366L526 369L531 377L526 384L525 384L524 387Z","Richard-Sorge-Viertel",[534,374],58],["h","M522 395L524 387L506 385L502 383L503 385L497 399L505 407L507 406L514 410L522 395Z","Andreasviertel",[510,397],96],["h","M543 391L524 387L522 394L529 401L528 403L537 411L543 391Z","Weberwiese",[533,398],69],["h","M537 411L528 403L529 401L522 395L514 410L507 406L507 407L530 426L536 416L537 411Z","Wriezener Bahnhof",[524,410],123],["m","M533 364L541 383L547 374L541 361L533 364Z","Hausburgviertel",[540,369],26],["m","M553 392L557 380L545 377L541 384L543 391L553 392Z","Forckenbeckplatz",[548,384],24],["m","M553 392L564 394L567 379L557 380L553 392Z","Samariterviertel",[559,389],58],["m","M575 396L576 392L579 393L571 378L567 379L564 394L575 396Z","Pettenkofer Straße",[571,389],53],["m","M543 391L542 394L555 399L557 393L543 391Z","Niederbarnimstraße",[551,396],24],["m","M568 395L557 393L555 399L562 408L568 395Z","Wismarplatz",[561,400],33],["m","M575 396L568 395L562 408L569 416L577 403L575 396Z","Traveplatz",[569,406],40],["h","M540 403L565 412L557 401L542 394L540 403Z","Boxhagener Platz",[550,404],105],["h","M538 411L563 418L568 415L565 412L540 403L538 411Z","Revaler Straße",[545,407],143],["h","M558 440L564 433L569 416L568 415L563 418L538 411L530 426L543 435L558 440Z","Stralauer Kiez",[549,424],100],["m","M587 463L592 459L598 459L599 457L588 449L572 431L565 429L557 443L573 451L578 455L580 460L581 458L585 459L587 463Z","Stralauer Halbinsel",[572,445],28],["l","M601 95L627 70L598 51L590 39L595 12L576 22L574 18L582 2L581 0L578 4L575 1L561 20L552 16L539 31L556 44L572 46L574 48L573 52L552 67L541 65L541 63L536 62L524 64L522 74L514 76L513 83L514 92L503 94L505 121L509 128L532 152L535 159L536 165L541 155L560 138L568 129L579 123L587 121L584 120L601 95Z","Bucher Forst",[565,80],8],["lx","M601 95L622 114L624 119L638 112L645 85L646 74L642 75L640 70L631 74L627 70L601 95Z","Klinikum Buch",[624,99],3],["l","M601 95L584 120L599 129L620 136L621 122L624 119L622 114L601 95Z","Karower Chaussee",[605,117],26],["lx","M484 162L474 151L482 147L499 126L507 128L508 126L504 115L503 94L499 98L488 88L484 84L485 81L481 78L475 80L460 66L455 68L451 75L452 78L451 78L452 79L450 78L449 81L448 84L449 87L447 93L441 96L436 96L438 98L433 102L432 101L427 107L429 112L427 114L428 115L420 118L416 122L414 121L427 152L428 168L442 174L488 184L484 162Z","Blankenfelde",[461,124],1],["l","M466 179L439 173L438 174L440 177L438 184L443 188L440 190L449 195L445 207L439 215L440 223L442 226L467 220L466 209L468 197L466 179Z","Uhlandstraße",[457,202],12],["l","M474 229L470 229L467 220L442 226L445 234L443 235L445 239L462 248L465 245L464 243L466 242L465 240L468 238L467 236L475 233L474 229Z","Pastor-Niemöller-Platz",[459,234],18],["l","M467 179L468 198L466 209L466 216L470 229L481 227L501 218L509 211L511 202L509 200L494 192L486 183L467 179Z","Herthaplatz",[489,204],11],["lx","M503 177L484 162L488 184L494 192L511 202L513 188L510 179L503 177Z","Nisbléstraße",[499,181],3],["l","M509 128L508 134L511 149L508 164L513 165L509 178L513 188L511 202L516 206L515 209L517 215L530 195L536 173L537 165L536 165L535 159L531 151L509 128Z","Eddastraße",[524,171],23],["l","M482 160L503 177L510 177L513 165L508 164L511 149L508 134L509 128L508 126L507 128L499 126L482 147L474 151L482 160Z","Krugpfuhl",[493,154],7],["l","M584 122L577 132L583 140L593 147L593 151L609 162L617 138L619 136L595 127L587 121L584 122Z","Karow Nord",[602,144],8],["l","M568 129L542 154L566 184L584 161L591 145L583 140L577 132L584 122L582 122L568 129Z","Karow Bahnhof",[565,153],24],["lx","M609 162L593 151L594 147L590 146L584 161L566 184L569 187L577 188L603 179L607 172L609 162Z","Karow Ost",[594,167],3],["m","M542 154L537 165L536 173L530 195L510 227L514 228L516 225L515 228L520 226L530 229L540 216L542 207L550 209L551 212L561 217L569 210L580 206L587 184L576 188L568 187L542 154Z","Blankenburg",[558,191],32],["lx","M530 229L549 244L549 238L556 226L555 222L561 217L551 212L550 209L542 207L540 216L530 229Z","Blankenburger Süden",[544,225],0],["l","M516 225L512 231L514 236L508 243L504 270L507 290L535 272L534 270L536 271L545 265L549 264L550 258L549 244L531 229L520 226L515 228L516 225Z","Heinersdorf",[527,261],21],["lx","M587 184L580 206L569 210L555 222L556 226L549 239L548 249L550 258L549 264L588 271L587 267L593 260L586 254L586 251L581 251L583 225L587 223L591 214L595 209L620 193L610 172L607 172L603 179L587 184Z","Märchenland",[575,218],2],["lx","M427 167L419 186L405 205L423 200L421 207L446 205L449 195L440 190L443 188L438 184L440 177L437 175L439 173L427 167Z","Rosenthal",[430,187],4],["l","M431 232L442 226L440 223L439 215L446 205L421 207L423 200L404 206L385 209L410 230L412 224L417 225L425 223L427 231L431 232Z","Wilhelmsruh",[416,216],19],["l","M461 247L444 237L444 235L445 234L442 226L431 232L427 231L425 223L417 225L412 224L410 230L433 252L438 252L446 259L447 264L461 259L461 255L465 252L461 247Z","Schönholz",[438,243],18],["h","M474 271L468 259L462 256L461 259L447 265L455 274L459 286L474 271Z","Florakiez",[463,273],73],["m","M465 259L477 255L473 242L476 239L475 233L467 236L468 238L465 240L466 242L464 243L465 245L462 247L465 252L461 255L465 259Z","Parkstraße",[469,246],34],["h","M474 271L501 245L504 242L491 245L485 252L468 259L474 271Z","Garbátyplatz",[483,255],106],["l","M506 229L482 239L475 248L477 255L485 252L491 245L505 241L507 237L508 230L511 224L505 226L506 229Z","Wolfshagener Straße",[495,238],21],["l","M482 239L506 229L505 226L511 224L517 215L515 209L516 206L511 202L509 211L501 218L480 228L474 229L476 238L473 242L475 248L482 239Z","Schlosspark",[498,225],14],["m","M482 264L463 282L460 286L485 288L482 264Z","Tiroler Viertel",[475,277],45],["l","M483 282L485 297L499 299L496 282L483 282Z","Trelleborger Viertel",[492,293],20],["l","M508 303L505 280L496 282L499 299L508 303Z","Spiekermann Straße",[502,293],10],["l","M483 282L505 280L504 271L483 274L483 282Z","Arnold-Zweig-Straße",[494,277],12],["m","M504 271L506 253L499 255L483 267L483 274L504 271Z","Kissingenviertel",[495,265],26],["l","M514 228L509 227L507 232L507 237L505 240L482 264L482 268L499 255L506 253L508 243L514 236L512 231L514 228Z","Pankower Tor",[502,249],7],["l","M548 280L534 270L535 272L513 287L513 289L531 297L548 280Z","Bühringstraße",[534,282],16],["l","M564 294L563 289L548 280L531 297L550 306L562 302L564 294Z","Weißer See",[550,291],23],["l","M506 291L508 302L524 309L531 297L513 289L513 287L506 291Z","Weißenseer Spitze",[518,300],21],["m","M550 306L531 297L524 309L534 314L550 306Z","Behaimstraße",[536,304],27],["m","M562 302L534 314L545 320L545 322L563 335L567 330L562 302Z","Komponistenviertel Weißensee",[551,317],25],["l","M580 298L577 269L547 264L536 271L563 289L564 297L580 298Z","Rathaus Weißensee",[563,280],21],["l","M591 272L577 269L581 298L564 297L562 302L563 311L582 313L583 311L582 308L585 308L591 301L604 305L605 298L605 293L599 282L590 278L591 272Z","Hansastraße",[590,287],17],["m","M485 288L459 286L460 295L485 297L485 288Z","Norweger Viertel",[472,292],35],["m","M471 307L473 296L460 295L460 300L459 305L463 304L467 307L471 307Z","Malmöer Straße",[466,302],42],["h","M484 308L485 297L473 296L471 307L484 308Z","Arnimplatz",[478,302],57],["h","M484 308L462 304L464 315L462 315L466 331L476 328L482 329L484 308Z","Falkplatz",[473,319],75],["h","M485 297L484 308L492 312L500 300L485 297Z","Rodenbergstraße",[491,305],94],["m","M492 312L503 321L508 303L500 300L492 312Z","Humannplatz",[501,308],48],["m","M534 314L508 302L503 321L519 331L526 319L534 314Z","Ostseestraße",[517,317],40],["m","M492 312L484 308L482 327L482 328L492 312Z","Gethsemanekirche",[486,317],46],["m","M498 317L492 312L482 329L491 331L498 317Z","Helmholtzplatz",[490,323],51],["m","M503 321L498 317L491 331L499 333L503 321Z","Senefelderstraße",[497,326],34],["m","M535 340L549 325L545 322L545 320L534 314L526 319L520 329L535 340Z","Michelangelostraße",[534,327],38],["m","M549 325L535 340L547 359L553 357L557 349L565 344L562 339L564 335L549 325Z","Volkspark Prenzlauer Berg",[550,342],30],["m","M511 341L525 351L535 340L520 329L511 341Z","Anton-Saefkow-Park",[523,339],29],["m","M535 340L525 351L533 364L547 359L535 340Z","Velodrom",[536,355],23],["m","M541 361L547 374L545 377L556 380L570 378L565 372L551 366L547 359L541 361Z","Alter Schlachthof",[552,369],39],["h","M469 330L476 345L473 350L472 356L478 358L482 352L483 347L482 329L469 330Z","Teutoburger Platz",[478,343],66],["m","M500 334L482 329L482 341L489 339L496 342L500 334Z","Sredzkistraße",[490,336],47],["h","M487 363L493 353L496 342L489 339L482 341L482 352L478 358L487 363Z","Kollwitzplatz",[488,350],73],["l","M503 321L499 333L511 341L519 331L503 321Z","Thälmannpark",[508,332],9],["m","M511 341L500 334L496 342L506 348L511 341Z","Christburger Straße",[504,341],38],["m","M493 366L506 348L496 342L487 363L493 366Z","Immanuelkirchstraße",[497,354],32],["h","M498 361L519 357L521 358L526 353L511 341L498 361Z","Bötzowstraße",[514,352],63],["l","M355 328L341 311L271 308L270 310L275 324L273 334L278 337L279 342L288 346L286 355L291 358L303 354L308 356L304 345L306 342L311 324L312 324L312 329L321 329L321 340L322 344L358 335L355 332L355 328Z","Jungfernheide/Plötzensee",[338,333],24],["l","M311 324L306 342L304 345L306 349L322 344L321 340L321 329L312 329L312 324L311 324Z","Paul-Hertz-Siedlung",[314,335],8],["l","M206 404L227 401L227 399L240 390L246 389L244 379L235 369L225 365L199 365L195 376L196 393L206 404Z","Olympiagelände",[220,385],5],["lx","M188 405L208 411L209 406L195 394L190 400L188 405Z","Angerburger Allee",[197,402],1],["lx","M208 411L253 407L249 402L246 389L245 389L240 390L227 399L227 401L209 404L208 411Z","Flatowallee",[238,400],2],["lx","M254 408L210 412L190 406L184 406L179 416L180 422L184 423L247 416L254 408Z","Kranzallee",[214,414],2],["l","M180 422L165 429L159 429L151 435L150 446L146 455L151 471L147 481L148 497L161 499L163 504L165 505L173 501L183 503L213 500L224 504L245 477L251 464L250 462L256 455L258 456L261 453L270 439L277 433L267 429L261 414L254 408L247 416L184 423L180 422Z","Eichkamp",[200,458],16],["l","M260 378L257 385L258 390L260 392L280 398L284 384L290 384L287 368L288 364L288 365L292 359L289 359L290 357L284 355L277 358L263 358L253 362L241 362L235 360L235 361L236 362L237 369L260 378Z","Branitzer Platz",[271,376],13],["l","M260 378L246 374L235 369L243 378L249 402L254 408L256 390L258 388L257 385L260 378Z","Neu Westend",[252,389],15],["l","M256 389L254 402L254 408L259 411L271 416L277 408L276 406L282 406L280 398L256 389Z","Fürstenplatz",[268,404],14],["m","M277 409L271 416L259 411L268 430L275 433L287 428L288 425L287 422L288 414L293 399L290 384L284 384L280 399L282 406L276 406L277 409Z","Königin-Elisabeth-Straße",[283,409],29],["l","M290 384L315 382L315 375L311 371L308 357L309 355L303 354L290 357L289 359L292 359L288 365L288 364L287 369L290 384Z","Schlossgarten",[299,370],19],["m","M308 382L290 384L293 397L309 395L308 382Z","Klausenerplatz",[300,388],27],["m","M292 404L317 402L315 382L308 382L309 395L293 397L292 404Z","Schloßstraße",[313,391],41],["m","M292 404L288 414L287 422L288 425L287 428L291 428L292 425L300 422L305 416L304 411L305 407L302 403L292 404Z","Lietzensee",[296,415],23],["h","M302 403L305 407L304 411L305 416L300 422L308 421L309 423L321 418L318 412L317 402L302 403Z","Amtsgerichtsplatz",[311,413],76],["l","M323 366L323 352L308 357L312 374L315 375L323 366Z","Tegeler Weg",[317,364],20],["m","M315 376L343 381L339 378L334 355L339 353L341 350L334 351L332 342L306 349L306 351L308 356L323 352L323 366L315 376Z","Kaiserin-Augusta-Allee",[330,363],30],["m","M337 394L343 382L317 376L314 378L315 382L337 394Z","Alt-Lietzow",[333,388],29],["m","M365 388L359 385L358 374L351 369L344 370L341 379L353 388L361 397L368 396L368 394L365 388Z","Spreestadt",[352,383],26],["m","M317 402L337 400L337 394L315 382L317 402Z","Richard-Wagner-Straße",[323,390],35],["h","M352 417L360 415L364 407L359 404L365 400L360 398L361 396L353 388L343 382L338 393L337 400L348 401L354 408L353 409L352 417Z","Ernst-Reuter-Platz",[352,399],89],["h","M317 402L318 412L321 418L335 416L337 400L317 402Z","Karl-August-Platz",[327,407],75],["m","M335 416L352 417L353 409L354 408L348 401L337 400L335 416Z","Savignyplatz",[345,408],36],["lx","M260 458L268 452L267 451L276 444L289 434L287 428L273 434L261 453L258 456L260 458Z","Güterbahnhof Grunewald",[274,441],0],["l","M260 458L263 460L269 456L273 461L276 459L289 468L292 465L292 461L299 462L301 443L294 442L294 441L292 440L289 434L276 444L267 451L268 452L260 458Z","Bismarckallee",[284,452],9],["l","M299 462L292 461L292 465L287 471L286 485L316 459L301 443L299 462Z","Flinsberger Platz",[301,463],20],["lx","M260 458L261 465L265 472L276 481L287 485L287 471L289 468L276 459L273 461L269 456L263 460L260 458Z","Hagenplatz",[276,471],0],["lx","M260 458L256 455L250 463L251 464L245 477L223 504L254 511L258 507L261 509L283 505L283 490L286 486L285 484L276 481L265 472L261 465L260 458Z","Hundekehle",[261,482],4],["l","M316 492L332 478L316 458L287 485L301 488L303 485L310 485L310 490L316 492Z","Forckenbeckstraße",[314,468],14],["lx","M286 486L283 490L283 506L299 500L300 489L286 486Z","Messelpark",[291,495],2],["l","M316 492L310 490L310 485L303 485L299 488L300 489L298 500L324 508L326 507L312 494L316 492Z","Breite Straße",[307,496],5],["lx","M327 482L313 494L318 498L326 507L327 506L327 482Z","Schlangenbader Straße",[321,496],3],["l","M336 497L336 489L333 479L332 478L327 482L327 505L326 507L332 506L336 497Z","Binger Straße",[331,493],17],["m","M344 509L345 484L333 479L336 489L336 497L332 506L328 508L330 510L344 509Z","Rüdesheimer Platz",[340,493],40],["m","M307 424L317 430L317 432L326 429L321 418L307 424Z","Droysenstraße",[316,425],32],["m","M292 440L294 442L300 443L297 438L317 432L317 430L307 424L309 423L308 421L296 423L292 425L292 428L287 428L292 440Z","Halensee",[302,431],26],["m","M325 429L300 437L297 438L307 449L325 432L325 429Z","Hochmeisterplatz",[308,444],27],["l","M325 432L320 439L307 449L316 459L324 458L335 453L328 442L325 432Z","Eisenzahnstraße",[321,446],18],["m","M334 429L335 416L321 418L326 429L334 429Z","Hindemithplatz",[329,422],23],["m","M335 416L334 429L351 429L352 417L335 416Z","George-Grosz-Platz",[343,423],35],["h","M351 429L362 428L363 426L368 429L376 417L365 413L366 408L364 407L359 416L352 417L351 429Z","Breitscheidplatz",[362,422],118],["m","M326 429L327 440L329 444L335 453L340 450L343 430L326 429Z","Preußenpark",[335,442],32],["l","M340 450L349 445L351 429L343 430L340 450Z","Ludwigkirchplatz",[346,437],18],["m","M360 441L370 443L372 429L370 427L368 429L363 426L362 428L351 429L349 445L360 441Z","Schaperstraße",[361,434],47],["l","M316 458L325 470L325 466L328 470L345 469L345 461L337 454L316 458Z","Barstraße",[333,464],11],["l","M348 461L349 445L335 453L344 461L348 461Z","Leon-Jessel-Platz",[342,453],21],["m","M325 466L325 470L333 479L345 484L345 469L328 470L325 466Z","Brabanter Platz",[337,475],26],["m","M348 461L360 459L360 441L349 445L348 461Z","Nikolsburger Platz",[354,452],37],["l","M345 468L349 471L359 471L360 466L360 459L345 461L345 468Z","Wilhelmsaue",[353,464],17],["l","M345 484L356 484L356 478L359 471L345 469L345 484Z","Hildegardstraße",[351,475],17],["m","M360 441L360 459L370 457L370 443L360 441Z","Prager Platz",[365,447],52],["m","M370 482L370 457L360 459L360 468L356 478L356 484L370 482Z","Babelsberger Straße",[364,473],53],["lx","M108 272L129 282L131 273L138 275L143 279L159 280L161 278L162 264L170 269L179 270L182 264L205 268L207 264L203 250L194 240L193 237L193 230L189 224L192 215L177 213L176 217L174 217L166 212L154 208L141 200L118 192L113 187L102 190L91 204L82 210L74 212L70 215L60 215L60 219L61 219L59 226L62 226L66 234L76 232L91 225L93 228L97 240L97 250L92 263L102 267L108 272Z","Hakenfelde Nord",[144,235],4],["lx","M161 277L178 277L179 270L170 269L162 264L161 277Z","Am Forstacker",[170,272],2],["l","M182 264L180 269L178 278L199 282L201 281L201 278L205 274L203 272L205 268L182 264Z","Mertensstraße",[191,273],11],["l","M177 293L190 295L187 285L194 295L198 289L199 282L178 278L177 293Z","Maselake",[183,287],9],["l","M123 294L153 307L154 304L160 294L177 293L178 277L161 277L159 280L153 281L140 279L138 275L131 273L129 282L125 281L123 294Z","Amorbacher Weg",[151,288],8],["l","M125 281L108 272L102 267L92 263L88 271L87 279L85 281L87 295L111 302L112 290L123 294L125 281Z","Griesingerstraße",[105,283],7],["lx","M79 301L71 300L63 292L58 307L82 317L82 312L79 301Z","An der Tränke",[69,305],1],["l","M103 319L112 324L118 324L119 327L123 294L112 290L111 302L87 295L82 303L85 314L87 315L103 319Z","Im Spektefeld",[102,310],7],["l","M134 310L131 322L140 326L140 318L143 317L143 312L141 311L143 302L123 294L121 305L134 310Z","Westerwaldstraße",[137,310],10],["l","M143 302L141 311L143 312L143 317L140 318L139 326L146 327L155 319L153 307L143 302Z","Germersheimer Platz",[149,314],10],["l","M82 317L118 332L139 338L141 331L141 327L131 322L134 309L121 305L119 327L118 324L112 324L103 318L86 315L82 306L83 301L79 301L82 312L82 317Z","An der Kappe",[98,320],6],["lx","M164 294L160 295L153 307L159 311L167 310L164 294Z","Eckschanze",[161,301],4],["l","M180 305L181 310L178 318L182 319L181 322L188 322L197 317L200 310L199 293L202 283L208 277L208 266L207 264L206 266L206 267L203 272L205 274L203 275L204 276L201 278L201 281L198 284L198 289L194 295L193 294L192 290L187 285L190 295L178 293L164 294L167 307L180 305Z","Eiswerder",[175,293],5],["l","M167 310L175 324L172 328L173 330L179 331L180 335L179 326L182 322L181 322L182 319L178 318L181 310L180 305L167 307L167 310Z","Kurstraße",[177,320],11],["l","M167 310L159 311L153 307L154 316L169 329L173 328L175 324L167 310Z","Ackerstraße",[167,321],8],["m","M139 338L171 347L178 341L180 335L179 331L169 329L154 316L155 319L146 327L141 327L139 338Z","Carl-Schurz-Straße",[160,333],49],["l","M168 351L185 362L190 362L199 358L199 365L225 365L237 369L235 361L236 359L222 348L213 345L198 346L181 340L168 351Z","Freiheit",[202,354],7],["lx","M53 333L80 336L82 317L58 307L54 322L55 322L53 333Z","Isenburger Weg",[69,319],1],["lx","M80 336L92 337L93 322L82 317L80 336Z","Am Heideberg",[87,327],2],["l","M135 354L135 346L139 346L139 338L118 332L93 322L92 337L102 338L101 341L97 341L98 348L112 347L116 352L99 358L99 366L106 367L123 362L133 367L139 364L135 354Z","Staakener Straße",[118,344],7],["l","M97 341L102 338L62 334L63 340L69 339L74 343L74 348L76 349L98 348L97 341Z","Spandauer Straße",[85,342],8],["lx","M75 349L74 343L69 339L63 340L62 334L53 333L46 358L75 359L77 357L79 349L75 349Z","Werkstraße",[62,345],0],["l","M112 347L79 349L78 352L92 359L116 354L112 347Z","Magistratsweg",[98,353],5],["lx","M81 370L84 356L78 352L77 357L74 359L46 358L43 387L71 383L71 381L68 381L69 374L66 374L67 365L81 370Z","Döberitzer Weg",[56,367],0],["lx","M98 393L102 388L99 386L101 385L94 379L101 370L100 366L98 363L99 358L92 359L84 356L81 370L67 365L66 374L69 374L68 381L71 381L71 383L81 381L85 386L98 393Z","Pillnitzer Weg",[83,375],2],["lx","M101 385L110 379L108 367L100 366L101 370L94 379L101 385Z","Rudolf-Wissell-Großsiedlung",[104,375],3],["lx","M135 388L149 376L124 362L108 367L110 379L135 388Z","Maulbeerallee",[129,375],2],["l","M102 425L136 428L136 409L144 391L110 379L99 386L102 388L98 393L120 406L102 425Z","Weinmeisterhornweg",[124,400],5],["m","M155 359L162 358L161 361L169 367L170 365L165 354L167 350L171 347L139 338L139 346L135 346L135 353L139 365L148 361L155 364L155 359Z","Borkumer Straße",[150,353],50],["l","M159 361L160 357L155 359L155 364L148 361L132 367L148 374L151 378L151 382L155 382L155 387L161 395L163 376L159 361Z","Wilhelmstadt West",[156,377],16],["l","M174 379L173 371L170 365L168 368L165 365L163 361L161 361L162 358L160 357L159 361L163 376L161 395L169 385L173 387L174 384L173 381L174 378L174 382L174 379Z","Wilhelmstadt Ost",[168,377],16],["lx","M168 351L166 351L165 356L172 370L173 369L174 371L176 383L178 380L177 387L182 385L186 388L189 393L190 400L195 395L197 395L195 390L195 376L200 363L199 358L190 362L185 362L168 351Z","Tiefwerder",[185,375],2],["lx","M162 395L156 387L155 382L151 382L151 378L149 376L135 388L159 397L161 397L162 395Z","Graetschelsteig",[146,386],2],["lx","M136 428L154 432L180 422L179 416L182 408L184 406L189 406L188 405L190 400L189 393L182 385L177 387L178 380L176 383L175 374L173 369L172 370L174 377L174 380L174 382L174 378L173 380L174 384L173 387L169 385L161 397L143 392L136 409L136 428Z","Börnicker Straße",[164,403],4],["lx","M223 288L208 274L208 277L202 283L199 293L200 310L207 308L205 303L205 296L220 307L223 295L223 288Z","Haveleck",[211,290],3],["l","M220 307L204 296L205 303L207 308L200 310L196 318L190 322L182 322L179 324L180 334L178 340L200 346L213 345L228 338L233 340L234 337L233 336L222 334L213 335L215 325L212 315L220 311L220 307Z","Zitadellenweg",[203,320],11],["l","M236 321L238 317L237 312L224 314L220 311L212 315L215 325L213 335L222 334L237 336L236 321Z","Gartenfelder Straße",[225,324],19],["lx","M224 314L270 310L270 308L247 306L223 288L223 295L220 308L221 312L224 314Z","Gartenfeld",[229,299],0],["l","M237 312L261 334L273 334L275 326L270 310L237 312Z","Rohrdamm",[262,322],9],["l","M236 321L237 336L233 336L234 337L232 341L228 338L213 345L223 349L237 361L242 363L255 362L263 358L277 358L287 354L288 346L275 341L274 344L264 342L261 333L239 314L237 314L236 321Z","Nonnendammallee",[248,338],9],["l","M279 342L278 337L275 334L261 334L264 342L274 344L275 341L279 342Z","Siemensdamm",[271,339],11],["lx","M116 506L97 527L101 529L97 539L100 537L103 539L109 534L112 528L135 521L136 518L137 509L146 510L149 493L147 481L151 471L146 455L150 446L151 435L154 432L144 429L102 425L70 464L78 470L77 480L79 483L98 481L98 489L95 493L110 506L112 503L116 506Z","Alt-Gatow",[122,483],1],["l","M69 545L82 543L83 540L79 537L69 524L71 521L69 519L69 517L71 518L80 509L97 519L94 522L99 525L116 506L112 503L110 506L95 493L98 489L98 481L79 483L77 480L78 470L70 464L57 481L44 484L43 494L38 502L38 505L33 513L34 517L33 526L36 529L36 532L35 541L69 545Z","Jägerallee",[73,504],8],["l","M46 568L52 576L53 574L57 572L89 567L98 559L109 546L123 536L132 536L144 520L146 510L137 509L136 518L135 521L112 528L109 534L103 539L100 537L97 539L101 529L97 527L99 525L94 522L97 519L80 509L71 518L69 517L69 519L71 521L69 524L79 537L83 540L82 543L84 544L82 550L57 566L46 568Z","Kladower Damm",[98,543],5],["lx","M46 568L49 569L64 562L82 550L84 544L72 545L35 541L31 549L40 561L46 565L46 568Z","Kafkastraße",[53,558],4],["l","M335 544L343 540L346 534L338 529L341 524L333 519L336 514L329 510L324 513L321 530L325 528L325 532L330 541L335 544Z","Fichtenberg",[331,526],12],["h","M342 541L344 543L349 538L351 539L353 537L354 535L349 535L354 527L351 525L352 524L336 514L333 519L341 524L338 529L346 534L342 541Z","Schloßstraße",[346,528],66],["h","M358 513L356 516L346 509L329 510L352 524L351 525L354 527L354 523L360 514L358 513Z","Markelstraße",[351,520],131],["l","M372 548L402 555L405 558L398 537L395 537L393 533L388 534L387 529L373 530L372 548Z","Munsterdamm",[386,542],19],["l","M384 564L398 568L407 564L403 555L372 548L370 550L384 564Z","Südende",[390,557],20],["l","M384 564L370 550L372 548L361 543L349 563L353 567L364 562L384 564Z","Stadtpark",[365,556],14],["l","M338 543L337 550L341 546L349 564L353 559L361 543L352 537L351 539L349 538L344 543L342 541L338 543Z","Mittelstraße",[350,551],17],["l","M372 548L373 530L363 531L356 526L349 535L354 535L353 537L368 547L372 548Z","Bergstraße",[363,537],8],["m","M360 514L354 523L355 527L356 526L363 531L373 530L372 510L368 508L360 514Z","Feuerbachstraße",[365,519],30],["l","M373 530L385 529L386 528L373 514L373 530Z","Bismarckstraße",[375,518],9],["lx","M395 579L389 590L393 592L415 586L407 564L400 568L388 566L387 568L395 579Z","Alt-Lankwitz",[403,577],3],["l","M388 566L381 563L361 562L356 565L357 568L356 571L357 573L355 575L360 591L362 593L388 566Z","Komponistenviertel Lankwitz",[366,577],10],["l","M388 566L373 582L382 595L385 595L395 579L387 568L388 566Z","Lankwitz Kirche",[384,581],13],["l","M366 613L378 605L375 600L382 595L373 582L360 595L363 600L362 601L366 613Z","Kaiser-Wilhelm-Straße",[370,598],8],["lx","M364 614L368 617L369 620L380 620L399 613L393 592L389 590L385 595L382 595L375 600L379 605L364 614Z","Gallwitzallee",[385,609],4],["lx","M399 613L406 610L408 600L411 599L411 596L413 596L414 587L393 592L399 613Z","Belßstraße",[402,602],4],["lx","M369 620L375 633L383 636L409 620L416 606L421 602L415 586L414 587L413 596L411 596L411 599L408 600L406 610L382 620L369 620Z","Lankwitz Süd",[407,612],3],["lx","M355 659L347 648L330 646L329 647L325 662L333 675L355 659Z","Landweg",[339,661],0],["lx","M336 631L331 641L330 646L347 648L336 631Z","Thermometersiedlung",[336,636],0],["l","M309 638L325 662L329 647L330 646L330 643L336 630L330 621L332 619L324 612L318 626L310 633L310 636L309 638Z","Lichterfelde Süd",[321,637],8],["l","M332 598L324 612L332 619L330 621L335 628L342 616L362 593L360 591L355 575L357 573L356 572L357 566L356 565L351 569L342 584L332 598Z","Königsberger Straße",[347,595],32],["l","M368 617L364 614L366 613L362 601L363 600L360 595L342 617L335 628L336 629L338 626L358 629L374 634L368 617Z","Oberhofer Platz",[354,615],19],["lx","M335 628L355 659L379 644L378 638L382 636L358 629L337 626L335 628Z","Schütte-Lanz-Straße",[361,642],4],["l","M241 604L226 591L210 597L210 605L224 612L204 622L215 623L234 621L236 630L244 610L251 599L241 604Z","Berlepschstraße",[232,611],7],["l","M253 633L247 634L239 626L236 630L240 661L252 657L269 663L265 648L254 639L253 633Z","Zehlendorf Süd",[248,642],7],["m","M250 585L226 591L241 604L250 599L251 599L249 603L265 598L260 587L250 585Z","Zehlendorf Mitte",[246,593],42],["m","M289 570L269 580L260 587L265 598L275 598L284 594L289 570Z","Sundgauer Straße",[277,583],32],["l","M273 641L284 594L275 598L260 599L249 603L244 610L239 626L247 634L253 633L254 639L265 647L266 651L275 649L273 641Z","Teltower Damm",[260,618],11],["l","M338 543L335 544L330 541L325 532L325 528L321 530L308 550L304 559L305 561L289 570L288 577L332 551L337 548L338 543Z","Botanischer Garten",[316,555],12],["m","M338 549L339 576L337 583L330 596L331 598L342 585L353 567L348 564L341 546L338 549Z","Hindenburgdamm",[343,574],40],["l","M332 598L330 596L313 619L289 632L278 643L279 643L275 649L266 651L269 663L279 660L315 629L332 598Z","Goerzwerke",[303,630],5],["l","M284 594L273 641L275 648L279 643L278 643L289 632L313 619L329 597L304 593L284 594Z","Schweizer Viertel",[293,622],22],["l","M308 566L330 596L337 583L339 576L337 548L308 566Z","Augustaplatz",[326,573],22],["m","M308 566L288 577L284 594L304 593L330 596L308 566Z","Lichterfelde West",[304,584],30],["m","M146 609L143 600L127 604L109 545L98 559L89 567L53 574L50 580L43 585L35 594L36 602L25 611L24 614L16 611L11 619L0 625L4 645L13 650L16 646L12 641L18 639L19 647L27 650L28 649L28 641L32 641L32 645L34 645L35 647L33 648L33 650L28 650L27 652L31 653L30 655L35 663L44 668L54 681L58 681L67 675L74 678L70 679L70 682L75 683L64 693L62 696L64 693L58 693L57 698L64 704L67 704L68 700L62 696L79 680L82 680L85 684L105 688L120 687L124 684L123 678L103 682L106 673L105 666L144 645L129 633L128 630L132 626L137 628L137 623L144 617L143 614L146 609Z","Wannsee",[70,624],27],["l","M182 609L155 626L139 628L132 626L128 629L128 632L144 645L162 635L180 632L224 612L210 605L210 598L182 609Z","Düppel",[185,621],6],["m","M194 594L186 569L178 563L223 504L213 500L183 503L173 501L165 505L163 504L161 499L148 497L144 520L132 536L123 536L109 545L127 604L143 600L146 608L146 611L143 614L144 617L137 622L137 628L155 626L182 609L202 601L194 594Z","Nikolassee",[149,566],42],["l","M240 533L236 524L237 508L223 504L178 563L186 569L194 593L202 601L210 598L211 597L211 589L213 582L224 572L235 557L227 546L241 542L240 533Z","Krumme Lanke",[208,551],19],["l","M247 568L237 554L226 569L213 582L211 589L211 597L237 588L253 586L249 575L247 568Z","Fischerhüttenstraße",[235,574],24],["l","M240 533L241 542L227 546L235 556L237 555L248 569L266 561L260 553L259 548L247 533L240 533Z","Fischtal",[245,550],18],["l","M270 569L270 566L266 561L248 569L249 575L253 586L258 587L287 571L270 569Z","Zehlendorf Eiche",[266,573],16],["l","M270 549L282 512L282 505L261 509L258 507L254 511L237 509L237 525L240 533L247 533L259 548L260 553L267 562L271 549L270 549Z","Hüttenweg",[261,534],19],["l","M304 559L308 549L321 529L313 532L301 531L294 544L284 551L271 549L267 562L270 569L287 571L305 561L304 559Z","Thielallee",[297,550],11],["l","M329 509L298 501L282 505L270 549L284 551L294 544L301 531L313 532L321 529L324 513L329 509Z","Dahlem",[299,526],22],["h","M376 417L370 427L373 430L370 438L370 443L383 443L382 427L388 421L376 417Z","Wittenbergplatz",[378,430],95],["h","M382 427L383 443L397 442L395 432L396 430L394 424L388 421L382 427Z","Kalckreuthstraße",[389,431],112],["h","M405 443L408 430L394 424L396 430L395 432L397 442L405 443Z","Frobenstraße",[401,436],99],["h","M382 455L404 451L405 443L383 443L382 455Z","Barbarossaplatz",[393,447],107],["h","M405 443L416 446L417 435L418 432L408 430L405 443Z","Alvenslebenstraße",[411,437],67],["h","M428 450L405 443L405 453L410 457L424 459L428 450Z","Großgörschenstraße",[416,450],87],["h","M382 463L382 445L383 443L370 443L370 463L382 463Z","Bayerischer Platz",[376,453],81],["h","M370 463L370 481L383 482L393 477L384 471L382 463L370 463Z","Volkspark (Rudolph-Wilde-Park)",[379,474],63],["h","M382 455L382 465L386 473L398 462L404 451L382 455Z","Belziger Straße",[391,459],65],["m","M386 473L393 477L404 462L399 461L386 473Z","Feurigstraße",[393,471],22],["m","M410 458L404 451L399 461L405 463L410 458Z","Julius-Leber-Brücke",[405,455],23],["m","M412 493L410 485L407 482L400 479L395 479L403 488L412 493Z","Schöneberger Linse",[406,487],28],["h","M421 465L409 465L404 462L393 477L407 482L410 485L412 493L420 499L420 497L416 495L413 489L421 465Z","Cheruskerstraße",[410,481],80],["m","M425 459L410 458L405 463L409 465L425 465L425 459Z","Hohenfriedbergstraße",[416,461],30],["m","M356 484L345 484L345 499L357 499L356 484Z","Taunusstraße",[351,489],33],["m","M357 499L345 498L344 509L356 516L363 505L357 499Z","Odenwaldstraße",[353,507],56],["h","M356 484L357 499L363 505L380 482L372 481L356 484Z","Perelsplatz",[366,489],60],["m","M381 482L368 497L358 513L360 514L368 508L370 509L385 488L381 482Z","Ceciliengärten",[370,503],31],["m","M398 537L398 525L410 492L400 486L393 477L380 482L385 488L370 509L385 529L387 529L388 534L393 533L395 537L398 537Z","Grazer Platz",[390,504],39],["h","M421 465L414 485L415 493L420 497L420 499L430 502L442 501L442 498L431 497L431 492L425 489L426 487L425 480L428 475L443 477L443 466L421 465Z","Gontermannstraße",[420,482],64],["m","M488 513L483 481L479 483L473 482L473 471L455 468L455 463L443 463L443 477L430 474L426 476L425 480L426 487L425 489L431 492L431 497L442 498L442 502L465 514L483 514L482 516L488 513Z","Paradestraße",[455,490],45],["l","M410 492L398 524L398 533L406 536L419 537L418 535L418 530L420 528L418 525L420 499L410 492Z","Lindenhofsiedlung",[412,507],22],["l","M420 528L418 530L419 537L428 537L431 509L431 502L420 499L418 525L420 528Z","Wittekindstraße",[425,517],10],["l","M429 527L440 528L442 501L431 502L431 509L429 527Z","Bosepark",[436,513],16],["l","M441 544L440 528L429 527L427 537L431 546L441 544Z","Friedrich-Karl-Straße",[434,535],14],["l","M407 564L412 562L431 546L427 538L406 536L398 533L398 537L407 564Z","Marienhöhe",[415,547],7],["l","M468 514L442 502L442 517L440 534L441 544L451 543L475 544L476 543L488 547L494 535L481 530L481 516L483 514L468 514Z","Rathaus Tempelhof",[461,522],18],["l","M498 525L496 523L495 512L485 514L481 516L480 528L481 530L491 535L503 534L494 528L495 525L498 525Z","Germaniagarten",[489,524],6],["l","M408 565L415 586L434 581L436 577L433 563L431 546L408 565Z","Ringstraße",[422,571],7],["l","M441 544L431 546L433 563L436 577L444 574L441 544Z","Machonstraße",[437,555],8],["l","M441 544L444 574L455 574L457 574L475 544L451 543L441 544Z","Eisenacher Straße",[455,556],10],["l","M480 577L487 545L476 543L457 574L480 577Z","Imbrosweg",[475,559],9],["l","M415 586L421 602L439 607L445 606L446 612L456 609L444 574L436 577L434 581L415 586Z","Fritz-Werner-Straße",[434,594],23],["l","M472 606L480 577L453 573L444 574L462 629L470 624L471 620L467 619L472 606Z","Hundsteinweg",[463,603],12],["lx","M456 609L444 613L437 616L461 632L462 629L456 609Z","Birnhornweg",[449,618],1],["l","M409 620L383 636L408 643L425 611L421 602L416 606L409 620Z","Marienfelder Allee Nordwest",[412,622],8],["l","M436 646L424 612L408 643L423 650L430 650L436 646Z","Kirchstraße",[422,634],12],["l","M446 612L445 606L439 607L421 602L448 678L442 660L458 630L437 616L446 612Z","Marienfelde Nordost",[443,640],17],["lx","M378 638L379 654L383 659L390 656L390 638L382 636L378 638Z","Tirschenreuther Ring West",[384,648],4],["lx","M403 651L408 643L390 638L390 656L396 651L403 651Z","Tirschenreuther Ring Ost",[397,647],4],["lx","M437 701L437 697L433 694L435 687L436 688L437 678L445 675L447 676L436 646L430 650L423 650L408 643L403 651L396 651L383 659L403 677L422 688L419 701L437 701Z","Diedersdorfer Weg",[420,670],1],["l","M474 662L462 629L461 632L458 630L442 660L448 676L451 675L467 687L474 688L474 662Z","Kettinger Straße",[458,658],10],["lx","M467 642L474 662L474 687L499 685L491 656L491 649L492 647L479 640L467 642Z","Töpchiner Weg",[484,674],4],["l","M462 715L478 703L474 697L474 688L467 687L451 675L448 676L462 715Z","John-Locke-Straße",[465,695],19],["l","M503 701L499 685L474 689L474 697L478 703L503 701Z","Nahariyastraße",[488,696],7],["l","M448 677L445 675L437 678L436 688L435 687L433 694L437 697L437 701L444 701L446 727L466 729L448 677Z","Franziusweg",[451,703],17],["lx","M462 715L466 729L490 731L478 703L462 715Z","Horstwalder Straße",[474,719],4],["lx","M478 703L490 731L494 731L504 708L503 701L478 703Z","Wittelsbacherstraße",[492,719],0],["h","M475 456L476 460L473 464L473 471L490 477L500 475L499 462L475 456Z","Hasenheide",[486,466],77],["m","M490 477L473 471L472 475L473 482L479 483L483 480L487 481L488 483L490 483L491 490L503 487L500 475L490 477Z","Schillerpromenade Nord",[493,480],45],["m","M493 497L506 495L503 487L491 490L490 483L483 480L487 504L493 500L493 497Z","Schillerpromenade Süd",[495,492],40],["m","M488 513L495 510L510 507L506 495L493 497L493 500L487 504L488 513Z","Wartheplatz",[498,503],33],["l","M495 511L496 523L515 519L510 507L495 511Z","Silbersteinstraße",[504,516],19],["h","M499 462L502 482L519 480L513 472L499 462Z","Flughafenstraße",[505,470],85],["l","M520 480L506 482L502 482L504 490L510 489L524 492L520 480Z","Rollberg",[513,487],19],["m","M525 504L524 492L510 489L504 490L510 507L525 504Z","Körnerpark",[515,496],51],["m","M535 503L525 504L510 507L515 519L529 517L535 516L530 507L535 506L535 503Z","Glasower Straße",[522,511],42],["h","M516 450L494 439L498 451L507 450L514 454L516 450Z","Maybachufer",[504,447],73],["m","M500 459L508 463L514 454L507 450L498 451L500 459Z","Reuterplatz",[506,456],48],["h","M523 474L530 465L524 460L522 454L516 450L508 463L523 474Z","Weichselplatz",[517,462],61],["l","M522 453L524 460L530 465L536 458L533 456L529 459L522 453Z","Bouchéstraße",[529,460],15],["h","M499 462L515 476L523 474L501 459L499 462Z","Donaustraße",[513,469],80],["m","M536 489L538 485L523 473L515 476L522 482L525 481L536 489Z","Ganghoferstraße",[529,481],48],["h","M536 489L525 481L519 480L525 498L535 495L537 491L536 489Z","Alt-Rixdorf",[530,490],65],["h","M536 489L537 491L535 495L525 498L526 505L544 499L547 493L538 485L536 489Z","Braunschweiger Straße",[540,495],59],["m","M523 473L549 494L551 483L541 475L530 465L523 473Z","Hertzbergplatz",[537,478],46],["l","M536 458L530 465L548 480L550 464L547 467L536 458Z","Treptower Straße Nord",[543,471],16],["l","M550 464L548 480L551 483L548 501L557 504L571 500L567 493L568 485L550 464Z","Weiße Siedlung",[559,484],14],["l","M575 529L580 514L571 500L554 503L548 501L549 494L547 493L544 499L535 502L535 506L530 507L535 516L542 514L542 520L548 529L575 529Z","Schulenburgpark",[555,510],10],["l","M545 524L541 518L542 514L514 520L517 531L545 527L542 526L545 524Z","Jahnstraße",[529,522],18],["l","M557 548L545 524L542 526L545 527L517 531L520 545L548 544L557 548Z","Park am Buschkrug",[535,537],8],["l","M517 554L520 544L514 520L495 525L494 528L503 534L495 534L488 547L512 545L517 554Z","Tempelhofer Weg",[506,539],20],["lx","M480 578L513 566L512 563L517 554L512 545L488 547L480 578Z","Mohriner Allee Nord",[498,562],3],["l","M519 562L545 562L541 545L520 545L513 564L513 567L519 562Z","Hufeisensiedlung",[530,557],9],["l","M551 564L551 563L528 561L519 562L513 567L514 574L528 582L540 583L542 577L551 564Z","Parchimer Allee Süd",[530,570],11],["lx","M551 564L556 565L563 571L566 576L573 580L580 569L557 548L554 548L548 544L541 545L545 562L551 563L551 564Z","Ortolanweg",[555,558],1],["l","M486 617L506 612L508 608L515 605L514 573L513 566L480 578L472 606L482 612L486 617Z","Britzer Garten",[496,588],5],["l","M521 614L532 607L531 606L534 602L536 592L538 591L540 583L528 582L514 574L515 607L516 613L518 615L521 614Z","Handwerker-Siedlung",[525,596],8],["lx","M472 606L467 619L471 620L470 624L462 629L467 642L479 640L491 647L494 641L494 637L488 629L486 622L485 615L472 606Z","Buckow West",[477,626],4],["l","M520 621L515 605L508 608L506 612L485 617L489 632L494 637L494 641L491 647L496 647L521 638L520 621Z","Buckow Mitte",[504,627],8],["lx","M518 615L520 621L521 638L555 621L533 612L531 608L518 615Z","Buckow Ost",[535,624],3],["l","M560 610L572 594L567 591L560 600L553 595L557 592L552 588L547 596L544 595L547 589L539 584L538 592L543 600L542 601L548 610L560 610Z","Gropiusstadt Nord-West",[548,597],20],["l","M531 608L533 612L554 620L560 610L548 610L542 601L543 600L538 591L536 592L534 602L531 606L532 607L531 608Z","Gropiusstadt Süd-West",[539,606],11],["l","M572 594L568 601L558 612L554 622L573 625L573 603L577 600L572 594Z","Gropiusstadt Mitte",[567,609],7],["l","M573 610L572 621L573 625L582 624L590 614L586 610L573 610Z","Gropiusstadt Süd-Ost",[579,618],16],["lx","M547 568L551 574L558 568L560 569L551 564L547 568Z","Goldhähnchenweg",[553,569],4],["l","M570 593L553 577L547 568L540 583L547 589L544 595L547 596L552 588L557 592L553 595L560 600L565 592L570 593Z","Vogelviertel Süd",[551,585],6],["lx","M566 576L558 568L551 574L565 588L573 580L566 576Z","Vogelviertel Nord",[562,577],1],["lx","M580 569L566 588L577 600L573 603L573 610L586 610L590 614L608 591L580 569Z","Blumenviertel",[589,591],1],["l","M590 613L581 625L564 624L578 664L588 654L595 641L597 640L596 638L599 629L590 613Z","Zittauer Straße",[582,638],6],["l","M590 613L607 634L613 629L629 625L638 620L642 608L626 604L608 591L590 613Z","Alt-Rudow",[617,611],6],["l","M624 656L611 636L596 625L599 629L596 638L597 640L595 641L588 654L578 664L582 683L613 675L613 664L624 656Z","Waßmannsdorfer Chaussee",[606,652],10],["lx","M613 675L633 670L624 656L613 664L613 675Z","Frauenviertel",[622,667],1],["l","M607 634L615 640L633 670L636 669L637 665L644 655L648 640L645 638L646 635L645 628L639 618L631 624L613 629L607 634Z","Waltersdorfer Chaussee Ost",[632,644],7],["h","M550 463L549 457L551 451L572 474L587 463L585 459L581 458L580 460L578 455L573 451L557 443L558 441L557 440L542 435L534 442L530 442L522 453L529 459L533 456L547 467L550 463Z","Alt-Treptow",[537,454],252],["l","M550 463L568 485L567 494L580 484L551 451L549 457L550 463Z","Plänterwald West",[564,473],19],["m","M572 474L580 484L567 494L571 501L588 499L591 496L588 492L593 488L601 501L604 496L604 489L605 481L604 475L601 464L598 459L591 459L572 474Z","Plänterwald Ost",[590,478],26],["l","M588 498L571 501L580 514L575 529L585 529L592 527L600 531L607 531L613 526L588 498Z","Baumschulenweg West",[591,515],18],["l","M610 504L604 496L601 501L593 488L588 492L591 496L588 498L603 515L609 504L610 504Z","Baumschulenweg Ost",[596,501],11],["lx","M580 529L548 528L558 551L588 575L597 566L598 567L608 554L584 544L576 536L580 529Z","Späthsfelde",[583,553],0],["l","M618 583L612 574L622 559L625 544L627 542L625 540L613 526L607 531L600 531L592 527L580 529L576 536L585 545L592 546L608 554L598 567L597 566L588 575L608 591L618 583Z","Johannisthal West",[614,557],17],["l","M637 556L627 542L625 544L622 559L612 574L618 583L622 581L624 571L628 564L637 556Z","Johannisthal Ost",[625,562],16],["l","M622 580L608 591L626 604L641 608L639 593L657 575L655 573L659 570L629 539L626 542L637 556L628 564L624 571L622 580Z","Landschaftspark Adlershof",[640,574],8],["m","M611 505L616 518L631 528L633 520L632 508L642 492L634 488L624 490L618 482L615 471L603 470L605 481L604 489L604 495L611 505Z","Helmholtz-Kiez",[622,499],27],["m","M634 505L632 509L633 520L631 528L640 532L644 540L648 542L654 544L660 543L652 531L660 522L634 505Z","Griechischer Park",[645,525],27],["l","M634 505L660 522L652 531L660 543L672 537L698 543L697 536L706 534L690 506L690 503L671 490L658 507L644 489L634 505Z","Wuhlheide",[674,516],21],["h","M611 505L609 504L602 515L626 542L630 540L645 554L648 553L647 551L676 543L699 551L698 543L678 538L669 537L661 543L654 544L648 542L644 540L640 532L634 530L617 518L611 505Z","Bahnhof Schöneweide",[620,526],71],["l","M675 551L691 556L694 549L676 543L647 551L648 553L645 554L657 567L658 566L661 570L666 565L661 560L661 556L672 555L675 551Z","Oberspree",[655,556],5],["m","M657 575L639 593L642 609L679 612L694 610L659 570L655 573L657 575Z","Wista",[659,591],36],["l","M693 593L676 571L678 569L677 567L673 570L666 565L661 570L658 566L657 567L687 601L693 593Z","Dörpfeldstraße West",[679,584],11],["l","M700 579L699 551L694 549L691 556L676 550L672 555L661 556L661 560L671 570L677 567L678 568L676 571L693 593L687 601L694 610L706 608L706 596L700 579Z","Dörpfeldstraße Ost",[692,580],9],["m","M698 543L699 558L716 564L718 556L713 552L709 543L698 543Z","Spindlersfeld",[706,553],26],["l","M706 608L722 603L722 597L719 590L723 582L719 579L721 579L717 571L716 565L718 564L699 558L700 579L706 596L706 608Z","Köllnische Vorstadt",[712,583],17],["l","M679 612L642 609L639 617L645 628L646 635L645 638L648 640L644 655L637 665L636 669L643 671L650 654L661 656L666 644L682 652L694 631L696 626L696 616L692 610L679 612Z","Dorf Altglienicke",[668,642],11],["l","M688 643L680 654L687 654L689 662L688 664L689 662L691 665L703 652L714 635L694 613L696 618L695 627L688 643Z","Preußen Siedlung",[702,637],8],["lx","M661 656L650 654L643 671L651 676L653 668L656 665L661 656Z","Kosmos Viertel",[653,661],1],["l","M688 664L687 654L680 654L682 652L666 644L661 657L652 668L651 676L656 680L669 671L668 675L676 674L685 669L688 664Z","Kölner Viertel",[674,660],7],["l","M697 672L719 661L721 656L719 647L721 644L720 641L714 635L704 650L693 663L693 667L697 672Z","Falkenberg",[711,653],13],["l","M707 702L750 688L750 681L746 680L744 674L740 675L737 670L741 664L727 651L723 650L721 644L719 647L721 657L719 661L697 673L693 666L694 661L691 665L689 662L685 669L676 674L668 675L666 678L664 694L665 700L707 702Z","Alt-Bohnsdorf",[708,673],12],["m","M725 604L693 610L720 641L723 650L727 651L741 664L737 670L740 675L744 674L746 680L750 681L750 688L752 691L751 697L753 700L753 704L755 707L760 709L770 724L782 707L775 702L792 679L791 677L793 677L798 671L799 673L804 671L806 674L810 671L802 663L800 655L796 651L782 652L761 641L748 643L741 640L738 634L738 625L734 619L733 611L729 606L725 604Z","Grünau",[771,664],32],["lx","M819 716L824 711L822 708L833 709L824 684L810 671L806 674L804 671L799 673L798 671L793 677L791 677L792 679L785 688L811 707L819 716Z","Karolinenhof",[815,699],0],["l","M815 807L824 820L831 824L836 822L837 821L836 813L844 800L845 791L853 785L855 777L859 775L858 772L860 765L866 755L878 748L883 747L890 753L894 751L898 753L896 752L899 751L898 748L907 737L910 729L905 728L907 718L902 720L894 714L891 715L889 712L889 710L891 707L893 710L895 708L905 698L907 693L908 693L907 696L908 695L913 689L916 689L924 682L916 681L912 678L899 688L881 696L878 700L878 705L867 709L864 717L846 721L833 709L822 708L824 711L819 716L811 707L785 688L775 702L782 707L769 727L771 732L769 737L803 719L810 731L824 728L823 744L830 746L830 757L822 763L818 771L817 799L815 800L814 803L815 807Z","Schmöckwitz/Rauchfangswerder",[853,750],6],["l","M784 600L741 573L741 578L719 579L723 583L719 590L719 594L722 597L722 602L720 604L732 605L735 609L736 612L735 613L737 614L736 617L739 620L755 618L756 620L753 621L756 624L754 626L755 628L751 628L754 636L762 636L763 637L762 641L781 652L797 651L800 655L802 663L807 668L822 661L828 656L831 651L826 649L832 632L839 634L845 628L852 628L855 618L866 606L868 596L876 598L872 590L797 565L794 571L792 580L791 594L784 600Z","Kietzer Feld/Nachtheide",[797,616],23],["l","M725 604L733 611L734 619L738 625L738 634L741 639L749 643L762 641L763 637L760 635L756 637L754 635L751 628L755 628L754 626L756 624L753 621L756 620L756 618L739 620L736 617L737 614L735 613L736 612L735 608L731 604L725 604Z","Wendenschloß",[746,623],5],["l","M750 572L750 553L743 554L736 560L738 562L736 560L735 561L738 565L735 569L741 573L750 572Z","Allende I",[744,563],13],["lx","M750 572L782 569L782 564L763 553L755 552L750 553L750 572Z","Siedlung Kämmereiheide",[763,560],2],["l","M784 600L791 594L792 580L794 571L797 565L787 568L782 564L782 569L741 573L784 600Z","Allende II",[774,583],7],["l","M735 569L738 565L732 561L730 563L731 561L730 557L727 555L723 555L720 564L716 565L717 571L720 578L742 577L741 573L735 569Z","Altstadt Köpenick",[726,566],11],["lx","M807 668L824 684L828 691L833 708L846 721L864 717L867 709L878 705L878 700L881 696L899 688L912 678L916 681L924 682L933 674L943 677L950 672L954 674L960 668L962 658L967 655L965 650L961 647L954 634L956 625L954 625L953 629L947 633L940 628L939 621L931 611L912 609L905 602L897 600L875 604L868 601L866 606L855 618L852 628L845 628L839 634L832 632L826 649L831 651L826 658L807 668Z","Müggelheim",[893,660],2],["m","M787 568L799 563L787 563L785 561L786 538L798 534L803 504L797 502L798 505L795 505L795 510L791 511L790 515L791 518L789 520L777 525L773 525L769 529L771 531L756 529L757 542L753 543L752 548L753 552L763 553L787 568Z","Hirschgarten",[775,535],34],["m","M797 565L845 582L853 557L864 494L860 492L854 493L832 481L825 479L802 493L798 493L797 502L803 504L798 534L786 538L785 561L787 563L799 563L797 565Z","Alt-Friedrichshagen",[830,519],38],["h","M943 583L956 590L973 593L975 580L984 572L993 571L990 583L998 585L1000 581L991 579L994 568L990 567L993 560L982 554L952 549L940 534L933 519L926 518L911 506L908 506L912 516L914 526L917 527L917 532L916 539L907 538L905 525L902 516L883 512L877 504L864 494L853 557L845 582L872 590L876 598L868 596L868 601L871 603L882 601L887 603L897 600L905 602L912 609L930 611L939 621L940 628L947 633L953 629L954 625L956 625L955 623L965 608L970 608L971 604L967 602L969 594L955 591L943 583Z","Rahnsdorf",[921,564],57],["m","M732 531L720 525L721 528L719 527L708 535L697 536L698 543L709 543L713 552L718 556L716 564L719 565L723 555L720 548L731 537L732 531Z","Bahnhofstraße",[716,546],49],["m","M755 534L756 529L731 529L730 530L732 531L731 537L725 544L737 540L750 542L749 538L755 534Z","Güterbahnhof Köpenick",[743,536],30],["l","M753 552L752 547L753 543L757 542L756 535L749 538L750 542L735 540L727 544L723 544L720 549L723 555L730 557L731 561L730 563L732 561L738 565L735 561L736 560L738 562L736 560L742 554L753 552Z","Friedrichshagener Straße",[736,550],7],["l","M731 529L771 531L769 529L773 525L777 525L789 520L791 518L791 512L793 509L792 501L786 499L783 503L773 499L773 495L765 495L760 491L743 504L738 511L737 518L731 529Z","Mittelheide",[765,510],10],["m","M720 525L731 529L737 518L738 511L743 505L760 491L740 475L734 478L730 475L723 479L722 486L711 493L675 492L690 503L690 506L706 534L719 527L721 528L720 525Z","Dammheide",[716,505],31],["l","M711 250L678 265L693 271L692 272L698 276L711 252L711 250Z","Marzahn West",[700,258],8],["lx","M722 264L724 259L723 248L714 250L712 247L710 250L711 252L709 257L722 264Z","Rosenbecker Straße",[717,255],3],["lx","M706 279L723 281L725 279L715 279L722 264L709 257L698 275L706 279Z","Wittenberger Straße",[710,269],4],["lx","M739 286L737 282L736 263L733 255L728 255L726 251L723 248L724 259L715 279L728 279L739 286Z","Golliner Straße",[728,266],1],["lx","M673 268L650 294L660 333L659 334L670 330L698 276L692 272L693 271L678 265L673 268Z","Gewerbegebiet Bitterfelder Straße",[669,297],4],["l","M698 292L722 295L725 285L722 281L707 279L698 275L692 288L698 292Z","Wuhletalstraße",[709,286],7],["l","M723 281L725 285L719 315L740 307L742 295L739 286L728 279L723 281Z","Ahrensfelder Berge",[732,297],6],["l","M713 293L698 292L692 288L683 304L700 312L707 304L713 293Z","Bürgerpark",[698,299],5],["l","M700 312L706 314L708 319L719 315L722 295L713 293L707 304L700 312Z","Lea-Grundig-Straße",[712,306],6],["l","M669 331L697 319L708 319L705 313L683 304L669 331Z","Marzahner Promenade",[692,317],16],["l","M639 395L662 395L667 399L668 404L677 405L679 389L677 382L670 371L667 359L667 344L669 331L637 342L640 349L641 370L639 395Z","Marzahner Chaussee",[654,365],16],["l","M687 350L689 345L667 344L667 359L669 369L677 382L679 389L681 376L682 376L687 350Z","Springpfuhl",[676,364],19],["l","M669 331L667 344L684 346L689 335L691 336L698 324L700 327L706 328L708 319L697 319L669 331Z","Alt-Marzahn",[681,332],5],["lx","M684 346L697 345L706 328L700 327L698 324L691 336L689 335L684 346Z","Auersbergstraße",[699,332],4],["lx","M706 328L697 345L711 345L716 332L719 315L708 319L706 328Z","Bärenstein",[711,330],2],["l","M740 308L737 308L719 315L716 332L712 343L723 345L728 350L737 355L740 353L740 348L742 346L732 331L732 326L740 308Z","Landsberger Tor",[724,332],11],["lx","M755 320L765 320L765 314L740 307L737 316L755 320Z","Zossener Straße",[747,312],1],["l","M733 332L744 333L755 329L755 320L737 316L740 308L732 324L733 332Z","Kyritzer Straße",[744,322],5],["lx","M761 334L766 333L765 320L755 320L754 327L760 326L761 334Z","Havelländer Ring",[763,330],0],["lx","M742 346L747 346L750 349L763 342L760 326L754 327L755 329L749 330L748 332L733 332L742 346Z","Gut Hellersdorf",[750,337],2],["l","M763 342L774 337L773 332L761 334L763 342Z","Helle Mitte",[768,336],6],["l","M765 314L764 319L766 333L772 332L774 337L779 336L776 326L778 324L777 323L776 317L765 314Z","Hellersdorfer Promenade",[771,326],6],["l","M779 336L801 332L812 335L816 329L816 326L812 324L776 317L777 323L778 324L776 326L779 336Z","Böhlener Straße",[796,326],8],["l","M790 333L776 337L767 340L770 347L799 358L797 336L801 337L812 335L801 332L790 333Z","Adele-Sandrock-Straße",[784,345],16],["lx","M799 358L794 355L775 348L770 360L779 362L783 359L789 364L799 358Z","Schleipfuhl",[784,356],2],["l","M759 358L770 360L775 348L770 347L768 340L755 345L753 347L760 355L759 358Z","Boulevard Kastanienallee",[766,352],5],["lx","M742 371L750 349L747 346L741 345L740 353L728 365L742 371Z","Am Kienberg",[739,360],2],["lx","M759 358L760 355L753 347L755 345L752 347L748 352L742 371L744 372L745 367L746 367L756 369L758 358L759 358Z","Neue Grottkauer Straße",[751,363],1],["lx","M728 365L726 371L726 382L721 397L730 398L744 386L743 371L728 365Z","Teterower Ring",[735,381],4],["lx","M756 369L745 367L744 371L743 372L744 386L753 384L756 369Z","Cecilienplatz",[749,378],2],["l","M705 398L711 345L687 347L678 395L705 398Z","Oberfeldstraße",[696,372],23],["l","M710 358L705 397L721 397L726 382L727 366L737 355L728 350L723 345L712 343L709 354L710 358Z","Buckower Ring",[718,370],21],["m","M677 405L666 404L666 413L664 415L671 432L673 433L696 422L714 403L721 399L721 397L685 397L678 395L677 405Z","Alt-Biesdorf",[685,414],58],["l","M690 493L702 494L711 493L712 491L712 486L706 478L706 467L715 447L713 439L715 433L719 428L727 426L730 417L729 413L722 404L721 399L714 403L696 422L673 433L677 438L678 445L686 464L683 471L683 478L687 485L690 493Z","Biesdorf Süd",[697,446],23],["l","M730 398L765 400L768 398L780 379L793 363L791 362L789 364L783 359L779 362L758 358L752 385L746 385L730 398Z","Kaulsdorf Nord",[766,381],6],["l","M730 416L758 416L766 400L721 397L722 404L730 416Z","Alt-Kaulsdorf",[743,408],22],["l","M721 486L723 479L730 475L734 478L741 475L741 474L737 469L741 465L746 453L755 454L757 442L758 442L760 438L754 431L758 416L730 416L727 426L719 428L715 433L713 439L715 446L706 467L706 478L712 486L713 491L721 486Z","Kaulsdorf Süd",[729,453],5],["l","M766 400L815 393L824 383L847 365L845 356L799 354L799 358L792 363L793 363L766 400Z","Mahlsdorf Nord",[810,374],13],["m","M781 417L802 420L808 403L815 393L766 400L758 416L781 417Z","Alt-Mahlsdorf",[784,408],35],["l","M781 417L758 416L754 431L760 438L758 442L757 442L755 454L746 453L741 465L737 469L741 474L740 475L760 491L763 472L781 432L780 428L782 423L781 417Z","Elsensee",[757,457],6],["l","M783 476L805 446L796 443L802 420L781 417L782 423L780 428L781 432L763 472L760 491L765 495L773 495L773 499L777 501L785 490L781 488L783 476Z","Pilgramer Straße",[782,459],6],["lx","M631 251L656 256L659 251L667 251L682 214L653 203L624 204L620 193L595 209L591 214L587 223L583 225L582 229L583 239L581 251L586 251L586 254L596 262L598 260L597 254L600 251L599 249L604 249L612 240L627 236L627 238L629 238L629 241L630 242L630 246L632 246L631 251Z","Dörfer Malchow-Wartenberg",[629,227],4],["lx","M712 247L701 229L682 215L667 251L659 251L656 258L660 258L665 263L675 267L680 263L708 252L712 247Z","Dorf Falkenberg",[690,241],2],["l","M643 260L653 276L656 275L653 285L657 286L674 267L668 263L665 263L659 257L643 260Z","Falkenberg Ost",[660,271],12],["l","M630 267L631 267L651 292L657 286L653 285L656 275L653 276L643 260L630 267Z","Falkenberg West",[647,277],7],["l","M656 256L631 251L625 257L629 262L634 264L656 256Z","Wartenberg Süd",[641,258],9],["l","M610 242L630 267L634 264L629 262L625 257L631 252L632 246L630 246L629 238L627 238L627 236L610 242Z","Wartenberg Nord",[624,250],8],["l","M602 249L620 273L630 267L610 242L609 245L602 249Z","Zingster Straße Ost",[615,258],20],["l","M593 260L587 267L588 271L613 277L619 272L602 249L599 249L600 251L597 253L598 260L597 262L593 260Z","Zingster Straße West",[601,264],9],["l","M613 277L649 294L651 292L631 267L613 277Z","Mühlengrund",[633,282],5],["l","M591 272L590 278L599 282L605 293L605 298L604 305L605 305L606 303L614 306L624 306L637 302L646 304L649 294L615 277L591 272Z","Malchower Weg",[619,287],12],["l","M603 309L613 322L631 325L648 336L653 336L651 338L660 333L650 293L646 304L637 302L624 306L616 306L606 303L605 305L604 305L603 309Z","Hauptstraße",[632,318],19],["m","M563 311L567 330L572 340L588 331L607 315L603 309L604 305L591 301L585 308L582 308L583 311L582 313L563 311Z","Orankesee",[582,323],31],["m","M610 335L613 322L607 315L579 337L585 338L587 337L591 340L594 337L596 338L604 329L610 335Z","Große-Leege-Straße",[604,326],42],["m","M620 335L610 333L610 335L604 329L596 338L594 337L591 340L587 337L585 338L579 337L572 340L576 348L619 344L620 343L620 335Z","Landsberger Allee",[606,339],28],["l","M620 335L620 344L644 341L653 336L648 336L630 325L613 322L610 333L620 335Z","Weiße Taube",[627,333],22],["l","M557 349L555 356L576 348L567 330L562 339L565 344L557 349Z","Hohenschönhauser Straße",[569,342],23],["l","M553 357L579 364L580 364L581 362L576 348L553 357Z","Fennpfuhlpark",[566,356],15],["l","M565 360L553 357L547 360L552 366L564 371L562 370L565 360Z","Storkower Bogen",[557,363],20],["m","M562 370L582 372L582 364L565 360L562 370Z","Rudolf-Seiffert-Park",[573,367],27],["l","M576 348L580 364L582 364L582 372L591 372L590 346L576 348Z","Fennpfuhl Ost",[585,358],23],["m","M590 346L591 375L619 374L619 384L621 385L621 379L623 379L626 384L624 394L640 393L641 369L640 349L637 342L590 346Z","Herzbergstraße",[615,368],48],["m","M575 396L589 398L591 383L591 372L564 371L573 382L577 392L579 393L576 392L575 396Z","Rathaus Lichtenberg",[583,388],55],["l","M591 383L619 384L619 376L618 374L591 375L591 383Z","Bornitzstraße",[605,380],11],["l","M589 398L601 400L603 388L605 384L591 384L589 398Z","Roedeliusplatz",[596,393],14],["m","M601 400L608 401L624 393L626 385L623 379L621 379L621 385L605 384L603 388L601 400Z","Nibelungenviertel",[614,390],43],["m","M611 402L575 396L577 403L571 413L580 412L584 416L587 421L605 407L608 407L611 402Z","Frankfurter Allee Süd",[588,409],42],["h","M567 422L576 423L587 421L583 414L575 412L570 415L567 422Z","Victoriastadt",[577,418],101],["m","M609 430L588 421L575 424L581 426L608 443L609 439L607 436L609 430Z","Nöldnerplatz",[600,433],28],["m","M588 421L607 429L611 426L619 407L611 402L608 407L605 407L588 421Z","Weitlingkiez",[608,413],56],["l","M619 407L611 425L611 426L626 421L632 416L630 412L619 407Z","Zachertstraße",[622,418],17],["l","M641 404L613 402L630 412L632 416L642 415L641 404Z","Massower Straße",[633,409],13],["l","M639 393L624 393L608 401L641 404L639 393Z","Rosenfelder Ring",[626,399],12],["l","M641 395L641 404L649 402L651 403L649 404L658 402L660 404L669 404L667 399L663 396L641 395Z","Gensinger Straße",[654,400],7],["l","M650 442L674 433L671 432L664 415L666 413L666 404L649 402L641 404L642 415L650 442Z","Tierpark",[655,422],19],["l","M636 448L632 440L609 430L607 436L609 439L608 443L622 451L636 448Z","Dolgenseestraße",[621,441],22],["l","M632 416L627 420L607 429L624 437L634 439L636 435L634 435L636 424L632 416Z","Volkradstraße",[621,428],9],["m","M636 448L650 442L645 429L642 415L632 416L636 423L634 435L636 435L635 439L632 440L636 448Z","Erieseering",[640,432],32],["h","M588 448L599 457L598 459L603 470L615 471L614 469L620 467L629 467L635 464L620 449L579 425L567 422L565 430L572 431L588 448Z","Rummelsburg",[599,446],74],["l","M649 474L654 452L650 443L631 450L621 450L649 474Z","Karlshorst West",[641,459],21],["m","M678 445L677 438L674 433L650 443L654 452L649 474L674 492L690 493L687 485L683 478L683 471L686 465L678 445Z","Karlshorst Nord",[668,459],45],["h","M671 490L635 464L629 467L620 467L614 469L618 482L624 490L634 488L642 492L644 489L658 507L671 490Z","Karlshorst Süd",[642,485],71],["l","M420 281L429 281L432 262L409 267L411 275L411 287L420 281Z","Letteplatz",[420,271],24],["l","M440 263L447 262L446 259L438 252L433 252L428 246L424 246L426 248L419 257L407 263L409 267L432 262L432 267L440 263Z","Hausotterplatz",[431,255],19],["l","M419 257L426 248L424 246L426 246L421 242L405 241L402 248L407 263L419 257Z","Breitkopfbecken",[413,254],19],["l","M410 279L410 272L405 257L391 264L370 268L360 276L362 278L370 271L388 277L403 278L404 281L410 279Z","Schäfersee",[389,270],19],["m","M385 209L374 213L382 231L372 236L385 238L385 247L359 260L357 273L360 276L371 268L391 264L405 258L402 248L405 241L421 242L428 246L385 209Z","Teichstraße",[394,244],56],["l","M359 260L385 247L385 238L364 237L359 260Z","Humboldtstraße",[372,248],9],["lx","M343 238L342 242L349 243L349 248L355 249L353 259L359 260L364 238L343 238Z","Reinickes Hof",[357,248],3],["l","M343 238L338 239L334 255L353 259L355 249L349 248L349 243L342 242L343 238Z","Meller Bogen",[344,248],9],["l","M332 265L354 274L354 276L362 278L357 272L359 260L334 255L332 265Z","Scharnweberstraße",[349,268],23],["l","M338 240L327 239L315 259L323 263L326 267L331 270L338 240Z","Klixstraße",[328,249],12],["lx","M353 279L354 274L332 265L330 272L331 282L329 288L353 279Z","Schumacher-Quartier",[342,275],0],["lx","M327 239L303 227L300 219L296 219L306 242L302 244L260 244L252 251L249 264L246 270L237 273L236 276L228 278L224 284L229 283L229 289L240 298L251 298L250 290L251 287L275 274L311 266L311 270L316 268L316 266L325 266L323 263L315 258L327 239Z","Waldidyll/Flughafensee",[284,260],4],["lx","M279 235L278 230L276 230L275 234L277 238L270 237L260 244L302 244L306 242L300 230L295 230L296 233L290 233L290 237L283 237L283 234L279 235Z","Tegel Süd",[290,237],1],["lx","M317 309L330 285L331 280L331 270L325 266L320 267L320 265L316 266L316 268L312 269L311 270L311 266L275 274L251 287L250 290L251 298L244 299L240 298L229 289L229 283L220 285L217 284L215 279L212 278L216 283L241 303L251 307L317 309Z","TXL",[290,288],1],["m","M276 227L279 235L283 234L283 237L290 236L290 233L296 233L295 230L301 229L296 219L300 219L303 227L306 226L287 185L280 193L278 190L264 195L260 200L265 205L264 210L271 209L274 211L278 221L276 227Z","Alt-Tegel",[286,211],27],["l","M223 258L218 254L215 252L215 249L209 244L207 230L221 227L223 220L208 207L208 205L201 203L197 197L193 201L195 205L189 224L193 230L193 237L194 240L203 250L206 264L212 262L219 263L223 258Z","Konradshöhe/Tegelort",[200,230],5],["lx","M193 201L201 193L218 193L225 192L227 188L219 186L220 176L210 169L218 135L202 115L196 115L195 125L191 135L188 137L176 162L168 168L169 174L183 192L193 201Z","Alt-Heiligensee",[195,158],2],["l","M203 115L246 166L255 170L257 165L238 154L275 122L256 117L235 118L229 115L211 118L203 115Z","Heiligensee Nord",[238,144],18],["l","M218 135L210 169L220 176L219 186L227 188L225 192L212 194L202 192L199 193L197 197L201 203L208 205L208 207L223 220L221 227L207 230L209 244L215 249L215 252L218 254L223 258L219 263L208 263L207 264L209 268L208 274L212 279L215 279L218 284L222 285L228 278L236 276L237 273L246 270L249 264L253 249L266 238L277 238L275 233L277 230L276 227L278 221L275 215L271 209L264 210L265 205L260 200L264 195L278 190L280 193L288 183L297 180L299 174L287 160L305 144L293 130L299 125L297 121L281 124L275 122L238 154L257 165L255 170L246 166L218 135Z","Heiligensee",[234,204],6],["m","M261 119L281 124L309 119L294 98L291 90L291 84L269 87L258 85L263 100L261 119Z","Frohnau West",[280,102],39],["m","M324 88L328 83L328 77L327 77L315 54L330 44L325 39L305 39L289 36L288 56L292 56L291 88L298 104L309 119L318 118L329 112L329 106L323 93L325 93L324 88Z","Frohnau Ost",[309,77],39],["l","M326 165L330 165L332 161L337 157L309 119L297 121L299 125L293 130L305 144L287 160L299 174L297 176L298 183L303 178L301 178L302 176L304 176L305 173L307 173L308 171L315 168L319 173L326 165Z","Hermsdorf West",[314,153],14],["m","M309 119L337 157L339 154L353 153L360 150L361 142L359 140L359 137L369 129L357 122L333 116L309 119Z","Hermsdorf Ost/Waldsee",[341,135],31],["l","M319 209L324 204L316 198L326 192L322 187L316 169L305 172L304 176L301 177L303 178L299 182L298 183L297 179L290 182L287 185L301 216L308 216L312 210L319 209Z","Ziekowstraße/Freie Scholle",[307,193],17],["l","M350 214L335 211L325 218L319 209L312 210L308 216L301 216L305 226L308 229L324 238L330 239L338 238L350 214Z","Borsigwalde",[325,222],9],["l","M374 213L385 209L370 194L363 195L355 201L350 214L374 213Z","Wittenau Mitte",[368,206],19],["m","M363 195L370 194L356 182L348 171L333 181L337 187L336 189L328 189L316 198L324 204L319 209L325 218L335 211L350 214L355 201L363 195Z","Wittenau Nord",[344,195],39],["l","M337 187L333 181L348 171L345 167L369 157L361 148L354 152L339 154L330 165L325 166L319 173L316 169L322 187L326 192L328 189L336 189L337 187Z","Waidmannslust",[335,170],23],["l","M361 148L380 170L392 167L427 168L428 157L426 150L414 122L400 128L396 127L391 129L390 126L372 127L359 137L359 139L361 142L361 148Z","Lübars",[393,147],5],["l","M337 239L369 237L382 231L374 213L350 214L337 239Z","Wittenau Süd",[362,223],9],["l","M369 193L371 188L387 177L388 173L387 168L380 170L373 164L366 171L359 170L357 173L353 170L348 171L356 182L369 193Z","Lübarser Straße",[368,180],5],["l","M345 167L348 171L353 170L357 173L359 170L363 172L369 170L374 164L369 157L345 167Z","Rollbergesiedlung",[361,165],5],["l","M407 176L397 184L398 192L416 191L420 185L427 168L409 168L411 170L407 171L407 176Z","Treuenbrietzener Straße",[413,179],7],["l","M370 194L373 194L373 190L381 189L386 193L398 192L397 184L407 177L407 171L411 170L409 168L392 167L387 168L388 173L387 176L371 188L368 192L370 194Z","Märkisches Zentrum",[392,180],13],["lx","M416 191L385 193L385 197L401 196L401 199L405 200L403 202L387 204L383 207L385 209L405 206L416 191Z","Dannenwalder Weg",[407,199],4],["lx","M370 194L383 207L387 204L403 202L405 199L401 199L401 196L385 197L385 193L381 189L373 190L373 194L370 194Z","Schorfheidestraße",[387,198],0]],"outline":"M18 640L13 642L16 646L14 651L3 645L-0 625L11 619L16 610L24 614L36 601L35 593L51 578L45 566L31 549L36 532L32 527L33 512L42 494L43 484L59 477L119 406L85 387L81 381L43 387L47 351L62 291L71 299L85 299L87 292L85 280L96 249L96 236L91 226L66 235L62 226L58 226L60 215L82 209L90 204L102 190L113 187L174 216L177 212L191 214L194 205L193 202L178 187L169 175L168 168L176 162L191 135L196 115L261 118L262 100L258 84L269 87L290 83L292 57L287 56L289 35L325 38L330 44L316 54L329 80L324 94L330 111L320 117L333 115L369 129L380 126L400 128L428 112L427 107L431 100L446 92L448 80L455 68L460 66L475 79L482 78L499 97L504 92L514 91L513 76L522 73L524 63L536 62L552 66L567 57L573 52L572 47L556 45L538 31L552 15L561 20L575 1L578 3L581 -1L583 2L575 18L576 21L595 11L591 39L598 50L631 73L641 69L642 74L646 74L639 113L621 122L620 136L617 139L607 171L611 171L624 203L653 203L682 213L701 229L714 249L723 248L728 254L733 254L738 282L742 291L742 307L816 325L817 329L811 337L798 337L799 354L845 355L848 366L824 384L808 404L797 442L805 446L783 476L781 488L785 490L779 500L792 500L794 510L798 492L825 479L832 480L854 492L861 491L884 511L902 515L907 537L916 538L917 527L914 527L907 506L911 506L926 518L933 519L940 534L952 548L982 553L993 560L991 567L994 568L992 578L1000 581L998 585L990 584L992 572L984 572L975 580L973 593L967 592L969 593L968 602L971 604L971 608L965 609L956 623L954 632L968 655L962 659L960 668L954 675L950 673L943 678L933 674L906 696L895 709L890 710L891 714L902 719L908 718L906 727L910 727L909 733L898 754L890 754L883 748L867 755L860 765L859 776L846 792L844 801L837 813L838 821L831 824L824 820L814 803L816 799L817 771L821 763L829 756L830 751L830 746L823 745L823 729L810 732L803 719L769 738L770 724L759 709L753 705L749 689L707 703L664 701L663 694L668 673L656 680L636 669L582 684L578 664L564 625L558 622L491 650L504 708L494 732L446 728L444 702L419 702L421 689L403 677L383 659L378 655L379 645L332 676L308 638L310 634L279 661L264 663L252 658L240 662L234 622L201 623L180 633L162 636L106 667L104 681L123 678L124 684L120 687L105 689L80 681L63 696L68 700L67 705L64 705L57 699L57 693L64 692L74 683L70 683L69 679L72 678L67 675L54 681L43 668L35 664L27 650L19 648L18 640Z"}
+;
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+const PAL = {
+  light: { l: "#0A84AC", m: "#E69A00", h: "#B0102E", x: "#6F6266", stroke: "#FAF8F8" },
+  dark:  { l: "#3A93A6", m: "#C9A444", h: "#D4506A", x: "#B6AAAE", stroke: "#2A1518" },
+};
+// deterministic so the map lights up the same way at every rehearsal
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+document.querySelectorAll("svg[data-map]").forEach((svg, n) => {
+  const p = PAL[svg.dataset.map];
+  const id = "hx" + n;
+  const defs = el("defs", {}); const pat = el("pattern", { id, width: 6, height: 6, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+  pat.append(el("line", { x1: 0, y1: 0, x2: 0, y2: 6, stroke: p.x, "stroke-width": 2 })); defs.append(pat); svg.append(defs);
+  for (const [t, d, name] of MAP.a) {
+    const limited = t.endsWith("x");
+    const path = el("path", { d, fill: limited ? `url(#${id})` : p[t[0]], stroke: p.stroke });
+    if (limited) path.setAttribute("stroke-dasharray", "2 2");
+    path.style.transitionDelay = (300 + rnd() * 1400).toFixed(0) + "ms";
+    const title = el("title", {}); title.textContent = name; path.append(title);
+    svg.append(path);
+  }
+});
+
+// callout pinned to Alt-Treptow on the map slide
+(() => {
+  const a = MAP.a.find(x => x[2] === "Alt-Treptow"); const svg = document.querySelector(".s-map .map");
+  const [cx, cy] = a[3];
+  svg.append(el("circle", { cx, cy, r: 9, fill: "none", stroke: "#1D1B1C", "stroke-width": 3 }));
+  // label sits in the empty north-east corner, leader runs up to it
+  const k = Math.min(920 / 1000, 758 / 824), ox = 1600 - 30 - 920, oy = 100;
+  const lx = 1330, ly = 150, tx = (lx - ox) / k, ty = (ly + 70 - oy) / k;
+  svg.append(el("polyline", { points: `${cx + 6},${cy - 7} ${tx},${ty} ${tx + 190},${ty}`, fill: "none", stroke: "#1D1B1C", "stroke-width": 1.5 }));
+  const c = document.getElementById("callout");
+  c.style.left = lx + "px"; c.style.top = ly + "px";
+})();
+
+// crime-map dots: one dot per ~8 reports, scattered around each area's centre
+(() => {
+  const svg = document.getElementById("dotmap");
+  svg.append(el("path", { d: MAP.outline, fill: "#FAF8F8", stroke: "#746A6C", "stroke-width": 2 }));
+  let i = 0;
+  for (const a of MAP.a) {
+    const n = Math.round(a[4] / 8);
+    for (let k = 0; k < n; k++) {
+      const c = el("circle", { cx: a[3][0] + (rnd() - .5) * 26, cy: a[3][1] + (rnd() - .5) * 26, r: 4.5, fill: "#B0102E", opacity: .55 });
+      c.style.transition = "opacity .3s"; c.classList.add("dot"); c.style.transitionDelay = (200 + (i++ % 400) * 4) + "ms";
+      svg.append(c);
+    }
+  }
+})();
+
+// phone screen: a crop of the light map
+(() => {
+  const g = document.getElementById("phonemap");
+  g.append(el("rect", { x: 0, y: 0, width: 1000, height: 824, fill: "#F1EAEC" }));
+  for (const [t, d] of MAP.a) g.append(el("path", { d, fill: PAL.light[t[0]] || "#6F6266", "fill-opacity": .45, stroke: "#746A6C", "stroke-width": .6 }));
+})();
+
+// clock ticks
+(() => {
+  const g = document.getElementById("ticks");
+  for (let m = 0; m < 60; m++) {
+    const a = m / 60 * Math.PI * 2, long = m % 5 === 0, r1 = long ? 226 : 240;
+    g.append(el("line", { x1: 300 + Math.sin(a) * r1, y1: 300 - Math.cos(a) * r1, x2: 300 + Math.sin(a) * 250, y2: 300 - Math.cos(a) * 250, stroke: m <= 23 ? "#D4506A" : "rgba(250,248,248,.4)", "stroke-width": long ? 4 : 2 }));
+  }
+})();
+
+// 100 locks, 94 broken
+(() => {
+  const grid = document.getElementById("lockgrid");
+  const order = [...Array(100).keys()].sort(() => rnd() - .5);
+  const intact = new Set(order.slice(0, 6));
+  for (let i = 0; i < 100; i++) {
+    const s = el("svg", { viewBox: "0 0 60 60" });
+    if (intact.has(i)) {
+      s.append(el("circle", { cx: 30, cy: 34, r: 15, fill: "none", stroke: "#CFC6C8", "stroke-width": 3, "stroke-dasharray": "4 4" }));
+    } else {
+      s.append(el("path", { d: "M19 30 V20 a11 11 0 0 1 22 0 V24", fill: "none", stroke: "#1D1B1C", "stroke-width": 4.5 }));
+      s.append(el("rect", { x: 13, y: 28, width: 34, height: 25, rx: 4, fill: "#B0102E" }));
+    }
+    s.style.transitionDelay = (400 + i * 14) + "ms";
+    grid.append(s);
+  }
+})();
+
+// honest dots
+document.querySelectorAll("svg[data-dots]").forEach(svg => {
+  svg.append(el("rect", { x: 2, y: 2, width: 436, height: 246, fill: "#F0DFE1", stroke: "#65474C", "stroke-width": 3 }));
+  for (let k = 0; k < +svg.dataset.dots; k++) svg.append(el("circle", { cx: 24 + rnd() * 392, cy: 24 + rnd() * 202, r: 8, fill: "#65474C" }));
+});
+
+// paste profile URLs here; an empty one leaves the name as plain text
+const LINKEDIN = { burcak: "", fritz: "" };
+document.querySelectorAll("a[data-li]").forEach(a => { const u = LINKEDIN[a.dataset.li]; if (u) { a.href = u; a.target = "_blank"; } else a.style.borderBottom = "0"; });
+
+// QR to the live app
+try {
+  const q = qrcode(0, "M"); q.addData("https://mattscherzer.github.io/lock-out/"); q.make();
+  document.getElementById("qr").innerHTML = q.createSvgTag({ cellSize: 8, margin: 0, scalable: true });
+} catch (e) { const q = document.getElementById("qr"); q.classList.add("fallback"); q.innerHTML = "mattscherzer<br>.github.io<br>/lock-out"; }
+
+// navigation
+const stage = document.getElementById("stage");
+const slides = [...document.querySelectorAll(".slide")];
+const pad = n => String(n).padStart(2, "0");
+slides.forEach((s, i) => s.querySelectorAll(".num").forEach(n => n.innerHTML = `[ <b>${pad(i + 1)}</b><span>/</span>${pad(slides.length)} ]`));
+let cur = -1;
+function go(i) {
+  i = Math.max(0, Math.min(slides.length - 1, i));
+  if (i === cur) return;
+  slides.forEach((s, k) => { s.classList.toggle("active", k === i); s.classList.toggle("past", k < i); });
+  document.querySelectorAll(".dot").forEach(d => d.style.opacity = slides[i].classList.contains("s-prob") ? .55 : 0);
+  cur = i;
+  document.getElementById("progress").style.width = ((i + 1) / slides.length * 100) + "%";
+  history.replaceState(null, "", "#" + (i + 1));
+}
+function fit() { const s = Math.min(innerWidth / 1600, innerHeight / 900); stage.style.transform = `translate(-50%,-50%) scale(${s})`; }
+addEventListener("resize", fit); fit();
+addEventListener("keydown", e => {
+  if (["ArrowRight", "PageDown", " ", "Enter"].includes(e.key)) { e.preventDefault(); go(cur + 1); }
+  else if (["ArrowLeft", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); go(cur - 1); }
+  else if (e.key === "Home") go(0);
+  else if (e.key === "End") go(slides.length - 1);
+  else if (e.key === "f" || e.key === "F") { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
+});
+addEventListener("click", e => {
+  if (e.target.closest("a")) return;
+  e.clientX < innerWidth / 3 ? go(cur - 1) : go(cur + 1);
+});
+document.querySelectorAll(".dot").forEach(d => d.style.opacity = 0);
+go((parseInt(location.hash.slice(1), 10) || 1) - 1);
+</script>
+</body>
+</html>
