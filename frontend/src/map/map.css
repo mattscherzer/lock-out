@@ -89,6 +89,26 @@
   border-right-color: var(--surface-container-lowest);
 }
 
+/* the locate button is a one-button bar: the zoom bar's look, with its own spot above the zoom buttons */
+.locate-control {
+  position: absolute;
+  right: var(--map-controls-inset);
+  bottom: calc(var(--map-controls-bottom) + 2 * var(--control-sm) + var(--space-2));
+  z-index: var(--z-map-controls);
+}
+
+.leaflet-bar.locate-control a {
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-sm);
+}
+
+/* indigo is the one colour on the map that is not a risk tier, so the dot reads as "you" on any tint */
+.my-location {
+  fill: var(--tertiary);
+  stroke: var(--on-tertiary);
+}
+
 /* Leaflet writes stroke and fill as presentation attributes, which any CSS rule beats */
 .search-pin {
   fill: var(--primary);
