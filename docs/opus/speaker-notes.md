@@ -125,7 +125,7 @@ Remember the hatched areas? This is one of the choices we're proudest of. [click
 
 ## Before you present
 
-- **Team photos (slide 02):** save a portrait photo of each of you as `docs/final/team/burcak.jpg` and `docs/final/team/fritz.jpg` (about 3:4, at least 720 × 900 px). They appear automatically. Until then the slide shows your initials and the file name to use.
+- **Team photos (slide 02):** save a portrait photo of each of you as `docs/opus/team/burcak.jpg` and `docs/opus/team/fritz.jpg` (about 3:4, at least 720 × 900 px). They appear automatically. Until then the slide shows your initials and the file name to use.
 - **Backgrounds (slide 02):** replace the two yellow `[… background, one line]` placeholders in `index.html` with one short line each, for example what you studied or worked on before. The yellow highlight comes from the `todo` class; remove `class="todo"` from each line once it's filled in.
 - **LinkedIn links:** paste your profile URLs into the `LINKEDIN` line near the bottom of `index.html`. Until then, the names on slide 13 show as plain text.
 - **QR code:** it's drawn by a small script loaded from cdnjs. If the venue blocks it, the box shows the app's address in large type instead, so open the deck once on the venue's wifi to check.
