@@ -76,7 +76,7 @@ em{font-style:normal;color:var(--primary)}
 
 /* 02 hook */
 #s2 .c{display:grid;grid-template-columns:1fr 1.05fr;gap:calc(var(--u)*5);align-items:center}
-#s2 .big{font:600 calc(var(--u)*36)/.8 var(--display);color:var(--high);letter-spacing:-.04em}
+#s2 .big{font:600 calc(var(--u)*17)/.8 var(--display);color:var(--high);letter-spacing:-.04em}
 #s2 .stolen{display:grid;grid-template-columns:repeat(9,1fr);gap:calc(var(--u)*1.1) calc(var(--u)*.8)}
 #s2 .stolen svg{width:100%;aspect-ratio:40/24;color:var(--ink);opacity:.28;transition:color .4s,opacity .4s}
 .slide.on #s2 .stolen svg,#s2.on .stolen svg{color:var(--high);opacity:1;transition-delay:calc(.9s + var(--i)*45ms)}
@@ -110,7 +110,7 @@ em{font-style:normal;color:var(--primary)}
 
 /* 05 the idea */
 #s5 .c{display:grid;grid-template-columns:.9fr 1.3fr;align-items:center}
-#s5 .big{font:600 calc(var(--u)*24)/.85 var(--display);letter-spacing:-.04em;color:var(--primary)}
+#s5 .big{white-space:nowrap;font:600 calc(var(--u)*14)/.85 var(--display);letter-spacing:-.04em;color:var(--primary)}
 #s5 .p{margin-top:calc(var(--u)*2.2)}
 #s5 .legend{margin-top:calc(var(--u)*3);display:flex;flex-direction:column;gap:calc(var(--u)*1);font:600 calc(var(--u)*2.1)/1 var(--sans)}
 #s5 .mapslot{position:static;width:100%}
@@ -200,6 +200,19 @@ em{font-style:normal;color:var(--primary)}
 #s12 li a.main{font-size:calc(var(--u)*2.8);color:var(--primary)}
 #s12 li a:hover{text-decoration:underline}
 
+
+/* team */
+#steam .c{display:grid;grid-template-rows:auto 1fr;gap:calc(var(--u)*4)}
+#steam .h{font-size:calc(var(--u)*7)}
+#steam .crew{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*5);align-items:center}
+#steam .who2{display:grid;grid-template-columns:calc(var(--u)*20) 1fr;gap:calc(var(--u)*3);align-items:center}
+#steam .ph{position:relative;aspect-ratio:1;border-radius:50%;overflow:hidden;background:var(--well);outline:calc(var(--u)*.25) dashed var(--nodata);outline-offset:calc(var(--u)*-.25);display:grid;place-items:center;text-align:center;font:600 calc(var(--u)*1.2)/1.3 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+#steam .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#steam .who2 h3{font:600 calc(var(--u)*3.6)/1.05 var(--display);color:var(--ink)}
+#steam .who2 p{margin-top:calc(var(--u)*1);font:400 calc(var(--u)*1.9)/1.35 var(--sans);color:var(--ink2)}
+#steam .todo{outline:calc(var(--u)*.2) dashed var(--med);outline-offset:calc(var(--u)*.4)}
+.slide.on .r[data-step]:not(.shown){opacity:0;transform:translateY(calc(var(--u)*2));transition-delay:0s}
+.slide.on .r[data-step].shown{transition-delay:0s}
 .hint{position:fixed;right:calc(var(--u)*1.2);top:calc(var(--u)*1.2);z-index:9;font:500 calc(var(--u)*1.1)/1 var(--sans);letter-spacing:.1em;color:#fff;background:#0008;padding:.6em .9em;pointer-events:none;opacity:0;transition:opacity .4s}
 .hint.show{opacity:1}
 :focus-visible{outline:3px solid var(--focus);outline-offset:3px}
@@ -229,14 +242,31 @@ em{font-style:normal;color:var(--primary)}
   </div>
 </section>
 
+<!-- 02 team -->
+<section class="slide" id="steam" data-who="Burcak &amp; Fritz">
+  <div class="c">
+    <h2 class="h"><span class="l" style="--i:0"><span>Who’s behind it.</span></span></h2>
+    <div class="crew">
+      <div class="who2 r" data-step="1" style="--i:1">
+        <div class="ph"><span>Drop photo<br>photos/burcak.jpg</span><img src="photos/burcak.jpg" alt="Burcak" onerror="this.remove()"></div>
+        <div><h3>Burcak</h3><p class="todo">[ADD: role and one line of background]</p></div>
+      </div>
+      <div class="who2 r" data-step="2" style="--i:2">
+        <div class="ph"><span>Drop photo<br>photos/fritz.jpg</span><img src="photos/fritz.jpg" alt="Fritz" onerror="this.remove()"></div>
+        <div><h3>Fritz</h3><p class="todo">[ADD: role and one line of background]</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- 02 -->
 <section class="slide dark" id="s2" data-who="Burcak">
   <div class="c">
     <div>
-      <div class="eyebrow r">Berlin, every day</div>
-      <div class="big r" style="--i:1">62</div>
-      <p class="p cap r" style="--i:2">bikes stolen. Every single day.<br><em>One every 23 minutes.</em></p>
-      <div class="src r" style="--i:3">Polizei Berlin, PKS 2025. Reported cases only.</div>
+      <div class="eyebrow r">Berlin, last year</div>
+      <div class="big r" style="--i:1">23,000</div>
+      <p class="p cap r" style="--i:2">bikes stolen. <em>Around, rounded.</em></p>
+      <div class="src r" style="--i:3">Polizei Berlin, PKS 2025. Reported cases only, rounded to the nearest thousand.</div>
     </div>
     <div class="stolen" id="stolen"></div>
   </div>
@@ -272,8 +302,8 @@ em{font-style:normal;color:var(--primary)}
   <div class="c">
     <h2 class="h"><span class="l" style="--i:0"><span>Dots tell you everything.</span></span><span class="l" style="--i:1"><span>And nothing.</span></span></h2>
     <div class="two">
-      <figure class="pane r" style="--i:2"><svg id="dots" viewBox="0 0 600 330" preserveAspectRatio="xMidYMid slice"></svg><figcaption><b>A map of dots</b>Alarming. Hard to act on.</figcaption></figure>
-      <figure class="pane ours r" style="--i:3"><svg id="blocks" viewBox="0 0 600 330" preserveAspectRatio="xMidYMid slice"></svg><figcaption><b>One colour per neighbourhood</b>Clear. Ready to act on.</figcaption></figure>
+      <figure class="pane r" data-step="1" style="--i:2"><svg id="dots" viewBox="0 0 600 330" preserveAspectRatio="xMidYMid slice"></svg><figcaption><b>A map of dots</b>Alarming. Hard to act on.</figcaption></figure>
+      <figure class="pane ours r" data-step="2" style="--i:3"><svg id="blocks" viewBox="0 0 600 330" preserveAspectRatio="xMidYMid slice"></svg><figcaption><b>One colour per neighbourhood</b>Clear. Ready to act on.</figcaption></figure>
     </div>
   </div>
 </section>
@@ -283,8 +313,8 @@ em{font-style:normal;color:var(--primary)}
   <div class="c">
     <div>
       <div class="eyebrow r">The idea</div>
-      <div class="big r" style="--i:1">542</div>
-      <p class="p r" style="--i:2">neighbourhoods, rated from a year of police reports.</p>
+      <div class="big r" style="--i:1">1 year</div>
+      <p class="p r" style="--i:2">of police reports. One colour for every neighbourhood.</p>
       <div class="legend r" style="--i:3"><span><i class="sw l"></i>Low</span><span><i class="sw m"></i>Medium</span><span><i class="sw h"></i>High</span></div>
     </div>
     <div class="mapslot"></div>
@@ -300,9 +330,9 @@ em{font-style:normal;color:var(--primary)}
       <a class="r" style="--i:2" href="https://mattscherzer.github.io/lock-out/" target="_blank" rel="noopener">Open the app ↗</a>
     </div>
     <ol>
-      <li class="r" style="--i:2"><b>1</b><span>Find your street</span></li>
-      <li class="r" style="--i:3"><b>2</b><span>Read the colour</span></li>
-      <li class="r" style="--i:4"><b>3</b><span>Pick your lock</span></li>
+      <li class="r" data-step="1" style="--i:2"><b>1</b><span>Find your street</span></li>
+      <li class="r" data-step="2" style="--i:3"><b>2</b><span>Read the colour</span></li>
+      <li class="r" data-step="3" style="--i:4"><b>3</b><span>Pick your lock</span></li>
     </ol>
   </div>
 </section>
@@ -327,16 +357,16 @@ em{font-style:normal;color:var(--primary)}
 <section class="slide" id="s8" data-who="Burcak">
   <div class="c">
     <div>
-      <div class="eyebrow r">The average loss</div>
-      <div class="big r" style="--i:1">€1,246</div>
+      <div class="eyebrow r">The average loss, rounded</div>
+      <div class="big r" style="--i:1">~€1,000</div>
       <p class="p r" style="--i:2">per stolen bike. A good lock costs far less.</p>
     </div>
     <div class="pair">
-      <div class="opt r" style="--i:1">
+      <div class="opt r" data-step="1" style="--i:1">
         <small>Bike under €1,000</small><h3>One lock</h3>
         <svg viewBox="0 0 160 170" aria-hidden="true"><g class="lock"><path d="M40 100V60a40 40 0 0 1 80 0v40"/><rect x="28" y="100" width="104" height="52" rx="8"/></g></svg>
       </div>
-      <div class="opt r" style="--i:2">
+      <div class="opt r" data-step="2" style="--i:2">
         <small>Worth more</small><h3>Two locks</h3>
         <svg viewBox="0 0 330 170" aria-hidden="true">
           <g class="lock"><path d="M40 100V60a40 40 0 0 1 80 0v40"/><rect x="28" y="100" width="104" height="52" rx="8"/></g>
@@ -353,11 +383,11 @@ em{font-style:normal;color:var(--primary)}
   <div class="c">
     <h2 class="h"><span class="l" style="--i:0"><span>Everyone parks</span></span><span class="l" style="--i:1"><span>differently.</span></span></h2>
     <div class="rows">
-      <div class="row r" style="--i:2"><div class="who"><b>Lena</b><span>Outside her flat, overnight</span></div>
+      <div class="row r" data-step="1" style="--i:2"><div class="who"><b>Lena</b><span>Outside her flat, overnight</span></div>
         <div class="bar"><i style="--a:0%;--w:32.3%;--i:0"></i><i style="--a:93.7%;--w:6.3%;--i:0"></i></div></div>
-      <div class="row r" style="--i:3"><div class="who"><b>Murat</b><span>At the station, all day</span></div>
+      <div class="row r" data-step="2" style="--i:3"><div class="who"><b>Murat</b><span>At the station, all day</span></div>
         <div class="bar"><i style="--a:33.3%;--w:39.6%;--i:1"></i></div></div>
-      <div class="row r" style="--i:4"><div class="who"><b>Jonas</b><span>Everywhere, for an hour</span></div>
+      <div class="row r" data-step="3" style="--i:4"><div class="who"><b>Jonas</b><span>Everywhere, for an hour</span></div>
         <div class="bar"><i style="--a:77%;--w:4.2%;--i:2"></i><i style="--a:85.4%;--w:2.1%;--i:2.4"></i><i style="--a:89.6%;--w:6.2%;--i:2.8"></i></div></div>
       <div class="axis r" style="--i:5"><span></span><div><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div></div>
       <div class="fine r" style="--i:5">Riders based on our research personas.</div>
@@ -371,9 +401,9 @@ em{font-style:normal;color:var(--primary)}
     <h2 class="h"><span class="l" style="--i:0"><span>Riders shape</span></span><span class="l" style="--i:1"><span>what’s next.</span></span></h2>
     <div class="road">
       <svg class="rider" viewBox="0 0 40 24" aria-hidden="true"><use href="#bike"/></svg>
-      <div class="stop r" style="--i:2"><b>01</b><h3>Share a spot</h3><p>Send a friend the answer for any place.</p></div>
-      <div class="stop r" style="--i:3"><b>02</b><h3>Compare two</h3><p>Home or the café? See both.</p></div>
-      <div class="stop r" style="--i:4"><b>03</b><h3>Auf Deutsch</h3><p>More languages, more riders at home.</p></div>
+      <div class="stop r" data-step="1" style="--i:2"><b>01</b><h3>Share a spot</h3><p>Send a friend the answer for any place.</p></div>
+      <div class="stop r" data-step="2" style="--i:3"><b>02</b><h3>Compare two</h3><p>Home or the café? See both.</p></div>
+      <div class="stop r" data-step="3" style="--i:4"><b>03</b><h3>Auf Deutsch</h3><p>More languages, more riders at home.</p></div>
     </div>
   </div>
 </section>
@@ -451,17 +481,22 @@ slides.forEach((s, i) => {
 });
 
 let cur = -1;
-function go(n, instant) {
+const stepsOf = s => [...s.querySelectorAll("[data-step]")];
+const maxStep = s => Math.max(0, ...stepsOf(s).map(e => +e.dataset.step));
+function setSteps(s, k) { s._k = k; stepsOf(s).forEach(e => e.classList.toggle("shown", +e.dataset.step <= k)); }
+function go(n, instant, back) {
   n = Math.max(0, Math.min(N - 1, n));
   if (n === cur) return;
   const old = slides[cur];
   if (old) { old.classList.remove("on"); old.classList.add("out"); setTimeout(() => old.classList.remove("out"), 800); }
   slides[n].classList.remove("out");
+  setSteps(slides[n], back ? maxStep(slides[n]) : 0);
   slides[n].classList.add("on");
   cur = n;
   history.replaceState(null, "", "#" + (n + 1));
 }
-const next = () => go(cur + 1), prev = () => go(cur - 1);
+const next = () => { const s = slides[cur]; if ((s._k || 0) < maxStep(s)) setSteps(s, s._k + 1); else go(cur + 1); };
+const prev = () => { const s = slides[cur]; if ((s._k || 0) > 0) setSteps(s, s._k - 1); else go(cur - 1, false, true); };
 
 addEventListener("keydown", e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
