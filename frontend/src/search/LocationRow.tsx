@@ -1,6 +1,7 @@
-import { ChevronDown, LoaderCircle, LocateFixed } from "lucide-react";
+import { ChevronDown, LoaderCircle } from "lucide-react";
 import { useRef } from "react";
 import { STRINGS } from "../strings.ts";
+import { LocateIcon } from "./LocateIcon.tsx";
 import type { LocateView } from "./useLocate.ts";
 
 const S = STRINGS.search.location;
@@ -19,12 +20,13 @@ type Props = {
   view: LocateView;
   helpOpen: boolean;
   helpId: string;
+  located: boolean; // a position was found earlier and is on the map
   onLocate: () => void;
   onToggleHelp: () => void;
 };
 
 // A button, not an option: Tab reaches it after the field and the list keeps only the examples. The row and "Try again" are siblings, as buttons cannot nest.
-export function LocationRow({ view, helpOpen, helpId, onLocate, onToggleHelp }: Props) {
+export function LocationRow({ view, helpOpen, helpId, located, onLocate, onToggleHelp }: Props) {
   const row = useRef<HTMLButtonElement>(null);
   const denied = view === "denied";
   const wait = view === "wait";
@@ -51,7 +53,12 @@ export function LocationRow({ view, helpOpen, helpId, onLocate, onToggleHelp }: 
                 size={GLYPH_PX}
               />
             ) : (
-              <LocateFixed aria-hidden size={GLYPH_PX} strokeWidth={GLYPH_STROKE} />
+              <LocateIcon
+                blocked={denied}
+                located={located}
+                size={GLYPH_PX}
+                strokeWidth={GLYPH_STROKE}
+              />
             )}
           </span>
           <span className="flex min-w-0 flex-1 flex-col">

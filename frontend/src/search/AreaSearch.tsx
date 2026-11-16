@@ -31,7 +31,7 @@ import { STRINGS } from "../strings.ts";
 import { WIDE } from "../viewport.ts";
 import type { Context, Index, Row } from "./types.ts";
 
-export type AreaSearchHandle = { close: () => void; focus: () => void };
+export type AreaSearchHandle = { close: () => void; focus: () => void; locate: () => void };
 
 type Props = {
   ref?: Ref<AreaSearchHandle>;
@@ -42,6 +42,9 @@ type Props = {
   onClear: () => void;
   onHighlight?: (id: string | null) => void; // the area under the pointer or arrow keys in the open list
   loadStreets?: () => Promise<unknown>; // must reject on failure; retried on the next focus
+  located?: boolean; // a position is on the map, for the row's icon
+  onDenied?: (denied: boolean) => void; // the location permission is blocked, for the map button
+  onPosition?: (ll: [number, number]) => void; // the position the area was found from, kept for the map
   locate?: (lat: number, lon: number) => string | null; // the area id at a position, or null; without it there is no "Use my location" row
 };
 
@@ -72,6 +75,9 @@ export function AreaSearch({
   onClear,
   onHighlight,
   loadStreets,
+  onPosition,
+  located = false,
+  onDenied,
   locate,
 }: Props) {
   const id = useId();
@@ -85,6 +91,7 @@ export function AreaSearch({
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<number | null>(null); // null: the picked row, else the first
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set()); // places showing all their areas
+  const [probing, setProbing] = useState(false); // the map button asked: show the location row over whatever is typed, which stays
   const [announce, setAnnounce] = useState(""); // for the live region: what the location row just did
   const limit = useSyncExternalStore(
     subscribeWide,
@@ -101,7 +108,7 @@ export function AreaSearch({
   const locator = useLocate({
     open,
     find: locate,
-    onFound: (id) => pickArea(id),
+    onFound: (id, ll) => pickArea(id, ll),
   });
 
   const selectedName = selected ? (areas[selected]?.name ?? "") : "";
@@ -118,7 +125,19 @@ export function AreaSearch({
     setOpen(false);
     setDraft((d) => (selected ? null : d)); // an abandoned edit keeps the previous selection; with none, the draft stays
   };
-  useImperativeHandle(ref, () => ({ close, focus: () => input.current?.focus() }));
+  useImperativeHandle(ref, () => ({
+    close,
+    focus: () => input.current?.focus(),
+    // the map button: open the list on the location row, and put focus in the field so Escape and Tab close it
+    locate: () => {
+      setProbing(true);
+      setActive(null);
+      setOpen(true);
+      quietFocus.current = document.activeElement !== input.current;
+      input.current?.focus();
+      locator.locate();
+    },
+  }));
 
   // field still shows the selection: list the results of the query that found it, so a different pick needs no retyping
   const showingSelection = draft === null && !!selected;
@@ -137,14 +156,20 @@ export function AreaSearch({
         (r) => r.type === "area" && r.id === selected && placeKey(r.place) === chosen?.place,
       )
     : -1;
-  const empty = open && !query.trim(); // nothing typed: offer the examples
+  const empty = open && (probing || !query.trim()); // nothing typed: offer the examples
   const count = empty ? EXAMPLES.length : rows.length;
   const current = Math.min(active ?? Math.max(picked, 0), count - 1);
-  const shown = open && !!query.trim();
+  const shown = open && !probing && !!query.trim();
   const row = shown && active !== null ? rows[current] : undefined;
   const highlighted = row?.type === "area" ? row.id : null;
+  useEffect(() => {
+    if (!open) setProbing(false);
+  }, [open]);
   const dropPending = useEffectEvent(() => locator.reset());
   useEffect(() => dropPending(), [selected]); // a pick elsewhere (the map) outranks a position still being found
+  const emitDenied = useEffectEvent((d: boolean) => onDenied?.(d));
+  const blocked = locator.view === "denied";
+  useEffect(() => emitDenied(blocked), [blocked]);
   const emitHighlight = useEffectEvent((id: string | null) => onHighlight?.(id));
   useEffect(() => {
     emitHighlight(highlighted);
@@ -164,7 +189,7 @@ export function AreaSearch({
   });
 
   // the area found from the position: selected like a picked area, with no place it was found by
-  const pickArea = (id: string) => {
+  const pickArea = (id: string, ll: [number, number]) => {
     setChosen(undefined);
     setDraft(null);
     setOpen(false);
@@ -176,6 +201,7 @@ export function AreaSearch({
       quietFocus.current = true;
       input.current?.focus();
     }
+    onPosition?.(ll);
     onSelect(id, null);
   };
 
@@ -301,6 +327,7 @@ export function AreaSearch({
           value={text}
           onChange={(e) => {
             locator.reset();
+            setProbing(false);
             setDraft(e.target.value);
             setActive(null);
             setOpen(true);
@@ -376,6 +403,7 @@ export function AreaSearch({
             view={locator.view}
             helpOpen={locator.helpOpen}
             helpId={`${id}-locate-help`}
+            located={located}
             onLocate={locator.locate}
             onToggleHelp={locator.toggleHelp}
           />

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { FeatureCollection } from "geojson";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { bands, metadata, rec, selectors } from "../domain/testData.ts";
@@ -69,4 +69,59 @@ it("a click on the map closes the open search list", () => {
   expect(screen.getAllByRole("option").length).toBeGreaterThan(0);
   act(() => void fireEvent.click(document.querySelector(".leaflet-container")!));
   expect(screen.queryByRole("option")).toBeNull();
+});
+
+it("the map button finds the area, shows a persistent dot and switches its label", async () => {
+  cleanup();
+  vi.stubGlobal("navigator", {
+    geolocation: {
+      getCurrentPosition: (ok: PositionCallback) =>
+        ok({ coords: { latitude: 52.05, longitude: 13.05 } } as GeolocationPosition),
+    },
+  });
+  render(<App lookup={lookup} areas={areas} gazetteer={null} />);
+  expect(document.querySelector(".my-location")).toBeNull();
+  await act(async () => void fireEvent.click(screen.getByLabelText("Show my location")));
+  expect(card().hasAttribute("data-open")).toBe(true);
+  expect(document.querySelector(".my-location")).not.toBeNull();
+  expect(screen.getByLabelText("Show my location again")).toBeTruthy();
+});
+
+const locateStub = (permission?: "denied") => {
+  vi.stubGlobal("navigator", {
+    geolocation: {
+      getCurrentPosition: (ok: PositionCallback) =>
+        ok({ coords: { latitude: 52.05, longitude: 13.05 } } as GeolocationPosition),
+    },
+    permissions: permission && {
+      query: async () => ({ state: permission, addEventListener() {}, removeEventListener() {} }),
+    },
+  });
+  cleanup();
+  render(<App lookup={lookup} areas={areas} gazetteer={null} />);
+};
+
+it("the map button answers the Space key", async () => {
+  locateStub();
+  await act(
+    async () => void fireEvent.keyUp(screen.getByLabelText("Show my location"), { key: " " }),
+  );
+  expect(document.querySelector(".my-location")).not.toBeNull();
+});
+
+it("a blocked permission labels the button and keeps the dot off the map", async () => {
+  locateStub("denied");
+  await act(async () => {});
+  expect(screen.getByLabelText("Location is blocked")).toBeTruthy();
+  expect(document.querySelector(".my-location")).toBeNull();
+});
+
+it("Space with a modifier, and a key down alone, do not locate", async () => {
+  locateStub();
+  const button = screen.getByLabelText("Show my location");
+  await act(async () => {
+    fireEvent.keyDown(button, { key: " " });
+    fireEvent.keyUp(button, { key: " ", shiftKey: true });
+  });
+  expect(document.querySelector(".my-location")).toBeNull();
 });
