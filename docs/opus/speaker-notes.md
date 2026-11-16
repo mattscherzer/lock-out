@@ -3,7 +3,7 @@
 The talk runs about 10 minutes: roughly 7.5 minutes of speaking and a 2.5-minute live demo. At about 140 words a minute the script below is a little under 1,000 spoken words.
 Each slide ends on a line that hands over to the next, so nobody starts cold. Text in brackets is a stage direction, not something to say.
 
-**Clicks:** many slides build. Items marked **[click]** appear only when you press → (or Space, or click), so each point arrives as you say it. When a slide has fully built, the next press moves on to the next slide. Every number on the slides is rounded, and the script says "around" or "over" with them.
+**Clicks:** only the three busiest slides build on click: 04 (the three figures), 09 (the two lock columns) and 11 (the three data boxes). There, items marked **[click]** appear when you press → (or Space, or click). Everywhere else the whole slide appears on its own, and one press moves to the next slide. Every number on the slides is rounded, and the script says "around" or "over" with them.
 
 ## Who and when
 
@@ -35,17 +35,17 @@ Hi everyone. Before we tell you what LockOut is, think about the last time you l
 
 ## 02 · The people behind it (Burcak, then Fritz)
 
-[Advance. Only the heading shows.]
+[Advance. Both photos come in with the slide.]
 
-**Burcak:** [click: Burcak's photo and name appear] I'm Burcak. [One sentence on your background, the same line as on the slide.] On this project I looked after the data and the research with riders.
+**Burcak:** I'm Burcak. [One sentence on your background, the same line as on the slide.] On this project I looked after the data and the research.
 
-**Fritz:** [click: Fritz's photo and name appear] And I'm Fritz. [One sentence on your background, the same line as on the slide.] I built the product you'll see in a few minutes. Burcak, tell them about Lena.
+**Fritz:** And I'm Fritz. [One sentence on your background, the same line as on the slide.] I built the product you'll see in a few minutes. Burcak, let's start with a moment most of you know.
 
 ## 03 · You lock it. It's gone. (Burcak)
 
 [Advance. The three lines appear on their own, then the lock drops from the post.]
 
-You lock it. You come back. It's gone. This is Lena. She lives in Neukölln, she locked her bike outside her flat at half past ten, and at quarter to eight the next morning there was just an empty lamp post. It was her second bike in two years. Lena is a composite of the riders we designed for, but if you live in Berlin, you probably know a real Lena. And she's not alone.
+Picture it. You lock your bike after work, at six. You come back at nine, and there's just an empty lamp post. That's not a made-up worst case, it's the most common pattern in the police data: around four in ten bikes were last seen in the evening, between five and ten. If you ride in Berlin, this has probably happened to you, or to someone you know. And it happens a lot.
 
 ## 04 · Every 23 minutes (Burcak)
 
@@ -57,25 +57,25 @@ Every twenty-three minutes, a bike is stolen somewhere in Berlin. [click: the th
 
 [Advance. The grid of locks pops in.]
 
-More than nine in ten stolen bikes were locked. The police record whether a lock had to be broken, and almost every time it did. So people aren't careless. [click: "The lock was there…" appears] The lock was there. It just wasn't the right lock, for the right place. Which makes you ask: why don't people know what the right lock is?
+More than nine in ten stolen bikes were locked. The police record whether a lock had to be broken, and almost every time it did. So people aren't careless. The lock was there. It just wasn't the right lock, for the right place. Which makes you ask: why don't people know what the right lock is?
 
 ## 06 · The gap (Burcak, hands to Fritz)
 
-[Advance. Dots spread over the map on the left.]
+[Advance. Dots spread over the map on the left, then the question appears on the right.]
 
-Partly because of what's out there today. Crime maps look like this: dots everywhere. Busy areas look terrifying, quiet ones look fine, and nothing tells you what to actually do. [click: the quote appears] But when we talked to riders, the question was always the same: "I'm parking here, tonight. Which lock?" [click: "Just buy a good lock" appears, struck out] And the usual answer, "just buy a good lock", doesn't answer that at all. Fritz, so what did we build?
+Partly because of what's out there today. Crime maps look like this: dots everywhere. Busy areas look terrifying, quiet ones look fine, and nothing tells you what to actually do. But what you really need to know at the bike rack is much simpler: "I'm parking here, tonight. Which lock?" And the usual answer, "just buy a good lock", doesn't answer that at all. Fritz, so what did we build?
 
 ## 07 · Police data in, one clear answer out (Fritz)
 
-[Advance. Only the headline shows.]
+[Advance. The three steps come in along the line.]
 
-Thanks, Burcak. The idea fits in one line: police data goes in, one clear answer comes out. It's three steps. [click] First, you find your spot: type a street, or let the app find you. [click] Second, you see how it compares to the whole of Berlin. [click] And third, you lock it right, with advice from the police and cycling experts, not from us. Here's the whole city.
+Thanks, Burcak. The idea fits in one line: police data goes in, one clear answer comes out. It's three steps. First, you find your spot: type a street, or let the app find you. Second, you see how it compares to the whole of Berlin. And third, you lock it right, with advice from the police and cycling experts, not from us. Here's the whole city.
 
 ## 08 · Every neighbourhood, one colour (Fritz)
 
-[Advance. The map colours in.]
+[Advance. The map colours in and the key appears.]
 
-We took a year of police reports and gave every neighbourhood in Berlin one colour. [click] Low. [click] Medium. [click] High. [click] And these hatched ones are the places where there just aren't enough reports to say. I'll come back to those. First, Burcak, what does the colour actually tell you to do?
+We took a year of police reports and gave every neighbourhood in Berlin one colour: low, medium or high. And these hatched ones are the places where there just aren't enough reports to say. I'll come back to those. First, Burcak, what does the colour actually tell you to do?
 
 ## 09 · A calm street is never a reason to lock less (Burcak)
 
@@ -85,9 +85,9 @@ The most important rule first: a calm street is never a reason to lock less. The
 
 ## 10 · Let's try it (Fritz drives, Burcak plays the rider)
 
-[Advance. Click three times as you say the three steps, then switch to the app.]
+[Advance. Read the three steps, then switch to the app.]
 
-**Fritz:** Let's try it, live. Three steps: [click] find where I am, [click] read the answer, [click] pick the lock. Burcak, you're the rider. Where do you lock your bike?
+**Fritz:** Let's try it, live. Three steps: find where I am, read the answer, pick the lock. Burcak, you're the rider. Where do you lock your bike?
 
 **Burcak:** [Name the street you rehearsed.] Usually right outside the café there.
 
@@ -111,7 +111,7 @@ Remember the hatched areas? This is one of the choices we're proudest of. [click
 
 [Advance. The dotted line keeps moving to the right.]
 
-[click] Today, LockOut is live for every neighbourhood in Berlin, on any phone. [click] Next, we want to test it on real streets with real cyclists, because so far we've designed for riders like Lena on paper. [click] And after that, any city where the police share their theft data could have the same thing. Berlin is only the first city.
+Today, LockOut is live for every neighbourhood in Berlin, on any phone. Next, we want to test it on real streets with real cyclists, because so far it has only been tried by us. And after that, any city where the police share their theft data could have the same thing. Berlin is only the first city.
 
 ## 13 · Danke (both)
 
@@ -130,5 +130,5 @@ Remember the hatched areas? This is one of the choices we're proudest of. [click
 - **LinkedIn links:** paste your profile URLs into the `LINKEDIN` line near the bottom of `index.html`. Until then, the names on slide 13 show as plain text.
 - **QR code:** it's drawn by a small script loaded from cdnjs. If the venue blocks it, the box shows the app's address in large type instead, so open the deck once on the venue's wifi to check.
 - **Demo:** rehearse it once on the venue's network. Choose the street in advance and know its colour and lock advice. Have the app open in a second tab before you start.
-- **Lena:** she's a composite persona, not a real person. The script says so on slide 03; keep that line.
-- **Keys:** → / Space / click to reveal the next item or go forward, ← or a click on the left third of the screen to step back, `F` for full screen, Home / End to jump. You can also open a single slide by adding its number to the address, for example `index.html#10`.
+- **No personas:** slide 03 uses a generic "you" scene and a real police figure (evening is the most common last-seen time, 38%, rounded to "around 4 in 10"). Nothing in the deck or script presents invented people or interviews as real.
+- **Keys:** → / Space / click to go forward (or reveal the next item on slides 04, 09 and 11), ← or a click on the left third of the screen to step back, `F` for full screen, Home / End to jump. You can also open a single slide by adding its number to the address, for example `index.html#10`.
