@@ -21,7 +21,9 @@ import {
   searchPlaces,
   statusText,
 } from "./places.ts";
+import { LocationRow } from "./LocationRow.tsx";
 import { ExampleRows, ResultRows } from "./ResultRows.tsx";
+import { useLocate } from "./useLocate.ts";
 import { useStreets } from "./useStreets.ts";
 import { useVisualViewport } from "./useVisualViewport.ts";
 import type { Areas } from "../domain/lookup.ts";
@@ -29,7 +31,7 @@ import { STRINGS } from "../strings.ts";
 import { WIDE } from "../viewport.ts";
 import type { Context, Index, Row } from "./types.ts";
 
-export type AreaSearchHandle = { close: () => void; focus: () => void };
+export type AreaSearchHandle = { close: () => void; focus: () => void; locate: () => void };
 
 type Props = {
   ref?: Ref<AreaSearchHandle>;
@@ -40,6 +42,10 @@ type Props = {
   onClear: () => void;
   onHighlight?: (id: string | null) => void; // the area under the pointer or arrow keys in the open list
   loadStreets?: () => Promise<unknown>; // must reject on failure; retried on the next focus
+  located?: boolean; // a position is on the map, for the row's icon
+  onDenied?: (denied: boolean) => void; // the location permission is blocked, for the map button
+  onPosition?: (ll: [number, number]) => void; // the position the area was found from, kept for the map
+  locate?: (lat: number, lon: number) => string | null; // the area id at a position, or null; without it there is no "Use my location" row
 };
 
 // Write class strings out whole so Tailwind sees them; never build one from state.
@@ -69,16 +75,24 @@ export function AreaSearch({
   onClear,
   onHighlight,
   loadStreets,
+  onPosition,
+  located = false,
+  onDenied,
+  locate,
 }: Props) {
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
   const justFocused = useRef(false);
+  const panel = useRef<HTMLDivElement>(null);
+  const quietFocus = useRef(false); // focus returning from the location row must not reopen the list
   const retrying = useRef(false); // focus returning from Try again must not select the typed text
   const [draft, setDraft] = useState<string | null>(null); // what the user typed; null: the field shows the selected area
   const [chosen, setChosen] = useState<{ id: string; query: string; place: string }>(); // the area picked, the place it came from (placeKey) and the query that found it
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<number | null>(null); // null: the picked row, else the first
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set()); // places showing all their areas
+  const [probing, setProbing] = useState(false); // the map button asked: show the location row over whatever is typed, which stays
+  const [announce, setAnnounce] = useState(""); // for the live region: what the location row just did
   const limit = useSyncExternalStore(
     subscribeWide,
     () => ((window.matchMedia?.(WIDE).matches ?? true) ? MAX_ROWS.wide : MAX_ROWS.mobile),
@@ -91,6 +105,11 @@ export function AreaSearch({
     load: loadNow,
   } = useStreets(loadStreets);
   useVisualViewport();
+  const locator = useLocate({
+    open,
+    find: locate,
+    onFound: (id, ll) => pickArea(id, ll),
+  });
 
   const selectedName = selected ? (areas[selected]?.name ?? "") : "";
   const text = draft ?? selectedName;
@@ -106,7 +125,19 @@ export function AreaSearch({
     setOpen(false);
     setDraft((d) => (selected ? null : d)); // an abandoned edit keeps the previous selection; with none, the draft stays
   };
-  useImperativeHandle(ref, () => ({ close, focus: () => input.current?.focus() }));
+  useImperativeHandle(ref, () => ({
+    close,
+    focus: () => input.current?.focus(),
+    // the map button: open the list on the location row, and put focus in the field so Escape and Tab close it
+    locate: () => {
+      setProbing(true);
+      setActive(null);
+      setOpen(true);
+      quietFocus.current = document.activeElement !== input.current;
+      input.current?.focus();
+      locator.locate();
+    },
+  }));
 
   // field still shows the selection: list the results of the query that found it, so a different pick needs no retyping
   const showingSelection = draft === null && !!selected;
@@ -125,12 +156,20 @@ export function AreaSearch({
         (r) => r.type === "area" && r.id === selected && placeKey(r.place) === chosen?.place,
       )
     : -1;
-  const empty = open && !query.trim(); // nothing typed: offer the examples
+  const empty = open && (probing || !query.trim()); // nothing typed: offer the examples
   const count = empty ? EXAMPLES.length : rows.length;
   const current = Math.min(active ?? Math.max(picked, 0), count - 1);
-  const shown = open && !!query.trim();
+  const shown = open && !probing && !!query.trim();
   const row = shown && active !== null ? rows[current] : undefined;
   const highlighted = row?.type === "area" ? row.id : null;
+  useEffect(() => {
+    if (!open) setProbing(false);
+  }, [open]);
+  const dropPending = useEffectEvent(() => locator.reset());
+  useEffect(() => dropPending(), [selected]); // a pick elsewhere (the map) outranks a position still being found
+  const emitDenied = useEffectEvent((d: boolean) => onDenied?.(d));
+  const blocked = locator.view === "denied";
+  useEffect(() => emitDenied(blocked), [blocked]);
   const emitHighlight = useEffectEvent((id: string | null) => onHighlight?.(id));
   useEffect(() => {
     emitHighlight(highlighted);
@@ -149,9 +188,27 @@ export function AreaSearch({
     reselect.current = false;
   });
 
+  // the area found from the position: selected like a picked area, with no place it was found by
+  const pickArea = (id: string, ll: [number, number]) => {
+    setChosen(undefined);
+    setDraft(null);
+    setOpen(false);
+    setActive(null);
+    setAnnounce(S.location.live.selected(areas[id]?.name ?? ""));
+    if (document.activeElement === input.current) input.current?.blur();
+    else if (panel.current?.contains(document.activeElement)) {
+      // keyboard on the row: the panel is about to be hidden, so hand focus back to the field without opening the list
+      quietFocus.current = true;
+      input.current?.focus();
+    }
+    onPosition?.(ll);
+    onSelect(id, null);
+  };
+
   const choose = (r: Row, pointer = false) => {
     if (r.type === "more") return setExpanded((e) => new Set(e).add(placeKey(r.place)));
     if (r.type !== "area") return;
+    locator.reset();
     setChosen({ id: r.id, query: searchText, place: placeKey(r.place) });
     setDraft(null);
     setOpen(false);
@@ -167,7 +224,12 @@ export function AreaSearch({
   };
 
   const onFocus = () => {
+    if (quietFocus.current) {
+      quietFocus.current = false;
+      return;
+    }
     justFocused.current = true;
+    setAnnounce("");
     if (!retrying.current) input.current?.select();
     retrying.current = false;
     setActive(null);
@@ -183,12 +245,14 @@ export function AreaSearch({
   };
 
   const pickExample = (label: string) => {
+    locator.reset();
     setDraft(label);
     setActive(null);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
+      locator.reset();
       reselect.current = !!selected;
       return close();
     }
@@ -212,6 +276,18 @@ export function AreaSearch({
     ? statusText({ tooShort, error: streetsError, loading: streetsLoading, results: rows.length })
     : "";
 
+  // what the location row says, for the live region; the typed-search status and the "Selected" line come first
+  const locateLive = (() => {
+    if (!empty) return "";
+    if (locator.noArea) return `${S.location.noAreaTitle}. ${S.location.noAreaBody}`;
+    return {
+      wait: S.location.live.waiting,
+      fail: S.location.failed,
+      denied: S.location.denied,
+      ready: "",
+    }[locator.view];
+  })();
+
   return (
     <div
       className="area-search"
@@ -225,6 +301,7 @@ export function AreaSearch({
           aria-label={S.closeLabel}
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => {
+            locator.reset();
             close();
             input.current?.blur();
           }}
@@ -249,6 +326,8 @@ export function AreaSearch({
           spellCheck={false}
           value={text}
           onChange={(e) => {
+            locator.reset();
+            setProbing(false);
             setDraft(e.target.value);
             setActive(null);
             setOpen(true);
@@ -274,6 +353,7 @@ export function AreaSearch({
             aria-label={S.clearLabel}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
+              locator.reset();
               setDraft("");
               setActive(null);
               setOpen(true);
@@ -285,7 +365,7 @@ export function AreaSearch({
           </button>
         )}
       </div>
-      <div className="area-search-panel" hidden={!open}>
+      <div ref={panel} className="area-search-panel" hidden={!open}>
         {houseNumber && <p className={NOTE}>{S.houseNumber}</p>}
         {shown && tooShort && <p className={NOTE}>{S.tooShort}</p>}
         {shown && !tooShort && streetsError && (
@@ -311,6 +391,22 @@ export function AreaSearch({
               </li>
             ))}
           </ul>
+        )}
+        {empty && locator.noArea && (
+          <div className={MESSAGE}>
+            <p className={`${MESSAGE_TITLE} text-on-surface`}>{S.location.noAreaTitle}</p>
+            <p className="m-0">{S.location.noAreaBody}</p>
+          </div>
+        )}
+        {empty && locator.supported && (
+          <LocationRow
+            view={locator.view}
+            helpOpen={locator.helpOpen}
+            helpId={`${id}-locate-help`}
+            located={located}
+            onLocate={locator.locate}
+            onToggleHelp={locator.toggleHelp}
+          />
         )}
         {empty && <p className={LABEL}>{S.tryTitle}</p>}
         {shown && !tooShort && !rows.length && !streetsLoading && !streetsError && (
@@ -350,7 +446,7 @@ export function AreaSearch({
         </div>
       </div>
       <div className="sr-only" role="status" aria-live="polite">
-        {status}
+        {status || announce || locateLive}
       </div>
     </div>
   );

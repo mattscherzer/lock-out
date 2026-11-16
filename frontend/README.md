@@ -15,7 +15,7 @@ npm run build      # typecheck, tokens.css drift check, production build
 - `src/app/`: `App` composes the features and holds the selection state (`selection.ts`).
 - `src/map/`: the Leaflet map, legend and palette. `AreaMap.tsx` is the only module that drives Leaflet.
 - `src/search/`: place search; `src/answer/`: the area card; `src/advice/`: lock advice; `src/controls/`: the map buttons.
-- `src/domain/`: the lookup contract types and `kind`. `src/data/`: fetching, the file shapes and the check of the files against each other.
+- `src/domain/`: the lookup contract types, `kind` and `areaAt` (the planning area at a position, from the map polygons, for "Use my location"). `src/data/`: fetching, the file shapes and the check of the files against each other.
 - Dependencies: features depend on `domain/` and `data/`, never on each other or on `app/`; `data/` and `domain/` depend on no feature.
 - `src/boundaries.test.ts` enforces that rule, and bans value imports of `leaflet` outside `src/map/` (runs with `npm test`).
 - Shared test fixtures live in `src/domain/testData.ts`, so `domain/` tests do not import a feature.

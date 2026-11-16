@@ -6,11 +6,14 @@ import { AreaAnswer } from "../answer/AreaAnswer.tsx";
 import { About } from "../About.tsx";
 import type { Gazetteer } from "../data/files.ts";
 import { loadStreets, type AppData } from "../data/load.ts";
+import { buildAreaFinder } from "../domain/areaAt.ts";
 import { AreaMap, type AreaMapHandle } from "../map/AreaMap.tsx";
 import { Legend } from "../map/Legend.tsx";
 import { LegendMenu } from "../map/LegendMenu.tsx";
 import { useLegendTight } from "../map/useLegendTight.ts";
 import { AreaSearch, type AreaSearchHandle } from "../search/AreaSearch.tsx";
+import { LocateIcon } from "../search/LocateIcon.tsx";
+import { hasGeolocation } from "../search/location.ts";
 import { buildIndex, streetPlaces } from "../search/places.ts";
 import type { Context, Place } from "../search/types.ts";
 import { STRINGS } from "../strings.ts";
@@ -18,6 +21,7 @@ import { phone } from "../viewport.ts";
 import { initialSelection, selection as reduce } from "./selection.ts";
 
 const SEARCH_CLEARANCE_PX = 110;
+const LOCATE_ICON_PX = 18;
 const EMPTY_GAZETTEER: Gazetteer = { plz: {}, stations: [] };
 
 const STATUS = "absolute bottom-6 left-2 z-map-controls rounded-xs px-2 py-1 empty:hidden";
@@ -37,6 +41,8 @@ const flyPadding = (cardWidth: number): FitBoundsOptions =>
 export function App({ lookup, areas, gazetteer }: AppData) {
   const [state, dispatch] = useReducer(reduce, initialSelection);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [denied, setDenied] = useState(false); // the location permission is denied
+  const [position, setPosition] = useState<[number, number] | null>(null); // where the user was last located; stays until the next fix
   const [streetsFailed, setStreetsFailed] = useState(false);
   const [streets, setStreets] = useState<Place[]>([]);
   const map = useRef<AreaMapHandle>(null);
@@ -47,6 +53,7 @@ export function App({ lookup, areas, gazetteer }: AppData) {
     () => buildIndex(gazetteer ?? EMPTY_GAZETTEER, lookup.areas),
     [gazetteer, lookup],
   );
+  const areaAt = useMemo(() => buildAreaFinder(areas), [areas]);
   const index = useMemo(() => ({ ...base, street: streets }), [base, streets]);
   const status = [
     gazetteer ? null : STRINGS.status.noPostcodeSearch,
@@ -88,6 +95,7 @@ export function App({ lookup, areas, gazetteer }: AppData) {
         selected={state.selected}
         highlighted={state.highlighted}
         pin={pin}
+        position={denied ? null : position}
         onSelect={(id) => choose(id, null)}
         onMapClick={() => search.current?.close()}
         onAbout={() => setAboutOpen(true)}
@@ -96,6 +104,28 @@ export function App({ lookup, areas, gazetteer }: AppData) {
       <div id="status" className={STATUS} aria-live="polite">
         {status}
       </div>
+      {hasGeolocation() && (
+        <div className="leaflet-bar locate-control">
+          <a
+            role="button"
+            href="#locate"
+            aria-label={
+              STRINGS.search.location.mapButton[denied ? "denied" : position ? "located" : "ready"]
+            }
+            onClick={(e) => {
+              e.preventDefault();
+              search.current?.locate();
+            }}
+            onKeyDown={(e) => e.key === " " && e.preventDefault()} // no page scroll; the key up activates, as on a button
+            onKeyUp={(e) => {
+              if (e.key !== " " || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey) return; // an anchor with role=button only answers Enter
+              search.current?.locate();
+            }}
+          >
+            <LocateIcon blocked={denied} located={!!position} size={LOCATE_ICON_PX} />
+          </a>
+        </div>
+      )}
       <div
         ref={legend}
         data-tight={tight || undefined}
@@ -119,6 +149,13 @@ export function App({ lookup, areas, gazetteer }: AppData) {
           onClear={() => dispatch({ type: "clear" })}
           onHighlight={(id) => dispatch({ type: "highlight", id })}
           loadStreets={searchStreets}
+          locate={areaAt}
+          onPosition={setPosition}
+          located={!!position}
+          onDenied={(d) => {
+            setDenied(d);
+            if (d) setPosition(null); // a fix from before the block is stale once it lifts
+          }}
         />
       </div>
       <div>
