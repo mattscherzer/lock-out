@@ -84,8 +84,8 @@ em{font-style:normal;color:var(--primary)}
 #s2 .src{margin-top:calc(var(--u)*2);font:400 calc(var(--u)*1.1)/1.2 var(--attr);color:var(--ink2);opacity:.8}
 
 /* 03 moment */
-#s3 .c{display:grid;grid-template-columns:1fr 1.15fr;align-items:center;gap:calc(var(--u)*3)}
-#s3 .h{font-size:calc(var(--u)*9.5)}
+#s3 .c{display:grid;grid-template-columns:1.2fr 1fr;align-items:center;gap:calc(var(--u)*3)}
+#s3 .h{font-size:calc(var(--u)*6.4)}
 #s3 .h .q{color:var(--primary);font-style:italic}
 #s3 svg.scene{width:100%;height:auto;max-height:100%}
 #s3 .cone{opacity:0;transition:opacity 1.2s var(--ease) 1.2s}
@@ -175,14 +175,14 @@ em{font-style:normal;color:var(--primary)}
 
 /* 10 next */
 #s10 .c{display:grid;grid-template-rows:auto 1fr;gap:calc(var(--u)*3)}
-#s10 .h{font-size:calc(var(--u)*9.5)}
-#s10 .road{position:relative;align-self:center;display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*3);padding-top:calc(var(--u)*9);border-top:calc(var(--u)*.3) solid var(--ink)}
+#s10 .h{font-size:calc(var(--u)*8)}
+#s10 .road{position:relative;align-self:center;display:grid;grid-template-columns:repeat(3,1fr);gap:calc(var(--u)*3);padding-top:calc(var(--u)*6.5);border-top:calc(var(--u)*.3) solid var(--ink)}
 #s10 .stop{position:relative}
-#s10 .stop::before{content:"";position:absolute;top:calc(var(--u)*-10.2);left:0;width:calc(var(--u)*1.8);height:calc(var(--u)*1.8);border-radius:50%;background:var(--surface);border:calc(var(--u)*.35) solid var(--primary)}
+#s10 .stop::before{content:"";position:absolute;top:calc(var(--u)*-7.7);left:0;width:calc(var(--u)*1.8);height:calc(var(--u)*1.8);border-radius:50%;background:var(--surface);border:calc(var(--u)*.35) solid var(--primary)}
 #s10 .stop b{display:block;font:600 calc(var(--u)*6)/1 var(--display);color:var(--primary)}
 #s10 .stop h3{font:600 calc(var(--u)*3)/1.1 var(--display);margin:calc(var(--u)*.8) 0 calc(var(--u)*1)}
 #s10 .stop p{font:400 calc(var(--u)*1.8)/1.35 var(--sans);color:var(--ink2);max-width:calc(var(--u)*24)}
-#s10 .rider{position:absolute;top:calc(var(--u)*-6.2);left:0;width:calc(var(--u)*6);color:var(--primary);transition:left 4.5s var(--ease) .8s}
+#s10 .rider{position:absolute;top:calc(var(--u)*-3.6);left:0;width:calc(var(--u)*6);color:var(--primary);transition:left 4.5s var(--ease) .8s}
 #s10.on .rider{left:calc(100% - var(--u)*6)}
 
 /* 11 thanks / 12 links */
@@ -247,11 +247,11 @@ em{font-style:normal;color:var(--primary)}
   <div class="c">
     <h2 class="h"><span class="l" style="--i:0"><span>Who’s behind it.</span></span></h2>
     <div class="crew">
-      <div class="who2 r" data-step="1" style="--i:1">
+      <div class="who2 r" style="--i:1">
         <div class="ph"><span>Drop photo<br>photos/burcak.jpg</span><img src="photos/burcak.jpg" alt="Burcak" onerror="this.remove()"></div>
         <div><h3>Burcak</h3><p class="todo">[ADD: role and one line of background]</p></div>
       </div>
-      <div class="who2 r" data-step="2" style="--i:2">
+      <div class="who2 r" style="--i:2">
         <div class="ph"><span>Drop photo<br>photos/fritz.jpg</span><img src="photos/fritz.jpg" alt="Fritz" onerror="this.remove()"></div>
         <div><h3>Fritz</h3><p class="todo">[ADD: role and one line of background]</p></div>
       </div>
@@ -302,8 +302,8 @@ em{font-style:normal;color:var(--primary)}
   <div class="c">
     <h2 class="h"><span class="l" style="--i:0"><span>Dots tell you everything.</span></span><span class="l" style="--i:1"><span>And nothing.</span></span></h2>
     <div class="two">
-      <figure class="pane r" data-step="1" style="--i:2"><svg id="dots" viewBox="0 0 600 330" preserveAspectRatio="xMidYMid slice"></svg><figcaption><b>A map of dots</b>Alarming. Hard to act on.</figcaption></figure>
-      <figure class="pane ours r" data-step="2" style="--i:3"><svg id="blocks" viewBox="0 0 600 330" preserveAspectRatio="xMidYMid slice"></svg><figcaption><b>One colour per neighbourhood</b>Clear. Ready to act on.</figcaption></figure>
+      <figure class="pane r" style="--i:2"><svg id="dots" viewBox="0 0 600 330" preserveAspectRatio="xMidYMid slice"></svg><figcaption><b>A map of dots</b>Alarming. Hard to act on.</figcaption></figure>
+      <figure class="pane ours r" style="--i:3"><svg id="blocks" viewBox="0 0 600 330" preserveAspectRatio="xMidYMid slice"></svg><figcaption><b>One colour per neighbourhood</b>Clear. Ready to act on.</figcaption></figure>
     </div>
   </div>
 </section>
@@ -330,9 +330,9 @@ em{font-style:normal;color:var(--primary)}
       <a class="r" style="--i:2" href="https://mattscherzer.github.io/lock-out/" target="_blank" rel="noopener">Open the app ↗</a>
     </div>
     <ol>
-      <li class="r" data-step="1" style="--i:2"><b>1</b><span>Find your street</span></li>
-      <li class="r" data-step="2" style="--i:3"><b>2</b><span>Read the colour</span></li>
-      <li class="r" data-step="3" style="--i:4"><b>3</b><span>Pick your lock</span></li>
+      <li class="r" style="--i:2"><b>1</b><span>Find your street</span></li>
+      <li class="r" style="--i:3"><b>2</b><span>Read the colour</span></li>
+      <li class="r" style="--i:4"><b>3</b><span>Pick your lock</span></li>
     </ol>
   </div>
 </section>
@@ -362,11 +362,11 @@ em{font-style:normal;color:var(--primary)}
       <p class="p r" style="--i:2">per stolen bike. A good lock costs far less.</p>
     </div>
     <div class="pair">
-      <div class="opt r" data-step="1" style="--i:1">
+      <div class="opt r" style="--i:1">
         <small>Bike under €1,000</small><h3>One lock</h3>
         <svg viewBox="0 0 160 170" aria-hidden="true"><g class="lock"><path d="M40 100V60a40 40 0 0 1 80 0v40"/><rect x="28" y="100" width="104" height="52" rx="8"/></g></svg>
       </div>
-      <div class="opt r" data-step="2" style="--i:2">
+      <div class="opt r" style="--i:2">
         <small>Worth more</small><h3>Two locks</h3>
         <svg viewBox="0 0 330 170" aria-hidden="true">
           <g class="lock"><path d="M40 100V60a40 40 0 0 1 80 0v40"/><rect x="28" y="100" width="104" height="52" rx="8"/></g>
@@ -381,16 +381,17 @@ em{font-style:normal;color:var(--primary)}
 <!-- 09 -->
 <section class="slide" id="s9" data-who="Burcak">
   <div class="c">
-    <h2 class="h"><span class="l" style="--i:0"><span>Everyone parks</span></span><span class="l" style="--i:1"><span>differently.</span></span></h2>
+    <h2 class="h"><span class="l" style="--i:0"><span>When you park</span></span><span class="l" style="--i:1"><span>changes the risk.</span></span></h2>
     <div class="rows">
-      <div class="row r" data-step="1" style="--i:2"><div class="who"><b>Lena</b><span>Outside her flat, overnight</span></div>
-        <div class="bar"><i style="--a:0%;--w:32.3%;--i:0"></i><i style="--a:93.7%;--w:6.3%;--i:0"></i></div></div>
-      <div class="row r" data-step="2" style="--i:3"><div class="who"><b>Murat</b><span>At the station, all day</span></div>
-        <div class="bar"><i style="--a:33.3%;--w:39.6%;--i:1"></i></div></div>
-      <div class="row r" data-step="3" style="--i:4"><div class="who"><b>Jonas</b><span>Everywhere, for an hour</span></div>
-        <div class="bar"><i style="--a:77%;--w:4.2%;--i:2"></i><i style="--a:85.4%;--w:2.1%;--i:2.4"></i><i style="--a:89.6%;--w:6.2%;--i:2.8"></i></div></div>
-      <div class="axis r" style="--i:5"><span></span><div><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div></div>
-      <div class="fine r" style="--i:5">Riders based on our research personas.</div>
+      <div class="row r" style="--i:2"><div class="who"><b>Evening</b><span>Around 4 in 10 thefts</span></div>
+        <div class="bar"><i style="--a:0%;--w:100%;--i:0"></i></div></div>
+      <div class="row r" style="--i:3"><div class="who"><b>Afternoon</b><span>Around 3 in 10</span></div>
+        <div class="bar"><i style="--a:0%;--w:75%;--i:1"></i></div></div>
+      <div class="row r" style="--i:4"><div class="who"><b>Morning</b><span>Around 2 in 10</span></div>
+        <div class="bar"><i style="--a:0%;--w:50%;--i:2"></i></div></div>
+      <div class="row r" style="--i:5"><div class="who"><b>Night</b><span>Around 1 in 10</span></div>
+        <div class="bar"><i style="--a:0%;--w:25%;--i:3"></i></div></div>
+      <div class="fine r" style="--i:6">Share of bike thefts by when the bike was last seen. Berlin police data, last 12 months, rounded.</div>
     </div>
   </div>
 </section>
@@ -401,9 +402,9 @@ em{font-style:normal;color:var(--primary)}
     <h2 class="h"><span class="l" style="--i:0"><span>Riders shape</span></span><span class="l" style="--i:1"><span>what’s next.</span></span></h2>
     <div class="road">
       <svg class="rider" viewBox="0 0 40 24" aria-hidden="true"><use href="#bike"/></svg>
-      <div class="stop r" data-step="1" style="--i:2"><b>01</b><h3>Share a spot</h3><p>Send a friend the answer for any place.</p></div>
-      <div class="stop r" data-step="2" style="--i:3"><b>02</b><h3>Compare two</h3><p>Home or the café? See both.</p></div>
-      <div class="stop r" data-step="3" style="--i:4"><b>03</b><h3>Auf Deutsch</h3><p>More languages, more riders at home.</p></div>
+      <div class="stop r" style="--i:2"><b>01</b><h3>Share a spot</h3><p>Send a friend the answer for any place.</p></div>
+      <div class="stop r" style="--i:3"><b>02</b><h3>Compare two</h3><p>Home or the café? See both.</p></div>
+      <div class="stop r" style="--i:4"><b>03</b><h3>Auf Deutsch</h3><p>More languages, more riders at home.</p></div>
     </div>
   </div>
 </section>

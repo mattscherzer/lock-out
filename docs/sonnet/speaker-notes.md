@@ -16,7 +16,7 @@ Each slide ends on a line that leads into the next one, so nobody starts from no
 | 07 | Live demo | Fritz drives, Burcak narrates the rider | 3:00 – 5:30 |
 | 08 | Not enough data | Fritz | 5:30 – 6:10 |
 | 09 | About €1,000 and locks | Burcak | 6:10 – 7:00 |
-| 10 | Everyone parks differently | Burcak | 7:00 – 7:45 |
+| 10 | When you park matters | Burcak | 7:00 – 7:45 |
 | 11 | What's next | Fritz | 7:45 – 8:40 |
 | 12 | Thank you | Burcak and Fritz | 8:40 – 9:10 |
 | 13 | Links | Both, then stay on it for questions | 9:10 – 10:00 |
@@ -33,7 +33,7 @@ Hi everyone, I'm Burcak, and this is Fritz. We're going to start with a question
 
 ## 02 · Team (both)
 
-[Advance. Burcak's card appears, then Fritz's. Each person says their own line.]
+[Advance. Both cards appear. Each person says their own line.]
 
 Burcak: [ADD: one or two sentences. Who you are and your background.]
 
@@ -55,7 +55,7 @@ Now think about how it actually feels. You arrive, you're a bit late, and there'
 
 ## 05 · Dots vs colour (Burcak)
 
-[Advance. Click once for the dots, once more for the calm blocks.]
+[Advance. Dots appear on the left, then the calm blocks on the right.]
 
 People have tried to help. Maps of theft exist. But a map with thousands of red dots is alarming and useless at the same time. Everything looks dangerous, so nothing tells you what to do. What you actually need is one clear answer for the place you're standing. And that is what Fritz is going to show you.
 
@@ -67,7 +67,7 @@ Thanks, Burcak. So we did exactly that. We took a year of police reports and gav
 
 ## 07 · Live demo (Fritz drives, Burcak narrates)
 
-[Advance. Click once per step as you say it: find your street, read the colour, pick your lock. Then open the app. Keep the slide for 5 seconds so the audience knows what to watch for, then switch.]
+[Advance. The three steps are on screen. Then open the app. Keep the slide for 5 seconds so the audience knows what to watch for, then switch.]
 
 Fritz: Three steps. Find your street. Read the colour. Pick your lock.
 
@@ -91,19 +91,19 @@ You may have noticed some areas aren't a colour at all. They're hatched. That's 
 
 ## 09 · About €1,000 and locks (Burcak)
 
-[Advance. The number appears. Click once for one lock, again for the second.]
+[Advance. The number appears, then one lock, then the second drops in.]
 
 You lock it properly. The average stolen bike is worth around a thousand euros, rounded. A good lock costs a fraction of that. So LockOut gives you one clear recommendation: a bike under a thousand euros gets one good lock. Anything worth more gets two, of different types, because thieves tend to specialise in one kind. Simple enough that you can follow it in ten seconds at the bike rack. But of course, not everyone parks the same way.
 
-## 10 · Everyone parks differently (Burcak)
+## 10 · When you park matters (Burcak)
 
-[Advance. One click per rider: Lena, then Murat, then Jonas.]
+[Advance. The four bars slide out, longest first.]
 
-When we started, we talked to people and built three riders from what they told us. Lena leaves her bike outside her flat all night. Murat leaves his at the station all day. Jonas stops for an hour here and there, evenings and weekends, on a bike he really loves. Same city, completely different risks. These three are composites, not real people, but they kept us honest every time we made a choice. And we don't want to stop at three. Fritz?
+Of course, not everyone parks the same way. Picture leaving your bike outside your flat overnight, versus at the station all day, versus a quick stop for an hour. Same city, different risk. That's an illustration, not a person we interviewed. Here is what the police data actually says: around four in ten thefts involve a bike last seen in the evening, three in ten in the afternoon, two in ten in the morning, and only about one in ten at night. These are rounded, and it's when the bike was last seen, not when it was stolen. The point is simple: when and how long you park changes the picture, so one answer for the whole city isn't enough. And we want to keep learning. Fritz?
 
 ## 11 · What's next (Fritz)
 
-[Advance. One click per idea: share, compare, German.]
+[Advance. The little bike rides along the road.]
 
 Right, and that's where you come in. We've tested with real riders this week [add one honest line about what you learned, or cut this sentence if you don't have it ready], and it's already changing what we build. Next up: sharing a spot with a friend, comparing two places, like home or the café, and a German version, because Berlin deserves it. Every one of those started as someone saying "but what about...". So keep saying it.
 
@@ -130,9 +130,9 @@ Fritz: And if you have a story about your own bike, or an idea, we'd really like
 ## Before you present
 
 - Add your LinkedIn handles in the `LINKEDIN` line near the bottom of `index.html`, or the slide shows placeholders.
-- Slide 10 has one bracketed sentence about the rider test. Fill it with what you actually learned or delete it. I have no results for it.
+- Slide 11 has one bracketed sentence about the rider test. Fill it with what you actually learned or delete it. I have no results for it.
 - Run the demo once on the venue's wifi. Pick the street in advance and know its colour.
-- Slides 2, 5, 7, 9, 10 and 11 (team, dots, demo, locks, riders, next) reveal items one click at a time. Each click (or arrow/Space) shows the next item; the slide only changes once everything is up. Left arrow steps back.
+- No slide needs click-to-reveal. Every slide plays its own entrance when you arrive. Left arrow goes back.
 - Add photos at `docs/sonnet/photos/burcak.jpg` and `fritz.jpg` (square-ish, face centred), and fill the two `[ADD: ...]` lines on slide 2 and in the notes.
 - Numbers are rounded on purpose: say "around" every time.
 - Keys: arrows, Space or click to advance, `F` for fullscreen.
